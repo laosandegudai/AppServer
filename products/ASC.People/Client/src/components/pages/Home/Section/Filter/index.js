@@ -1,21 +1,11 @@
 import React from "react";
-import { connect } from "react-redux";
-import { fetchPeople } from "../../../../../store/people/actions";
 import find from "lodash/find";
 import result from "lodash/result";
 import { withTranslation } from "react-i18next";
 import { withRouter } from "react-router";
-import { getFilterByLocation } from "../../../../../helpers/converters";
-import { store, FilterInput, Loaders, utils } from "asc-web-common";
+import { FilterInput, Loaders, utils } from "asc-web-common";
 import { isMobileOnly } from "react-device-detect";
-import { getFilter, getGroups } from "../../../../../store/people/selectors";
-const {
-  isAdmin,
-  getCurrentUser,
-  getLanguage,
-  getSettings,
-  getIsLoaded,
-} = store.auth.selectors;
+import { inject, observer } from "mobx-react";
 
 const { withLayoutSize } = utils;
 
@@ -64,17 +54,6 @@ const getGroup = (filterValues) => {
 };
 
 class SectionFilterContent extends React.Component {
-  componentDidMount() {
-    const { location, filter, onLoading, fetchPeople } = this.props;
-
-    const newFilter = getFilterByLocation(location);
-
-    if (!newFilter || newFilter.equals(filter)) return;
-
-    onLoading(true);
-    fetchPeople(newFilter).finally(() => onLoading(false));
-  }
-
   onFilter = (data) => {
     const { onLoading, fetchPeople, filter } = this.props;
 
@@ -82,7 +61,7 @@ class SectionFilterContent extends React.Component {
     const activationStatus = getActivationStatus(data.filterValues);
     const role = getRole(data.filterValues);
     const group = getGroup(data.filterValues);
-    const search = data.inputValue || null;
+    const search = data.inputValue || "";
     const sortBy = data.sortId;
     const sortOrder =
       data.sortDirection === "desc" ? "descending" : "ascending";
@@ -102,8 +81,8 @@ class SectionFilterContent extends React.Component {
   };
 
   getData = () => {
-    const { groups, t, settings, isAdmin } = this.props;
-    const { guestCaption, userCaption, groupCaption } = settings.customNames;
+    const { groups, t, customNames, isAdmin } = this.props;
+    const { guestCaption, userCaption, groupCaption } = customNames;
 
     const options = !isAdmin
       ? []
@@ -202,6 +181,7 @@ class SectionFilterContent extends React.Component {
 
   getSelectedFilterData = () => {
     const { filter } = this.props;
+
     const selectedFilterData = {
       filterValues: [],
       sortDirection: filter.sortOrder === "ascending" ? "asc" : "desc",
@@ -251,6 +231,7 @@ class SectionFilterContent extends React.Component {
   render() {
     const selectedFilterData = this.getSelectedFilterData();
     const { t, language, isLoaded, sectionWidth } = this.props;
+
     return isLoaded ? (
       <FilterInput
         sectionWidth={sectionWidth}
@@ -272,18 +253,19 @@ class SectionFilterContent extends React.Component {
   }
 }
 
-function mapStateToProps(state) {
+export default inject(({ auth, peopleStore }) => {
   return {
-    user: getCurrentUser(state),
-    language: getLanguage(state),
-    groups: getGroups(state),
-    filter: getFilter(state),
-    settings: getSettings(state),
-    isAdmin: isAdmin(state),
-    isLoaded: getIsLoaded(state),
+    customNames: auth.settingsStore.customNames,
+    isLoaded: auth.isLoaded,
+    isAdmin: auth.isAdmin,
+    language: auth.language,
+    user: auth.userStore.user,
+    groups: peopleStore.groupsStore.groups,
+    fetchPeople: peopleStore.usersStore.getUsersList,
+    filter: peopleStore.filterStore.filter,
   };
-}
-
-export default connect(mapStateToProps, { fetchPeople })(
-  withRouter(withLayoutSize(withTranslation()(SectionFilterContent)))
+})(
+  observer(
+    withRouter(withLayoutSize(withTranslation("Home")(SectionFilterContent)))
+  )
 );

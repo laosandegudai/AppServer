@@ -116,6 +116,7 @@ namespace ASC.Web.Files.Services.WCFService
         private SettingsManager SettingsManager { get; }
         private FileOperationsManager FileOperationsManager { get; }
         private TenantManager TenantManager { get; }
+        private FileTrackerHelper FileTracker { get; }
         private ILog Logger { get; set; }
 
         public FileStorageService(
@@ -157,7 +158,8 @@ namespace ASC.Web.Files.Services.WCFService
             EncryptionKeyPairHelper encryptionKeyPairHelper,
             SettingsManager settingsManager,
             FileOperationsManager fileOperationsManager,
-            TenantManager tenantManager)
+            TenantManager tenantManager,
+            FileTrackerHelper fileTracker)
         {
             Global = global;
             GlobalStore = globalStore;
@@ -198,6 +200,7 @@ namespace ASC.Web.Files.Services.WCFService
             Logger = optionMonitor.Get("ASC.Files");
             FileOperationsManager = fileOperationsManager;
             TenantManager = tenantManager;
+            FileTracker = fileTracker;
         }
 
         public async Task<Folder<T>> GetFolder(T folderId)
@@ -1729,8 +1732,9 @@ namespace ASC.Web.Files.Services.WCFService
                 IEnumerable<File<T>> result;
 
                 var subjectId = string.IsNullOrEmpty(subjectID) ? Guid.Empty : new Guid(subjectID);
+                var folderDao = GetFolderDao();
                 var fileDao = GetFileDao();
-                result = await EntryManager.GetTemplates(fileDao, filter, subjectGroup, subjectId, search, searchInContent);
+                result = await EntryManager.GetTemplates(folderDao, fileDao, filter, subjectGroup, subjectId, search, searchInContent);
 
                 if (result.Count() <= from)
                     return null;

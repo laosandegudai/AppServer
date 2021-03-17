@@ -159,7 +159,7 @@ namespace ASC.Api.Documents
         public Module GetModule()
         {
             ProductEntryPoint.Init();
-            return new Module(ProductEntryPoint, true);
+            return new Module(ProductEntryPoint);
         }
 
         [Read("@root")]
@@ -510,14 +510,7 @@ namespace ASC.Api.Documents
         /// <category>Uploads</category>
         /// <returns></returns>
         [Create("@my/insert")]
-        public async Task<FileWrapper<int>> InsertFileToMyFromBody([FromBody]InsertFileModel model)
-        {
-            return await InsertFile(await GlobalFolderHelper.FolderMy, model);
-        }
-
-        [Create("@my/insert")]
-        [Consumes("application/x-www-form-urlencoded")]
-        public async Task<FileWrapper<int>> InsertFileToMyFromForm([FromForm]InsertFileModel model)
+        public async Task<FileWrapper<int>> InsertFileToMyFromBody([FromForm]InsertFileModel model)
         {
             return await InsertFile(await GlobalFolderHelper.FolderMy, model);
         }
@@ -532,14 +525,7 @@ namespace ASC.Api.Documents
         /// <category>Uploads</category>
         /// <returns></returns>
         [Create("@common/insert")]
-        public async Task<FileWrapper<int>> InsertFileToCommonFromBody([FromBody]InsertFileModel model)
-        {
-            return await InsertFile(await GlobalFolderHelper.FolderCommon, model);
-        }
-
-        [Create("@common/insert")]
-        [Consumes("application/x-www-form-urlencoded")]
-        public async Task<FileWrapper<int>> InsertFileToCommonFromForm([FromForm]InsertFileModel model)
+        public async Task<FileWrapper<int>> InsertFileToCommonFromBody([FromForm]InsertFileModel model)
         {
             return await InsertFile(await GlobalFolderHelper.FolderCommon, model);
         }
@@ -554,31 +540,13 @@ namespace ASC.Api.Documents
         /// <param name="keepConvertStatus" visible="false">Keep status conversation after finishing</param>
         /// <category>Uploads</category>
         /// <returns></returns>
-        [Create("{folderId}/insert", DisableFormat = true)]
-        public async Task<FileWrapper<string>> InsertFileFromBody(string folderId, [FromBody]InsertFileModel model)
+        [Create("{folderId}/insert", order: int.MaxValue, DisableFormat = true)]
+        public async Task<FileWrapper<string>> InsertFile(string folderId, [FromForm] InsertFileModel model)
         {
-            return await InsertFile(folderId, model);
+            return await FilesControllerHelperString.InsertFile(folderId, model.File.OpenReadStream(), model.Title, model.CreateNewIfExist, model.KeepConvertStatus);
         }
 
-        [Create("{folderId}/insert", DisableFormat = true)]
-        [Consumes("application/x-www-form-urlencoded")]
-        public async Task<FileWrapper<string>> InsertFileFromForm(string folderId, [FromForm]InsertFileModel model)
-        {
-            return await InsertFile(folderId, model);
-        }
-
-        private async Task<FileWrapper<string>> InsertFile(string folderId, InsertFileModel model)
-        {
-            return await FilesControllerHelperString.InsertFile(folderId, model.File, model.Title, model.CreateNewIfExist, model.KeepConvertStatus);
-        }
-
-        [Create("{folderId:int}/insert")]
-        public async Task<FileWrapper<int>> InsertFileFromBody(int folderId, [FromBody]InsertFileModel model)
-        {
-            return await InsertFile(folderId, model);
-        }
-
-        [Create("{folderId:int}/insert")]
+        [Create("{folderId:int}/insert", order: int.MaxValue - 1)]
         public async Task<FileWrapper<int>> InsertFileFromForm(int folderId, [FromForm]InsertFileModel model)
         {
             return await InsertFile(folderId, model);
@@ -586,7 +554,7 @@ namespace ASC.Api.Documents
 
         private async Task<FileWrapper<int>> InsertFile(int folderId, InsertFileModel model)
         {
-            return await FilesControllerHelperInt.InsertFile(folderId, model.File, model.Title, model.CreateNewIfExist, model.KeepConvertStatus);
+            return await FilesControllerHelperInt.InsertFile(folderId, model.File.OpenReadStream(), model.Title, model.CreateNewIfExist, model.KeepConvertStatus);
         }
 
         /// <summary>
@@ -623,29 +591,17 @@ namespace ASC.Api.Documents
         /// <category>Files</category>
         /// <returns></returns>
         [Update("file/{fileId}/saveediting", DisableFormat = true)]
-        public async Task<FileWrapper<string>> SaveEditingFromBody(string fileId, [FromBody]SaveEditingModel model)
-        {
-            return await FilesControllerHelperString.SaveEditing(fileId, model.FileExtension, model.DownloadUri, model.Stream, model.Doc, model.Forcesave);
-        }
-
-        [Update("file/{fileId}/saveediting", DisableFormat = true)]
-        [Consumes("application/x-www-form-urlencoded")]
         public async Task<FileWrapper<string>> SaveEditingFromForm(string fileId, [FromForm]SaveEditingModel model)
         {
-            return await FilesControllerHelperString.SaveEditing(fileId, model.FileExtension, model.DownloadUri, model.Stream, model.Doc, model.Forcesave);
+            using var stream = model.Stream.OpenReadStream();
+            return await FilesControllerHelperString.SaveEditing(fileId, model.FileExtension, model.DownloadUri, stream, model.Doc, model.Forcesave);
         }
 
         [Update("file/{fileId:int}/saveediting")]
-        public async Task<FileWrapper<int>> SaveEditingFromBody(int fileId, [FromBody]SaveEditingModel model)
-        {
-            return await FilesControllerHelperInt.SaveEditing(fileId, model.FileExtension, model.DownloadUri, model.Stream, model.Doc, model.Forcesave);
-        }
-
-        [Update("file/{fileId:int}/saveediting")]
-        [Consumes("application/x-www-form-urlencoded")]
         public async Task<FileWrapper<int>> SaveEditingFromForm(int fileId, [FromForm]SaveEditingModel model)
         {
-            return await FilesControllerHelperInt.SaveEditing(fileId, model.FileExtension, model.DownloadUri, model.Stream, model.Doc, model.Forcesave);
+            using var stream = model.Stream.OpenReadStream();
+            return await FilesControllerHelperInt.SaveEditing(fileId, model.FileExtension, model.DownloadUri, stream, model.Doc, model.Forcesave);
         }
 
         /// <summary>
@@ -861,6 +817,7 @@ namespace ASC.Api.Documents
         }
 
         [Create("{folderId:int}/text")]
+        [Consumes("application/x-www-form-urlencoded")]
         public async Task<FileWrapper<int>> CreateTextFileFromForm(int folderId, [FromForm]CreateTextOrHtmlFileModel model)
         {
             return await CreateTextFile(folderId, model);
@@ -1206,15 +1163,15 @@ namespace ASC.Api.Documents
         /// <param name="immediately">Don't move to the Recycle Bin</param>
         /// <returns>Operation result</returns>
         [Delete("file/{fileId}", DisableFormat = true)]
-        public async Task<IEnumerable<FileOperationWraper>> DeleteFile(string fileId, bool deleteAfter, bool immediately)
+        public async Task<IEnumerable<FileOperationWraper>> DeleteFile(string fileId, [FromBody] DeleteModel model)
         {
-            return await FilesControllerHelperString.DeleteFile(fileId, deleteAfter, immediately);
+            return await FilesControllerHelperString.DeleteFile(fileId, model.DeleteAfter, model.Immediately);
         }
 
         [Delete("file/{fileId:int}")]
-        public async Task<IEnumerable<FileOperationWraper>> DeleteFile(int fileId, bool deleteAfter, bool immediately)
+        public async Task<IEnumerable<FileOperationWraper>> DeleteFile(int fileId, [FromBody] DeleteModel model)
         {
-            return await FilesControllerHelperInt.DeleteFile(fileId, deleteAfter, immediately);
+            return await FilesControllerHelperInt.DeleteFile(fileId, model.DeleteAfter, model.Immediately);
         }
 
         /// <summary>
@@ -1768,6 +1725,12 @@ namespace ASC.Api.Documents
         public async Task<bool> SetAceLink(int fileId, [FromBody] GenerateSharedLinkModel model)
         {
             return await FilesControllerHelperInt.SetAceLink(fileId, model.Share);
+        }
+
+        [Update("{fileId}/setacelink")]
+        public async Task<bool> SetAceLink(string fileId, [FromBody] GenerateSharedLinkModel model)
+        {
+            return await FilesControllerHelperString.SetAceLink(fileId, model.Share);
         }
 
         /// <summary>

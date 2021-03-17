@@ -599,7 +599,7 @@ namespace ASC.Files.Core.Security
 
                 foreach (var e in filteredEntries)
                 {
-                    var adapter = findedAdapters[e.RootFolderId.ToString()];
+                    findedAdapters.TryGetValue(e.RootFolderId.ToString(), out var adapter);
 
                     if (adapter == null) continue;
 

@@ -1,7 +1,6 @@
 import React from "react";
-import { connect } from "react-redux";
 import { withRouter } from "react-router";
-import { withTranslation } from "react-i18next";
+import { Trans, withTranslation } from "react-i18next";
 import styled from "styled-components";
 import {
   RowContent,
@@ -11,49 +10,19 @@ import {
   IconButton,
   Badge,
 } from "asc-web-components";
-import { constants, api, toastr, store as initStore } from "asc-web-common";
-import {
-  clearSecondaryProgressData,
-  createFile,
-  createFolder,
-  fetchFiles,
-  renameFolder,
-  setIsLoading,
-  setNewRowItems,
-  setSecondaryProgressBarData,
-  setTreeFolders,
-  setUpdateTree,
-  updateFile,
-} from "../../../../../store/files/actions";
+import { constants, api, toastr } from "asc-web-common";
+
 import { TIMEOUT } from "../../../../../helpers/constants";
-import {
-  canConvert,
-  canWebEdit,
-  getDragging,
-  getFileAction,
-  getFilter,
-  getFolders,
-  getIsLoading,
-  getIsRecycleBinFolder,
-  getNewRowItems,
-  getRootFolderId,
-  getSelectedFolder,
-  getSelectedFolderNew,
-  getSelectedFolderParentId,
-  getTitleWithoutExst,
-  getTreeFolders,
-  isImage,
-  isSound,
-  isVideo,
-} from "../../../../../store/files/selectors";
+import { getTitleWithoutExst } from "../../../../../helpers/files-helpers";
 import { NewFilesPanel } from "../../../../panels";
 import { ConvertDialog } from "../../../../dialogs";
 import EditingWrapperComponent from "./EditingWrapperComponent";
 import { isMobile } from "react-device-detect";
+//import { setEncryptionAccess } from "../../../../../helpers/desktop";
+import { observer, inject } from "mobx-react";
 
-const { FileAction } = constants;
+const { FileAction, ShareAccessRights } = constants;
 const sideColor = "#A3A9AE";
-const { getSettings } = initStore.auth.selectors;
 
 const SimpleFilesRowContent = styled(RowContent)`
   .badge-ext {
@@ -66,7 +35,9 @@ const SimpleFilesRowContent = styled(RowContent)`
     width: 14px;
     margin-right: 6px;
   }
-
+  .lock-file {
+    cursor: pointer;
+  }
   .badges {
     display: flex;
     align-items: center;
@@ -74,6 +45,7 @@ const SimpleFilesRowContent = styled(RowContent)`
 
   .favorite {
     cursor: pointer;
+    margin-right: 6px;
   }
 
   .share-icon {
@@ -144,7 +116,12 @@ class FilesRowContent extends React.PureComponent {
     const originalTitle = getTitleWithoutExst(item);
 
     setIsLoading(true);
-    if (originalTitle === itemTitle) return this.completeAction(fileAction.id);
+    if (originalTitle === itemTitle || itemTitle.trim() === "") {
+      this.setState({
+        itemTitle: originalTitle,
+      });
+      return this.completeAction(fileAction.id);
+    }
 
     item.fileExst
       ? updateFile(fileAction.id, itemTitle)
@@ -158,10 +135,15 @@ class FilesRowContent extends React.PureComponent {
   createItem = (e) => {
     const {
       createFile,
-      createFolder,
       item,
       setIsLoading,
       openDocEditor,
+      isPrivacy,
+      isDesktop,
+      replaceFileStream,
+      t,
+      setEncryptionAccess,
+      createFolder,
     } = this.props;
     const { itemTitle } = this.state;
 
@@ -169,20 +151,61 @@ class FilesRowContent extends React.PureComponent {
 
     const itemId = e.currentTarget.dataset.itemid;
 
-    if (itemTitle.trim() === "") return this.completeAction(itemId);
+    if (itemTitle.trim() === "") {
+      toastr.warning(this.props.t("CreateWithEmptyTitle"));
+      return this.completeAction(itemId);
+    }
 
-    let tab = item.fileExst ? window.open("about:blank", "_blank") : null;
+    let tab =
+      !isDesktop && item.fileExst
+        ? window.open("/products/files/doceditor", "_blank")
+        : null;
 
     !item.fileExst
       ? createFolder(item.parentId, itemTitle)
           .then(() => this.completeAction(itemId))
-          .finally(() => setIsLoading(false))
+          .then(() =>
+            toastr.success(
+              <Trans i18nKey="FolderCreated" ns="Home">
+                New folder {{ itemTitle }} is created
+              </Trans>
+            )
+          )
+          .catch((e) => toastr.error(e))
+          .finally(() => {
+            return setIsLoading(false);
+          })
       : createFile(item.parentId, `${itemTitle}.${item.fileExst}`)
           .then((file) => {
-            openDocEditor(file.id, tab, file.webUrl);
-            this.completeAction(itemId);
+            if (isPrivacy) {
+              return setEncryptionAccess(file).then((encryptedFile) => {
+                if (!encryptedFile) return Promise.resolve();
+                toastr.info(t("EncryptedFileSaving"));
+                return replaceFileStream(
+                  file.id,
+                  encryptedFile,
+                  true,
+                  false
+                ).then(() =>
+                  openDocEditor(file.id, file.providerKey, tab, file.webUrl)
+                );
+              });
+            }
+            return openDocEditor(file.id, file.providerKey, tab, file.webUrl);
           })
-          .finally(() => setIsLoading(false));
+          .then(() => this.completeAction(itemId))
+          .then(() => {
+            const exst = item.fileExst;
+            return toastr.success(
+              <Trans i18nKey="FileCreated" ns="Home">
+                New file {{ itemTitle }}.{{ exst }} is created
+              </Trans>
+            );
+          })
+          .catch((e) => toastr.error(e))
+          .finally(() => {
+            return setIsLoading(false);
+          });
   };
 
   componentDidUpdate(prevProps) {
@@ -204,11 +227,23 @@ class FilesRowContent extends React.PureComponent {
   }
 
   renameTitle = (e) => {
-    this.setState({ itemTitle: e.target.value });
+    let title = e.target.value;
+    //const chars = '*+:"<>?|/'; TODO: think how to solve problem with interpolation escape values in i18n translate
+    const regexp = new RegExp('[*+:"<>?|\\\\/]', "gim");
+    if (title.match(regexp)) {
+      toastr.warning(this.props.t("ContainsSpecCharacter"));
+    }
+    title = title.replace(regexp, "_");
+    return this.setState({ itemTitle: title });
   };
 
   cancelUpdateItem = (e) => {
-    this.completeAction(e);
+    const originalTitle = getTitleWithoutExst(this.props.item);
+    this.setState({
+      itemTitle: originalTitle,
+    });
+
+    return this.completeAction(e);
   };
 
   onClickUpdateItem = (e) => {
@@ -231,20 +266,21 @@ class FilesRowContent extends React.PureComponent {
       item,
       isTrashFolder,
       openDocEditor,
+      expandedKeys,
+      addExpandedKeys,
     } = this.props;
-    const { id, fileExst, viewUrl } = item;
+    const { id, fileExst, viewUrl, providerKey } = item;
 
     if (isTrashFolder) return;
 
     if (!fileExst) {
       setIsLoading(true);
-      const newFilter = filter.clone();
 
-      if (!newFilter.treeFolders.includes(parentFolder.toString())) {
-        newFilter.treeFolders.push(parentFolder.toString());
+      if (!expandedKeys.includes(parentFolder + "")) {
+        addExpandedKeys(parentFolder + "");
       }
 
-      fetchFiles(id, newFilter)
+      fetchFiles(id, filter)
         .catch((err) => {
           toastr.error(err);
           setIsLoading(false);
@@ -252,7 +288,7 @@ class FilesRowContent extends React.PureComponent {
         .finally(() => setIsLoading(false));
     } else {
       if (canWebEdit) {
-        return openDocEditor(id);
+        return openDocEditor(id, providerKey);
       }
 
       if (isImage || isSound || isVideo) {
@@ -267,7 +303,7 @@ class FilesRowContent extends React.PureComponent {
   onMobileRowClick = (e) => {
     const { isTrashFolder } = this.props;
 
-    if (isTrashFolder || window.innerWidth > 1024) return;
+    if (isTrashFolder || !isMobile) return;
 
     this.onFilesClick();
   };
@@ -306,10 +342,10 @@ class FilesRowContent extends React.PureComponent {
   };
 
   onShowVersionHistory = (e) => {
-    const { settings, history } = this.props;
+    const { homepage, history } = this.props;
     const fileId = e.currentTarget.dataset.id;
 
-    history.push(`${settings.homepage}/${fileId}/history`);
+    history.push(`${homepage}/${fileId}/history`);
   };
 
   onBadgeClick = () => {
@@ -318,25 +354,25 @@ class FilesRowContent extends React.PureComponent {
       item,
       treeFolders,
       setTreeFolders,
-      rootFolderId,
+      selectedFolderPathParts,
       newItems,
       setNewRowItems,
-      setUpdateTree,
     } = this.props;
     if (item.fileExst) {
       api.files
         .markAsRead([], [item.id])
         .then(() => {
           const data = treeFolders;
-          const dataItem = data.find((x) => x.id === rootFolderId);
+          const dataItem = data.find(
+            (x) => x.id === selectedFolderPathParts[0]
+          );
           dataItem.newItems = newItems ? dataItem.newItems - 1 : 0;
-          setUpdateTree(true);
           setTreeFolders(data);
           setNewRowItems([`${item.id}`]);
         })
         .catch((err) => toastr.error(err));
     } else {
-      const newFolderId = this.props.selectedFolder.pathParts;
+      const newFolderId = this.props.selectedFolderPathParts;
       newFolderId.push(item.id);
       this.setState({
         showNewFilesPanel: !showNewFilesPanel,
@@ -355,7 +391,7 @@ class FilesRowContent extends React.PureComponent {
 
   getConvertProgress = (fileId) => {
     const {
-      selectedFolder,
+      selectedFolderId,
       filter,
       setIsLoading,
       setSecondaryProgressBarData,
@@ -391,7 +427,7 @@ class FilesRowContent extends React.PureComponent {
           });
           setTimeout(() => clearSecondaryProgressData(), TIMEOUT);
           const newFilter = filter.clone();
-          fetchFiles(selectedFolder.id, newFilter)
+          fetchFiles(selectedFolderId, newFilter)
             .catch((err) => {
               setSecondaryProgressBarData({
                 visible: true,
@@ -434,7 +470,7 @@ class FilesRowContent extends React.PureComponent {
       isLoading,
       isMobile,
       canWebEdit,
-      canConvert,
+      /* canConvert,*/
       sectionWidth,
     } = this.props;
     const {
@@ -456,6 +492,7 @@ class FilesRowContent extends React.PureComponent {
       id,
       versionGroup,
       locked,
+      providerKey,
     } = item;
     const titleWithoutExt = getTitleWithoutExst(item);
     const fileOwner =
@@ -464,10 +501,15 @@ class FilesRowContent extends React.PureComponent {
         createdBy.displayName);
     const updatedDate = updated && this.getStatusByDate();
 
+    const accessToEdit =
+      item.access === ShareAccessRights.FullAccess ||
+      item.access === ShareAccessRights.None; // TODO: fix access type for owner (now - None)
     const isEdit = id === editingId && fileExst === fileAction.extension;
-    const linkStyles = isTrashFolder
-      ? { noHover: true }
-      : { onClick: this.onFilesClick };
+
+    const linkStyles =
+      isTrashFolder || window.innerWidth <= 1024
+        ? { noHover: true }
+        : { onClick: this.onFilesClick };
     const showNew = !!newItems;
 
     return isEdit ? (
@@ -542,7 +584,7 @@ class FilesRowContent extends React.PureComponent {
                     hoverColor="#3B72A7"
                   />
                 )} */}
-                {canWebEdit && !isTrashFolder && (
+                {canWebEdit && !isTrashFolder && accessToEdit && (
                   <IconButton
                     onClick={this.onFilesClick}
                     iconName="AccessEditIcon"
@@ -551,6 +593,17 @@ class FilesRowContent extends React.PureComponent {
                     isfill={true}
                     color="#A3A9AE"
                     hoverColor="#3B72A7"
+                  />
+                )}
+                {locked && (
+                  <Icons.FileActionsLockedIcon
+                    className="badge lock-file"
+                    size="small"
+                    isfill={true}
+                    color="#3B72A7"
+                    data-id={item.id}
+                    data-locked={true}
+                    onClick={this.props.onClickLock}
                   />
                 )}
                 {fileStatus === 32 && !isTrashFolder && (
@@ -565,14 +618,6 @@ class FilesRowContent extends React.PureComponent {
                 )}
                 {fileStatus === 1 && (
                   <Icons.FileActionsConvertEditDocIcon
-                    className="badge"
-                    size="small"
-                    isfill={true}
-                    color="#3B72A7"
-                  />
-                )}
-                {locked && (
-                  <Icons.FileActionsLockedIcon
                     className="badge"
                     size="small"
                     isfill={true}
@@ -651,7 +696,7 @@ class FilesRowContent extends React.PureComponent {
             color={sideColor}
             className="row_update-text"
           >
-            {updatedDate && updatedDate}
+            {(fileExst || !providerKey) && updatedDate && updatedDate}
           </Text>
           <Text
             containerMinWidth="90px"
@@ -665,9 +710,11 @@ class FilesRowContent extends React.PureComponent {
           >
             {fileExst
               ? contentLength
-              : `${t("TitleDocuments")}: ${filesCount} | ${t(
+              : !providerKey
+              ? `${t("TitleDocuments")}: ${filesCount} | ${t(
                   "TitleSubfolders"
-                )}: ${foldersCount}`}
+                )}: ${foldersCount}`
+              : ""}
           </Text>
         </SimpleFilesRowContent>
       </>
@@ -675,40 +722,105 @@ class FilesRowContent extends React.PureComponent {
   }
 }
 
-function mapStateToProps(state, props) {
-  return {
-    filter: getFilter(state),
-    fileAction: getFileAction(state),
-    parentFolder: getSelectedFolderParentId(state),
-    isTrashFolder: getIsRecycleBinFolder(state),
-    settings: getSettings(state),
-    treeFolders: getTreeFolders(state),
-    rootFolderId: getRootFolderId(state),
-    newItems: getSelectedFolderNew(state),
-    selectedFolder: getSelectedFolder(state),
-    folders: getFolders(state),
-    newRowItems: getNewRowItems(state),
-    dragging: getDragging(state),
-    isLoading: getIsLoading(state),
+export default inject(
+  (
+    {
+      auth,
+      initFilesStore,
+      filesStore,
+      formatsStore,
+      uploadDataStore,
+      treeFoldersStore,
+      selectedFolderStore,
+    },
+    { item }
+  ) => {
+    const {
+      replaceFileStream,
+      getEncryptionAccess,
+      setEncryptionAccess,
+    } = auth;
+    const { homepage, culture, isDesktopClient } = auth.settingsStore;
+    const { setIsLoading, isLoading } = initFilesStore;
+    const { secondaryProgressDataStore } = uploadDataStore;
+    const {
+      iconFormatsStore,
+      mediaViewersFormatsStore,
+      docserviceStore,
+    } = formatsStore;
 
-    canWebEdit: canWebEdit(props.item.fileExst)(state),
-    canConvert: canConvert(props.item.fileExst)(state),
-    isImage: isImage(props.item.fileExst)(state),
-    isSound: isSound(props.item.fileExst)(state),
-    isVideo: isVideo(props.item.fileExst)(state),
-  };
-}
+    const {
+      folders,
+      fetchFiles,
+      filter,
+      setNewRowItems,
+      newRowItems,
+      createFile,
+      updateFile,
+      renameFolder,
+      createFolder,
+    } = filesStore;
 
-export default connect(mapStateToProps, {
-  createFile,
-  createFolder,
-  updateFile,
-  renameFolder,
-  setTreeFolders,
-  setSecondaryProgressBarData,
-  setUpdateTree,
-  setNewRowItems,
-  setIsLoading,
-  clearSecondaryProgressData,
-  fetchFiles,
-})(withRouter(withTranslation()(FilesRowContent)));
+    const {
+      treeFolders,
+      setTreeFolders,
+      isRecycleBinFolder,
+      isPrivacyFolder,
+      expandedKeys,
+      addExpandedKeys,
+    } = treeFoldersStore;
+
+    const { type, extension, id } = filesStore.fileActionStore;
+
+    const fileAction = { type, extension, id };
+    const {
+      setSecondaryProgressBarData,
+      clearSecondaryProgressData,
+    } = secondaryProgressDataStore;
+
+    const canWebEdit = docserviceStore.canWebEdit(item.fileExst);
+    const canConvert = docserviceStore.canConvert(item.fileExst);
+    const isVideo = mediaViewersFormatsStore.isVideo(item.fileExst);
+    const isImage = iconFormatsStore.isImage(item.fileExst);
+    const isSound = iconFormatsStore.isSound(item.fileExst);
+
+    return {
+      isDesktop: isDesktopClient,
+      homepage,
+      culture,
+      fileAction,
+      folders,
+      selectedFolderId: selectedFolderStore.id,
+      selectedFolderPathParts: selectedFolderStore.pathParts,
+      newItems: selectedFolderStore.new,
+      parentFolder: selectedFolderStore.parentId,
+      isLoading,
+      treeFolders,
+      isTrashFolder: isRecycleBinFolder,
+      isPrivacy: isPrivacyFolder,
+      filter,
+      canWebEdit,
+      canConvert,
+      isVideo,
+      isImage,
+      isSound,
+      newRowItems,
+      expandedKeys,
+
+      setIsLoading,
+      fetchFiles,
+      setTreeFolders,
+      setSecondaryProgressBarData,
+      clearSecondaryProgressData,
+      setNewRowItems,
+      createFile,
+      createFolder,
+      updateFile,
+      renameFolder,
+      replaceFileStream,
+      getEncryptionAccess,
+      setEncryptionAccess,
+      addExpandedKeys,
+    };
+  }
+)(withRouter(withTranslation("Home")(observer(FilesRowContent))));

@@ -47,10 +47,10 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
 {
     class FileMoveCopyOperation : ComposeFileOperation<FileMoveCopyOperationData<string>, FileMoveCopyOperationData<int>>
     {
-        public FileMoveCopyOperation(IServiceProvider serviceProvider,
+        public FileMoveCopyOperation(Guid userId,
             FileOperation<FileMoveCopyOperationData<string>, string> thirdPartyOperation,
             FileOperation<FileMoveCopyOperationData<int>, int> daoOperation)
-            : base(serviceProvider, thirdPartyOperation, daoOperation)
+            : base(userId, thirdPartyOperation, daoOperation)
         {
 
         }
@@ -109,8 +109,8 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
             get { return _copy ? FileOperationType.Copy : FileOperationType.Move; }
         }
 
-        public FileMoveCopyOperation(IServiceProvider serviceProvider, FileMoveCopyOperationData<T> data)
-            : base(serviceProvider, data)
+        public FileMoveCopyOperation(IServiceProvider serviceProvider, Guid userId, FileMoveCopyOperationData<T> data)
+            : base(serviceProvider, userId, data)
         {
             DaoFolderId = data.DaoFolderId;
             ThirdpartyFolderId = data.ThirdpartyFolderId;
@@ -204,7 +204,7 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
                 {
                     Error = FilesCommonResource.ErrorMassage_SecurityException_MoveFolder;
                 }
-                else if (!Equals((folder.FolderID ?? default).ToString(), toFolderId.ToString()) || _resolveType == FileConflictResolveType.Duplicate)
+                else if (!Equals(folder.FolderID ?? default, toFolderId) || _resolveType == FileConflictResolveType.Duplicate)
                 {
                     try
                     {
@@ -380,6 +380,7 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
             var fileDao = scope.ServiceProvider.GetService<IFileDao<TTo>>();
             var fileDao1 = scope.ServiceProvider.GetService<IFileDao<T>>();
             var folderDao = scope.ServiceProvider.GetService<IFolderDao<T>>();
+            var fileTracker = scope.ServiceProvider.GetService<FileTrackerHelper>();
 
             var toFolderId = toFolder.ID;
             foreach (var fileId in fileIds)
@@ -490,7 +491,7 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
                                 {
                                     Error = FilesCommonResource.ErrorMassage_LockedFile;
                                 }
-                                else if (FileTracker.IsEditing(conflict.ID))
+                                else if (fileTracker.IsEditing(conflict.ID))
                                 {
                                     Error = FilesCommonResource.ErrorMassage_SecurityException_UpdateEditingFile;
                                 }
@@ -580,6 +581,7 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
         private async Task<string> WithError(IServiceScope scope, IAsyncEnumerable<File<T>> files)
         {
             var entryManager = scope.ServiceProvider.GetService<EntryManager>();
+            var fileTracker = scope.ServiceProvider.GetService<FileTrackerHelper>();
             await foreach (var file in files)
             {
                 if (!await FilesSecurity.CanDelete(file))
@@ -590,7 +592,7 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
                 {
                     return FilesCommonResource.ErrorMassage_LockedFile;
                 }
-                if (FileTracker.IsEditing(file.ID))
+                if (fileTracker.IsEditing(file.ID))
                 {
                     return FilesCommonResource.ErrorMassage_SecurityException_UpdateEditingFile;
                 }

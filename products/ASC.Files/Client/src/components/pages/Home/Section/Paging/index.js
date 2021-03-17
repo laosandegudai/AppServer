@@ -1,21 +1,19 @@
 import React, { useCallback, useMemo } from "react";
-import { connect } from "react-redux";
-import { fetchFiles, setIsLoading } from "../../../../../store/files/actions";
-import {
-  getFilter,
-  getSelectedFolderId,
-} from "../../../../../store/files/selectors";
+import { isMobile } from "react-device-detect";
 import { Paging } from "asc-web-components";
 import { useTranslation } from "react-i18next";
+import { inject, observer } from "mobx-react";
 
 const SectionPagingContent = ({
   filter,
+  files,
+  folders,
   fetchFiles,
   setIsLoading,
   selectedCount,
   selectedFolderId,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation("Home");
   const onNextClick = useCallback(
     (e) => {
       if (!filter.hasNext()) {
@@ -132,7 +130,15 @@ const SectionPagingContent = ({
 
   //console.log("SectionPagingContent render", filter);
 
-  return filter.total < filter.pageCount ? (
+  const showCountItem = useMemo(() => {
+    if (files && folders)
+      return (
+        files.length + folders.length === filter.pageCount ||
+        (pageItems.length < 1 && filter.total > 25)
+      );
+  }, [files, folders, filter, pageItems]);
+
+  return filter.total < filter.pageCount && filter.total < 26 ? (
     <></>
   ) : (
     <Paging
@@ -145,22 +151,28 @@ const SectionPagingContent = ({
       displayItems={false}
       disablePrevious={!filter.hasPrev()}
       disableNext={!filter.hasNext()}
+      disableHover={isMobile}
       previousAction={onPrevClick}
       nextAction={onNextClick}
       openDirection="top"
       selectedPageItem={selectedPageItem} //FILTER CURRENT PAGE
       selectedCountItem={selectedCountItem} //FILTER PAGE COUNT
+      showCountItem={showCountItem}
     />
   );
 };
 
-function mapStateToProps(state) {
-  return {
-    filter: getFilter(state),
-    selectedFolderId: getSelectedFolderId(state),
-  };
-}
+export default inject(({ initFilesStore, filesStore, selectedFolderStore }) => {
+  const { setIsLoading } = initFilesStore;
+  const { files, folders, fetchFiles, filter } = filesStore;
 
-export default connect(mapStateToProps, { fetchFiles, setIsLoading })(
-  SectionPagingContent
-);
+  return {
+    files,
+    folders,
+    selectedFolderId: selectedFolderStore.id,
+    filter,
+
+    setIsLoading,
+    fetchFiles,
+  };
+})(observer(SectionPagingContent));

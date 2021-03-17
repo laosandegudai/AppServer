@@ -60,11 +60,6 @@ namespace ASC.Thumbnails.Svc
                     config.SetBasePath(path);
                     var env = hostContext.Configuration.GetValue("ENVIRONMENT", "Production");
                     config
-                        .AddInMemoryCollection(new Dictionary<string, string>
-                            {
-                                {"pathToConf", path }
-                            }
-                        )
                         .AddJsonFile("appsettings.json")
                         .AddJsonFile("storage.json")
                         .AddJsonFile("kafka.json")
@@ -73,10 +68,16 @@ namespace ASC.Thumbnails.Svc
                         .AddJsonFile($"appsettings.{env}.json", true)
                         .AddJsonFile($"thumb.{env}.json", true)
                         .AddEnvironmentVariables()
-                        .AddCommandLine(args);
+                        .AddCommandLine(args)
+                        .AddInMemoryCollection(new Dictionary<string, string>
+                            {
+                                {"pathToConf", path }
+                            }
+                        );
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
+                    services.AddMemoryCache();
                     var diHelper = new DIHelper(services);
 
                     diHelper.TryAdd(typeof(ICacheNotify<>), typeof(KafkaCache<>));
@@ -86,7 +87,7 @@ namespace ASC.Thumbnails.Svc
                 })
                 .ConfigureContainer<ContainerBuilder>((context, builder) =>
                 {
-                    builder.Register(context.Configuration, context.HostingEnvironment.ContentRootPath, false, false);
+                    builder.Register(context.Configuration, false, false);
                 })
                 .UseConsoleLifetime()
                 .Build();

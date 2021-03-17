@@ -1,12 +1,12 @@
 import React from "react";
 import { Row, LinkWithDropdown, ToggleButton, Icons } from "asc-web-components";
 import { StyledLinkRow } from "../StyledPanels";
+import AccessComboBox from "./AccessComboBox";
 import { constants } from "asc-web-common";
 
 const { ShareAccessRights } = constants;
 
 class LinkRow extends React.Component {
-
   onToggleButtonChange = () => {
     const { onToggleLink, item } = this.props;
 
@@ -19,14 +19,16 @@ class LinkRow extends React.Component {
       options,
       index,
       t,
-      embeddedComponentRender,
-      externalAccessOptions,
       item,
       withToggle,
+      externalAccessOptions,
+      onChangeItemAccess,
+      isLoading,
     } = this.props;
 
-    const isChecked = item.rights.accessNumber !== ShareAccessRights.DenyAccess;
-    const isDisabled = withToggle ? !isChecked : false;
+    const isChecked = item.access !== ShareAccessRights.DenyAccess;
+    const disableLink = withToggle ? !isChecked : false;
+    const isDisabled = isLoading || disableLink;
 
     return (
       <StyledLinkRow withToggle={withToggle} isDisabled={isDisabled}>
@@ -35,11 +37,21 @@ class LinkRow extends React.Component {
           key={`${linkText}-key_${index}`}
           element={
             withToggle ? (
-              embeddedComponentRender(externalAccessOptions, item, isDisabled)
+              <AccessComboBox
+                t={t}
+                access={item.access}
+                directionX="left"
+                accessOptions={externalAccessOptions}
+                onAccessChange={onChangeItemAccess}
+                itemId={item.sharedTo.id}
+                isDisabled={isDisabled}
+              />
             ) : (
-              <Icons.AccessEditIcon
+              <Icons.InvitationLinkIcon
                 size="medium"
                 className="sharing_panel-owner-icon"
+                isfill={true}
+                color="#A3A9AE"
               />
             )
           }
@@ -48,7 +60,7 @@ class LinkRow extends React.Component {
           <>
             <LinkWithDropdown
               className="sharing_panel-link"
-              color="#333333"
+              color="#333"
               dropdownType="alwaysDashed"
               data={options}
               fontSize="14px"
@@ -62,6 +74,7 @@ class LinkRow extends React.Component {
                 <ToggleButton
                   isChecked={isChecked}
                   onChange={this.onToggleButtonChange}
+                  isDisabled={isLoading}
                 />
               </div>
             )}

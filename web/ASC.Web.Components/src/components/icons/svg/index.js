@@ -208,6 +208,21 @@ import OrigButtonMoveIcon from "./button.move.react.svg";
 import OrigButtonDuplicateIcon from "./button.duplicate.react.svg";
 import OrigButtonAlertIcon from "./button.alert.react.svg";
 
+import OrigButtonCancelIcon from "./button.cancel.react.svg";
+import OrigLoadErrorIcon from "./load.error.react.svg";
+import OrigClearActiveIcon from "./clear.active.react.svg";
+
+import OrigBoxIcon from "./icon_box.react.svg";
+import OrigDropBoxIcon from "./icon_dropbox.react.svg";
+import OrigGoogleDriveIcon from "./icon_google_drive.react.svg";
+import OrigOneDriveIcon from "./icon_onedrive.react.svg";
+import OrigSharePointIcon from "./icon_sharepoint.react.svg";
+import OrigKDriveIcon from "./icon_kdrive.react.svg";
+import OrigYandexDiskIcon from "./icon_yandex_disk.react.svg";
+import OrigOwnCloudIcon from "./icon_owncloud.react.svg";
+import OrigNextCloudIcon from "./icon_nextcloud.react.svg";
+import OrigWebDavIcon from "./icon_webdav.react.svg";
+
 export const AZSortingIcon = createStyledIcon(
   OrigAZSortingIcon,
   "AZSortingIcon"
@@ -305,6 +320,10 @@ export const CalendarEmptyIcon = createStyledIcon(
   OrigCalendarEmptyIcon,
   "CalendarEmptyIcon"
 );
+export const ButtonCancelIcon = createStyledIcon(
+  OrigButtonCancelIcon,
+  "ButtonCancelIcon"
+);
 export const CalendarIcon = createStyledIcon(OrigCalendarIcon, "CalendarIcon");
 export const CameraIcon = createStyledIcon(OrigCameraIcon, "CameraIcon");
 export const CatalogAccountsIcon = createStyledIcon(
@@ -382,6 +401,10 @@ export const CatalogUnpinIcon = createStyledIcon(
 export const CatalogUserIcon = createStyledIcon(
   OrigCatalogUserIcon,
   "CatalogUserIcon"
+);
+export const ClearActiveIcon = createStyledIcon(
+  OrigClearActiveIcon,
+  "ClearActiveIcon"
 );
 export const ChatIcon = createStyledIcon(OrigChatIcon, "ChatIcon");
 export const CheckIcon = createStyledIcon(OrigCheckIcon, "CheckIcon");
@@ -521,6 +544,10 @@ export const JabberIcon = createStyledIcon(OrigJabberIcon, "JabberIcon");
 export const LivejournalIcon = createStyledIcon(
   OrigLivejournalIcon,
   "LivejournalIcon"
+);
+export const LoadErrorIcon = createStyledIcon(
+  OrigLoadErrorIcon,
+  "LoadErrorIcon"
 );
 export const MailIcon = createStyledIcon(OrigMailIcon, "MailIcon");
 export const MainMenuFeedbackIcon = createStyledIcon(
@@ -811,3 +838,26 @@ export const IntegrationIcon = createStyledIcon(
   OrigIntegrationIcon,
   "IntegrationIcon"
 );
+
+export const BoxIcon = createStyledIcon(OrigBoxIcon, "BoxIcon");
+export const DropBoxIcon = createStyledIcon(OrigDropBoxIcon, "DropBoxIcon");
+export const GoogleDriveIcon = createStyledIcon(
+  OrigGoogleDriveIcon,
+  "GoogleDriveIcon"
+);
+export const OneDriveIcon = createStyledIcon(OrigOneDriveIcon, "OneDriveIcon");
+export const SharePointIcon = createStyledIcon(
+  OrigSharePointIcon,
+  "SharePointIcon"
+);
+export const KDriveIcon = createStyledIcon(OrigKDriveIcon, "KDriveIcon");
+export const YandexDiskIcon = createStyledIcon(
+  OrigYandexDiskIcon,
+  "YandexDiskIcon"
+);
+export const OwnCloudIcon = createStyledIcon(OrigOwnCloudIcon, "OwnCloudIcon");
+export const NextCloudIcon = createStyledIcon(
+  OrigNextCloudIcon,
+  "NextCloudIcon"
+);
+export const WebDavIcon = createStyledIcon(OrigWebDavIcon, "WebDavIcon");

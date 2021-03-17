@@ -1,6 +1,5 @@
 import React from "react";
 import { withRouter } from "react-router";
-import { connect } from "react-redux";
 import ModalDialogContainer from "../ModalDialogContainer";
 import {
   ModalDialog,
@@ -12,28 +11,10 @@ import {
 } from "asc-web-components";
 import { ReactSVG } from "react-svg";
 import { withTranslation } from "react-i18next";
-import { utils, api, toastr } from "asc-web-common";
-import {
-  getFileIcon,
-  getFolderIcon,
-  isSpreadsheet,
-  isPresentation,
-  isDocument,
-  getSelection,
-} from "../../../store/files/selectors";
-import {
-  setSecondaryProgressBarData,
-  clearSecondaryProgressData,
-} from "../../../store/files/actions";
+import { api } from "asc-web-common";
 import { TIMEOUT } from "../../../helpers/constants";
 import DownloadContent from "./DownloadContent";
-import { createI18N } from "../../../helpers/i18n";
-const i18n = createI18N({
-  page: "DownloadDialog",
-  localesPath: "dialogs/DownloadDialog",
-});
-
-const { changeLanguage } = utils;
+import { inject, observer } from "mobx-react";
 
 const formatKeys = Object.freeze({
   OriginalFormat: 0,
@@ -52,38 +33,13 @@ const formatKeys = Object.freeze({
 class DownloadDialogComponent extends React.Component {
   constructor(props) {
     super(props);
-
-    changeLanguage(i18n);
-
-    const documents = [];
-    const spreadsheets = [];
-    const presentations = [];
-    const other = [];
-
-    for (let item of props.items) {
-      item.checked = true;
-      item.format = formatKeys.OriginalFormat;
-
-      if (item.fileExst) {
-        if (isSpreadsheet(item.fileExst)) {
-          spreadsheets.push(item);
-        } else if (isPresentation(item.fileExst)) {
-          presentations.push(item);
-        } else if (item.fileExst !== ".pdf" && isDocument(item.fileExst)) {
-          documents.push(item);
-        } else {
-          other.push(item);
-        }
-      } else {
-        other.push(item);
-      }
-    }
+    const { sortedFiles } = this.props;
 
     this.state = {
-      documents,
-      spreadsheets,
-      presentations,
-      other,
+      documents: sortedFiles.documents,
+      spreadsheets: sortedFiles.spreadsheets,
+      presentations: sortedFiles.presentations,
+      other: sortedFiles.other,
 
       documentsTitleFormat: formatKeys.OriginalFormat,
       spreadsheetsTitleFormat: formatKeys.OriginalFormat,
@@ -197,9 +153,9 @@ class DownloadDialogComponent extends React.Component {
       });
       api.files
         .downloadFormatFiles(fileConvertIds, folderIds)
-        .then(() => {
+        .then((res) => {
           onClose();
-          onDownloadProgress(false);
+          onDownloadProgress(res[0]);
         })
         .catch((err) => {
           setSecondaryProgressBarData({
@@ -215,8 +171,8 @@ class DownloadDialogComponent extends React.Component {
   getItemIcon = (item) => {
     const extension = item.fileExst;
     const icon = extension
-      ? getFileIcon(extension, 24)
-      : getFolderIcon(item.providerKey, 24);
+      ? this.props.getFileIcon(extension, 24)
+      : this.props.getFolderIcon(item.providerKey, 24);
 
     return (
       <ReactSVG
@@ -621,21 +577,25 @@ class DownloadDialogComponent extends React.Component {
   }
 }
 
-const ModalDialogContainerTranslated = withTranslation()(
+const DownloadDialog = withTranslation("DownloadDialog")(
   DownloadDialogComponent
 );
 
-const DownloadDialog = (props) => (
-  <ModalDialogContainerTranslated i18n={i18n} {...props} />
-);
+export default inject(({ filesStore, uploadDataStore, formatsStore }) => {
+  const { secondaryProgressDataStore } = uploadDataStore;
+  const { sortedFiles } = filesStore;
+  const { getFileIcon, getFolderIcon } = formatsStore.iconFormatsStore;
+  const {
+    setSecondaryProgressBarData,
+    clearSecondaryProgressData,
+  } = secondaryProgressDataStore;
 
-const mapStateToProps = (state) => {
   return {
-    items: getSelection(state),
-  };
-};
+    sortedFiles,
 
-export default connect(mapStateToProps, {
-  setSecondaryProgressBarData,
-  clearSecondaryProgressData,
-})(withRouter(DownloadDialog));
+    setSecondaryProgressBarData,
+    clearSecondaryProgressData,
+    getFileIcon,
+    getFolderIcon,
+  };
+})(withRouter(observer(DownloadDialog)));

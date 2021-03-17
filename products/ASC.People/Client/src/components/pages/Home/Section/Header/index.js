@@ -7,27 +7,8 @@ import {
   ContextMenuButton,
   utils,
 } from "asc-web-components";
-import { Headline, toastr, Loaders } from "asc-web-common";
-import { connect } from "react-redux";
-import {
-  getSelectedGroup,
-  hasAnybodySelected,
-  hasUsersToMakeEmployees,
-  hasUsersToMakeGuests,
-  hasUsersToActivate,
-  hasUsersToDisable,
-  hasUsersToInvite,
-  hasUsersToRemove,
-} from "../../../../../store/people/selectors";
+import { Headline, toastr, Loaders, constants } from "asc-web-common";
 import { withTranslation } from "react-i18next";
-import {
-  updateUserStatus,
-  fetchPeople,
-  removeUser,
-  setSelected,
-} from "../../../../../store/people/actions";
-import { deleteGroup } from "../../../../../store/group/actions";
-import { store, constants } from "asc-web-common";
 import {
   InviteDialog,
   DeleteUsersDialog,
@@ -35,33 +16,50 @@ import {
   ChangeUserStatusDialog,
   ChangeUserTypeDialog,
 } from "../../../../dialogs";
+import { isMobile } from "react-device-detect";
+import { inject, observer } from "mobx-react";
+
 const { tablet, desktop } = utils.device;
 const { Consumer } = utils.context;
 
-const { isAdmin } = store.auth.selectors;
 const { EmployeeType, EmployeeStatus } = constants;
 
 const StyledContainer = styled.div`
-  @media ${desktop} {
-    ${(props) =>
-      props.isHeaderVisible &&
-      css`
-        width: calc(100% + 76px);
-      `}
-  }
-
   .group-button-menu-container {
     margin: 0 -16px;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     padding-bottom: 56px;
+    ${isMobile &&
+    css`
+      position: sticky;
+    `}
+    ${(props) =>
+      !props.isTabletView
+        ? props.width &&
+          isMobile &&
+          css`
+            width: ${props.width + 40 + "px"};
+          `
+        : props.width &&
+          isMobile &&
+          css`
+            width: ${props.width + 24 + "px"};
+          `}
 
     @media ${tablet} {
+      padding-bottom: 0;
+      ${!isMobile &&
+      css`
+        height: 56px;
+      `}
       & > div:first-child {
         ${(props) =>
+          !isMobile &&
           props.width &&
           css`
             width: ${props.width + 16 + "px"};
           `}
+
         position: absolute;
         top: 56px;
         z-index: 180;
@@ -75,14 +73,19 @@ const StyledContainer = styled.div`
 
   .header-container {
     position: relative;
-    display: grid;
-    grid-template-columns: auto auto 1fr;
+    ${(props) =>
+      props.isLoaded &&
+      css`
+        display: grid;
+        grid-template-columns: auto auto 1fr;
+
+        @media ${tablet} {
+          grid-template-columns: 1fr auto;
+        }
+      `}
+
     align-items: center;
     max-width: calc(100vw - 32px);
-
-    @media ${tablet} {
-      grid-template-columns: 1fr auto;
-    }
 
     .action-button {
       margin-left: 16px;
@@ -112,9 +115,9 @@ const SectionHeaderContent = (props) => {
     isHeaderVisible,
     isHeaderIndeterminate,
     isHeaderChecked,
-    onCheck,
-    onSelect,
-    onClose,
+    //onCheck,
+    //onSelect,
+    //clearSelection,
     group,
     isAdmin,
     t,
@@ -131,6 +134,10 @@ const SectionHeaderContent = (props) => {
     hasUsersToInvite,
     hasUsersToRemove,
     isLoaded,
+    isTabletView,
+    //selectAll,
+    setSelected,
+    //selectByStatus,
   } = props;
 
   const {
@@ -140,7 +147,18 @@ const SectionHeaderContent = (props) => {
     groupsCaption,
   } = customNames;
 
-  //console.log("SectionHeaderContent render");
+  //console.log("SectionHeaderContent render", props.isTabletView);
+
+  const onCheck = (checked) => {
+    setSelected(checked ? "all" : "close");
+  };
+  const onSelect = useCallback((selected) => setSelected(selected), [
+    setSelected,
+  ]);
+
+  const onClose = () => {
+    setSelected("none");
+  };
 
   const toggleEmployeeDialog = useCallback(
     () => setEmployeeDialogVisible(!employeeDialogVisible),
@@ -356,7 +374,9 @@ const SectionHeaderContent = (props) => {
       {(context) => (
         <StyledContainer
           isHeaderVisible={isHeaderVisible}
+          isLoaded={isLoaded}
           width={context.sectionWidth}
+          isTabletView={isTabletView}
         >
           {employeeDialogVisible && (
             <ChangeUserTypeDialog
@@ -483,32 +503,30 @@ const SectionHeaderContent = (props) => {
   );
 };
 
-const mapStateToProps = (state) => {
-  const { isLoaded, settings } = state.auth;
-  const { groups, selection, selectedGroup } = state.people;
-  const { homepage, customNames } = settings;
-
-  return {
-    group: getSelectedGroup(groups, selectedGroup),
-    isAdmin: isAdmin(state),
-    homepage,
-    customNames,
-    selection,
-    isLoaded,
-    hasAnybodySelected: hasAnybodySelected(state),
-    hasUsersToMakeEmployees: hasUsersToMakeEmployees(state),
-    hasUsersToMakeGuests: hasUsersToMakeGuests(state),
-    hasUsersToActivate: hasUsersToActivate(state),
-    hasUsersToDisable: hasUsersToDisable(state),
-    hasUsersToInvite: hasUsersToInvite(state),
-    hasUsersToRemove: hasUsersToRemove(state),
-  };
-};
-
-export default connect(mapStateToProps, {
-  updateUserStatus,
-  fetchPeople,
-  deleteGroup,
-  removeUser,
-  setSelected,
-})(withTranslation()(withRouter(SectionHeaderContent)));
+export default inject(({ auth, peopleStore }) => ({
+  customNames: auth.settingsStore.customNames,
+  homepage: auth.settingsStore.homepage,
+  isLoaded: auth.isLoaded,
+  isAdmin: auth.isAdmin,
+  fetchPeople: peopleStore.usersStore.getUsersList,
+  selection: peopleStore.selectionStore.selection,
+  setSelected: peopleStore.selectionStore.setSelected,
+  selectByStatus: peopleStore.selectionStore.selectByStatus,
+  isHeaderVisible: peopleStore.headerMenuStore.isHeaderVisible,
+  isHeaderIndeterminate: peopleStore.headerMenuStore.isHeaderIndeterminate,
+  isHeaderChecked: peopleStore.headerMenuStore.isHeaderChecked,
+  clearSelection: peopleStore.selectionStore.clearSelection,
+  selectAll: peopleStore.selectionStore.selectAll,
+  hasAnybodySelected: peopleStore.selectionStore.hasAnybodySelected,
+  hasUsersToMakeEmployees: peopleStore.selectionStore.hasUsersToMakeEmployees,
+  hasUsersToMakeGuests: peopleStore.selectionStore.hasUsersToMakeGuests,
+  hasUsersToActivate: peopleStore.selectionStore.hasUsersToActivate,
+  hasUsersToDisable: peopleStore.selectionStore.hasUsersToDisable,
+  hasUsersToInvite: peopleStore.selectionStore.hasUsersToInvite,
+  hasUsersToRemove: peopleStore.selectionStore.hasUsersToRemove,
+  deleteGroup: peopleStore.groupsStore.deleteGroup,
+  removeUser: peopleStore.usersStore.removeUser,
+  updateUserStatus: peopleStore.usersStore.updateUserStatus,
+  group: peopleStore.selectedGroupStore.group,
+  isTabletView: auth.settingsStore.isTabletView, 
+}))(observer(withTranslation("Home")(withRouter(SectionHeaderContent))));

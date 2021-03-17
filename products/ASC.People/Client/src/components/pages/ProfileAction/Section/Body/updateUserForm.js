@@ -1,6 +1,5 @@
 import React from "react";
 import { withRouter } from "react-router";
-import { connect } from "react-redux";
 import {
   Avatar,
   Button,
@@ -11,28 +10,7 @@ import {
   utils,
 } from "asc-web-components";
 import { withTranslation, Trans } from "react-i18next";
-import {
-  toEmployeeWrapper,
-  getUserRole,
-  getUserContactsPattern,
-  getUserContacts,
-  mapGroupsToGroupSelectorOptions,
-  mapGroupSelectorOptionsToGroups,
-  filterGroupSelectorOptions,
-} from "../../../../../store/people/selectors";
-import {
-  updateProfile,
-  getUserPhoto,
-  fetchProfile,
-  setAvatarMax,
-} from "../../../../../store/profile/actions";
-import {
-  setFilter,
-  updateProfileInUsers,
-  setIsVisibleDataLossDialog,
-  setIsEditingForm,
-  toggleAvatarEditor,
-} from "../../../../../store/people/actions";
+
 import {
   MainContainer,
   AvatarContainer,
@@ -54,6 +32,17 @@ import {
   ChangePhoneDialog,
 } from "../../../../dialogs";
 import { isMobile } from "react-device-detect";
+import { inject, observer } from "mobx-react";
+import {
+  filterGroupSelectorOptions,
+  getUserContacts,
+  getUserContactsPattern,
+  getUserRole,
+  mapGroupSelectorOptionsToGroups,
+  mapGroupsToGroupSelectorOptions,
+  toEmployeeWrapper,
+} from "../../../../../helpers/people-helpers";
+
 const { createThumbnailsAvatar, loadAvatar, deleteAvatar } = api.people;
 const { isTablet } = utils.device;
 
@@ -124,7 +113,7 @@ class UpdateUserForm extends React.Component {
 
   updateUserPhotoInState = () => {
     var profile = toEmployeeWrapper(this.props.profile);
-    getUserPhoto(profile.id).then((userPhotoData) => {
+    this.props.getUserPhoto(profile.id).then((userPhotoData) => {
       if (userPhotoData.original) {
         let avatarDefaultSizes = /_(\d*)-(\d*)./g.exec(userPhotoData.original);
         if (avatarDefaultSizes !== null && avatarDefaultSizes.length > 2) {
@@ -150,7 +139,7 @@ class UpdateUserForm extends React.Component {
     var allOptions = mapGroupsToGroupSelectorOptions(props.groups);
     var selected = mapGroupsToGroupSelectorOptions(profile.groups);
 
-    getUserPhoto(profile.id).then((userPhotoData) => {
+    this.props.getUserPhoto(profile.id).then((userPhotoData) => {
       if (userPhotoData.original) {
         let avatarDefaultSizes = /_(\d*)-(\d*)./g.exec(userPhotoData.original);
         if (avatarDefaultSizes !== null && avatarDefaultSizes.length > 2) {
@@ -210,8 +199,8 @@ class UpdateUserForm extends React.Component {
   };
 
   setIsEdit() {
-    const { editingForm, setIsEditingForm } = this.props;
-    if (!editingForm.isEdit) setIsEditingForm(true);
+    const { isEdit, setIsEditingForm } = this.props;
+    if (!isEdit) setIsEditingForm(true);
   }
 
   onInputChange(event) {
@@ -295,9 +284,9 @@ class UpdateUserForm extends React.Component {
       });
   }
   onCancelHandler() {
-    const { editingForm, setIsVisibleDataLossDialog } = this.props;
+    const { isEdit, setIsVisibleDataLossDialog } = this.props;
 
-    if (editingForm.isEdit) {
+    if (isEdit) {
       setIsVisibleDataLossDialog(true);
     } else {
       this.onCancel();
@@ -543,7 +532,13 @@ class UpdateUserForm extends React.Component {
       dialogsVisible,
       isMobile,
     } = this.state;
-    const { t, i18n, settings, avatarMax } = this.props;
+    const {
+      t,
+      settings,
+      //avatarMax,
+      disableProfileType,
+      isAdmin,
+    } = this.props;
     const {
       guestCaption,
       userCaption,
@@ -676,7 +671,7 @@ class UpdateUserForm extends React.Component {
               helpButtonHeaderContent={t("Mail")}
               tooltipContent={
                 <Text fontSize="13px" as="div">
-                  <Trans i18nKey="EmailPopupHelper" i18n={i18n}>
+                  <Trans i18nKey="EmailPopupHelper" ns="ProfileAction">
                     The main e-mail is needed to restore access to the portal in
                     case of loss of the password and send notifications.
                     <p
@@ -699,7 +694,7 @@ class UpdateUserForm extends React.Component {
             <TextChangeField
               labelText={`${t("Password")}:`}
               inputName="password"
-              inputValue={profile.password}
+              inputValue={"********"}
               buttonText={t("ChangeButton")}
               buttonIsDisabled={isLoading}
               buttonOnClick={this.toggleDialogsVisible}
@@ -709,7 +704,7 @@ class UpdateUserForm extends React.Component {
             <TextChangeField
               labelText={`${t("Phone")}:`}
               inputName="phone"
-              inputValue={profile.phone}
+              inputValue={profile.mobilePhone}
               buttonText={t("ChangeButton")}
               buttonIsDisabled={isLoading}
               buttonOnClick={this.toggleDialogsVisible}
@@ -724,7 +719,7 @@ class UpdateUserForm extends React.Component {
               inputValue={profile.firstName}
               inputIsDisabled={isLoading}
               inputOnChange={this.onInputChange}
-              inputAutoFocussed={true}
+              inputAutoFocussed={!isMobile}
               inputTabIndex={4}
               maxLength={50}
             />
@@ -769,7 +764,7 @@ class UpdateUserForm extends React.Component {
                 { value: "true", label: guestCaption },
                 { value: "false", label: userCaption },
               ]}
-              radioIsDisabled={isLoading}
+              radioIsDisabled={isLoading || disableProfileType}
               radioOnChange={this.onUserTypeChange}
               tooltipContent={tooltipTypeContent}
               helpButtonHeaderContent={t("UserType")}
@@ -781,9 +776,12 @@ class UpdateUserForm extends React.Component {
               inputValue={
                 profile.workFrom ? new Date(profile.workFrom) : undefined
               }
-              inputIsDisabled={isLoading}
+              inputIsDisabled={isLoading || !isAdmin}
               inputOnChange={this.onWorkFromDateChange}
               inputTabIndex={7}
+              calendarMinDate={
+                profile.birthday ? new Date(profile.birthday) : new Date()
+              }
             />
             <TextField
               labelText={`${t("Location")}:`}
@@ -797,13 +795,13 @@ class UpdateUserForm extends React.Component {
               labelText={`${userPostCaption}:`}
               inputName="title"
               inputValue={profile.title}
-              inputIsDisabled={isLoading}
+              inputIsDisabled={isLoading || !isAdmin}
               inputOnChange={this.onInputChange}
               inputTabIndex={9}
             />
             <DepartmentField
               labelText={`${groupCaption}:`}
-              isDisabled={isLoading}
+              isDisabled={isLoading || !isAdmin}
               showGroupSelectorButtonTitle={t("AddButton")}
               onShowGroupSelector={this.onShowGroupSelector}
               onCloseGroupSelector={this.onCloseGroupSelector}
@@ -898,24 +896,23 @@ class UpdateUserForm extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  return {
-    profile: state.profile.targetUser,
-    avatarMax: state.profile.avatarMax,
-    settings: state.auth.settings,
-    groups: state.people.groups,
-    editingForm: state.people.editingForm,
-    filter: state.people.filter,
-  };
-};
-
-export default connect(mapStateToProps, {
-  updateProfile,
-  fetchProfile,
-  updateProfileInUsers,
-  setIsVisibleDataLossDialog,
-  setIsEditingForm,
-  setFilter,
-  toggleAvatarEditor,
-  setAvatarMax,
-})(withRouter(withTranslation()(UpdateUserForm)));
+export default inject(({ auth, peopleStore }) => ({
+  settings: auth.settingsStore,
+  isAdmin: auth.isAdmin,
+  groups: peopleStore.groupsStore.groups,
+  isEdit: peopleStore.editingFormStore.isEdit,
+  setIsVisibleDataLossDialog:
+    peopleStore.editingFormStore.setIsVisibleDataLossDialog,
+  setIsEditingForm: peopleStore.editingFormStore.setIsEditingForm,
+  filter: peopleStore.filterStore.filter,
+  setFilter: peopleStore.filterStore.setFilterParams,
+  toggleAvatarEditor: peopleStore.avatarEditorStore.toggleAvatarEditor,
+  profile: peopleStore.targetUserStore.targetUser,
+  fetchProfile: peopleStore.targetUserStore.getTargetUser,
+  avatarMax: peopleStore.avatarEditorStore.avatarMax,
+  setAvatarMax: peopleStore.avatarEditorStore.setAvatarMax,
+  updateProfileInUsers: peopleStore.usersStore.updateProfileInUsers,
+  updateProfile: peopleStore.targetUserStore.updateProfile,
+  getUserPhoto: peopleStore.targetUserStore.getUserPhoto,
+  disableProfileType: peopleStore.targetUserStore.getDisableProfileType,
+}))(observer(withRouter(withTranslation("ProfileAction")(UpdateUserForm))));

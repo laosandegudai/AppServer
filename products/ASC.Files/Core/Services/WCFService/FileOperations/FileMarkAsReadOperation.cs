@@ -31,7 +31,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using ASC.Common;
-using ASC.Common.Security.Authentication;
 using ASC.Core.Common.Settings;
 using ASC.Core.Tenants;
 using ASC.Files.Core;
@@ -56,8 +55,8 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
 
     class FileMarkAsReadOperation : ComposeFileOperation<FileMarkAsReadOperationData<string>, FileMarkAsReadOperationData<int>>
     {
-        public FileMarkAsReadOperation(IServiceProvider serviceProvider, FileOperation<FileMarkAsReadOperationData<string>, string> f1, FileOperation<FileMarkAsReadOperationData<int>, int> f2)
-            : base(serviceProvider, f1, f2)
+        public FileMarkAsReadOperation(Guid userId, FileOperation<FileMarkAsReadOperationData<string>, string> f1, FileOperation<FileMarkAsReadOperationData<int>, int> f2)
+            : base(userId, f1, f2)
         {
         }
 
@@ -75,15 +74,15 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
         }
 
 
-        public FileMarkAsReadOperation(IServiceProvider serviceProvider, FileMarkAsReadOperationData<T> fileOperationData)
-            : base(serviceProvider, fileOperationData)
+        public FileMarkAsReadOperation(IServiceProvider serviceProvider, Guid userId, FileMarkAsReadOperationData<T> fileOperationData)
+            : base(serviceProvider, userId, fileOperationData)
         {
         }
 
 
-        protected override int InitTotalProgressSteps(IFolderDao<T> folderDao)
+        protected override Task<int> InitTotalProgressSteps(IFolderDao<T> folderDao)
         {
-            return Files.Count + Folders.Count;
+            return Task.FromResult(Files.Count + Folders.Count);
         }
 
         protected override async Task Do(IServiceScope scope)
@@ -104,8 +103,8 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
             entries.ForEach(async x =>
             {
                 CancellationToken.ThrowIfCancellationRequested();
-
-                await fileMarker.RemoveMarkAsNew(x, ((IAccount)Thread.CurrentPrincipal.Identity).ID);
+                
+                await fileMarker.RemoveMarkAsNew(x, userId);
 
                 if (x.FileEntryType == FileEntryType.File)
                 {

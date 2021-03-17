@@ -151,7 +151,7 @@ namespace ASC.Web.Files.Services.DocumentService
 
         }
 
-        public void GenerateReport(DistributedTask task, CancellationToken cancellationToken)
+        public async Task GenerateReport(DistributedTask task, CancellationToken cancellationToken)
         {
             using var scope = ServiceProvider.CreateScope();
             var scopeClass = scope.ServiceProvider.GetService<ReportStateScope>();
@@ -183,7 +183,7 @@ namespace ASC.Web.Files.Services.DocumentService
                         throw new OperationCanceledException();
                     }
 
-                    Task.Delay(1500, cancellationToken).Wait(cancellationToken);
+                     await Task.Delay(1500, cancellationToken);
                     var builderKey = documentServiceConnector.DocbuilderRequest(BuilderKey, null, true, out urls);
                     if (builderKey == null)
                         throw new NullReferenceException();

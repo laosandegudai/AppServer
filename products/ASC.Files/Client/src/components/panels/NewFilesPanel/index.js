@@ -1,20 +1,18 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { connect } from "react-redux";
 import { withRouter } from "react-router";
 import {
   Backdrop,
   Heading,
   Aside,
   Row,
-  RowContent,
+  Box,
   RowContainer,
-  Text,
   Link,
   Button,
 } from "asc-web-components";
 import { withTranslation } from "react-i18next";
-import { utils as commonUtils, api, toastr } from "asc-web-common";
+import { api, toastr } from "asc-web-common";
 import { ReactSVG } from "react-svg";
 import {
   StyledAsidePanel,
@@ -23,37 +21,11 @@ import {
   StyledBody,
   StyledFooter,
 } from "../StyledPanels";
-import {
-  getFileIcon,
-  getFolderIcon,
-  getFilter,
-  getFiles,
-  getFolders,
-  getTreeFolders,
-  getSelectedFolder,
-} from "../../../store/files/selectors";
-import {
-  fetchFiles,
-  setMediaViewerData,
-  setTreeFolders,
-  setUpdateTree,
-  setNewRowItems,
-  setIsLoading,
-  addFileToRecentlyViewed,
-} from "../../../store/files/actions";
-import { createI18N } from "../../../helpers/i18n";
-const i18n = createI18N({
-  page: "NewFilesPanel",
-  localesPath: "panels/NewFilesPanel",
-});
-
-const { changeLanguage } = commonUtils;
+import { inject, observer } from "mobx-react";
 
 class NewFilesPanelComponent extends React.Component {
   constructor(props) {
     super(props);
-
-    changeLanguage(i18n);
 
     this.state = { files: [] };
   }
@@ -71,8 +43,8 @@ class NewFilesPanelComponent extends React.Component {
   getItemIcon = (item, isEdit) => {
     const extension = item.fileExst;
     const icon = extension
-      ? getFileIcon(extension, 24)
-      : getFolderIcon(item.providerKey, 24);
+      ? this.props.getFileIcon(extension, 24)
+      : this.props.getFolderIcon(item.providerKey, 24);
 
     return (
       <ReactSVG
@@ -124,7 +96,6 @@ class NewFilesPanelComponent extends React.Component {
     api.files
       .markAsRead(folderIds, fileId)
       .then(() => {
-        this.props.setUpdateTree(true);
         this.setNewFilesCount(folderId, false, item);
         this.onFilesClick(item);
       })
@@ -135,12 +106,13 @@ class NewFilesPanelComponent extends React.Component {
   };
 
   onFilesClick = (item) => {
-    const { id, fileExst, viewUrl, fileType } = item;
+    const { id, fileExst, viewUrl, fileType, providerKey } = item;
     const {
       filter,
       setMediaViewerData,
       fetchFiles,
       addFileToRecentlyViewed,
+      isPrivacy,
     } = this.props;
 
     if (!fileExst) {
@@ -149,8 +121,8 @@ class NewFilesPanelComponent extends React.Component {
       const canEdit = [5, 6, 7].includes(fileType); //TODO: maybe dirty
       const isMedia = [2, 3, 4].includes(fileType);
 
-      if (canEdit) {
-        return addFileToRecentlyViewed(id)
+      if (canEdit && providerKey) {
+        return addFileToRecentlyViewed(id, isPrivacy)
           .then(() => console.log("Pushed to recently viewed"))
           .catch((e) => console.error(e))
           .finally(window.open(`./doceditor?fileId=${id}`, "_blank"));
@@ -167,13 +139,7 @@ class NewFilesPanelComponent extends React.Component {
   };
 
   setNewFilesCount = (folderPath, markAsReadAll, item) => {
-    const {
-      treeFolders,
-      setTreeFolders,
-      folders,
-      files,
-      setUpdateTree,
-    } = this.props;
+    const { treeFolders, setTreeFolders, folders, files } = this.props;
 
     const data = treeFolders;
     let dataItem;
@@ -221,7 +187,6 @@ class NewFilesPanelComponent extends React.Component {
       }
     }
 
-    setUpdateTree(true);
     setTreeFolders(data);
   };
 
@@ -233,7 +198,12 @@ class NewFilesPanelComponent extends React.Component {
 
     return (
       <StyledAsidePanel visible={visible}>
-        <Backdrop onClick={onClose} visible={visible} zIndex={zIndex} />
+        <Backdrop
+          onClick={onClose}
+          visible={visible}
+          zIndex={zIndex}
+          isAside={true}
+        />
         <Aside className="header_aside-panel" visible={visible}>
           <StyledContent>
             <StyledHeaderContent>
@@ -246,14 +216,12 @@ class NewFilesPanelComponent extends React.Component {
               </Heading>
             </StyledHeaderContent>
             <StyledBody className="files-operations-body">
-              <RowContainer useReactWindow manualHeight="87vh">
+              <RowContainer useReactWindow>
                 {files.map((file) => {
                   const element = this.getItemIcon(file);
                   return (
                     <Row key={file.id} element={element}>
-                      <RowContent
-                        onClick={this.onNewFilesClick.bind(this, file)}
-                      >
+                      <Box onClick={this.onNewFilesClick.bind(this, file)}>
                         <Link
                           containerWidth="100%"
                           type="page"
@@ -263,14 +231,11 @@ class NewFilesPanelComponent extends React.Component {
                           truncate
                           title={file.title}
                           fontSize="14px"
+                          className="files-new-link"
                         >
                           {file.title}
                         </Link>
-                        <></>
-                        <Text fontSize="12px" containerWidth="auto">
-                          {file.checked && t("ConvertInto")}
-                        </Text>
-                      </RowContent>
+                      </Box>
                     </Row>
                   );
                 })}
@@ -302,30 +267,44 @@ NewFilesPanelComponent.propTypes = {
   visible: PropTypes.bool,
 };
 
-const NewFilesPanelContainerTranslated = withTranslation()(
-  NewFilesPanelComponent
-);
+const NewFilesPanel = withTranslation("NewFilesPanel")(NewFilesPanelComponent);
 
-const NewFilesPanel = (props) => (
-  <NewFilesPanelContainerTranslated i18n={i18n} {...props} />
-);
+export default inject(
+  ({
+    initFilesStore,
+    filesStore,
+    mediaViewerDataStore,
+    treeFoldersStore,
+    formatsStore,
+  }) => {
+    const { setIsLoading } = initFilesStore;
+    const {
+      files,
+      folders,
+      fetchFiles,
+      filter,
+      addFileToRecentlyViewed,
+      setNewRowItems,
+    } = filesStore;
+    const { treeFolders, setTreeFolders, isPrivacyFolder } = treeFoldersStore;
+    const { setMediaViewerData } = mediaViewerDataStore;
+    const { getFileIcon, getFolderIcon } = formatsStore.iconFormatsStore;
 
-const mapStateToProps = (state) => {
-  return {
-    filter: getFilter(state),
-    files: getFiles(state),
-    folders: getFolders(state),
-    treeFolders: getTreeFolders(state),
-    selectedFolder: getSelectedFolder(state),
-  };
-};
+    return {
+      files,
+      folders,
+      treeFolders,
+      isPrivacy: isPrivacyFolder,
+      filter,
 
-export default connect(mapStateToProps, {
-  setMediaViewerData,
-  setTreeFolders,
-  setUpdateTree,
-  setNewRowItems,
-  fetchFiles,
-  addFileToRecentlyViewed,
-  setIsLoading,
-})(withRouter(NewFilesPanel));
+      setIsLoading,
+      fetchFiles,
+      setTreeFolders,
+      setMediaViewerData,
+      addFileToRecentlyViewed,
+      setNewRowItems,
+      getFileIcon,
+      getFolderIcon,
+    };
+  }
+)(withRouter(observer(NewFilesPanel)));

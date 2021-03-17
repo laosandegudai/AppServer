@@ -7,14 +7,7 @@ const PanelStyles = css`
 
     .optionalBlock {
       margin-right: 4px;
-    }
-
-    &.add-groups {
-      .combo-buttons_arrow-icon {
-        flex: 0 0 5px;
-        width: 5px;
-        margin-top: 16px;
-      }
+      display: flex;
     }
 
     .combo-button {
@@ -23,6 +16,19 @@ const PanelStyles = css`
 
     .combo-button-label {
       margin: 0;
+    }
+  }
+
+  .groupSelector,
+  .peopleSelector {
+    .combo-buttons_arrow-icon {
+      flex: 0 0 6px;
+      width: 6px;
+      margin-top: auto;
+      margin-bottom: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
   }
 
@@ -41,6 +47,20 @@ const StyledAsidePanel = styled.div`
     font-weight: 700;
     margin: 14px 0;
     padding-right: 10px;
+  }
+  .upload_panel-header {
+    font-weight: 700;
+    padding: 19px auto 19px 17px;
+  }
+  .upload-panel_header-content {
+    z-index: 320;
+    position: fixed;
+    left: 0;
+    right: 0;
+    background-color: #fff;
+  }
+  .upload-panel_body {
+    padding: 64px 0;
   }
   .modal-dialog-aside {
     padding: 0;
@@ -65,6 +85,39 @@ const StyledAsidePanel = styled.div`
     }
   }
   ${PanelStyles}
+`;
+
+const StyledVersionHistoryPanel = styled.div`
+  ${PanelStyles}
+  .version-history-modal-dialog {
+    transform: translateX(${(props) => (props.visible ? "0" : "720px")});
+    width: 720px;
+  }
+  .version-history-aside-panel {
+    transform: translateX(${(props) => (props.visible ? "0" : "720px")});
+    width: 720px;
+  }
+  .version-history-panel-header {
+    height: 53px;
+    margin-left: 0px;
+    .version-history-panel-heading {
+      font-weight: 700;
+      margin-bottom: 13px;
+      margin-top: 12px;
+    }
+  }
+  .version-history-panel-body {
+    padding: ${(props) => (props.isLoading ? "16px 0" : null)};
+    margin: 0 16px;
+    border-top: 1px solid #eceef1;
+
+    .version-comment-wrapper {
+      margin-left: 79px;
+    }
+    .version_edit-comment {
+      padding-left: 2px;
+    }
+  }
 `;
 
 const StyledAddUsersPanelPanel = styled.div`
@@ -128,6 +181,12 @@ const StyledContent = styled.div`
   .header_aside-panel-plus-icon {
     margin-left: auto;
   }
+
+  .sharing-access-combo-box-icon {
+    path {
+      fill: ${(props) => (props.isDisabled ? "#D0D5DA" : "#A3A9AE")};
+    }
+  }
 `;
 
 const StyledHeaderContent = styled.div`
@@ -135,15 +194,9 @@ const StyledHeaderContent = styled.div`
   align-items: center;
   padding: 0 16px;
 
-  display: flex;
-  align-items: center;
-
-  padding: 0 16px;
-
   .sharing_panel-icons-container {
     display: flex;
     margin-left: auto;
-
     .sharing_panel-drop-down-wrapper {
       position: relative;
 
@@ -156,20 +209,48 @@ const StyledHeaderContent = styled.div`
     }
   }
 
+  .upload_panel-icons-container {
+    display: flex;
+    margin-left: auto;
+    .upload_panel-vertical-dots-icon {
+    }
+    .upload_panel-remove-icon {
+      padding-right: 8px;
+    }
+  }
+
   .files-operations-header,
   .sharing_panel-header {
     font-weight: 700;
     margin: 14px 0;
+    margin-left: 16px;
   }
 `;
 
 const StyledBody = styled.div`
-  .files-operations-body {
+  &.files-operations-body {
     padding: 0 16px;
+    box-sizing: border-box;
+    width: 100%;
+    height: calc(100vh - 125px);
+
+    .styled-element {
+      margin-left: -2px;
+    }
   }
 
   .embedding-panel_body {
     padding: 0 16px;
+  }
+
+  .change-owner_body {
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .change-owner_owner-label {
+    margin: 16px 0;
   }
 
   .selector-wrapper {
@@ -242,6 +323,12 @@ const StyledBody = styled.div`
     margin: 8px;
     right: 16px;
   }
+
+  .sharing-access-combo-box-icon {
+    path {
+      fill: #333;
+    }
+  }
 `;
 
 const StyledSharingBody = styled(Scrollbar)`
@@ -296,12 +383,6 @@ const StyledSharingBody = styled(Scrollbar)`
         height: 8px;
         width: 8px;
       }
-    }
-  }
-
-  .sharing-access-combo-box-icon {
-    path {
-      fill: #a3a9ae;
     }
   }
 
@@ -406,6 +487,7 @@ export {
   StyledAddGroupsPanel,
   StyledAddUsersPanelPanel,
   StyledEmbeddingPanel,
+  StyledVersionHistoryPanel,
   StyledContent,
   StyledHeaderContent,
   StyledBody,

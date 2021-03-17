@@ -29,13 +29,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Security;
-using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 
 using ASC.Common;
 using ASC.Common.Logging;
-using ASC.Common.Security.Authentication;
 using ASC.Common.Security.Authorizing;
 using ASC.Common.Threading;
 using ASC.Core;
@@ -62,7 +60,7 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
         public const string FINISHED = "Finished";
         public const string HOLD = "Hold";
 
-        protected readonly IPrincipal principal;
+        protected readonly Guid userId;
         protected readonly string culture;
         public int Total { get; set; }
         public string Source { get; set; }
@@ -79,9 +77,9 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
 
         protected DistributedTask TaskInfo { get; set; }
 
-        public FileOperation(IServiceProvider serviceProvider)
+        public FileOperation(Guid userId)
         {
-            principal = serviceProvider.GetService<Microsoft.AspNetCore.Http.IHttpContextAccessor>()?.HttpContext?.User ?? Thread.CurrentPrincipal;
+            this.userId = userId;
             culture = Thread.CurrentThread.CurrentCulture.Name;
 
             TaskInfo = new DistributedTask();
@@ -99,7 +97,7 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
             var progress = Total != 0 ? 100 * processed / Total : 0;
 
             TaskInfo.SetProperty(OPERATION_TYPE, OperationType);
-            TaskInfo.SetProperty(OWNER, ((IAccount)(principal ?? Thread.CurrentPrincipal).Identity).ID);
+            TaskInfo.SetProperty(OWNER, userId);
             TaskInfo.SetProperty(PROGRESS, progress < 100 ? progress : 100);
             TaskInfo.SetProperty(RESULT, Status);
             TaskInfo.SetProperty(ERROR, Error);
@@ -107,7 +105,7 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
             TaskInfo.SetProperty(HOLD, HoldResult);
         }
 
-        public abstract void RunJob(DistributedTask _, CancellationToken cancellationToken);
+        public abstract Task RunJob(DistributedTask _, CancellationToken cancellationToken);
         protected abstract Task Do(IServiceScope serviceScope);
 
     }
@@ -120,22 +118,22 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
         public FileOperation<T2, int> DaoOperation { get; set; }
 
         public ComposeFileOperation(
-            IServiceProvider serviceProvider,
+            Guid userId,
             FileOperation<T1, string> thirdPartyOperation,
             FileOperation<T2, int> daoOperation)
-            : base(serviceProvider)
+            : base(userId)
         {
             ThirdPartyOperation = thirdPartyOperation;
             DaoOperation = daoOperation;
         }
 
-        public override void RunJob(DistributedTask _, CancellationToken cancellationToken)
+        public override async Task RunJob(DistributedTask _, CancellationToken cancellationToken)
         {
             ThirdPartyOperation.GetDistributedTask().Publication = PublishChanges;
-            ThirdPartyOperation.RunJob(_, cancellationToken);
+            await ThirdPartyOperation.RunJob(_, cancellationToken);
 
             DaoOperation.GetDistributedTask().Publication = PublishChanges;
-            DaoOperation.RunJob(_, cancellationToken);
+            await DaoOperation.RunJob(_, cancellationToken);
         }
 
         protected internal override void FillDistributedTask()
@@ -178,10 +176,10 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
                 Status = status2;
             }
 
-            var finished1 = thirdpartyTask.GetProperty<string>(FINISHED);
-            var finished2 = daoTask.GetProperty<string>(FINISHED);
+            var finished1 = thirdpartyTask.GetProperty<bool?>(FINISHED);
+            var finished2 = daoTask.GetProperty<bool?>(FINISHED);
 
-            if (!string.IsNullOrEmpty(finished1) && !string.IsNullOrEmpty(finished2))
+            if (finished1 != null && finished2 != null)
             {
                 TaskInfo.SetProperty(FINISHED, finished1);
             }
@@ -253,7 +251,7 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
 
         private IServiceProvider ServiceProvider { get; }
 
-        protected FileOperation(IServiceProvider serviceProvider, T fileOperationData) : base(serviceProvider)
+        protected FileOperation(IServiceProvider serviceProvider, Guid userId, T fileOperationData) : base(userId)
         {
             ServiceProvider = serviceProvider;
             Files = fileOperationData.Files;
@@ -268,11 +266,11 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
             var daoFactory = scope.ServiceProvider.GetService<IDaoFactory>();
             var FolderDao = daoFactory.GetFolderDao<TId>();
 
-            Total = InitTotalProgressSteps(FolderDao);
+            Total = InitTotalProgressSteps(FolderDao).Result; //TODO
             Source = string.Join(SPLIT_CHAR, Folders.Select(f => "folder_" + f).Concat(Files.Select(f => "file_" + f)).ToArray());
         }
 
-        public override async void RunJob(DistributedTask _, CancellationToken cancellationToken)
+        public override async Task RunJob(DistributedTask _, CancellationToken cancellationToken)
         {
             try
             {
@@ -281,10 +279,11 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
 
                 using var scope = ServiceProvider.CreateScope();
                 var scopeClass = scope.ServiceProvider.GetService<FileOperationScope>();
+                var securityContext = scope.ServiceProvider.GetService<ASC.Core.SecurityContext>();
                 var (tenantManager, daoFactory, fileSecurity, options) = scopeClass;
                 tenantManager.SetCurrentTenant(CurrentTenant);
 
-                Thread.CurrentPrincipal = principal;
+                securityContext.AuthenticateMe(userId);
                 Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo(culture);
                 Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(culture);
 
@@ -336,10 +335,13 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
             TaskInfo.SetProperty(SOURCE, Source);
         }
 
-        protected virtual int InitTotalProgressSteps(IFolderDao<TId> folderDao)
+        protected virtual async Task<int> InitTotalProgressSteps(IFolderDao<TId> folderDao)
         {
             var count = Files.Count;
-            Folders.ForEach(async f => count += 1 + (folderDao.CanCalculateSubitems(f) ? await folderDao.GetItemsCount(f) : 0));
+            foreach (var f in Folders)
+            {
+                count += 1 + (folderDao.CanCalculateSubitems(f) ? await folderDao.GetItemsCount(f) : 0);
+            }
             return count;
         }
 

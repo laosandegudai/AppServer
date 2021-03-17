@@ -1,3 +1,4 @@
+import { EmployeeStatus } from "../../constants";
 import { toUrlParams } from "../../utils";
 
 const DEFAULT_PAGE = 0;
@@ -5,10 +6,10 @@ const DEFAULT_PAGE_COUNT = 25;
 const DEFAULT_TOTAL = 0;
 const DEFAULT_SORT_BY = "firstname";
 const DEFAULT_SORT_ORDER = "ascending";
-const DEFAULT_EMPLOYEE_STATUS = null;
+const DEFAULT_EMPLOYEE_STATUS = EmployeeStatus.Active;
 const DEFAULT_ACTIVATION_STATUS = null;
 const DEFAULT_ROLE = null;
-const DEFAULT_SEARCH = null;
+const DEFAULT_SEARCH = "";
 const DEFAULT_GROUP = null;
 
 class Filter {
@@ -121,6 +122,25 @@ class Filter {
           this.search,
           this.group
         );
+  }
+
+  reset(idGroup) {
+    if (idGroup) {
+      return new Filter(
+        0,
+        this.pageCount,
+        this.total,
+        this.sortBy,
+        this.sortOrder,
+        null,
+        null,
+        null,
+        "",
+        idGroup
+      );
+    } else {
+      this.clone(true);
+    }
   }
 
   equals(filter) {

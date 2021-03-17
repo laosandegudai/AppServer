@@ -1,11 +1,8 @@
 import React from "react";
-import { connect } from "react-redux";
-import { store, Headline, Loaders } from "asc-web-common";
-
-const { getCurrentProductName } = store.auth.selectors;
+import { Headline, Loaders } from "asc-web-common";
+import { inject, observer } from "mobx-react";
 
 const ArticleHeaderContent = ({ currentModuleName }) => {
-  console.log("CurrentModuleName", currentModuleName);
   return currentModuleName ? (
     <Headline type="menu">{currentModuleName}</Headline>
   ) : (
@@ -13,11 +10,6 @@ const ArticleHeaderContent = ({ currentModuleName }) => {
   );
 };
 
-const mapStateToProps = (state) => {
-  const currentModuleName = getCurrentProductName(state);
-  return {
-    currentModuleName,
-  };
-};
-
-export default connect(mapStateToProps)(ArticleHeaderContent);
+export default inject(({ auth }) => ({
+  currentModuleName: auth.product.title,
+}))(observer(ArticleHeaderContent));

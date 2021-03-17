@@ -23,22 +23,35 @@ class PeopleSelector extends React.Component {
   }
 
   componentDidMount() {
-    const { groupsCaption } = this.props;
-    changeLanguage(i18n).then((t) =>
-      getGroupList(this.props.useFake)
-        .then((groups) =>
-          this.setState({
-            groups: [
-              {
-                key: "all",
-                label: t("CustomAllGroups", { groupsCaption }),
-                total: 0,
-              },
-            ].concat(this.convertGroups(groups)),
-          })
-        )
-        .catch((error) => console.log(error))
-    );
+    const { groupsCaption, groupList } = this.props;
+
+    changeLanguage(i18n).then((t) => {
+      if (!groupList) {
+        getGroupList(this.props.useFake)
+          .then((groups) =>
+            this.setState({
+              groups: [
+                {
+                  key: "all",
+                  label: t("CustomAllGroups", { groupsCaption }),
+                  total: 0,
+                },
+              ].concat(this.convertGroups(groups)),
+            })
+          )
+          .catch((error) => console.log(error));
+      } else {
+        this.setState({
+          groups: [
+            {
+              key: "all",
+              label: t("CustomAllGroups", { groupsCaption }),
+              total: 0,
+            },
+          ].concat(groupList),
+        });
+      }
+    });
   }
 
   componentDidUpdate(prevProps) {
@@ -82,7 +95,7 @@ class PeopleSelector extends React.Component {
     const pageCount = 100;
 
     this.setState({ isNextPageLoading: true }, () => {
-      const { role, useFake } = this.props;
+      const { role, employeeStatus, useFake } = this.props;
 
       const filter = Filter.getDefault();
       filter.page = startIndex / pageCount;
@@ -92,8 +105,15 @@ class PeopleSelector extends React.Component {
         filter.search = searchValue;
       }
 
+      if (employeeStatus) {
+        filter.employeeStatus = employeeStatus;
+      }
+
       if (role) {
         filter.role = role;
+      }
+      if (employeeStatus) {
+        filter.employeeStatus = employeeStatus;
       }
 
       if (currentGroup && currentGroup !== "all") filter.group = currentGroup;
@@ -277,6 +297,7 @@ PeopleSelector.propTypes = {
   groupsCaption: PropTypes.string,
   searchPlaceHolderLabel: PropTypes.string,
   role: PropTypes.oneOf(["admin", "user", "guest"]),
+  employeeStatus: PropTypes.any,
   displayType: PropTypes.oneOf(["auto", "aside", "dropdown"]),
   withoutAside: PropTypes.bool,
   embeddedComponent: PropTypes.any,
@@ -287,6 +308,7 @@ PeopleSelector.defaultProps = {
   size: "full",
   language: "en",
   role: null,
+  employeeStatus: null,
   defaultOption: null,
   defaultOptionLabel: "Me",
   groupsCaption: "Groups",

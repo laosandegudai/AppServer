@@ -33,7 +33,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using ASC.Common;
-using ASC.Common.Security.Authentication;
 using ASC.Common.Threading;
 using ASC.Core.Tenants;
 using ASC.Data.Storage;
@@ -70,8 +69,8 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
 
     class FileDownloadOperation : ComposeFileOperation<FileDownloadOperationData<string>, FileDownloadOperationData<int>>
     {
-        public FileDownloadOperation(IServiceProvider serviceProvider, FileOperation<FileDownloadOperationData<string>, string> f1, FileOperation<FileDownloadOperationData<int>, int> f2)
-            : base(serviceProvider, f1, f2)
+        public FileDownloadOperation(Guid userId, FileOperation<FileDownloadOperationData<string>, string> f1, FileOperation<FileDownloadOperationData<int>, int> f2)
+            : base(userId, f1, f2)
         {
         }
 
@@ -80,9 +79,9 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
             get { return FileOperationType.Download; }
         }
 
-        public override void RunJob(DistributedTask distributedTask, CancellationToken cancellationToken)
+        public override async Task RunJob(DistributedTask distributedTask, CancellationToken cancellationToken)
         {
-            base.RunJob(distributedTask, cancellationToken);
+            await base.RunJob(distributedTask, cancellationToken);
 
             using var scope = ThirdPartyOperation.CreateScope();
             var scopeClass = scope.ServiceProvider.GetService<FileDownloadOperationScope>();
@@ -106,7 +105,7 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
                 var store = globalStore.GetStore();
                 store.Save(
                     FileConstant.StorageDomainTmp,
-                    string.Format(@"{0}\{1}", ((IAccount)Thread.CurrentPrincipal.Identity).ID, fileName),
+                    string.Format(@"{0}\{1}", userId, fileName),
                     stream,
                     "application/zip",
                     "attachment; filename=\"" + fileName + "\"");
@@ -128,8 +127,8 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
             get { return FileOperationType.Download; }
         }
 
-        public FileDownloadOperation(IServiceProvider serviceProvider, FileDownloadOperationData<T> fileDownloadOperationData)
-            : base(serviceProvider, fileDownloadOperationData)
+        public FileDownloadOperation(IServiceProvider serviceProvider, Guid userId, FileDownloadOperationData<T> fileDownloadOperationData)
+            : base(serviceProvider, userId, fileDownloadOperationData)
         {
             files = fileDownloadOperationData.FilesDownload;
             headers = fileDownloadOperationData.Headers;

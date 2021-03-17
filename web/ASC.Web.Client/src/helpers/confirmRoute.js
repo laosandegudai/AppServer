@@ -2,11 +2,10 @@ import React from "react";
 import { Route } from "react-router-dom";
 import { ValidationResult } from "./../helpers/constants";
 import { Loader } from "asc-web-components";
-import { connect } from "react-redux";
 import { withRouter } from "react-router";
-import { api, utils, PageLayout, store } from "asc-web-common";
-const { isAuthenticated } = store.auth.selectors;
-const { checkConfirmLink } = api.user;
+import { api, utils, PageLayout } from "asc-web-common";
+import { inject, observer } from "mobx-react";
+const { checkConfirmLink } = api.user; //TODO: Move AuthStore
 const { getObjectByLocation } = utils;
 
 class ConfirmRoute extends React.Component {
@@ -21,10 +20,9 @@ class ConfirmRoute extends React.Component {
   componentDidMount() {
     const { forUnauthorized, history, isAuthenticated } = this.props;
 
-    if (forUnauthorized && isAuthenticated)
-      return history.push(
-        `/error=Access error. You should be unauthorized for performing this action`
-      );
+    if (forUnauthorized && isAuthenticated) {
+      this.props.logout(true);
+    }
 
     const { location } = this.props;
     const { search } = location;
@@ -98,12 +96,10 @@ class ConfirmRoute extends React.Component {
   }
 }
 
-function mapStateToProps(state) {
+export default inject(({ auth }) => {
+  const { isAuthenticated, logout } = auth;
   return {
-    isAuthenticated: isAuthenticated(state)
+    isAuthenticated,
+    logout,
   };
-}
-
-export default connect(mapStateToProps, { checkConfirmLink })(
-  withRouter(ConfirmRoute)
-);
+})(observer(withRouter(ConfirmRoute)));

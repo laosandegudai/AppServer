@@ -1,38 +1,75 @@
 import React from "react";
 import { withRouter } from "react-router";
-import { withTranslation } from "react-i18next";
+
 import { RowContainer } from "asc-web-components";
+import { Loaders } from "asc-web-common";
 import VersionRow from "./VersionRow";
+import { inject, observer } from "mobx-react";
 
-const SectionBodyContent = (props) => {
-  const { versions, culture, getFileVersions } = props;
-  console.log("VersionHistory SectionBodyContent render()", versions);
+class SectionBodyContent extends React.Component {
+  componentDidMount() {
+    const { match, setFirstLoad } = this.props;
+    const { fileId } = match.params;
 
-  let itemVersion = null;
+    if (fileId) {
+      this.getFileVersions(fileId);
+      setFirstLoad(false);
+    }
+  }
 
-  return (
-    <RowContainer useReactWindow={false}>
-      {versions.map((info, index) => {
-        let isVersion = true;
-        if (itemVersion === info.versionGroup) {
-          isVersion = false;
-        } else {
-          itemVersion = info.versionGroup;
-        }
+  getFileVersions = (fileId) => {
+    const { fetchFileVersions, setIsLoading } = this.props;
+    setIsLoading(true);
+    fetchFileVersions(fileId).then(() => setIsLoading(false));
+  };
+  render() {
+    const { versions, culture, isLoading } = this.props;
+    console.log("VersionHistory SectionBodyContent render()", versions);
 
-        return (
-          <VersionRow
-            getFileVersions={getFileVersions}
-            isVersion={isVersion}
-            key={info.id}
-            info={info}
-            index={index}
-            culture={culture}
-          />
-        );
-      })}
-    </RowContainer>
-  );
-};
+    let itemVersion = null;
 
-export default withRouter(withTranslation()(SectionBodyContent));
+    return versions && !isLoading ? (
+      <RowContainer useReactWindow={false}>
+        {versions.map((info, index) => {
+          let isVersion = true;
+          if (itemVersion === info.versionGroup) {
+            isVersion = false;
+          } else {
+            itemVersion = info.versionGroup;
+          }
+
+          return (
+            <VersionRow
+              getFileVersions={this.getFileVersions}
+              isVersion={isVersion}
+              key={info.id}
+              info={info}
+              index={index}
+              culture={culture}
+            />
+          );
+        })}
+      </RowContainer>
+    ) : (
+      <Loaders.HistoryRows title="version-history-body-loader" />
+    );
+  }
+}
+
+export default inject(
+  ({ auth, initFilesStore, filesStore, versionHistoryStore }) => {
+    const { setIsLoading, isLoading } = initFilesStore;
+    const { setFirstLoad } = filesStore;
+    const { versions, fetchFileVersions } = versionHistoryStore;
+
+    return {
+      culture: auth.settingsStore.culture,
+      isLoading,
+      versions,
+
+      setFirstLoad,
+      setIsLoading,
+      fetchFileVersions,
+    };
+  }
+)(withRouter(observer(SectionBodyContent)));

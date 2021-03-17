@@ -340,7 +340,6 @@ namespace ASC.Core
 
         public AuthContext()
         {
-
         }
 
         public AuthContext(IHttpContextAccessor httpContextAccessor)
@@ -362,6 +361,16 @@ namespace ASC.Core
         {
             Principal = null;
         }
+
+        //public ClaimsPrincipal Principal
+        //{
+        //    get => AsyncLocalPrincipal.Value as ClaimsPrincipal ?? HttpContextAccessor?.HttpContext?.User;
+        //    set
+        //    {
+        //        AsyncLocalPrincipal.Value = value;
+        //        if (HttpContextAccessor?.HttpContext != null) HttpContextAccessor.HttpContext.User = value;
+        //    }
+        //}
 
         internal ClaimsPrincipal Principal
         {

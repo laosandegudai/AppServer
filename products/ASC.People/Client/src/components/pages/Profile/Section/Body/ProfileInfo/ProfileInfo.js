@@ -1,6 +1,5 @@
 import React from "react";
-import { Trans } from "react-i18next";
-import axios from "axios";
+import { Trans, withTranslation } from "react-i18next";
 import {
   Text,
   IconButton,
@@ -9,9 +8,8 @@ import {
   HelpButton,
 } from "asc-web-components";
 import styled from "styled-components";
-import { history, api, store, toastr, Loaders } from "asc-web-common";
-import { connect } from "react-redux";
-import { updateProfileCulture } from "../../../../../../store/profile/actions";
+import { api, toastr, Loaders } from "asc-web-common";
+import { inject, observer } from "mobx-react";
 
 const { resendUserInvites } = api.people;
 
@@ -82,54 +80,53 @@ const IconButtonWrapper = styled.div`
   }
 `;
 
-const onGroupClick = (e) => {
-  const id = e.currentTarget.dataset.id;
-  history.push(`/products/people/filter?group=${id}`);
-};
-
-const getFormattedDepartments = (departments) => {
-  const formattedDepartments = departments.map((department, index) => {
-    return (
-      <span key={index}>
-        <Link
-          type="page"
-          fontSize="13px"
-          isHovered={true}
-          data-id={department.id}
-          onClick={onGroupClick}
-        >
-          {department.name}
-        </Link>
-        {departments.length - 1 !== index ? ", " : ""}
-      </span>
-    );
-  });
-
-  return formattedDepartments;
-};
-
-const capitalizeFirstLetter = (string) => {
-  return string && string.charAt(0).toUpperCase() + string.slice(1);
-};
-
 class ProfileInfo extends React.PureComponent {
   constructor(props) {
     super(props);
-    this.state = this.mapPropsToState(props);
-  }
-
-  mapPropsToState = (props) => {
-    const newState = {
+    this.state = {
       profile: props.profile,
     };
+  }
 
-    return newState;
+  onGroupClick = (e) => {
+    const group = e.currentTarget.dataset.id;
+    const { filter, setIsLoading, fetchPeople } = this.props;
+
+    const newFilter = filter.clone();
+    newFilter.group = group;
+
+    setIsLoading(true);
+    fetchPeople(newFilter).finally(() => setIsLoading(false));
+  };
+
+  getFormattedDepartments = (departments) => {
+    const formattedDepartments = departments.map((department, index) => {
+      return (
+        <span key={index}>
+          <Link
+            type="page"
+            fontSize="13px"
+            isHovered={true}
+            data-id={department.id}
+            onClick={this.onGroupClick}
+          >
+            {department.name}
+          </Link>
+          {departments.length - 1 !== index ? ", " : ""}
+        </span>
+      );
+    });
+
+    return formattedDepartments;
   };
 
   onSentInviteAgain = (id) => {
+    const { t } = this.props;
     resendUserInvites(new Array(id))
-      .then(() => toastr.success("The invitation was successfully sent"))
-      .catch((error) => toastr.error(error));
+      .then(() => toastr.success(t("SuccessSentInvitation")))
+      .catch((error) =>
+        toastr.error(error && error.message ? error.message : error)
+      );
   };
 
   onEmailClick = (e) => {
@@ -139,13 +136,18 @@ class ProfileInfo extends React.PureComponent {
 
   onLanguageSelect = (language) => {
     console.log("onLanguageSelect", language);
-    const { profile, updateProfileCulture } = this.props;
+    const { profile, updateProfileCulture, i18n } = this.props;
 
     if (profile.cultureName === language.key) return;
 
-    updateProfileCulture(profile.id, language.key).catch((err) =>
-      console.log(err)
-    );
+    updateProfileCulture(profile.id, language.key)
+      .then(() => {
+        console.log("changeLanguage to", language.key);
+        i18n && i18n.changeLanguage(language.key);
+      })
+      .catch((error) =>
+        toastr.error(error && error.message ? error.message : error)
+      );
   };
 
   getLanguages = () => {
@@ -176,7 +178,6 @@ class ProfileInfo extends React.PureComponent {
     const isSelf = this.props.isSelf;
     const {
       t,
-      i18n,
       userPostCaption,
       regDateCaption,
       groupCaption,
@@ -186,26 +187,30 @@ class ProfileInfo extends React.PureComponent {
     const type = isVisitor ? guestCaption : userCaption;
     const language = cultureName || currentCulture || this.props.culture;
     const languages = this.getLanguages();
-    const selectedLanguage = languages.find((item) => item.key === language);
+    const selectedLanguage =
+      languages.find((item) => item.key === language) ||
+      languages.find((item) => item.key === this.props.culture);
     const workFromDate = new Date(workFrom).toLocaleDateString(language);
     const birthDayDate = new Date(birthday).toLocaleDateString(language);
     const formatedSex =
       (sex === "male" && t("MaleSexStatus")) || t("FemaleSexStatus");
-    const formatedDepartments = department && getFormattedDepartments(groups);
+    const formatedDepartments =
+      department && this.getFormattedDepartments(groups);
     const supportEmail = "documentation@onlyoffice.com";
     const tooltipLanguage = (
       <Text fontSize="13px">
-        <Trans i18nKey="NotFoundLanguage" i18n={i18n}>
+        <Trans i18nKey="NotFoundLanguage" ns="Profile">
           "In case you cannot find your language in the list of the available
           ones, feel free to write to us at
           <Link href={`mailto:${supportEmail}`} isHovered={true}>
             {{ supportEmail }}
-          </Link>{" "}
+          </Link>
           to take part in the translation and get up to 1 year free of charge."
-        </Trans>{" "}
+        </Trans>
         <Link
           isHovered={true}
           href="https://helpcenter.onlyoffice.com/ru/guides/become-translator.aspx"
+          target="_blank"
         >
           {t("LearnMore")}
         </Link>
@@ -304,6 +309,7 @@ class ProfileInfo extends React.PureComponent {
                     scaledOptions={false}
                     size="content"
                     className="language-combo"
+                    showDisabledItems={true}
                   />
                   <HelpButton
                     place="bottom"
@@ -325,28 +331,15 @@ class ProfileInfo extends React.PureComponent {
   }
 }
 
-function mapStateToProps(state) {
-  const { customNames } = state.auth.settings;
-  const {
-    groupCaption,
-    regDateCaption,
-    userPostCaption,
-    userCaption,
-    guestCaption,
-  } = customNames;
-
-  return {
-    groupCaption,
-    regDateCaption,
-    userPostCaption,
-    userCaption,
-    guestCaption,
-  };
-}
-const mapDispatchToProps = (dispatch) => {
-  return {
-    updateProfileCulture: (id, culture) =>
-      dispatch(updateProfileCulture(id, culture)),
-  };
-};
-export default connect(mapStateToProps, mapDispatchToProps)(ProfileInfo);
+export default inject(({ auth, peopleStore }) => ({
+  settings: auth.settingsStore,
+  groupCaption: auth.settingsStore.customNames.groupCaption,
+  regDateCaption: auth.settingsStore.customNames.regDateCaption,
+  userPostCaption: auth.settingsStore.customNames.userPostCaption,
+  userCaption: auth.settingsStore.customNames.userCaption,
+  guestCaption: auth.settingsStore.customNames.guestCaption,
+  fetchPeople: peopleStore.usersStore.getUsersList,
+  filter: peopleStore.filterStore.filter,
+  setIsLoading: peopleStore.setIsLoading,
+  updateProfileCulture: peopleStore.targetUserStore.updateProfileCulture,
+}))(observer(withTranslation("Profile")(ProfileInfo)));

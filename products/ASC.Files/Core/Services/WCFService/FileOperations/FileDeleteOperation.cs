@@ -67,8 +67,8 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
 
     class FileDeleteOperation : ComposeFileOperation<FileDeleteOperationData<string>, FileDeleteOperationData<int>>
     {
-        public FileDeleteOperation(IServiceProvider serviceProvider, FileOperation<FileDeleteOperationData<string>, string> f1, FileOperation<FileDeleteOperationData<int>, int> f2)
-            : base(serviceProvider, f1, f2)
+        public FileDeleteOperation(Guid userId, FileOperation<FileDeleteOperationData<string>, string> f1, FileOperation<FileDeleteOperationData<int>, int> f2)
+            : base(userId, f1, f2)
         {
         }
 
@@ -91,8 +91,8 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
         }
 
 
-        public FileDeleteOperation(IServiceProvider serviceProvider, FileDeleteOperationData<T> fileOperationData)
-            : base(serviceProvider, fileOperationData)
+        public FileDeleteOperation(IServiceProvider serviceProvider, Guid userId, FileDeleteOperationData<T> fileOperationData)
+            : base(serviceProvider, userId, fileOperationData)
         {
             _ignoreException = fileOperationData.IgnoreException;
             _immediately = fileOperationData.Immediately;
@@ -264,6 +264,7 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
         private async Task<string> WithError(IServiceScope scope, IAsyncEnumerable<File<T>> files, bool folder)
         {
             var entryManager = scope.ServiceProvider.GetService<EntryManager>();
+            var fileTracker = scope.ServiceProvider.GetService<FileTrackerHelper>();
 
             await foreach (var file in files)
             {
@@ -275,7 +276,7 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
                 {
                     return FilesCommonResource.ErrorMassage_LockedFile;
                 }
-                if (FileTracker.IsEditing(file.ID))
+                if (fileTracker.IsEditing(file.ID))
                 {
                     return folder ? FilesCommonResource.ErrorMassage_SecurityException_DeleteEditingFolder : FilesCommonResource.ErrorMassage_SecurityException_DeleteEditingFile;
                 }

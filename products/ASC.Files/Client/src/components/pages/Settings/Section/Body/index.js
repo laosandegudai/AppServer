@@ -1,29 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import { connect } from "react-redux";
 import { Heading, ToggleButton } from "asc-web-components";
-import { Error403, Error520, store } from "asc-web-common";
-import {
-  setUpdateIfExist,
-  setStoreOriginal,
-  setEnableThirdParty,
-  setConfirmDelete,
-  setStoreForceSave,
-  setForceSave,
-} from "../../../../../store/files/actions";
-import {
-  getIsLoading,
-  getSettingsSelectedTreeNode,
-  getSettingsTreeStoreOriginalFiles,
-  getSettingsTreeConfirmDelete,
-  getSettingsTreeUpdateIfExist,
-  getSettingsTreeForceSave,
-  getSettingsTreeStoreForceSave,
-  getSettingsTreeEnableThirdParty,
-  getSettingsTree,
-} from "../../../../../store/files/selectors";
-
-const { isAdmin } = store.auth.selectors;
+import { Error403, Error520 } from "asc-web-common";
+import ConnectClouds from "./ConnectedClouds";
+import { inject, observer } from "mobx-react";
 
 const StyledSettings = styled.div`
   display: grid;
@@ -162,17 +142,13 @@ const SectionBodyContent = ({
     );
   };
 
-  const renderClouds = () => {
-    return <></>;
-  };
-
   let content;
 
   if (setting === "admin" && isAdmin) content = renderAdminSettings();
   if (setting === "common") content = renderCommonSettings();
-  if (setting === "thirdparty" && enableThirdParty) content = renderClouds();
+  if (setting === "thirdParty" && enableThirdParty) content = <ConnectClouds />;
 
-  return isLoading ? null : (!enableThirdParty && setting === "thirdparty") ||
+  return isLoading ? null : (!enableThirdParty && setting === "thirdParty") ||
     (!isAdmin && setting === "admin") ? (
     <Error403 />
   ) : isErrorSettings ? (
@@ -182,26 +158,46 @@ const SectionBodyContent = ({
   );
 };
 
-function mapStateToProps(state) {
-  return {
-    isAdmin: isAdmin(state),
-    selectedTreeNode: getSettingsSelectedTreeNode(state),
-    storeOriginalFiles: getSettingsTreeStoreOriginalFiles(state),
-    confirmDelete: getSettingsTreeConfirmDelete(state),
-    updateIfExist: getSettingsTreeUpdateIfExist(state),
-    forceSave: getSettingsTreeForceSave(state),
-    storeForceSave: getSettingsTreeStoreForceSave(state),
-    enableThirdParty: getSettingsTreeEnableThirdParty(state),
-    isLoading: getIsLoading(state),
-    settingsTree: getSettingsTree(state),
-  };
-}
+export default inject(
+  ({ auth, initFilesStore, settingsStore, treeFoldersStore }) => {
+    const { isLoading } = initFilesStore;
+    const { selectedTreeNode } = treeFoldersStore;
+    const {
+      settingsTree: settings,
+      storeOriginalFiles,
+      confirmDelete,
+      updateIfExist,
+      forcesave,
+      storeForcesave,
+      enableThirdParty,
+      setUpdateIfExist,
+      setStoreOriginal,
+      setEnableThirdParty,
+      setConfirmDelete,
+      setStoreForceSave,
+      setForceSave,
+    } = settingsStore;
 
-export default connect(mapStateToProps, {
-  setUpdateIfExist,
-  setStoreOriginal,
-  setEnableThirdParty,
-  setConfirmDelete,
-  setStoreForceSave,
-  setForceSave,
-})(SectionBodyContent);
+    const settingsTree = Object.keys(settings).length !== 0 ? settings : {};
+
+    return {
+      isAdmin: auth.isAdmin,
+      isLoading,
+      selectedTreeNode,
+      settingsTree,
+      storeOriginalFiles,
+      confirmDelete,
+      updateIfExist,
+      forceSave: forcesave,
+      storeForceSave: storeForcesave,
+      enableThirdParty,
+
+      setUpdateIfExist,
+      setStoreOriginal,
+      setEnableThirdParty,
+      setConfirmDelete,
+      setStoreForceSave,
+      setForceSave,
+    };
+  }
+)(observer(SectionBodyContent));

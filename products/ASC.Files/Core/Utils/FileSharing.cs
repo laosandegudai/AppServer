@@ -61,6 +61,7 @@ namespace ASC.Web.Files.Utils
         private NotifyClient NotifyClient { get; }
         private GlobalFolderHelper GlobalFolderHelper { get; }
         private FileSharingHelper FileSharingHelper { get; }
+        private FileTrackerHelper FileTracker { get; }
 
         public FileSharingAceHelper(
             FileSecurity fileSecurity,
@@ -72,7 +73,8 @@ namespace ASC.Web.Files.Utils
             FileMarker fileMarker,
             NotifyClient notifyClient,
             GlobalFolderHelper globalFolderHelper,
-            FileSharingHelper fileSharingHelper)
+            FileSharingHelper fileSharingHelper,
+            FileTrackerHelper fileTracker)
         {
             FileSecurity = fileSecurity;
             CoreBaseSettings = coreBaseSettings;
@@ -84,6 +86,7 @@ namespace ASC.Web.Files.Utils
             NotifyClient = notifyClient;
             GlobalFolderHelper = globalFolderHelper;
             FileSharingHelper = fileSharingHelper;
+            FileTracker = fileTracker;
         }
 
         public async Task<bool> SetAceObject(List<AceWrapper> aceWrappers, FileEntry<T> entry, bool notify, string message)

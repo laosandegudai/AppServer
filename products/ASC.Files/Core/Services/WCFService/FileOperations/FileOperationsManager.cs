@@ -58,10 +58,13 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
             var processlist = Process.GetProcesses();
 
             //TODO: replace with distributed cache
-            foreach (var o in operations.Where(o => processlist.All(p => p.Id != o.InstanceId)))
+            if (processlist.Any())
             {
-                o.SetProperty(FileOperation.PROGRESS, 100);
-                tasks.RemoveTask(o.Id);
+                foreach (var o in operations.Where(o => processlist.All(p => p.Id != o.InstanceId)))
+                {
+                    o.SetProperty(FileOperation.PROGRESS, 100);
+                    tasks.RemoveTask(o.Id);
+                }
             }
 
             operations = operations.Where(t => t.GetProperty<Guid>(FileOperation.OWNER) == userId);
@@ -105,9 +108,9 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
 
         public ItemList<FileOperationResult> MarkAsRead(Guid userId, Tenant tenant, IEnumerable<JsonElement> folderIds, IEnumerable<JsonElement> fileIds)
         {
-            var op1 = new FileMarkAsReadOperation<int>(ServiceProvider, new FileMarkAsReadOperationData<int>(folderIds.Where(r => r.ValueKind == JsonValueKind.Number).Select(r => r.GetInt32()), fileIds.Where(r => r.ValueKind == JsonValueKind.Number).Select(r => r.GetInt32()), tenant));
-            var op2 = new FileMarkAsReadOperation<string>(ServiceProvider, new FileMarkAsReadOperationData<string>(folderIds.Where(r => r.ValueKind == JsonValueKind.String).Select(r => r.GetString()), fileIds.Where(r => r.ValueKind == JsonValueKind.String).Select(r => r.GetString()), tenant));
-            var op = new FileMarkAsReadOperation(ServiceProvider, op2, op1);
+            var op1 = new FileMarkAsReadOperation<int>(ServiceProvider, userId, new FileMarkAsReadOperationData<int>(folderIds.Where(r => r.ValueKind == JsonValueKind.Number).Select(r => r.GetInt32()), fileIds.Where(r => r.ValueKind == JsonValueKind.Number).Select(r => r.GetInt32()), tenant));
+            var op2 = new FileMarkAsReadOperation<string>(ServiceProvider, userId, new FileMarkAsReadOperationData<string>(folderIds.Where(r => r.ValueKind == JsonValueKind.String).Select(r => r.GetString()), fileIds.Where(r => r.ValueKind == JsonValueKind.String).Select(r => r.GetString()), tenant));
+            var op = new FileMarkAsReadOperation(userId, op2, op1);
             return QueueTask(userId, op);
         }
 
@@ -122,33 +125,33 @@ namespace ASC.Web.Files.Services.WCFService.FileOperations
                 throw new InvalidOperationException(FilesCommonResource.ErrorMassage_ManyDownloads);
             }
 
-            var op1 = new FileDownloadOperation<int>(ServiceProvider, new FileDownloadOperationData<int>(folders.Where(r => r.Key.ValueKind == JsonValueKind.Number).ToDictionary(r => r.Key.GetInt32(), r => r.Value), files.Where(r => r.Key.ValueKind == JsonValueKind.Number).ToDictionary(r => r.Key.GetInt32(), r => r.Value), tenant, headers));
-            var op2 = new FileDownloadOperation<string>(ServiceProvider, new FileDownloadOperationData<string>(folders.Where(r => r.Key.ValueKind == JsonValueKind.String).ToDictionary(r => r.Key.GetString(), r => r.Value), files.Where(r => r.Key.ValueKind == JsonValueKind.String).ToDictionary(r => r.Key.GetString(), r => r.Value), tenant, headers));
-            var op = new FileDownloadOperation(ServiceProvider, op2, op1);
+            var op1 = new FileDownloadOperation<int>(ServiceProvider, userId, new FileDownloadOperationData<int>(folders.Where(r => r.Key.ValueKind == JsonValueKind.Number).ToDictionary(r => r.Key.GetInt32(), r => r.Value), files.Where(r => r.Key.ValueKind == JsonValueKind.Number).ToDictionary(r => r.Key.GetInt32(), r => r.Value), tenant, headers));
+            var op2 = new FileDownloadOperation<string>(ServiceProvider, userId, new FileDownloadOperationData<string>(folders.Where(r => r.Key.ValueKind == JsonValueKind.String).ToDictionary(r => r.Key.GetString(), r => r.Value), files.Where(r => r.Key.ValueKind == JsonValueKind.String).ToDictionary(r => r.Key.GetString(), r => r.Value), tenant, headers));
+            var op = new FileDownloadOperation(userId, op2, op1);
 
             return QueueTask(userId, op);
         }
 
         public ItemList<FileOperationResult> MoveOrCopy(Guid userId, Tenant tenant, IEnumerable<JsonElement> folders, IEnumerable<JsonElement> files, JsonElement destFolderId, bool copy, FileConflictResolveType resolveType, bool holdResult, IDictionary<string, StringValues> headers)
         {
-            var op1 = new FileMoveCopyOperation<int>(ServiceProvider, new FileMoveCopyOperationData<int>(folders.Where(r => r.ValueKind == JsonValueKind.Number).Select(r => r.GetInt32()), files.Where(r => r.ValueKind == JsonValueKind.Number).Select(r => r.GetInt32()), tenant, destFolderId, copy, resolveType, holdResult, headers));
-            var op2 = new FileMoveCopyOperation<string>(ServiceProvider, new FileMoveCopyOperationData<string>(folders.Where(r => r.ValueKind == JsonValueKind.String).Select(r => r.GetString()), files.Where(r => r.ValueKind == JsonValueKind.String).Select(r => r.GetString()), tenant, destFolderId, copy, resolveType, holdResult, headers));
-            var op = new FileMoveCopyOperation(ServiceProvider, op2, op1);
+            var op1 = new FileMoveCopyOperation<int>(ServiceProvider, userId, new FileMoveCopyOperationData<int>(folders.Where(r => r.ValueKind == JsonValueKind.Number).Select(r => r.GetInt32()), files.Where(r => r.ValueKind == JsonValueKind.Number).Select(r => r.GetInt32()), tenant, destFolderId, copy, resolveType, holdResult, headers));
+            var op2 = new FileMoveCopyOperation<string>(ServiceProvider, userId, new FileMoveCopyOperationData<string>(folders.Where(r => r.ValueKind == JsonValueKind.String).Select(r => r.GetString()), files.Where(r => r.ValueKind == JsonValueKind.String).Select(r => r.GetString()), tenant, destFolderId, copy, resolveType, holdResult, headers));
+            var op = new FileMoveCopyOperation(userId, op2, op1);
 
             return QueueTask(userId, op);
         }
 
         public ItemList<FileOperationResult> Delete<T>(Guid userId, Tenant tenant, IEnumerable<T> folders, IEnumerable<T> files, bool ignoreException, bool holdResult, bool immediately, IDictionary<string, StringValues> headers)
         {
-            var op = new FileDeleteOperation<T>(ServiceProvider, new FileDeleteOperationData<T>(folders, files, tenant, holdResult, ignoreException, immediately, headers));
+            var op = new FileDeleteOperation<T>(ServiceProvider, userId, new FileDeleteOperationData<T>(folders, files, tenant, holdResult, ignoreException, immediately, headers));
             return QueueTask(userId, op);
         }
 
         public ItemList<FileOperationResult> Delete(Guid userId, Tenant tenant, IEnumerable<JsonElement> folders, IEnumerable<JsonElement> files, bool ignoreException, bool holdResult, bool immediately, IDictionary<string, StringValues> headers)
         {
-            var op1 = new FileDeleteOperation<int>(ServiceProvider, new FileDeleteOperationData<int>(folders.Where(r => r.ValueKind == JsonValueKind.Number).Select(r => r.GetInt32()), files.Where(r => r.ValueKind == JsonValueKind.Number).Select(r => r.GetInt32()), tenant, holdResult, ignoreException, immediately, headers));
-            var op2 = new FileDeleteOperation<string>(ServiceProvider, new FileDeleteOperationData<string>(folders.Where(r => r.ValueKind == JsonValueKind.String).Select(r => r.GetString()), files.Where(r => r.ValueKind == JsonValueKind.String).Select(r => r.GetString()), tenant, holdResult, ignoreException, immediately, headers));
-            var op = new FileDeleteOperation(ServiceProvider, op2, op1);
+            var op1 = new FileDeleteOperation<int>(ServiceProvider, userId, new FileDeleteOperationData<int>(folders.Where(r => r.ValueKind == JsonValueKind.Number).Select(r => r.GetInt32()), files.Where(r => r.ValueKind == JsonValueKind.Number).Select(r => r.GetInt32()), tenant, holdResult, ignoreException, immediately, headers));
+            var op2 = new FileDeleteOperation<string>(ServiceProvider, userId, new FileDeleteOperationData<string>(folders.Where(r => r.ValueKind == JsonValueKind.String).Select(r => r.GetString()), files.Where(r => r.ValueKind == JsonValueKind.String).Select(r => r.GetString()), tenant, holdResult, ignoreException, immediately, headers));
+            var op = new FileDeleteOperation(userId, op2, op1);
 
             return QueueTask(userId, op);
         }

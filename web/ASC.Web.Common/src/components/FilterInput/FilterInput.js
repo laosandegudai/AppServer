@@ -127,6 +127,10 @@ class FilterInput extends React.Component {
     const { filterValues, searchText } = this.state;
     const { sortDirection, sortId, inputValue } = selectedFilterData;
 
+    const isGroupChanged = this.groupChanged(
+      prevProps.selectedFilterData.filterValues
+    );
+
     if (
       this.props.needForUpdate &&
       this.props.needForUpdate(prevProps, this.props)
@@ -142,13 +146,24 @@ class FilterInput extends React.Component {
       this.updateFilter();
     }
 
+    if (isGroupChanged) {
+      this.setState({
+        needUpdateFilter: true,
+      });
+    }
+
     if (
-      !equal(selectedFilterData.filterValues, filterValues) ||
-      inputValue !== searchText // &&
-      //sectionWidth !== prevProps.sectionWidth
+      (!equal(
+        selectedFilterData.filterValues,
+        prevProps.selectedFilterData.filterValues
+      ) &&
+        selectedFilterData.filterValues.length !==
+          this.state.filterValues.length) ||
+      inputValue !== searchText ||
+      sectionWidth !== prevProps.sectionWidth ||
+      isGroupChanged
     ) {
       const sortData = getSortData();
-      const filterValues = this.getDefaultFilterData();
       this.setState({
         sortDirection: sortDirection === "desc" ? true : false,
         sortId:
@@ -157,10 +172,10 @@ class FilterInput extends React.Component {
             : sortData.length > 0
             ? sortData[0].key
             : "",
-        filterValues: filterValues,
         searchText: selectedFilterData.inputValue || "",
+        needUpdateFilter: true,
       });
-      this.updateFilter(filterValues);
+      this.updateFilter();
     }
 
     if (
@@ -176,7 +191,16 @@ class FilterInput extends React.Component {
     ) {
       this.clearFilter();
     }
+    if (
+      !equal(
+        prevProps.selectedFilterData.filterValues,
+        selectedFilterData.filterValues
+      )
+    ) {
+      this.checkingOrderItems();
+    }
   }
+
   shouldComponentUpdate(nextProps, nextState) {
     const {
       selectedFilterData,
@@ -209,6 +233,44 @@ class FilterInput extends React.Component {
     return !equal(this.state, nextState);
   }
 
+  checkingOrderItems = () => {
+    const { filterValues: itemsState } = this.state;
+    const filterValues = this.getDefaultFilterData();
+    let updatedValues = itemsState.slice();
+
+    if (itemsState.length === filterValues.length) {
+      itemsState.map((item, index) => {
+        if (item.group === "filter-group" && index !== -1) {
+          const newGroup = filterValues.find((i) => i.group === "filter-group");
+          updatedValues.splice(index, 1, newGroup);
+        }
+      });
+    }
+
+    if (itemsState.length > filterValues.length) {
+      if (itemsState.length > +filterValues.length + 1) {
+        updatedValues = filterValues.slice();
+      } else {
+        itemsState.map((item, index) => {
+          if (!filterValues.find((i) => i.group === item.group)) {
+            updatedValues.splice(index, 1);
+          }
+        });
+      }
+    }
+
+    if (itemsState.length < filterValues.length) {
+      filterValues.map((item) => {
+        if (!itemsState.find((i) => i.group === item.group)) {
+          updatedValues.push(item);
+        }
+      });
+    }
+
+    this.setState({ filterValues: updatedValues });
+    this.updateFilter(updatedValues);
+  };
+
   onChangeSortDirection = (key) => {
     this.onFilter(
       this.state.filterValues,
@@ -240,7 +302,6 @@ class FilterInput extends React.Component {
     this.setState({ sortDirection: !this.state.sortDirection });
   };
   onSearchChanged = (value) => {
-    this.setState({ searchText: value });
     this.onFilter(
       this.state.filterValues,
       this.state.sortId,
@@ -255,6 +316,27 @@ class FilterInput extends React.Component {
       this.state.sortDirection ? "desc" : "asc"
     );
   };
+
+  groupChanged = (prevFilterValues) => {
+    const { selectedFilterData } = this.props;
+
+    let groupItem = selectedFilterData.filterValues.find(
+      (item) => item.group === "filter-group"
+    );
+    let prevGroupItem = prevFilterValues.find(
+      (item) => item.group === "filter-group"
+    );
+
+    if (groupItem === prevGroupItem) return false;
+    if (!groupItem || !prevGroupItem) return true;
+
+    if (groupItem.key.indexOf(prevGroupItem.key) !== -1) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
   getDefaultFilterData = () => {
     const { getFilterData, selectedFilterData } = this.props;
     const filterData = getFilterData();
@@ -456,7 +538,8 @@ class FilterInput extends React.Component {
       : fullWidth - filterWidth;
 
     if (searchWidth) {
-      const asideView = searchWidth && searchWidth < 350;
+      const asideView =
+        searchWidth && searchWidth < 350 && window.innerWidth < 1025;
 
       this.setState({
         asideView,
@@ -468,6 +551,7 @@ class FilterInput extends React.Component {
         (x) => x.id === "filter-items-container"
       ).children
     );
+
     const numberOfHiddenItems = this.calcHiddenItems(searchWidth, filterArr);
     if (searchWidth !== 0 && currentFilterItems.length > 0) {
       this.setState({
@@ -559,12 +643,6 @@ class FilterInput extends React.Component {
     });
 
     if (filterItem.isSelector) {
-      const indexFilterItem = currentFilterItems.findIndex(
-        (x) => x.group === filterItem.group
-      );
-      if (indexFilterItem != -1) {
-        currentFilterItems.splice(indexFilterItem, 1);
-      }
       const typeSelector = filterItem.key.includes("user")
         ? "user"
         : filterItem.key.includes("group")
@@ -594,7 +672,17 @@ class FilterInput extends React.Component {
         defaultSelectLabel: filterItem.defaultSelectLabel,
         selectedItem,
       };
-      currentFilterItems.push(selectFilterItem);
+
+      const indexFilterItem = currentFilterItems.findIndex(
+        (x) => x.group === filterItem.group
+      );
+
+      if (indexFilterItem != -1) {
+        currentFilterItems.splice(indexFilterItem, 1, selectFilterItem);
+      } else {
+        currentFilterItems.push(selectFilterItem);
+      }
+
       this.setState({
         filterValues: currentFilterItems,
         openFilterItems: currentFilterItems,

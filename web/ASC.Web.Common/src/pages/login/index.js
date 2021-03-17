@@ -1,7 +1,6 @@
 import React, { Component, useEffect } from "react";
 import PropTypes from "prop-types";
 import { withRouter } from "react-router";
-import { getLanguage } from "../../store/auth/selectors";
 import {
   Box,
   Button,
@@ -14,19 +13,15 @@ import {
   FieldContainer,
 } from "asc-web-components";
 import PageLayout from "../../components/PageLayout";
-import { connect } from "react-redux";
 import styled, { css } from "styled-components";
 import { withTranslation } from "react-i18next";
 import i18n from "./i18n";
 import ForgotPasswordModalDialog from "./sub-components/forgot-password-modal-dialog";
-import {
-  login,
-  setIsLoaded,
-  reloadPortalSettings,
-} from "../../store/auth/actions";
 import { sendInstructionsToChangePassword } from "../../api/people";
 import Register from "./sub-components/register-container";
 import { createPasswordHash, tryRedirectTo } from "../../utils";
+import { checkPwd } from "../../desktop";
+import { inject, observer } from "mobx-react";
 
 const LoginContainer = styled.div`
   display: flex;
@@ -112,7 +107,11 @@ const LoginContainer = styled.div`
 const LoginFormWrapper = styled.div`
   display: grid;
   grid-template-rows: ${(props) =>
-    props.enabledJoin ? css`1fr 66px` : css`1fr`};
+    props.enabledJoin
+      ? props.isDesktop
+        ? css`1fr 10px`
+        : css`1fr 66px`
+      : css`1fr`};
   width: 100%;
   height: calc(100vh-56px);
 `;
@@ -197,7 +196,7 @@ class Form extends Component {
 
   onSubmit = () => {
     const { errorText, identifier, password } = this.state;
-    const { login, setIsLoaded, hashSettings, defaultPage } = this.props;
+    const { login, hashSettings, isDesktop, defaultPage } = this.props;
 
     errorText && this.setState({ errorText: "" });
     let hasError = false;
@@ -221,12 +220,10 @@ class Form extends Component {
     this.setState({ isLoading: true });
     const hash = createPasswordHash(pass, hashSettings);
 
+    isDesktop && checkPwd();
+
     login(userName, hash)
-      .then(() => {
-        if (!tryRedirectTo(defaultPage)) {
-          setIsLoaded(true);
-        }
-      })
+      .then(() => tryRedirectTo(defaultPage))
       .catch((error) => {
         this.setState({
           errorText: error,
@@ -238,13 +235,7 @@ class Form extends Component {
   };
 
   componentDidMount() {
-    const {
-      match,
-      t,
-      hashSettings, // eslint-disable-line react/prop-types
-      reloadPortalSettings, // eslint-disable-line react/prop-types
-      organizationName,
-    } = this.props;
+    const { match, t, organizationName } = this.props;
     const { error, confirmedEmail } = match.params;
 
     document.title = `${t("Authorization")} – ${organizationName}`; //TODO: implement the setDocumentTitle() utility in ASC.Web.Common
@@ -252,10 +243,6 @@ class Form extends Component {
     error && this.setState({ errorText: error });
     confirmedEmail && this.setState({ identifier: confirmedEmail });
     window.addEventListener("keyup", this.onKeyPress);
-
-    if (!hashSettings) {
-      reloadPortalSettings();
-    }
   }
 
   componentWillUnmount() {
@@ -433,8 +420,6 @@ Form.propTypes = {
   login: PropTypes.func.isRequired,
   match: PropTypes.object.isRequired,
   hashSettings: PropTypes.object,
-  reloadPortalSettings: PropTypes.func,
-  setIsLoaded: PropTypes.func.isRequired,
   greetingTitle: PropTypes.string.isRequired,
   t: PropTypes.func.isRequired,
   i18n: PropTypes.object.isRequired,
@@ -443,6 +428,7 @@ Form.propTypes = {
   organizationName: PropTypes.string,
   homepage: PropTypes.string,
   defaultPage: PropTypes.string,
+  isDesktop: PropTypes.bool,
 };
 
 Form.defaultProps = {
@@ -454,14 +440,14 @@ Form.defaultProps = {
 const FormWrapper = withTranslation()(Form);
 
 const LoginForm = (props) => {
-  const { language, enabledJoin } = props;
+  const { language, enabledJoin, isDesktop } = props;
 
   useEffect(() => {
     i18n.changeLanguage(language);
   }, [language]);
 
   return (
-    <LoginFormWrapper enabledJoin={enabledJoin}>
+    <LoginFormWrapper enabledJoin={enabledJoin} isDesktop={isDesktop}>
       <PageLayout>
         <PageLayout.SectionBody>
           <FormWrapper i18n={i18n} {...props} />
@@ -476,32 +462,30 @@ LoginForm.propTypes = {
   language: PropTypes.string.isRequired,
   isLoaded: PropTypes.bool,
   enabledJoin: PropTypes.bool,
+  isDesktop: PropTypes.bool.isRequired,
 };
 
-function mapStateToProps(state) {
-  const { isLoaded, settings, isAuthenticated } = state.auth;
+export default inject(({ auth }) => {
+  const { settingsStore, isAuthenticated, isLoaded, language, login } = auth;
   const {
-    greetingSettings,
+    greetingSettings: greetingTitle,
     organizationName,
     hashSettings,
     enabledJoin,
     defaultPage,
-  } = settings;
+    isDesktopClient: isDesktop,
+  } = settingsStore;
 
   return {
     isAuthenticated,
     isLoaded,
+    language,
     organizationName,
-    language: getLanguage(state),
-    greetingTitle: greetingSettings,
+    greetingTitle,
     hashSettings,
     enabledJoin,
     defaultPage,
+    isDesktop,
+    login,
   };
-}
-
-export default connect(mapStateToProps, {
-  login,
-  setIsLoaded,
-  reloadPortalSettings,
-})(withRouter(LoginForm));
+})(withRouter(observer(LoginForm)));

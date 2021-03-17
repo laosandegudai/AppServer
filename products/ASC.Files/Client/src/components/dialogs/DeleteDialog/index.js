@@ -1,6 +1,5 @@
 import React from "react";
 import { withRouter } from "react-router";
-import { connect } from "react-redux";
 import ModalDialogContainer from "../ModalDialogContainer";
 import {
   ModalDialog,
@@ -10,32 +9,12 @@ import {
   Scrollbar,
 } from "asc-web-components";
 import { withTranslation } from "react-i18next";
-import { api, utils, toastr } from "asc-web-common";
-import {
-  fetchFiles,
-  setTreeFolders,
-  setSecondaryProgressBarData,
-  clearSecondaryProgressData,
-  setUpdateTree,
-} from "../../../store/files/actions";
+import { api, toastr } from "asc-web-common";
 import { TIMEOUT } from "../../../helpers/constants";
-import {
-  loopTreeFolders,
-  getSelectedFolderId,
-  getFilter,
-  getTreeFolders,
-  getIsLoading,
-  getIsRecycleBinFolder,
-  getSelection,
-} from "../../../store/files/selectors";
-import { createI18N } from "../../../helpers/i18n";
-const i18n = createI18N({
-  page: "DeleteDialog",
-  localesPath: "dialogs/DeleteDialog",
-});
+import { loopTreeFolders } from "../../../helpers/files-helpers";
+import { inject, observer } from "mobx-react";
 
 const { files } = api;
-const { changeLanguage } = utils;
 
 class DeleteDialogComponent extends React.Component {
   constructor(props) {
@@ -47,15 +26,22 @@ class DeleteDialogComponent extends React.Component {
 
     let i = 0;
     while (props.selection.length !== i) {
-      selection.push({ ...props.selection[i], checked: true });
-      if (selection[i].fileExst) {
-        filesList.push(selection[i]);
-      } else {
-        foldersList.push(selection[i]);
+      if (!(props.isRootFolder && props.selection[i].providerKey)) {
+        if (
+          props.selection[i].access === 0 ||
+          props.selection[i].access === 1
+        ) {
+          const item = { ...props.selection[i], checked: true };
+          selection.push(item);
+          if (props.selection[i].fileExst) {
+            filesList.push(item);
+          } else {
+            foldersList.push(item);
+          }
+        }
       }
       i++;
     }
-    changeLanguage(i18n);
 
     this.state = { foldersList, filesList, selection };
   }
@@ -71,9 +57,10 @@ class DeleteDialogComponent extends React.Component {
       clearSecondaryProgressData,
       t,
       fetchFiles,
-      setUpdateTree,
     } = this.props;
-    const successMessage = "Files and folders was deleted";
+    const successMessage = isRecycleBinFolder
+      ? t("DeleteFromTrash")
+      : t("DeleteSelectedElem");
     api.files
       .getProgress()
       .then((res) => {
@@ -103,7 +90,6 @@ class DeleteDialogComponent extends React.Component {
               const folders = data.selectedFolder.folders;
               const foldersCount = data.selectedFolder.foldersCount;
               loopTreeFolders(path, newTreeFolders, folders, foldersCount);
-              setUpdateTree(true);
               setTreeFolders(newTreeFolders);
             }
             toastr.success(successMessage);
@@ -123,6 +109,7 @@ class DeleteDialogComponent extends React.Component {
   onDelete = () => {
     const {
       isRecycleBinFolder,
+      isPrivacy,
       onClose,
       t,
       setSecondaryProgressBarData,
@@ -131,7 +118,7 @@ class DeleteDialogComponent extends React.Component {
     const { selection } = this.state;
 
     const deleteAfter = true; //Delete after finished
-    const immediately = isRecycleBinFolder ? true : false; //Don't move to the Recycle Bin
+    const immediately = isRecycleBinFolder || isPrivacy ? true : false; //Don't move to the Recycle Bin
 
     const folderIds = [];
     const fileIds = [];
@@ -181,12 +168,12 @@ class DeleteDialogComponent extends React.Component {
     const newSelection = this.state.selection;
 
     if (fileType !== "undefined") {
-      const a = newSelection.find((x) => x.id === id && x.fileExst);
-      a.checked = !a.checked;
+      const selection = newSelection.find((x) => x.id === id && x.fileExst);
+      selection.checked = !selection.checked;
       this.setState({ selection: newSelection });
     } else {
-      const a = newSelection.find((x) => x.id === id && !x.fileExst);
-      a.checked = !a.checked;
+      const selection = newSelection.find((x) => x.id === id && !x.fileExst);
+      selection.checked = !selection.checked;
       this.setState({ selection: newSelection });
     }
   };
@@ -285,27 +272,46 @@ class DeleteDialogComponent extends React.Component {
   }
 }
 
-const ModalDialogContainerTranslated = withTranslation()(DeleteDialogComponent);
+const DeleteDialog = withTranslation("DeleteDialog")(DeleteDialogComponent);
 
-const DeleteDialog = (props) => (
-  <ModalDialogContainerTranslated i18n={i18n} {...props} />
-);
+export default inject(
+  ({
+    initFilesStore,
+    filesStore,
+    uploadDataStore,
+    treeFoldersStore,
+    selectedFolderStore,
+  }) => {
+    const { isLoading } = initFilesStore;
+    const { secondaryProgressDataStore } = uploadDataStore;
+    const { fetchFiles, selection, filter } = filesStore;
 
-const mapStateToProps = (state) => {
-  return {
-    currentFolderId: getSelectedFolderId(state),
-    filter: getFilter(state),
-    treeFolders: getTreeFolders(state),
-    isLoading: getIsLoading(state),
-    isRecycleBinFolder: getIsRecycleBinFolder(state),
-    selection: getSelection(state),
-  };
-};
+    const {
+      treeFolders,
+      setTreeFolders,
+      isRecycleBinFolder,
+      isPrivacyFolder,
+    } = treeFoldersStore;
 
-export default connect(mapStateToProps, {
-  setTreeFolders,
-  setSecondaryProgressBarData,
-  clearSecondaryProgressData,
-  setUpdateTree,
-  fetchFiles,
-})(withRouter(DeleteDialog));
+    const {
+      setSecondaryProgressBarData,
+      clearSecondaryProgressData,
+    } = secondaryProgressDataStore;
+
+    return {
+      currentFolderId: selectedFolderStore.id,
+      selection,
+      isLoading,
+      treeFolders,
+      isRecycleBinFolder,
+      isPrivacy: isPrivacyFolder,
+      filter,
+      isRootFolder: selectedFolderStore.isRootFolder,
+
+      fetchFiles,
+      setTreeFolders,
+      setSecondaryProgressBarData,
+      clearSecondaryProgressData,
+    };
+  }
+)(withRouter(observer(DeleteDialog)));
