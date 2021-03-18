@@ -33,8 +33,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 using ASC.Common;
-using ASC.Common.Logging;
 using ASC.Common.Caching;
+using ASC.Common.Logging;
 using ASC.Core;
 using ASC.Core.Common.EF;
 using ASC.Core.Common.Settings;
@@ -677,7 +677,7 @@ namespace ASC.Files.Core.Data
                 .AsAsyncEnumerable();
 
             var toDeleteFiles = Query(FilesDbContext.Files).Where(r => r.Id == fileId).AsAsyncEnumerable();
-            FilesDbContext.RemoveRange(toDeleteFiles);
+            FilesDbContext.RemoveRange(await toDeleteFiles.ToListAsync());
 
             await foreach (var d in toDeleteFiles)
             {
@@ -687,20 +687,20 @@ namespace ASC.Files.Core.Data
             var toDeleteLinks = Query(FilesDbContext.TagLink)
                 .Where(r => r.EntryId == fileId.ToString() && r.EntryType == FileEntryType.File)
                 .AsAsyncEnumerable();
-            FilesDbContext.RemoveRange(toDeleteLinks);
+            FilesDbContext.RemoveRange(await toDeleteLinks.ToListAsync());
 
             var tagsToRemove = Query(FilesDbContext.Tag)
                 .Where(r => !Query(FilesDbContext.TagLink).Any(a => a.TagId == r.Id))
                 .AsAsyncEnumerable();
 
-            FilesDbContext.RemoveRange(tagsToRemove);
+            FilesDbContext.RemoveRange(await tagsToRemove.ToListAsync());
 
             var securityToDelete = Query(FilesDbContext.Security)
                 .Where(r => r.EntryId == fileId.ToString())
                 .Where(r => r.EntryType == FileEntryType.File)
                 .AsAsyncEnumerable();
 
-            FilesDbContext.RemoveRange(securityToDelete);
+            FilesDbContext.RemoveRange(await securityToDelete.ToListAsync());
             await FilesDbContext.SaveChangesAsync();
 
             await tx.CommitAsync();
