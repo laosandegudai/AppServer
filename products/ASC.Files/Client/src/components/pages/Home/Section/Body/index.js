@@ -8,6 +8,7 @@ import { observer, inject } from "mobx-react";
 import FilesRowContainer from "./FilesRow/FilesRowContainer";
 import FilesTileContainer from "./FilesTile/FilesTileContainer";
 import EmptyContainer from "./EmptyContainer";
+import FileList from "./FilesRow/FileList";
 
 const backgroundDragColor = "#EFEFB2";
 
@@ -40,6 +41,25 @@ const CustomTooltip = styled.div`
   }
 `;
 
+const StyledContainer = styled.div`
+  height: calc(100vh - 220px);
+  .hide-scrollbars {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    &::-webkit-scrollbar {
+      width: 1px;
+    }
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: transparent;
+    }
+  }
+  .hide-scrollbars::-webkit-scrollbar {
+    display: none;
+  }
+`;
 class SectionBodyContent extends React.Component {
   constructor(props) {
     super(props);
@@ -390,7 +410,6 @@ class SectionBodyContent extends React.Component {
       dragging,
       viewAs,
       t,
-      isMobile,
       firstLoad,
       tooltipValue,
       isLoading,
@@ -418,7 +437,15 @@ class SectionBodyContent extends React.Component {
     ) : (
       <>
         <CustomTooltip ref={this.tooltipRef}>{fileMoveTooltip}</CustomTooltip>
-        {viewAs === "tile" ? <FilesTileContainer /> : <FilesRowContainer />}
+        {viewAs === "tile" ? (
+          <FilesTileContainer />
+        ) : isMobile ? (
+          <StyledContainer>
+            <FileList />
+          </StyledContainer>
+        ) : (
+          <FilesRowContainer />
+        )}
       </>
     );
   }

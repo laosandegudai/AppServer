@@ -278,9 +278,11 @@ class PureHome extends React.Component {
             <SectionBodyContent />
           </PageLayout.SectionBody>
 
-          <PageLayout.SectionPaging>
-            <SectionPagingContent />
-          </PageLayout.SectionPaging>
+          {!isMobile && (
+            <PageLayout.SectionPaging>
+              <SectionPagingContent />
+            </PageLayout.SectionPaging>
+          )}
         </PageLayout>
       </>
     );
