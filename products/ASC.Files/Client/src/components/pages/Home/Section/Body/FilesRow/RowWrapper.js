@@ -500,8 +500,6 @@ const RowWrapper = memo(({ data, index, style, ...props }) => {
       ? null
       : getSharedButton(shared);
 
-  console.log("RowWrapper render");
-
   return (
     <StyledSimpleFilesRow
       style={style}

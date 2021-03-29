@@ -126,13 +126,11 @@ class FilesStore {
   };
 
   addFiles = (files) => {
-    console.log("add files", files);
     if (this.files.length + files.length <= this.filter.total)
       this.files = this.files.concat(files);
   };
 
   addFolders = (folders) => {
-    console.log("add folders", folders);
     if (this.folders.length + folders.length <= this.filter.total)
       this.folders = this.folders.concat(folders);
   };
@@ -1022,7 +1020,6 @@ class FilesStore {
 
     if (filter.hasNext()) filterData.page++;
     return api.files.getFolder(folderId, filterData).then((data) => {
-      console.log("data", data);
       const isPrivacyFolder =
         data.current.rootFolderType === FolderType.Privacy;
 

@@ -8,9 +8,6 @@ import { inject, observer } from "mobx-react";
 import RowWrapper from "./RowWrapper";
 
 const FileList = ({ items, filter, loadMoreFiles }) => {
-  console.log("FileList render");
-  console.log(items);
-
   const createItemData = memoize((items) => ({
     items,
   }));
