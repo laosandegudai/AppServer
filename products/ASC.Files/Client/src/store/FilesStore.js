@@ -40,6 +40,7 @@ const {
   canFormFillingDocs,
   canWebFilterEditing,
 } = docserviceStore;
+const { setExpandedKeys, setSelectedNode } = treeFoldersStore;
 
 class FilesStore {
   fileActionStore = null;
@@ -75,7 +76,6 @@ class FilesStore {
       isOnlyFoldersSelected: computed,
       isThirdPartySelection: computed,
       isWebEditSelected: computed,
-      canShareOwnerChange: computed,
       selectionTitle: computed,
       currentFilesCount: computed,
 
@@ -107,6 +107,8 @@ class FilesStore {
       removeItemFromFavorite: action,
       fetchFavoritesFolder: action,
       getFileInfo: action,
+      setFolder: action,
+      setFile: action,
       loadMoreFiles: action,
     });
 
@@ -125,7 +127,15 @@ class FilesStore {
     this.folders = folders;
   };
 
-  addFiles = (files) => {
+  setFile = (file) => {
+    const index = this.files.findIndex((x) => x.id === file.id);
+    if (index !== -1) this.files[index] = file;
+  };
+
+  setFolder = (folder) => {
+    const index = this.folders.findIndex((x) => x.id === folder.id);
+    if (index !== -1) this.folders[index] = folder;
+  }; addFiles = (files) => {
     if (
       this.files.length + files.length + this.folders.length <=
       this.filter.total
@@ -139,9 +149,7 @@ class FilesStore {
       this.filter.total
     )
       this.folders = this.folders.concat(folders);
-  };
-
-  getFilesChecked = (file, selected) => {
+  };  getFilesChecked = (file, selected) => {
     const type = file.fileType;
     switch (selected) {
       case "all":
@@ -220,7 +228,8 @@ class FilesStore {
   fetchFiles = (folderId, filter, clearFilter = true) => {
     const filterData = filter ? filter.clone() : FilesFilter.getDefault();
     filterData.folder = folderId;
-    const { privacyFolder, expandedKeys, setExpandedKeys } = treeFoldersStore;
+    const { privacyFolder, expandedKeys } = treeFoldersStore;
+    setSelectedNode([folderId + ""]);
 
     if (privacyFolder && privacyFolder.id === +folderId) {
       if (!isEncryptionSupport) {
@@ -255,11 +264,8 @@ class FilesStore {
       const isPrivacyFolder =
         data.current.rootFolderType === FolderType.Privacy;
 
-      const newExpandedKeys = createTreeFolders(
-        data.pathParts,
-        treeFoldersStore.expandedKeys
-      );
-      treeFoldersStore.setExpandedKeys(newExpandedKeys);
+      const newExpandedKeys = createTreeFolders(data.pathParts, expandedKeys);
+      setExpandedKeys(newExpandedKeys);
       filterData.total = data.total;
       this.setFilesFilter(filterData); //TODO: FILTER
       this.setFolders(
@@ -360,7 +366,7 @@ class FilesStore {
         options.push("send-by-email");
       }
 
-      //this.canShareOwnerChange && options.push("owner-change");
+      this.canShareOwnerChange(item) && options.push("owner-change");
       options.push("link-for-portal-users");
 
       if (!isVisitor) {
@@ -470,6 +476,24 @@ class FilesStore {
     return filesLength + foldersLength;
   };
 
+  canShareOwnerChange = (item) => {
+    const userId = userStore.user.id;
+    const isCommonFolder =
+      treeFoldersStore.commonFolder &&
+      selectedFolderStore.pathParts &&
+      treeFoldersStore.commonFolder.id === selectedFolderStore.pathParts[0];
+
+    if (item.providerKey || !isCommonFolder) {
+      return false;
+    } else if (isAdmin) {
+      return true;
+    } else if (item.createdBy.id === userId) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   get canShare() {
     const folderType = selectedFolderStore.rootFolderType;
     const isVisitor = (userStore.user && userStore.user.isVisitor) || false;
@@ -515,21 +539,6 @@ class FilesStore {
       return icon;
     }
     return null;
-  }
-
-  get canShareOwnerChange() {
-    const pathParts = selectedFolderStore.pathParts;
-    const userId = userStore.user.id;
-    const commonFolder = treeFoldersStore.commonFolder;
-    return (
-      (isAdmin ||
-        (this.selection.length && this.selection[0].createdBy.id === userId)) &&
-      pathParts &&
-      commonFolder &&
-      commonFolder.id === pathParts[0] &&
-      this.selection.length &&
-      !this.selection[0].providerKey
-    );
   }
 
   get isHeaderVisible() {
