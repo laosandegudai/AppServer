@@ -3,7 +3,7 @@ import { withRouter } from "react-router";
 import { withTranslation } from "react-i18next";
 import styled from "styled-components";
 import Loaders from "@appserver/common/components/Loaders";
-import { isMobile } from "react-device-detect";
+import { isFirefox, isMobile } from "react-device-detect";
 import { observer, inject } from "mobx-react";
 import FilesRowContainer from "./FilesRow/FilesRowContainer";
 import FilesTileContainer from "./FilesTile/FilesTileContainer";
@@ -42,7 +42,10 @@ const CustomTooltip = styled.div`
 `;
 
 const StyledContainer = styled.div`
-  height: calc(100vh - 260px);
+  height: ${(props) =>
+    (props.isTabletView || isMobile) && !isFirefox
+      ? "var(--contentHeight, calc(1vh - 112px))"
+      : "calc(100vh - 112px)"};
   .hide-scrollbars {
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;
@@ -504,6 +507,7 @@ export default inject(
       copyToAction,
       moveToAction,
       folderId: selectedFolderStore.id,
+      isTabletView: auth.settingsStore.isTabletView,
     };
   }
 )(withRouter(withTranslation("Home")(observer(SectionBodyContent))));

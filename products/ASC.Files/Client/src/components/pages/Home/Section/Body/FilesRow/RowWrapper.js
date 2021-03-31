@@ -501,22 +501,31 @@ const RowWrapper = memo(({ data, index, style, ...props }) => {
       : getSharedButton(shared);
 
   return (
-    <StyledSimpleFilesRow
-      style={style}
-      sectionWidth={sectionWidth}
-      key={id}
-      data={item}
-      element={element}
-      contentElement={sharedButton}
-      onSelect={onContentRowSelect}
-      rowContextClick={rowContextClick}
-      isPrivacy={isPrivacy}
-      {...checkedProps}
+    <DragAndDrop
+      className={className}
+      onDrop={onDrop}
+      //onMouseDown={this.onMouseDown}
+      dragging={dragging && isFolder && access < 2}
       {...contextOptionsProps}
-      contextButtonSpacerWidth={displayShareButton}
+      value={value}
     >
-      <FilesRowContent item={item} sectionWidth={sectionWidth} />
-    </StyledSimpleFilesRow>
+      <StyledSimpleFilesRow
+        style={style}
+        sectionWidth={sectionWidth}
+        key={id}
+        data={item}
+        element={element}
+        contentElement={sharedButton}
+        onSelect={onContentRowSelect}
+        rowContextClick={rowContextClick}
+        isPrivacy={isPrivacy}
+        {...checkedProps}
+        {...contextOptionsProps}
+        contextButtonSpacerWidth={displayShareButton}
+      >
+        <FilesRowContent item={item} sectionWidth={sectionWidth} />
+      </StyledSimpleFilesRow>
+    </DragAndDrop>
   );
 }, areEqual);
 

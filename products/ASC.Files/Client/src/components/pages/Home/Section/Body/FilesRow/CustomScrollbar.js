@@ -10,16 +10,21 @@ class CustomScrollbar extends Component {
   }
 
   handleUpdate(values) {
+    const customScrollElm = document.querySelector(
+      "#customScrollBar > .scroll-body"
+    );
     const { top } = values;
     const { setHeaderVisible } = this.props;
     if (top > this.state.top) {
       console.log("Scrolling down");
       setHeaderVisible(true);
+      customScrollElm.scrollTo(0, top);
     }
 
     if (top < this.state.top) {
       console.log("Scrolling up");
       setHeaderVisible(false);
+      customScrollElm.scrollTo(0, top);
     }
 
     this.setState({ top });

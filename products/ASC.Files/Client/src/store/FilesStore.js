@@ -249,6 +249,8 @@ class FilesStore {
     }
 
     filterData.page = 0;
+
+    if (filter.page > 1) filter.page = 0;
     return api.files.getFolder(folderId, filter).then((data) => {
       const isPrivacyFolder =
         data.current.rootFolderType === FolderType.Privacy;

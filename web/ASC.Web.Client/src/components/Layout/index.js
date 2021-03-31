@@ -140,6 +140,10 @@ const Layout = (props) => {
         }
       }
       setContentHeight(height);
+      document.documentElement.style.setProperty(
+        "--contentHeight",
+        height + "px"
+      );
     };
     intervalHandler = setInterval(() => {
       //console.log("changeRootHeight setInterval"); TODO: need to refactoring
