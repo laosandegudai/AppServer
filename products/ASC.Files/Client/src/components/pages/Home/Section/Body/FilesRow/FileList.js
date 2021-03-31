@@ -5,6 +5,7 @@ import InfiniteLoader from "react-window-infinite-loader";
 import memoize from "memoize-one";
 import { inject, observer } from "mobx-react";
 
+import CustomScrollbar from "./CustomScrollbar";
 import RowWrapper from "./RowWrapper";
 
 const FileList = ({ items, filter, loadMoreFiles }) => {
@@ -32,7 +33,6 @@ const FileList = ({ items, filter, loadMoreFiles }) => {
         >
           {({ onItemsRendered, ref }) => (
             <List
-              className="hide-scrollbars"
               style={style}
               height={height}
               width={width}
@@ -40,6 +40,7 @@ const FileList = ({ items, filter, loadMoreFiles }) => {
               itemCount={items.length}
               itemSize={48}
               onItemsRendered={onItemsRendered}
+              outerElementType={CustomScrollbar}
               ref={ref}
             >
               {RowWrapper}

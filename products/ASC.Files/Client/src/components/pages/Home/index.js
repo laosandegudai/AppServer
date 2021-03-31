@@ -185,9 +185,9 @@ class PureHome extends React.Component {
         hideLoader();
       }
     }
-    if (this.props.isHeaderVisible !== prevProps.isHeaderVisible) {
+    /*if (this.props.isHeaderVisible !== prevProps.isHeaderVisible) {
       this.props.setHeaderVisible(this.props.isHeaderVisible);
-    }
+    }*/
     if (
       isProgressFinished &&
       isProgressFinished !== prevProps.isProgressFinished
@@ -230,7 +230,7 @@ class PureHome extends React.Component {
 
         <MediaViewer />
         <PageLayout
-          withBodyScroll
+          withBodyScroll={!isMobile}
           withBodyAutoFocus={!isMobile}
           uploadFiles
           onDrop={this.onDrop}

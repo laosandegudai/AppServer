@@ -42,7 +42,7 @@ const CustomTooltip = styled.div`
 `;
 
 const StyledContainer = styled.div`
-  height: calc(100vh - 220px);
+  height: calc(100vh - 260px);
   .hide-scrollbars {
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;
