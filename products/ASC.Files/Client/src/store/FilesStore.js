@@ -126,12 +126,18 @@ class FilesStore {
   };
 
   addFiles = (files) => {
-    if (this.files.length + files.length <= this.filter.total)
+    if (
+      this.files.length + files.length + this.folders.length <=
+      this.filter.total
+    )
       this.files = this.files.concat(files);
   };
 
   addFolders = (folders) => {
-    if (this.folders.length + folders.length <= this.filter.total)
+    if (
+      this.folders.length + folders.length + this.files.length <=
+      this.filter.total
+    )
       this.folders = this.folders.concat(folders);
   };
 
