@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useCallback } from "react";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeList as List } from "react-window";
 import InfiniteLoader from "react-window-infinite-loader";
 import memoize from "memoize-one";
 import { inject, observer } from "mobx-react";
+import { WindowScroller } from "react-virtualized";
 
-import CustomScrollbar from "./CustomScrollbar";
 import RowWrapper from "./RowWrapper";
 
 const FileList = ({ items, filter, loadMoreFiles }) => {
@@ -19,36 +19,43 @@ const FileList = ({ items, filter, loadMoreFiles }) => {
 
   const isItemLoaded = (index) => !!items[index];
 
-  const loadMoreItems = () => {
+  const loadMoreItems = useCallback(() => {
     loadMoreFiles(folderId, filter);
-  };
+  });
 
   return (
-    <AutoSizer>
-      {({ height, width, style }) => (
-        <InfiniteLoader
-          isItemLoaded={isItemLoaded}
-          itemCount={filter.total}
-          loadMoreItems={loadMoreItems}
-        >
-          {({ onItemsRendered, ref }) => (
-            <List
-              style={style}
-              height={height}
-              width={width}
-              itemData={itemData}
-              itemCount={items.length}
-              itemSize={48}
-              onItemsRendered={onItemsRendered}
-              outerElementType={CustomScrollbar}
-              ref={ref}
+    <WindowScroller>
+      {({ height, isScrolling, registerChild, scrollTop }) => (
+        <AutoSizer disableHeight>
+          {({ width, style }) => (
+            <InfiniteLoader
+              isItemLoaded={isItemLoaded}
+              itemCount={filter.total}
+              loadMoreItems={loadMoreItems}
             >
-              {RowWrapper}
-            </List>
+              {({ onItemsRendered, ref }) => (
+                <div ref={registerChild}>
+                  <List
+                    style={style}
+                    height={height}
+                    width={width}
+                    itemData={itemData}
+                    itemCount={items.length}
+                    itemSize={48}
+                    onItemsRendered={onItemsRendered}
+                    ref={ref}
+                    scrollTop={scrollTop}
+                    isScrolling={isScrolling}
+                  >
+                    {isItemLoaded ? RowWrapper : "Loading..."}
+                  </List>
+                </div>
+              )}
+            </InfiniteLoader>
           )}
-        </InfiniteLoader>
+        </AutoSizer>
       )}
-    </AutoSizer>
+    </WindowScroller>
   );
 };
 
