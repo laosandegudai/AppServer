@@ -159,10 +159,12 @@ const SectionBodyContent = (props) => {
     )
   ) : viewAs === "tile" ? (
     <FilesTileContainer />
-  ) : (
+  ) : isMobile ? (
     <StyledContainer>
       <FileList />
     </StyledContainer>
+  ) : (
+    <FilesRowContainer />
   );
 };
 
