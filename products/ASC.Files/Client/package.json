@@ -71,6 +71,7 @@
     "react-text-mask": "^5.4.3",
     "react-toastify": "^6.1.0",
     "react-tooltip": "^4.2.11",
+    "react-virtualized": "^9.22.3",
     "react-virtualized-auto-sizer": "^1.0.2",
     "react-window": "^1.8.6",
     "react-window-infinite-loader": "^1.0.5",
