@@ -16,6 +16,7 @@ import treeFoldersStore from "./TreeFoldersStore";
 import { createTreeFolders } from "../helpers/files-helpers";
 import config from "../../package.json";
 import { combineUrl } from "@appserver/common/utils";
+import { isMobile } from "react-device-detect";
 
 const { FilesFilter } = api;
 
@@ -135,7 +136,9 @@ class FilesStore {
   setFolder = (folder) => {
     const index = this.folders.findIndex((x) => x.id === folder.id);
     if (index !== -1) this.folders[index] = folder;
-  }; addFiles = (files) => {
+  };
+
+  addFiles = (files) => {
     if (
       this.files.length + files.length + this.folders.length <=
       this.filter.total
@@ -149,7 +152,9 @@ class FilesStore {
       this.filter.total
     )
       this.folders = this.folders.concat(folders);
-  };  getFilesChecked = (file, selected) => {
+  };
+
+  getFilesChecked = (file, selected) => {
     const type = file.fileType;
     switch (selected) {
       case "all":
@@ -257,9 +262,11 @@ class FilesStore {
       }
     }
 
-    filterData.page = 0;
+    if (isMobile) {
+      //filterData.page = 0;
+      if (filter.page > 0) filter.page = 0;
+    }
 
-    if (filter.page > 1) filter.page = 0;
     return api.files.getFolder(folderId, filter).then((data) => {
       const isPrivacyFolder =
         data.current.rootFolderType === FolderType.Privacy;
