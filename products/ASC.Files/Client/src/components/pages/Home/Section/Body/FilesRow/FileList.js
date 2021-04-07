@@ -36,6 +36,7 @@ const FileList = ({ items, filter, loadMoreFiles }) => {
               {({ onItemsRendered, ref }) => (
                 <div ref={registerChild}>
                   <List
+                    autoHeight
                     style={style}
                     height={height}
                     width={width}
@@ -47,7 +48,7 @@ const FileList = ({ items, filter, loadMoreFiles }) => {
                     scrollTop={scrollTop}
                     isScrolling={isScrolling}
                   >
-                    {isItemLoaded ? RowWrapper : "Loading..."}
+                    {isItemLoaded ? RowWrapper : "..."}
                   </List>
                 </div>
               )}
