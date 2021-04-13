@@ -32,6 +32,7 @@ export { default as Loader } from "./loader";
 export { default as MainButton } from "./main-button";
 export { default as ModalDialog } from "./modal-dialog";
 export { default as Paging } from "./paging";
+export { default as PhoneInput } from "./phone-input";
 export { default as PasswordInput } from "./password-input";
 export { default as RadioButton } from "./radio-button";
 export { default as RadioButtonGroup } from "./radio-button-group";

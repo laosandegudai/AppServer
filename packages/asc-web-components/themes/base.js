@@ -1561,15 +1561,15 @@ const Base = {
     background: lightCumulus,
   },
 
-  // phoneInput: {
-  //   width: "304px",
-  //   height: "44px",
-  //   itemTextColor: black,
-  //   itemBackgroundColor: white,
-  //   itemHoverColor: grayLightMid,
-  //   scrollBackground: "rgba(0, 0, 0, 0.1)",
-  //   placeholderColor: gray,
-  // },
+  phoneInput: {
+    width: "304px",
+    height: "44px",
+    itemTextColor: black,
+    itemBackgroundColor: white,
+    itemHoverColor: grayLightMid,
+    scrollBackground: "rgba(0, 0, 0, 0.1)",
+    placeholderColor: gray,
+  },
 
   // squareButton: {
   //   height: "32px",
