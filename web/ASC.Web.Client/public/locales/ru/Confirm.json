@@ -21,5 +21,15 @@
   "ConfirmOwnerPortalTitle": "Пожалуйста, подтвердите, что Вы хотите изменить владельца портала на {{newOwner}}",
   "SaveButton": "Сохранить",
   "CancelButton": "Отмена",
-  "ConfirmOwnerPortalSuccessMessage": "Portal owner has been successfully changed. {0}In 10 seconds you will be redirected {1}here{2}"
+  "ConfirmOwnerPortalSuccessMessage": "Portal owner has been successfully changed. {0}In 10 seconds you will be redirected {1}here{2}",
+
+  "EnterNewMobile": "Введите номер мобильного телефона",
+  "CurrentMobile": "Текущий номер мобильного телефона:",
+  "MobileChangeDescription": "Для обеспечения повышенной безопасности на портале включена двухфакторная аутентификация. Для продолжения работы на портале введите ваш номер мобильного телефона. Номер мобильного телефона необходимо ввести в международном формате с кодом страны.",
+  "GetCode": "Получить код",
+  "EnterCodeTitle": "Введите код из SMS",
+  "EnterCodeDescription": "На Ваш мобильный телефон {{mobilePhone}} выслано SMS-сообщение с кодом доступа к порталу. Пожалуйста, введите этот код и нажмите кнопку \"Продолжить\". Если сообщение не приходит более 3 минут, нажмите кнопку \"Отправить код еще раз\".",
+  "Continue": "Продолжить",
+  "SendCodeAgain": "Отправить код еще раз",
+  "Second": "сек"
 }

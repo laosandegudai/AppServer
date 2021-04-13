@@ -26,5 +26,15 @@
   "ConfirmOwnerPortalTitle": "Please confirm that you want to change portal owner to {{newOwner}}",
   "SaveButton": "Save",
   "CancelButton": "Cancel",
-  "ConfirmOwnerPortalSuccessMessage": "Portal owner has been successfully changed. {0}In 10 seconds you will be redirected {1}here{2}"
+  "ConfirmOwnerPortalSuccessMessage": "Portal owner has been successfully changed. {0}In 10 seconds you will be redirected {1}here{2}",
+
+  "EnterNewMobile": "Enter new mobile phone number",
+  "CurrentMobile": "Your current mobile phone number:",
+  "MobileChangeDescription": "The two-factor authentication is enabled to provide additional portal security. Enter your mobile phone number to continue work on the portal. Mobile phone number must be entered using an international format with country code.",
+  "GetCode": "Get code",
+  "EnterCodeTitle": "Enter code from SMS",
+  "EnterCodeDescription": "An SMS with portal access code has been sent to your {{mobilePhone}} mobile number. Please enter the code and click the \"Continue\" button. If no message is received for more than three minutes, click the \"Send code again\" link.",
+  "Continue": "Continue",
+  "SendCodeAgain": "Send code again",
+  "Second": "sec"
 }
