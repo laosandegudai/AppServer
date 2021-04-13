@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import styled from "styled-components";
 import PropTypes from "prop-types";
 
@@ -69,7 +69,10 @@ const StyledBox = styled.div`
   ${(props) => props.widthProp && widthStyle(props.widthProp)}
 `;
 
-const Box = (props) => <StyledBox {...props} />;
+const Box = forwardRef(({ tag, as, ...rest }, ref) => {
+  //console.log("Box render", rest)
+  return <StyledBox as={!as && tag ? tag : as} ref={ref} {...rest} />;
+});
 Box.propTypes = {
   /** sets the distribution of space between and around content items
    * along a flexbox's cross-axis or a grid's block axis */
@@ -83,6 +86,8 @@ Box.propTypes = {
    * it aligns the item inside the grid area. In Flexbox, it aligns
    * the item on the cross axis. */
   alignSelf: PropTypes.string,
+  /** sets current tag */
+  as: PropTypes.string,
   /** sets all background style properties at once, such as color,
    * image, origin and size, or repeat method.  */
   backgroundProp: PropTypes.string,
@@ -127,6 +132,8 @@ Box.propTypes = {
   /** sets the padding area on all four sides of an element. It is a shorthand for padding-top,
    * padding-right, padding-bottom, and padding-left */
   paddingProp: PropTypes.string,
+  /** sets current tag */
+  tag: PropTypes.string,
   /** sets the horizontal alignment of a block element or table-cell box.
    * This means it works like vertical-align but in the horizontal direction  */
   textAlign: PropTypes.string,
@@ -137,5 +144,7 @@ Box.propTypes = {
 Box.defaultProps = {
   displayProp: "block",
 };
+
+Box.displayName = "Box";
 
 export default Box;
