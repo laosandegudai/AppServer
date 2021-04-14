@@ -12,7 +12,7 @@ import {
   StyledSearchPanel,
   StyledDropDownWrapper,
 } from "./StyledPhoneInput";
-import { StyledCustomScrollbarsVirtualList } from "../drop-down/styled-drop-down";
+import CustomScrollbarsVirtualList from "../scrollbar/custom-scrollbars-virtual-list";
 
 const Dropdown = memo(
   ({
@@ -60,7 +60,7 @@ const Dropdown = memo(
       return () => {
         document.removeEventListener("mousedown", handleClick);
       };
-    }, [open, search, dropDownMenu]);
+    }, [open, search]);
 
     const onSearchCountry = useCallback((e) => {
       const textSearch = e.target.value;
@@ -92,7 +92,7 @@ const Dropdown = memo(
                   height: 16,
                 })}
               </Box>
-              <Box widthProp="250px" marginProp="2px 0 2px 8px">
+              <Box widthProp="185px" marginProp="2px 0 2px 8px">
                 <Text
                   color={theme.phoneInput.itemTextColor}
                   truncate={true}
@@ -113,8 +113,8 @@ const Dropdown = memo(
           <StyledFlagBox onClick={openDropDown}>
             {value
               ? React.createElement(Countries[`${setCountry}`], {
-                  width: 24,
-                  height: 16,
+                  width: 16,
+                  height: 12,
                 })
               : "n/a"}
           </StyledFlagBox>
@@ -137,8 +137,8 @@ const Dropdown = memo(
                     height={220}
                     itemCount={filteredCountries.length}
                     itemSize={28}
-                    width={304}
-                    outerElementType={StyledCustomScrollbarsVirtualList}
+                    width={240}
+                    outerElementType={CustomScrollbarsVirtualList}
                     ref={listRef}
                   >
                     {CountryItem}

@@ -1562,8 +1562,8 @@ const Base = {
   },
 
   phoneInput: {
-    width: "304px",
-    height: "44px",
+    width: "240px",
+    height: "32px",
     itemTextColor: black,
     itemBackgroundColor: white,
     itemHoverColor: grayLightMid,

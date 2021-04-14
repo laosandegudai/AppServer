@@ -5,8 +5,9 @@ import { Base } from "../themes";
 
 const StyledPhoneInput = styled(TextInput)`
   border: 0;
-  font-size: 16px;
-  padding: 11px 0px 11px 5px;
+  font-size: 13px;
+  padding: 5px 6px;
+  width: 150px;
 `;
 
 const StyledTriangle = styled.div`
@@ -20,7 +21,7 @@ const StyledTriangle = styled.div`
 const StyledDropDown = styled.div`
   position: absolute;
   top: 28px;
-  left: -18px;
+  left: -9px;
   width: ${(props) => props.theme.phoneInput.width};
   height: 260px;
   z-index: 1999;
