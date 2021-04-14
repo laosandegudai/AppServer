@@ -36,5 +36,7 @@
   "EnterCodeDescription": "An SMS with portal access code has been sent to your {{mobilePhone}} mobile number. Please enter the code and click the \"Continue\" button. If no message is received for more than three minutes, click the \"Send code again\" link.",
   "Continue": "Continue",
   "SendCodeAgain": "Send code again",
-  "Second": "sec"
+  "Second": "sec",
+  "SearchEmptyMessage": "Nothing found",
+  "SearchPlaceholderText": "Type to search country"
 }
