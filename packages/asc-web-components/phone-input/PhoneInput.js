@@ -8,12 +8,32 @@ import { Base } from "../themes";
 import { options, countryCodes } from "./options";
 
 const PhoneInput = memo(
-  ({ searchEmptyMessage, searchPlaceholderText, ...props }) => {
+  ({ searchEmptyMessage, searchPlaceholderText, onChange, ...props }) => {
     const [country, setCountry] = useState(props.locale);
 
     const onChangeCountry = useCallback((country) => setCountry(country), [
       country,
     ]);
+
+    const onChangeWrapper = (e) => {
+      const value = e.target.value.trim();
+      const dialCode = getLocaleCode(country);
+      const fullNumber = dialCode.concat(value);
+      const locale = country;
+      const mask = getMask(country);
+      const isValid = mask
+        ? !!value.length && !Array.isArray(value.match(/_/gm))
+        : !!value.length && Array.isArray(value.match(/^[0-9]+$/));
+
+      onChange &&
+        onChange({
+          value,
+          dialCode,
+          fullNumber,
+          locale,
+          isValid,
+        });
+    };
 
     const getLocaleCode = (locale) =>
       options.find((o) => o.code === locale).dialCode;
@@ -57,6 +77,7 @@ const PhoneInput = memo(
             <StyledPhoneInput
               mask={getMask(country)}
               placeholder={getPlaceholder(country)}
+              onChange={onChangeWrapper}
               {...props}
             />
           </div>
