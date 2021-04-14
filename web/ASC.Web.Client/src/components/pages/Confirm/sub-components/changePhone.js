@@ -24,11 +24,19 @@ const StyledForm = styled(Box)`
 const PhoneForm = (props) => {
   const { t, currentPhone, greetingTitle } = props;
 
-  const [phone, setPhone] = useState(currentPhone);
+  const [phone, setPhone] = useState("");
+  const [isValid, setIsValid] = useState(false);
+  const [fullNumber, setFullNumber] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const onChangePhone = (obj) => {
+    setPhone(obj.value);
+    setIsValid(obj.isValid);
+    obj.isValid && setFullNumber(obj.fullNumber);
+  };
+
   const onSubmit = () => {
-    console.log("Request the code");
+    console.log(`Request the code for ${fullNumber}`);
   };
 
   const onKeyPress = (target) => {
@@ -81,6 +89,8 @@ const PhoneForm = (props) => {
             locale="BY"
             searchEmptyMessage={t("SearchEmptyMessage")}
             searchPlaceholderText={t("SearchPlaceholderText")}
+            onChange={onChangePhone}
+            value={phone}
           />
         </Box>
 
@@ -90,7 +100,7 @@ const PhoneForm = (props) => {
             size="medium"
             tabIndex={3}
             label={isLoading ? t("LoadingProcessing") : t("GetCode")}
-            isDisabled={isLoading}
+            isDisabled={!isValid || isLoading}
             isLoading={isLoading}
             onClick={onSubmit}
           />
