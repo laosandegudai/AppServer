@@ -10,6 +10,7 @@ const ChangePasswordForm = lazy(() =>
 const ActivateEmailForm = lazy(() => import("./sub-components/activateEmail"));
 const ChangeEmailForm = lazy(() => import("./sub-components/changeEmail"));
 const ChangePhoneForm = lazy(() => import("./sub-components/changePhone"));
+const PhoneAuth = lazy(() => import("./sub-components/phoneAuth"));
 const ProfileRemoveForm = lazy(() => import("./sub-components/profileRemove"));
 const ChangeOwnerForm = lazy(() => import("./sub-components/changeOwner"));
 
@@ -52,6 +53,7 @@ const Confirm = ({ match }) => {
         path={`${match.path}/PhoneActivation`}
         component={ChangePhoneForm}
       />
+      <Route exact path={`${match.path}/PhoneAuth`} component={PhoneAuth} />
       <ConfirmRoute
         exact
         path={`${match.path}/PortalOwnerChange`}
