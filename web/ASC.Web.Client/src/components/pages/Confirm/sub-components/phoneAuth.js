@@ -9,6 +9,7 @@ import PageLayout from "@appserver/common/components/PageLayout";
 import { inject, observer } from "mobx-react";
 import Box from "@appserver/components/box";
 import Link from "@appserver/components/link";
+import { mobile, tablet } from "@appserver/components/utils/device";
 
 const StyledForm = styled(Box)`
   margin: 63px auto auto 216px;
@@ -16,8 +17,30 @@ const StyledForm = styled(Box)`
   display: flex;
   flex-direction: column;
 
+  @media ${tablet} {
+    margin: 120px auto;
+    width: 480px;
+  }
+
+  @media ${mobile} {
+    margin: 72px 16px auto 8px;
+    width: 311px;
+  }
+
   .phone-code-text {
     margin-bottom: 14px;
+  }
+
+  .phone-code-wrapper {
+    @media ${tablet} {
+      flex-direction: column;
+    }
+  }
+
+  .phone-code-continue-btn {
+    @media ${tablet} {
+      margin: 32px 0 0 0;
+    }
   }
 `;
 
@@ -27,6 +50,11 @@ const PhoneAuthForm = (props) => {
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [timer, setTimer] = useState(30);
+  const [width, setWidth] = useState(window.innerWidth);
+
+  React.useEffect(() => {
+    window.addEventListener("resize", () => setWidth(window.innerWidth));
+  }, []);
 
   const onSubmit = () => {
     console.log("POST api/2.0/authentication/{code}"); // https://api.onlyoffice.com/portals/method/authentication/post/api/2.0/authentication/%7bcode%7d
@@ -50,13 +78,13 @@ const PhoneAuthForm = (props) => {
         </Text>
         <Text>{t("EnterCodeDescription")}</Text>
       </Box>
-      <Box displayProp="flex">
+      <Box displayProp="flex" className="phone-code-wrapper">
         <Box className="phone-code-input">
           <TextInput
             id="code"
             name="code"
             type="text"
-            size="base"
+            size={width <= 1024 ? "large" : "base"}
             scale
             isAutoFocussed
             tabIndex={1}
@@ -68,8 +96,9 @@ const PhoneAuthForm = (props) => {
         </Box>
         <Box className="phone-code-continue-btn" marginProp="0 0 0 8px">
           <Button
+            scale
             primary
-            size="medium"
+            size={width <= 1024 ? "large" : "medium"}
             tabIndex={3}
             label={isLoading ? t("LoadingProcessing") : t("Continue")}
             isDisabled={!code.length || isLoading}
@@ -80,7 +109,11 @@ const PhoneAuthForm = (props) => {
       </Box>
       <Box marginProp="32px 0 0 0">
         {timer > 0 ? (
-          <Text color="#D0D5DA" fontWeight="600">
+          <Text
+            color="#D0D5DA"
+            fontWeight="600"
+            textAlign={width <= 1024 ? "center" : null}
+          >
             {t("SendCodeAgain")} ({timer} {t("Second")})
           </Text>
         ) : (
