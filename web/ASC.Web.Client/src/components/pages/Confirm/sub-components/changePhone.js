@@ -9,12 +9,23 @@ import Text from "@appserver/components/text";
 import PageLayout from "@appserver/common/components/PageLayout";
 import { inject, observer } from "mobx-react";
 import Box from "@appserver/components/box";
+import { mobile, tablet } from "@appserver/components/utils/device";
 
 const StyledForm = styled(Box)`
-  margin: 63px auto auto 216px;
+  margin: 120px auto auto 216px;
   width: 570px;
   display: flex;
   flex-direction: column;
+
+  @media ${tablet} {
+    margin: 120px auto;
+    width: 480px;
+  }
+
+  @media ${mobile} {
+    margin: 72px 16px auto 8px;
+    width: 311px;
+  }
 
   .phone-edit-text {
     margin-bottom: 14px;
