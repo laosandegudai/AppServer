@@ -3,11 +3,54 @@ import TextInput from "../text-input";
 import Box from "../box";
 import { Base } from "../themes";
 
+// base
+// large
+
+const StyledFlagBoxWrapper = styled(Box)`
+  border: 1px solid #d1d1d1;
+  border-radius: 3px 0px 0px 3px;
+`;
+
+const StyledFlagBox = styled(Box)`
+  cursor: pointer;
+  font-size: ${(props) =>
+    (props.size === "base" && "20px") || (props.size === "large" && "27px")};
+  padding: ${(props) =>
+    (props.size === "base" && "0 4px 0 8px") ||
+    (props.size === "large" && " 0 4px 0 16px")};
+`;
+
+const StyledDialCode = styled(Box)`
+  border-top: 1px solid #d1d1d1;
+  border-bottom: 1px solid #d1d1d1;
+  padding: ${(props) =>
+    (props.size === "base" && "7px 0 7px 8px") ||
+    (props.size === "large" && "11px 0 11px 16px")};
+  .dial-code-text {
+    font-size: ${(props) =>
+      (props.size === "base" && "13px") || (props.size === "large" && "16px")};
+    line-height: ${(props) =>
+      (props.size === "base" && "16px") || (props.size === "large" && "21px")};
+  }
+`;
+
 const StyledPhoneInput = styled(TextInput)`
-  border: 0;
-  font-size: 13px;
-  padding: 5px 6px;
-  width: 150px;
+  border-left: 0;
+  border-radius: 0px 3px 3px 0px;
+  padding: ${(props) =>
+    (props.size === "base" && "7px 8px 7px 4px") ||
+    (props.size === "large" && "11px 16px 11px 6px")};
+  font-size: ${(props) =>
+    (props.size === "base" && "13px") || (props.size === "large" && "16px")};
+  line-height: ${(props) =>
+    (props.size === "base" && "16px") || (props.size === "large" && "21px")};
+
+  :hover {
+    border-color: #d1d1d1;
+  }
+  :focus {
+    border-color: #d1d1d1;
+  }
 `;
 
 const StyledTriangle = styled.div`
@@ -15,13 +58,20 @@ const StyledTriangle = styled.div`
   border-right: 3px solid transparent;
   border-top: 3px solid #a3a9ae;
   cursor: pointer;
-  margin: 7px 0 20px 4px;
+  margin: ${(props) =>
+    (props.size === "base" && "14px 8px 0 0") ||
+    (props.size === "large" && "21px 8px 0 0")};
+`;
+
+const StyledDropDownWrapper = styled(Box)`
+  position: relative;
 `;
 
 const StyledDropDown = styled.div`
   position: absolute;
-  top: 28px;
-  left: -9px;
+  top: ${(props) =>
+    (props.size === "base" && "30px") || (props.size === "large" && "43px")};
+  left: -1px;
   width: ${(props) => props.theme.phoneInput.width};
   height: 260px;
   z-index: 1999;
@@ -29,22 +79,6 @@ const StyledDropDown = styled.div`
   border-radius: 4px;
   border: 1px solid #d1d1d1;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-`;
-
-const StyledCountryItem = styled(Box)`
-  cursor: pointer;
-  &:hover {
-    background-color: ${(props) => props.theme.phoneInput.itemHoverColor};
-  }
-  background-color: ${(props) => props.theme.phoneInput.itemBackgroundColor};
-`;
-
-const StyledFlagBox = styled(Box)`
-  cursor: pointer;
-`;
-
-const StyledDropDownWrapper = styled(Box)`
-  position: relative;
 `;
 
 const StyledSearchPanel = styled.div`
@@ -58,18 +92,17 @@ const StyledSearchPanel = styled.div`
   }
 `;
 
-const StyledInputBox = styled(Box)`
-  display: flex;
-  border-radius: 3px 3px 3px 3px;
-  border: 1px solid #d0d5da;
-  width: ${(props) => props.theme.phoneInput.width};
-  height: ${(props) => props.theme.phoneInput.height};
+const StyledCountryItem = styled(Box)`
+  cursor: pointer;
+  &:hover {
+    background-color: ${(props) => props.theme.phoneInput.itemHoverColor};
+  }
+  background-color: ${(props) => props.theme.phoneInput.itemBackgroundColor};
 `;
 
 StyledDropDown.defaultProps = { theme: Base };
 StyledCountryItem.defaultProps = { theme: Base };
 StyledSearchPanel.defaultProps = { theme: Base };
-StyledInputBox.defaultProps = { theme: Base };
 
 export {
   StyledPhoneInput,
@@ -78,6 +111,7 @@ export {
   StyledCountryItem,
   StyledFlagBox,
   StyledSearchPanel,
-  StyledInputBox,
   StyledDropDownWrapper,
+  StyledDialCode,
+  StyledFlagBoxWrapper,
 };

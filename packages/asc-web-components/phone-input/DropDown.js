@@ -22,6 +22,7 @@ const Dropdown = memo(
     theme,
     searchPlaceholderText,
     searchEmptyMessage,
+    size,
   }) => {
     const dropDownMenu = useRef();
 
@@ -110,23 +111,23 @@ const Dropdown = memo(
     return (
       <StyledDropDownWrapper>
         <Box ref={dropDownMenu} displayProp="flex">
-          <StyledFlagBox onClick={openDropDown}>
+          <StyledFlagBox onClick={openDropDown} size={size}>
             {value
               ? React.createElement(Countries[`${setCountry}`], {
-                  width: 16,
-                  height: 12,
+                  width: (size === "base" && 16) || (size === "large" && 24),
+                  height: (size === "base" && 12) || (size === "large" && 16),
                 })
               : "n/a"}
           </StyledFlagBox>
-          <StyledTriangle onClick={openDropDown} />
+          <StyledTriangle size={size} onClick={openDropDown} />
           {open && (
-            <StyledDropDown>
+            <StyledDropDown size={size}>
               <StyledSearchPanel>
                 <TextInput
                   value={search}
                   placeholder={searchPlaceholderText}
                   onChange={onSearchCountry}
-                  scale={true}
+                  scale
                   className="phone-input-searcher"
                 />
               </StyledSearchPanel>

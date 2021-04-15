@@ -1,9 +1,15 @@
 import React, { useState, useCallback, memo } from "react";
 import PropTypes from "prop-types";
 import DropDown from "./DropDown";
-import { StyledPhoneInput, StyledInputBox } from "./StyledPhoneInput";
+import {
+  StyledPhoneInput,
+  StyledInputBox,
+  StyledDialCode,
+  StyledFlagBoxWrapper,
+} from "./StyledPhoneInput";
 import Box from "../box";
 import Text from "../text";
+import TextInput from "../text-input";
 import { Base } from "../themes";
 import { options, countryCodes } from "./options";
 
@@ -50,16 +56,8 @@ const PhoneInput = memo(
             .replace(/[d]/gi, "X");
 
     return (
-      <StyledInputBox>
-        <Box
-          displayProp="flex"
-          borderProp={{
-            style: "solid",
-            width: "0 1px 0 0",
-            color: "#D0D5DA",
-          }}
-          paddingProp="8px"
-        >
+      <Box displayProp="flex">
+        <StyledFlagBoxWrapper>
           <DropDown
             value={country}
             onChange={onChangeCountry}
@@ -67,22 +65,19 @@ const PhoneInput = memo(
             theme={props.theme}
             searchPlaceholderText={searchPlaceholderText}
             searchEmptyMessage={searchEmptyMessage}
+            size={props.size}
           />
-        </Box>
-        <Box displayProp="flex">
-          <Box paddingProp={"6px 0 11px 8px"}>
-            <Text>{getLocaleCode(country)}</Text>
-          </Box>
-          <div>
-            <StyledPhoneInput
-              mask={getMask(country)}
-              placeholder={getPlaceholder(country)}
-              onChange={onChangeWrapper}
-              {...props}
-            />
-          </div>
-        </Box>
-      </StyledInputBox>
+        </StyledFlagBoxWrapper>
+        <StyledDialCode size={props.size}>
+          <Text className="dial-code-text">{getLocaleCode(country)}</Text>
+        </StyledDialCode>
+        <StyledPhoneInput
+          mask={getMask(country)}
+          placeholder={getPlaceholder(country)}
+          onChange={onChangeWrapper}
+          {...props}
+        />
+      </Box>
     );
   }
 );
