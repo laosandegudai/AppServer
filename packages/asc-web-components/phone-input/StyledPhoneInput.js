@@ -37,6 +37,8 @@ const StyledDialCode = styled(Box)`
 const StyledPhoneInput = styled(TextInput)`
   border-left: 0;
   border-radius: 0px 3px 3px 0px;
+  width: ${(props) =>
+    (props.size === "base" && "142px") || (props.size === "large" && "180px")};
   padding: ${(props) =>
     (props.size === "base" && "7px 8px 7px 4px") ||
     (props.size === "large" && "11px 16px 11px 6px")};
@@ -72,7 +74,8 @@ const StyledDropDown = styled.div`
   top: ${(props) =>
     (props.size === "base" && "30px") || (props.size === "large" && "43px")};
   left: -1px;
-  width: ${(props) => props.theme.phoneInput.width};
+  width: ${(props) =>
+    (props.size === "base" && "229px") || (props.size === "large" && "300px")};
   height: 260px;
   z-index: 1999;
   background-color: #fff;

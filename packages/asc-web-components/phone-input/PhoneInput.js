@@ -56,7 +56,7 @@ const PhoneInput = memo(
             .replace(/[d]/gi, "X");
 
     return (
-      <Box displayProp="flex">
+      <Box displayProp="flex" className="input-container">
         <StyledFlagBoxWrapper>
           <DropDown
             value={country}

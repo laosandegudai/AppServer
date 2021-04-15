@@ -93,7 +93,12 @@ const Dropdown = memo(
                   height: 16,
                 })}
               </Box>
-              <Box widthProp="185px" marginProp="2px 0 2px 8px">
+              <Box
+                widthProp={
+                  (size === "base" && "174px") || (size === "large" && "250px")
+                }
+                marginProp="2px 0 2px 8px"
+              >
                 <Text
                   color={theme.phoneInput.itemTextColor}
                   truncate={true}
@@ -138,7 +143,9 @@ const Dropdown = memo(
                     height={220}
                     itemCount={filteredCountries.length}
                     itemSize={28}
-                    width={240}
+                    width={
+                      (size === "base" && 229) || (size === "large" && 300)
+                    }
                     outerElementType={CustomScrollbarsVirtualList}
                     ref={listRef}
                   >
