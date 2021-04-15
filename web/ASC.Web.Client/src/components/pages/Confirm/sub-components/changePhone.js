@@ -27,8 +27,20 @@ const StyledForm = styled(Box)`
     width: 311px;
   }
 
+  .phone-edit-wrapper {
+    @media ${tablet} {
+      flex-direction: column;
+    }
+  }
+
   .phone-edit-text {
     margin-bottom: 14px;
+  }
+
+  .phone-edit-btn {
+    @media ${tablet} {
+      margin: 32px 0 0 0;
+    }
   }
 `;
 
@@ -39,6 +51,11 @@ const PhoneForm = (props) => {
   const [isValid, setIsValid] = useState(false);
   const [fullNumber, setFullNumber] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [width, setWidth] = useState(window.innerWidth);
+
+  React.useEffect(() => {
+    window.addEventListener("resize", () => setWidth(window.innerWidth));
+  }, []);
 
   const onChangePhone = (obj) => {
     setPhone(obj.value);
@@ -50,8 +67,10 @@ const PhoneForm = (props) => {
     console.log(`Request the code for ${fullNumber}`);
   };
 
-  const onKeyPress = (target) => {
-    if (target.code === "Enter") onSubmit();
+  const onKeyPress = (e) => {
+    console.log(phone);
+    if (e.keyCode === 13 && isValid) return onSubmit();
+    return;
   };
 
   return (
@@ -72,43 +91,25 @@ const PhoneForm = (props) => {
         )}
         <Text>{t("MobileChangeDescription")}</Text>
       </Box>
-      <Box displayProp="flex">
+      <Box displayProp="flex" className="phone-edit-wrapper">
         <Box className="phone-edit-input">
-          {/* <TextInput
-            id="phone"
-            name="phone"
-            type="text"
-            size="base"
-            scale={true}
-            isAutoFocussed={true}
-            tabIndex={1}
-            autocomple="off"
-            placeholder={phonePlaceholder}
-            onChange={(event) => {
-              setPhone(event.target.value);
-              onKeyPress(event.target);
-            }}
-            value={phone}
-            hasError={false}
-            isDisabled={isLoading}
-            onKeyDown={(event) => onKeyPress(event.target)}
-            guide={false}
-            mask={simplePhoneMask}
-            className="edit-input"
-          /> */}
           <PhoneInput
-            locale="BY"
+            size={width <= 1024 ? "large" : "base"}
+            isAutoFocussed
+            tabIndex={1}
+            locale="AG"
             searchEmptyMessage={t("SearchEmptyMessage")}
             searchPlaceholderText={t("SearchPlaceholderText")}
             onChange={onChangePhone}
             value={phone}
+            onKeyDown={onKeyPress}
           />
         </Box>
-
         <Box className="phone-edit-btn" marginProp="0 0 0 8px">
           <Button
             primary
-            size="medium"
+            scale
+            size={width <= 1024 ? "large" : "medium"}
             tabIndex={3}
             label={isLoading ? t("LoadingProcessing") : t("GetCode")}
             isDisabled={!isValid || isLoading}
