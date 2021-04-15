@@ -29,7 +29,7 @@ const PhoneAuthForm = (props) => {
   const [timer, setTimer] = useState(30);
 
   const onSubmit = () => {
-    console.log(`Received code: ${code}`);
+    console.log("POST api/2.0/authentication/{code}"); // https://api.onlyoffice.com/portals/method/authentication/post/api/2.0/authentication/%7bcode%7d
   };
 
   const onKeyPress = (target) => {
@@ -88,7 +88,7 @@ const PhoneAuthForm = (props) => {
             fontWeight="600"
             color="#316DAA"
             onClick={() => {
-              console.log("Send code again");
+              console.log("POST api/2.0/authentication/sendsms"); // https://api.onlyoffice.com/portals/method/authentication/post/api/2.0/authentication/sendsms
               setTimer(30);
             }}
           >
