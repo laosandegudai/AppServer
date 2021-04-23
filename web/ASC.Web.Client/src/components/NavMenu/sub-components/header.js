@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { inject, observer } from "mobx-react";
 import PropTypes from "prop-types";
 import styled, { css } from "styled-components";
@@ -13,10 +13,12 @@ import { useTranslation } from "react-i18next";
 
 import Box from "@appserver/components/box";
 import Text from "@appserver/components/text";
-import { desktop, tablet } from "@appserver/components/utils/device";
+import { desktop, tablet, isDesktop } from "@appserver/components/utils/device";
 import i18n from "../i18n";
 import { combineUrl } from "@appserver/common/utils";
 import { AppServerConfig } from "@appserver/common/constants";
+import NavDesktopItem from "./nav-desktop-item";
+
 const { proxyURL } = AppServerConfig;
 
 const backgroundColor = "#0F4071";
@@ -30,6 +32,7 @@ const Header = styled.header`
 
   .header-logo-wrapper {
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    margin-left: 20px;
 
     ${(props) =>
       props.module &&
@@ -85,6 +88,11 @@ const Header = styled.header`
       padding: 0px 20px 0 6px;
     }
   }
+
+  .header-items-wrapper {
+    display: flex;
+    margin-left: 68px;
+  }
 `;
 
 const StyledLink = styled.div`
@@ -126,6 +134,7 @@ const HeaderComponent = ({
   isAuthenticated,
   isAdmin,
   backdropClick,
+  providers,
   ...props
 }) => {
   const { t } = useTranslation();
@@ -184,6 +193,18 @@ const HeaderComponent = ({
   //   );
   // };
 
+  const [isDesktopView, setIsDesktopView] = useState(isDesktop());
+
+  const onResize = () => {
+    const desktopView = isDesktop();
+    if (isDesktopView !== desktopView) setIsDesktopView(desktopView);
+  };
+
+  useEffect(() => {
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  });
+
   return (
     <>
       <Header
@@ -192,15 +213,118 @@ const HeaderComponent = ({
         isAuthenticated={isAuthenticated}
         className="navMenuHeader hidingHeader"
       >
-        <NavItem
-          badgeNumber={totalNotifications}
-          onClick={onClick}
-          noHover={true}
-        />
+        {isNavAvailable && !isDesktopView && (
+          <>
+            <NavItem
+              badgeNumber={totalNotifications}
+              onClick={onClick}
+              noHover={true}
+            />
+
+            <Nav
+              opened={isNavOpened}
+              onMouseEnter={onNavMouseEnter}
+              onMouseLeave={onNavMouseLeave}
+            >
+              <NavLogoItem opened={isNavOpened} onClick={onLogoClick} />
+              <NavItem
+                separator={true}
+                key={"nav-products-separator"}
+                data-id={"nav-products-separator"}
+              />
+              {mainModules.map(
+                ({
+                  id,
+                  separator, //iconName,
+                  iconUrl,
+                  notifications,
+                  link,
+                  title,
+                  dashed,
+                }) => (
+                  <NavItem
+                    separator={!!separator}
+                    key={id}
+                    data-id={id}
+                    data-link={link}
+                    opened={isNavOpened}
+                    active={id == currentProductId}
+                    //iconName={iconName}
+                    iconUrl={iconUrl}
+                    badgeNumber={notifications}
+                    onClick={onItemClick}
+                    onBadgeClick={onBadgeClick}
+                    url={link}
+                    dashed={dashed}
+                  >
+                    {id === "settings" ? i18n.t(title) : title}
+                  </NavItem>
+                )
+              )}
+              <Box className="version-box">
+                <Link
+                  as="a"
+                  href={`https://github.com/ONLYOFFICE/AppServer/releases`}
+                  target="_blank"
+                  {...versionBadgeProps}
+                >
+                  {t("Version")} {version}
+                </Link>
+                <Text as="span" {...versionBadgeProps}>
+                  {" "}
+                  -{" "}
+                </Text>
+                <StyledLink>
+                  <LinkWithoutRedirect
+                    to={combineUrl(proxyURL, "/about")}
+                    className="nav-menu-header_link"
+                  >
+                    {t("AboutShort")}
+                  </LinkWithoutRedirect>
+                </StyledLink>
+              </Box>
+            </Nav>
+          </>
+        )}
 
         <LinkWithoutRedirect className="header-logo-wrapper" to={defaultPage}>
           <img alt="logo" src={props.logoUrl} className="header-logo-icon" />
         </LinkWithoutRedirect>
+
+        {isNavAvailable && isDesktopView && (
+          <div className="header-items-wrapper not-selectable">
+            {mainModules.map(
+              ({ id, iconUrl, notifications, link }) =>
+                iconUrl && (
+                  <NavDesktopItem
+                    data-id={id}
+                    data-link={link}
+                    key={id}
+                    onClick={onItemClick}
+                    link={link}
+                    url={link}
+                    iconUrl={iconUrl}
+                    badgeNumber={notifications}
+                  />
+                )
+            )}
+            <NavDesktopItem separator />
+            {providers.map((provider) => (
+              <NavDesktopItem
+                key={provider}
+                provider={provider}
+                iconUrl="/products/files/images/files.menu.svg"
+              />
+            ))}
+            <NavDesktopItem separator />
+            <NavDesktopItem
+              modules={mainModules}
+              providers={providers}
+              iconUrl="/products/files/images/files.menu.svg"
+            />
+          </div>
+        )}
+
         <Headline
           className="header-module-title"
           type="header"
@@ -210,73 +334,6 @@ const HeaderComponent = ({
           {currentProductName}
         </Headline>
       </Header>
-
-      {isNavAvailable && (
-        <Nav
-          opened={isNavOpened}
-          onMouseEnter={onNavMouseEnter}
-          onMouseLeave={onNavMouseLeave}
-        >
-          <NavLogoItem opened={isNavOpened} onClick={onLogoClick} />
-          <NavItem
-            separator={true}
-            key={"nav-products-separator"}
-            data-id={"nav-products-separator"}
-          />
-          {mainModules.map(
-            ({
-              id,
-              separator, //iconName,
-              iconUrl,
-              notifications,
-              link,
-              title,
-              dashed,
-            }) => (
-              <NavItem
-                separator={!!separator}
-                key={id}
-                data-id={id}
-                data-link={link}
-                opened={isNavOpened}
-                active={id == currentProductId}
-                //iconName={iconName}
-                iconUrl={iconUrl}
-                badgeNumber={notifications}
-                onClick={onItemClick}
-                onBadgeClick={onBadgeClick}
-                url={link}
-                dashed={dashed}
-              >
-                {id === "settings" ? i18n.t(title) : title}
-              </NavItem>
-            )
-          )}
-          {/*getCustomModules()*/}
-          <Box className="version-box">
-            <Link
-              as="a"
-              href={`https://github.com/ONLYOFFICE/AppServer/releases`}
-              target="_blank"
-              {...versionBadgeProps}
-            >
-              {t("Version")} {version}
-            </Link>
-            <Text as="span" {...versionBadgeProps}>
-              {" "}
-              -{" "}
-            </Text>
-            <StyledLink>
-              <LinkWithoutRedirect
-                to={combineUrl(proxyURL, "/about")}
-                className="nav-menu-header_link"
-              >
-                {t("AboutShort")}
-              </LinkWithoutRedirect>
-            </StyledLink>
-          </Box>
-        </Nav>
-      )}
     </>
   );
 };
@@ -312,7 +369,12 @@ export default inject(({ auth }) => {
     availableModules,
     version,
   } = auth;
-  const { logoUrl, defaultPage, currentProductId } = settingsStore;
+  const {
+    logoUrl,
+    defaultPage,
+    currentProductId,
+    capabilities,
+  } = settingsStore;
   const { totalNotifications } = moduleStore;
 
   //TODO: restore when chat will complete -> const mainModules = availableModules.filter((m) => !m.isolateMode);
@@ -328,5 +390,6 @@ export default inject(({ auth }) => {
     isAuthenticated,
     currentProductId,
     currentProductName: (product && product.title) || "",
+    providers: capabilities.providers,
   };
 })(observer(HeaderComponent));

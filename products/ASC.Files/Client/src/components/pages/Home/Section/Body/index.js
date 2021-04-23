@@ -156,9 +156,16 @@ const SectionBodyContent = (props) => {
 
   const onDragOver = (e) => {
     e.preventDefault();
+
+    const path = e.composedPath();
+    const notSelectablePath = path.some(
+      (x) => x.classList && x.classList.contains("not-selectable")
+    );
+
     if (
       e.dataTransfer.items.length > 0 &&
-      e.dataTransfer.dropEffect !== "none"
+      e.dataTransfer.dropEffect !== "none" &&
+      !notSelectablePath
     ) {
       setDragging(true);
     }

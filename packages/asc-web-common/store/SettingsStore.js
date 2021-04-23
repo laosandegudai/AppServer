@@ -72,6 +72,7 @@ class SettingsStore {
   hasShortenService = false;
 
   customSchemaList = [];
+  capabilities = [];
 
   constructor() {
     makeAutoObservable(this);
@@ -143,6 +144,7 @@ class SettingsStore {
     this.setIsLoading(true);
 
     await this.getPortalSettings();
+    await this.getCapabilities(); //TODO: promise
 
     this.setIsLoading(false);
     this.setIsLoaded(true);
@@ -249,6 +251,10 @@ class SettingsStore {
 
   setArticleVisibleOnUnpin = (visible) => {
     this.isArticleVisibleOnUnpin = visible;
+  };
+
+  getCapabilities = async () => {
+    this.capabilities = await api.settings.getCapabilities();
   };
 }
 

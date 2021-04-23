@@ -242,3 +242,10 @@ export function updateConsumerProps(newProps) {
 
   return request(options);
 }
+
+export function getCapabilities() {
+  return request({
+    method: "get",
+    url: "/capabilities",
+  });
+}
