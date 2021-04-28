@@ -23,8 +23,8 @@ x-service:
       ELK_HOST: ${ELK_HOST}
       PROXY_HOST: ${PROXY_HOST}
     volumes:
-    #- /app/onlyoffice/CommunityServer/data:/app/onlyoffice/data
-    - app_data:/app/onlyoffice/data
+    - /app/onlyoffice/CommunityServer/data:/app/onlyoffice/data
+    #- app_data:/app/onlyoffice/data
     - files_data:/var/www/products/ASC.Files/server/
     - people_data:/var/www/products/ASC.People/server/
     - crm_data:/var/www/products/ASC.CRM/server/
@@ -253,7 +253,7 @@ volumes:
   zoo_data:
   zoo_log:
   proxy_log:
-  app_data:
+  #app_data:
   files_data:
   people_data:
   crm_data:
