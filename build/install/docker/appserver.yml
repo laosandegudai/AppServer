@@ -31,6 +31,7 @@ x-service:
     - project_data:/var/www/products/ASC.Projects/server/
     - calendar_data:/var/www/products/ASC.Calendar/server/
     - mail_data:/var/www/products/ASC.Mail/server/
+    - ./config/nct/autofac.consumers.json:/app/onlyoffice/config/autofac.consumers.json
     
 
 services: 
