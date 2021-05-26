@@ -180,26 +180,26 @@ const PureSectionHeaderContent = ({ t, title }) => {
   return (
     <Consumer>
       {(context) => (
-        <StyledContainer width={context.sectionWidth}>
-          <div className="header-container">
+        <StyledContainer width={context.sectionWidth} title={title}>
+          <div className='header-container'>
             {!title ? (
               <Loaders.SectionHeader />
             ) : (
               <>
                 <Headline
-                  className="headline-header"
-                  type="content"
+                  className='headline-header'
+                  type='content'
                   truncate={true}
                 >
                   {t(title)}
                 </Headline>
                 <ContextMenuButton
-                  className="add-button"
-                  directionX="right"
-                  iconName="images/plus.svg"
+                  className='add-button'
+                  directionX='right'
+                  iconName='images/plus.svg'
                   size={17}
-                  color="#A3A9AE"
-                  hoverColor="#657077"
+                  color='#A3A9AE'
+                  hoverColor='#657077'
                   isFill
                   getData={getContextOptionsPlus}
                   isDisabled={false}

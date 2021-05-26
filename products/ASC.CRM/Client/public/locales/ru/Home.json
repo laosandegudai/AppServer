@@ -31,5 +31,15 @@
   "TreeSettingsWebsiteContactForm": "Форма 'Контакты с сайта' ",
   "TreeSettingsPortalAccessRights": "Права доступа на портале",
   "ImportContacts": "Импорт контактов",
-  "ExportContacts": "Экспортировать список в файл CSV"
+  "ExportContacts": "Экспортировать список в файл CSV",
+  "DirectionAscLabel": "А-Я",
+  "DirectionDescLabel": "Я-А",
+  "Search": "Поиск",
+  "AddFilter": "Добавить фильтр",
+  "ByCreationDate": "Дата создания",
+  "ByTitle": "Название",
+  "ByTemperatureLevel": "Уровень теплоты",
+  "ByHistory": "История",
+  "ViewList": "Список",
+  "ViewTiles": "Плитки"
 }

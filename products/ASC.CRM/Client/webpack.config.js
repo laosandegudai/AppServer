@@ -137,6 +137,10 @@ var config = {
           AppServerConfig.proxyURL,
           "/remoteEntry.js"
         )}`,
+        people: `people@${combineUrl(
+          AppServerConfig.proxyURL,
+          "/products/people/remoteEntry.js"
+        )}`,
       },
       exposes: {
         "./app": "./src/Crm.jsx",

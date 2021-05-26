@@ -13,7 +13,7 @@ import { observer, inject } from "mobx-react";
 
 const PureHome = () => {
   return (
-    <PageLayout withBodyScroll withBodyAutoFocus={!isMobile}>
+    <PageLayout withBodyScroll uploadFiles withBodyAutoFocus={!isMobile}>
       <PageLayout.ArticleHeader>
         <ArticleHeaderContent />
       </PageLayout.ArticleHeader>
@@ -30,9 +30,9 @@ const PureHome = () => {
         <SectionHeaderContent />
       </PageLayout.SectionHeader>
 
-      {/* <PageLayout.SectionFilter>
+      <PageLayout.SectionFilter>
         <SectionFilterContent />
-      </PageLayout.SectionFilter> */}
+      </PageLayout.SectionFilter>
     </PageLayout>
   );
 };
