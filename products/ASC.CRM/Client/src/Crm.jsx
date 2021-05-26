@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Provider as PeopleProvider, inject, observer } from "mobx-react";
+import { Provider as CrmProvider, inject, observer } from "mobx-react";
 import { Switch } from "react-router-dom";
 import CrmStore from "./store/CrmStore";
 import ErrorBoundary from "@appserver/common/components/ErrorBoundary";
@@ -62,9 +62,9 @@ const Crm = inject(({ auth, crmStore }) => ({
 const crmStore = new CrmStore();
 
 export default (props) => (
-  <PeopleProvider crmStore={crmStore}>
+  <CrmProvider crmStore={crmStore}>
     <I18nextProvider i18n={i18n}>
       <Crm {...props} />
     </I18nextProvider>
-  </PeopleProvider>
+  </CrmProvider>
 );
