@@ -1,6 +1,6 @@
 import React from "react";
 import { withRouter } from "react-router";
-
+import { isMobile } from "react-device-detect";
 import PageLayout from "@appserver/common/components/PageLayout";
 import {
   ArticleHeaderContent,
@@ -12,7 +12,7 @@ import { observer, inject } from "mobx-react";
 
 const PureHome = (props) => {
   return (
-    <PageLayout>
+    <PageLayout withBodyScroll withBodyAutoFocus={!isMobile}>
       <PageLayout.ArticleHeader>
         <ArticleHeaderContent />
       </PageLayout.ArticleHeader>

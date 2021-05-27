@@ -1,15 +1,18 @@
 import React from "react";
 import { inject, observer } from "mobx-react";
 import { withRouter } from "react-router-dom";
+import Loaders from "@appserver/common/components/Loaders";
+import TreeFolders from "./TreeFolders";
 
 class ArticleBodyContent extends React.Component {
   constructor(props) {
     super(props);
   }
-  render() {
-    const { isLoaded, isVisitor } = this.props;
 
-    return !isVisitor && (!isLoaded ? <div>test0</div> : <div>test1</div>);
+  render() {
+    const { isLoaded } = this.props;
+
+    return !isLoaded ? <Loaders.TreeFolders /> : <TreeFolders />;
   }
 }
 
