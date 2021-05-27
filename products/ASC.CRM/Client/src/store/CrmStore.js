@@ -8,6 +8,8 @@ class CrmStore {
   isLoaded = false;
   isInit = false;
 
+  firstLoad = true;
+
   constructor() {
     makeObservable(this, {
       isLoading: observable,

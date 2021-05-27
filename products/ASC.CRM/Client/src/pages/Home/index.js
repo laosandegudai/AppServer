@@ -4,7 +4,7 @@ import { withRouter } from "react-router";
 import PageLayout from "@appserver/common/components/PageLayout";
 import {
   ArticleHeaderContent,
-  // ArticleMainButtonContent,
+  ArticleMainButtonContent,
   ArticleBodyContent,
 } from "../../components/Article";
 import { withTranslation } from "react-i18next";
@@ -17,9 +17,9 @@ const PureHome = (props) => {
         <ArticleHeaderContent />
       </PageLayout.ArticleHeader>
 
-      {/* <PageLayout.ArticleMainButton>
+      <PageLayout.ArticleMainButton>
         <ArticleMainButtonContent />
-      </PageLayout.ArticleMainButton> */}
+      </PageLayout.ArticleMainButton>
 
       <PageLayout.ArticleBody>
         <ArticleBodyContent />
