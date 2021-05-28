@@ -1,28 +1,43 @@
 export const data = [
       {
         id: "group-contacts",
-        name: "Contacts",
-        subfolders: ['Companies, Persons']
+        key: '0-0',
+        title: "Contacts",
+        folders: [{title: 'Companies'}, {title: 'Persons'}]
       },
       {
         id: "group-tasks",
-        name: "Tasks",
+        key: '0-1',
+        title: "Tasks",
+        folders: []
       },
       {
         id: "group-opportunities",
-        name: "Opportunities",
+        key: '0-2',
+        title: "Opportunities",
+        folders: []
       },
       {
         id: "group-invoices",
-        name: "Invoices",
-        subfolders: ['Draft, Billed', 'Paid', 'Rejected']
+        key: '0-3',
+        title: "Invoices",
+        folders: [
+        {title: 'Draft'}, 
+        {title: 'Billed'}, 
+        {title: 'Paid'}, 
+        {title: 'Rejected'}
+    ]
       },
       {
         id: "group-cases",
-        name: "Cases",
+        key: '0-4',
+        title: "Cases",
+        folders: []
       },
       {
         id: "group-reports",
-        name: "Reports",
+        key: '0-5',
+        title: "Reports",
+        folders: []
       },
     ];
