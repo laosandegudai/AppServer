@@ -5,6 +5,7 @@ import { ReactSVG } from "react-svg";
 import { FolderType } from "@appserver/common/constants";
 import styled from "styled-components";
 import { observer, inject } from "mobx-react";
+import { withTranslation } from "react-i18next";
 
 const StyledTreeMenu = styled(TreeMenu)`
   .rc-tree-node-selected {
@@ -18,7 +19,9 @@ const StyledTreeMenu = styled(TreeMenu)`
   }
 `;
 
-const TreeFolders = (props) => {
+const PureTreeFolders = (props) => {
+  const { t } = props;
+
   useEffect(() => {
     props.fetchTreeFolders();
   }, []);
@@ -70,7 +73,7 @@ const TreeFolders = (props) => {
     return data.map((folder) => (
       <TreeNode
         key={folder.key}
-        title={folder.title}
+        title={t(folder.title)}
         icon={getFolderIcon(folder)}
       />
     ));
@@ -89,6 +92,8 @@ const TreeFolders = (props) => {
     </StyledTreeMenu>
   );
 };
+
+const TreeFolders = withTranslation("Article")(PureTreeFolders);
 
 export default inject(({ treeFoldersStore }) => {
   const { treeFolders, fetchTreeFolders } = treeFoldersStore;

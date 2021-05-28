@@ -4,19 +4,16 @@ import { withRouter } from "react-router-dom";
 import Loaders from "@appserver/common/components/Loaders";
 import TreeFolders from "./TreeFolders";
 
-class ArticleBodyContent extends React.Component {
-  render() {
-    const { isLoaded } = this.props;
+const ArticleBodyContent = (props) => {
+  const { isLoaded } = props;
 
-    return !isLoaded ? <Loaders.TreeFolders /> : <TreeFolders />;
-  }
-}
+  return !isLoaded ? <Loaders.TreeFolders /> : <TreeFolders />;
+};
 
-export default inject(({ auth, crmStore }) => {
-  const { isLoaded, isLoading } = crmStore;
+export default inject(({ crmStore }) => {
+  const { isLoaded } = crmStore;
+
   return {
     isLoaded,
-    isLoading,
-    isVisitor: auth.userStore.user.isVisitor,
   };
 })(observer(withRouter(ArticleBodyContent)));

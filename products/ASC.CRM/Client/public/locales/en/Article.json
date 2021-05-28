@@ -5,5 +5,14 @@
   "NewTask": "New Task",
   "NewOpportunity": "New Opportunity",
   "NewInvoice": "New Invoice",
-  "NewCase": "New Case"
+  "NewCase": "New Case",
+  "Contacts": "Contacts",
+  "Tasks": "Tasks",
+  "Opportunities": "Opportunities",
+  "Invoices": "Invoices",
+  "Cases": "Cases",
+  "Reports": "Reports",
+  "Settings": "Settings",
+  "Help Center": "Help Center",
+  "Add account": "Add account"
 }

@@ -1,9 +1,18 @@
 {
   "Actions": "Действия",
-  "NewCompany": "Новая компания",
-  "NewPerson": "Новый человек",
-  "NewTask": "Новая задача",
-  "NewOpportunity": "Новая возможность",
-  "NewInvoice": "Новый счет",
-  "NewCase": "Новое дело"
+  "NewCompany": "Компания",
+  "NewPerson": "Персона",
+  "NewTask": "Задача",
+  "NewOpportunity": "Возможная сделка",
+  "NewInvoice": "Счет",
+  "NewCase": "Мероприятие",
+  "Contacts": "Контакты",
+  "Tasks": "Задачи",
+  "Opportunities": "Возможные сделки",
+  "Invoices": "Счета",
+  "Cases": "Мероприятия",
+  "Reports": "Отчеты",
+  "Settings": "Настройки",
+  "Help Center": "Помощь",
+  "Add account": "Добавить аккаунт"
 }
