@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { Provider as CrmProvider, inject, observer } from "mobx-react";
 import { Switch } from "react-router-dom";
-import CrmStore from "./store/CrmStore";
 import ErrorBoundary from "@appserver/common/components/ErrorBoundary";
 import toastr from "studio/toastr";
 import PrivateRoute from "@appserver/common/components/PrivateRoute";
@@ -12,6 +11,7 @@ import i18n from "./i18n";
 import { I18nextProvider } from "react-i18next";
 import Home from "./pages/Home";
 import { AppServerConfig } from "@appserver/common/constants";
+import stores from "./store/index";
 
 const { proxyURL } = AppServerConfig;
 const homepage = config.homepage;
@@ -59,10 +59,8 @@ const Crm = inject(({ auth, crmStore }) => ({
   isLoaded: auth.isLoaded && crmStore.isLoaded,
 }))(observer(CrmContent));
 
-const crmStore = new CrmStore();
-
 export default (props) => (
-  <CrmProvider crmStore={crmStore}>
+  <CrmProvider {...stores}>
     <I18nextProvider i18n={i18n}>
       <Crm {...props} />
     </I18nextProvider>

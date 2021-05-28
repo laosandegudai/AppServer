@@ -5,10 +5,6 @@ import Loaders from "@appserver/common/components/Loaders";
 import TreeFolders from "./TreeFolders";
 
 class ArticleBodyContent extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { isLoaded } = this.props;
 
