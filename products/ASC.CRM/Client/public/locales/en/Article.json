@@ -14,5 +14,20 @@
   "Reports": "Reports",
   "TreeSettingsMenuTitle": "Settings",
   "TreeSettingsCommonSettings": "Common settings",
-  "TreeSettingsCurrencySettings": "Currency settings"
+  "TreeSettingsCurrencySettings": "Currency settings",
+  "TreeSettingsContactSettings": "Contact Settings",
+  "TreeSettingsContactTemperatureLevels": "Contact Temperature Levels",
+  "TreeSettingsContactTypes": "Contact Types",
+  "TreeSettingsInvoiceSettings": "Invoice Settings",
+  "TreeSettingsProductsAndServices": "Products & Services",
+  "TreeSettingsTaxes": "Taxes",
+  "TreeSettingsOrganizationProfile": "Organization Profile",
+  "TreeSettingsOtherSettings": "Other Settings",
+  "TreeSettingsUserFields": "User Fields",
+  "TreeSettingsHistoryEventCategories": "History Event Categories",
+  "TreeSettingsTasksCategories": "Tasks Categories",
+  "TreeSettingsOpportunityStages": "Opportunity Stages",
+  "TreeSettingsTags": "Tags",
+  "TreeSettingsWebsiteContactForm": "Website Contact Form",
+  "TreeSettingsPortalAccessRights": "Portal Access Rights"
 }

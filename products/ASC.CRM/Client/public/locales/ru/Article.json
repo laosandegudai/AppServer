@@ -14,5 +14,20 @@
   "Reports": "Отчеты",
   "TreeSettingsMenuTitle": "Настройки",
   "TreeSettingsCommonSettings": "Общие настройки",
-  "TreeSettingsCurrencySettings": "Настройки валюты"
+  "TreeSettingsCurrencySettings": "Настройки валюты",
+  "TreeSettingsContactSettings": "Настройки контактов",
+  "TreeSettingsContactTemperatureLevels": "Уровни теплоты контактов",
+  "TreeSettingsContactTypes": "Типы контактов",
+  "TreeSettingsInvoiceSettings": "Настройки счетов",
+  "TreeSettingsProductsAndServices": "Товары и услуги",
+  "TreeSettingsTaxes": "Налоги",
+  "TreeSettingsOrganizationProfile": "Профиль организации",
+  "TreeSettingsOtherSettings": "Другие настройки",
+  "TreeSettingsUserFields": "Пользовательские поля",
+  "TreeSettingsHistoryEventCategories": "Категории событий истории",
+  "TreeSettingsTasksCategories": "Категории задач",
+  "TreeSettingsOpportunityStages": "Стадии возможной сделки",
+  "TreeSettingsTags": "Теги",
+  "TreeSettingsWebsiteContactForm": "Форма 'Контакты с сайта' ",
+  "TreeSettingsPortalAccessRights": "Права доступа на портале"
 }

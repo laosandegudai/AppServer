@@ -49,6 +49,14 @@ const PureTreeSettings = ({ t, expandedSetting, setExpandSettingsTree }) => {
     if (!expandedSetting) setExpandSettingsTree(["settings"]);
   }, [expandedSetting, setExpandSettingsTree]);
 
+  const onSelect = () => {
+    console.log("clicked");
+  };
+
+  const onExpand = (expandedData) => {
+    console.log("expanded", expandedData);
+  };
+
   const switcherIcon = (obj) => {
     if (obj.isLeaf) {
       return null;
@@ -83,6 +91,115 @@ const PureTreeSettings = ({ t, expandedSetting, setExpandSettingsTree }) => {
           isLeaf={true}
           title={t("TreeSettingsCurrencySettings")}
         />
+
+        <TreeNode
+          id='contact-settings'
+          key='contact'
+          title={t("TreeSettingsContactSettings")}
+          isLeaf={false}
+        >
+          <TreeNode
+            className='settings-node'
+            id='temp-level-settings'
+            key='contact-levels'
+            isLeaf={true}
+            title={t("TreeSettingsContactTemperatureLevels")}
+          />
+          <TreeNode
+            className='settings-node'
+            id='contact-types-settings'
+            key='contact-types'
+            isLeaf={true}
+            title={t("TreeSettingsContactTypes")}
+          />
+        </TreeNode>
+
+        <TreeNode
+          id='invoice-settings'
+          key='invoice'
+          title={t("TreeSettingsInvoiceSettings")}
+          isLeaf={false}
+        >
+          <TreeNode
+            className='settings-node'
+            id='products-services-settings'
+            key='products-services'
+            isLeaf={true}
+            title={t("TreeSettingsProductsAndServices")}
+          />
+          <TreeNode
+            className='settings-node'
+            id='taxes-settings'
+            key='taxes'
+            isLeaf={true}
+            title={t("TreeSettingsTaxes")}
+          />
+          <TreeNode
+            className='settings-node'
+            id='organization-profile-settings'
+            key='organization-profile'
+            isLeaf={true}
+            title={t("TreeSettingsOrganizationProfile")}
+          />
+        </TreeNode>
+
+        <TreeNode
+          id='other-settings'
+          key='other'
+          title={t("TreeSettingsOtherSettings")}
+          isLeaf={false}
+        >
+          <TreeNode
+            className='settings-node'
+            id='user-fields-settings'
+            key='user-fields'
+            isLeaf={true}
+            title={t("TreeSettingsUserFields")}
+          />
+          <TreeNode
+            className='settings-node'
+            id='history-event-settings'
+            key='history-event'
+            isLeaf={true}
+            title={t("TreeSettingsHistoryEventCategories")}
+          />
+          <TreeNode
+            className='settings-node'
+            id='tasks-categories-settings'
+            key='tasks-categories'
+            isLeaf={true}
+            title={t("TreeSettingsTasksCategories")}
+          />
+          <TreeNode
+            className='settings-node'
+            id='opportunity-stages-settings'
+            key='opportunity-stages'
+            isLeaf={true}
+            title={t("TreeSettingsOpportunityStages")}
+          />
+          <TreeNode
+            className='settings-node'
+            id='tags-settings'
+            key='tags'
+            isLeaf={true}
+            title={t("TreeSettingsTags")}
+          />
+        </TreeNode>
+
+        <TreeNode
+          className='settings-node'
+          id='website-contact-settings'
+          key='website'
+          isLeaf={true}
+          title={t("TreeSettingsWebsiteContactForm")}
+        />
+        <TreeNode
+          className='settings-node'
+          id='access-settings'
+          key='access'
+          isLeaf={true}
+          title={t("TreeSettingsPortalAccessRights")}
+        />
       </TreeNode>
     );
   };
@@ -98,6 +215,10 @@ const PureTreeSettings = ({ t, expandedSetting, setExpandSettingsTree }) => {
       defaultExpandParent={false}
       switcherIcon={switcherIcon}
       isFullFillSelection={false}
+      onSelect={onSelect}
+      onExpand={onExpand}
+      // expandedKeys={expandedSetting}
+      // selectedKeys={selectedTreeNode}
     >
       {nodes}
     </StyledTreeMenu>
