@@ -12,7 +12,7 @@
   "Invoices": "Счета",
   "Cases": "Мероприятия",
   "Reports": "Отчеты",
-  "Settings": "Настройки",
-  "Help Center": "Помощь",
-  "Add account": "Добавить аккаунт"
+  "TreeSettingsMenuTitle": "Настройки",
+  "TreeSettingsCommonSettings": "Общие настройки",
+  "TreeSettingsCurrencySettings": "Настройки валюты"
 }

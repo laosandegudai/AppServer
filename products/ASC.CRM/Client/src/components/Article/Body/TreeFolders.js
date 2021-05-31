@@ -6,6 +6,9 @@ import { FolderType } from "@appserver/common/constants";
 import styled from "styled-components";
 import { observer, inject } from "mobx-react";
 import { withTranslation } from "react-i18next";
+import ExpanderDownIcon from "../../../../../../../public/images/expander-down.react.svg";
+import ExpanderRightIcon from "../../../../../../../public/images/expander-right.react.svg";
+import commonIconsStyles from "@appserver/components/utils/common-icons-style";
 
 const StyledTreeMenu = styled(TreeMenu)`
   .rc-tree-node-selected {
@@ -19,6 +22,30 @@ const StyledTreeMenu = styled(TreeMenu)`
   }
 `;
 
+const StyledFolderSVG = styled.div`
+  svg {
+    width: 100%;
+
+    path {
+      fill: #657077;
+    }
+  }
+`;
+
+const StyledExpanderDownIcon = styled(ExpanderDownIcon)`
+  ${commonIconsStyles}
+  path {
+    fill: dimgray;
+  }
+`;
+
+const StyledExpanderRightIcon = styled(ExpanderRightIcon)`
+  ${commonIconsStyles}
+  path {
+    fill: dimgray;
+  }
+`;
+
 const PureTreeFolders = (props) => {
   const { t } = props;
 
@@ -26,15 +53,16 @@ const PureTreeFolders = (props) => {
     props.fetchTreeFolders();
   }, []);
 
-  const StyledFolderSVG = styled.div`
-    svg {
-      width: 100%;
-
-      path {
-        fill: #657077;
-      }
+  const switcherIcon = (obj) => {
+    if (obj.isLeaf) {
+      return null;
     }
-  `;
+    if (obj.expanded) {
+      return <StyledExpanderDownIcon size='scale' />;
+    } else {
+      return <StyledExpanderRightIcon size='scale' />;
+    }
+  };
 
   const getFolderIcon = (item) => {
     let iconUrl = "images/catalog.folder.react.svg";
@@ -70,13 +98,29 @@ const PureTreeFolders = (props) => {
   };
 
   const getItems = (data) => {
-    return data.map((folder) => (
-      <TreeNode
-        key={folder.key}
-        title={t(folder.title)}
-        icon={getFolderIcon(folder)}
-      />
-    ));
+    return data.map((item) => {
+      if (item.folders && item.folders.length > 0) {
+        return (
+          <TreeNode
+            id={item.id}
+            key={item.key}
+            title={t(item.title)}
+            icon={getFolderIcon(item)}
+            isLeaf={false}
+          />
+        );
+      } else {
+        return (
+          <TreeNode
+            id={item.id}
+            key={item.key}
+            title={t(item.title)}
+            icon={getFolderIcon(item)}
+            isLeaf={true}
+          />
+        );
+      }
+    });
   };
 
   const treeFoldersData = getItems(props.treeFolders) || [];
@@ -84,9 +128,10 @@ const PureTreeFolders = (props) => {
   return (
     <StyledTreeMenu
       className='files-tree-menu'
-      showIcon
+      showIcon={true}
       gapBetweenNodes='22'
       gapBetweenNodesTablet='26'
+      switcherIcon={switcherIcon}
     >
       {treeFoldersData}
     </StyledTreeMenu>

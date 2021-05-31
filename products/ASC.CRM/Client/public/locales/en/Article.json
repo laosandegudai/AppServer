@@ -12,7 +12,7 @@
   "Invoices": "Invoices",
   "Cases": "Cases",
   "Reports": "Reports",
-  "Settings": "Settings",
-  "Help Center": "Help Center",
-  "Add account": "Add account"
+  "TreeSettingsMenuTitle": "Settings",
+  "TreeSettingsCommonSettings": "Common settings",
+  "TreeSettingsCurrencySettings": "Currency settings"
 }
