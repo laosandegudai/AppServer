@@ -9,6 +9,7 @@ const DEFAULT_SORT_ORDER = "descending";
 const DEFAULT_CONTACT_STAGE = -1;
 const DEFAULT_CONTACT_TYPE = -1;
 const DEFAULT_SEARCH = "";
+const DEFAULT_ACCESSIBILITY_TYPE = null;
 
 const CONTACT_TYPE = "contactType";
 const PAGE = "page";
@@ -18,6 +19,7 @@ const SORT_ORDER = "sortOrder";
 const START_INDEX = "StartIndex";
 const SEARCH = "search";
 const CONTACT_STAGE = "contactStage";
+const ACCESSIBILITY_TYPE = "isShared";
 
 class CrmFilter {
   static getDefault() {
@@ -40,6 +42,7 @@ class CrmFilter {
       defaultFilter.pageCount;
     const startIndex = urlFilter[START_INDEX] || defaultFilter.startIndex;
     const total = defaultFilter.total;
+    const isShared = urlFilter[ACCESSIBILITY_TYPE] || defaultFilter.isShared;
 
     const newFilter = new CrmFilter({
       sortBy,
@@ -47,6 +50,7 @@ class CrmFilter {
       startIndex,
       pageCount,
       total,
+      isShared
     });
 
     return newFilter;
@@ -61,6 +65,7 @@ class CrmFilter {
     page = DEFAULT_PAGE,
     contactType = DEFAULT_CONTACT_TYPE,
     search = DEFAULT_SEARCH,
+    isShared = DEFAULT_ACCESSIBILITY_TYPE
   }) {
     this.page = page;
     this.pageCount = pageCount;
@@ -70,16 +75,19 @@ class CrmFilter {
     this.contactType = contactType;
     this.search = search;
     this.total = total;
+    this.isShared = isShared;
   }
 
   toApiUrlParams = () => {
-    const { page, pageCount, sortBy, sortOrder, startIndex } = this;
+    const { page, pageCount, sortBy, sortOrder, startIndex, isShared } = this;
+
     let dtoFilter = {
       StartIndex: startIndex,
       sortBy: sortBy,
       pageCount: pageCount,
       sortOrder: sortOrder,
       Count: pageCount,
+      // isShared: isShared,
     };
 
     const str = toUrlParams(dtoFilter, false);
@@ -87,8 +95,12 @@ class CrmFilter {
   };
 
   toUrlParams = () => {
-    const { sortBy, sortOrder, pageCount, startIndex } = this;
+    const { sortBy, sortOrder, pageCount, startIndex, isShared } = this;
     const dtoFilter = {};
+
+    // if (isShared) {
+    //   dtoFilter[ACCESSIBILITY_TYPE] = isShared;
+    // } 
 
     dtoFilter[SORT_BY] = sortBy;
     dtoFilter[SORT_ORDER] = sortOrder;
@@ -111,6 +123,7 @@ class CrmFilter {
       contactType: this.contactType,
       search: this.search,
       total: this.total,
+      // isShared: this.isShared
     });
   }
 }

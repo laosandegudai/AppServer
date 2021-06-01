@@ -1,9 +1,13 @@
 import React from "react";
+import find from "lodash/find";
+import result from "lodash/result";
 import Loaders from "@appserver/common/components/Loaders";
 import { inject, observer } from "mobx-react";
 import { withTranslation } from "react-i18next";
 import { isMobileOnly } from "react-device-detect";
 import FilterInput from "@appserver/common/components/FilterInput";
+import { withLayoutSize } from "@appserver/common/utils";
+import { withRouter } from "react-router";
 
 const SectionFilterContent = ({
   sectionWidth,
@@ -13,6 +17,21 @@ const SectionFilterContent = ({
   filter,
   getContactsList,
 }) => {
+  // const getAccessibilityType = (filterValues) => {
+  //   const isShared = result(
+  //     find(filterValues, (value) => {
+  //       return value.group === "filter-access";
+  //     }),
+  //     "key"
+  //   );
+
+  //   return isShared
+  //     ? isShared === "filter-access-public"
+  //       ? "true"
+  //       : "false"
+  //     : null;
+  // };
+
   const getSelectedFilterData = () => {
     const selectedFilterData = {
       filterValues: [],
@@ -25,6 +44,7 @@ const SectionFilterContent = ({
   const selectedFilterData = getSelectedFilterData();
 
   const onFilter = (data) => {
+    // const isShared = getAccessibilityType(data.filterValues);
     const sortBy = data.sortId;
     const sortOrder =
       data.sortDirection === "desc" ? "descending" : "ascending";
@@ -32,6 +52,7 @@ const SectionFilterContent = ({
     const newFilter = filter.clone();
     newFilter.sortBy = sortBy;
     newFilter.sortOrder = sortOrder;
+    // newFilter.isShared = isShared;
     getContactsList(newFilter);
   };
 
@@ -65,12 +86,12 @@ const SectionFilterContent = ({
         isRowHeader: true,
       },
       {
-        key: "5",
+        key: "filter-access-public",
         group: "filter-access",
         label: t("Public"),
       },
       {
-        key: "6",
+        key: "filter-access-restricted",
         group: "filter-access",
         label: t("Restricted"),
       },
@@ -210,4 +231,12 @@ export default inject(({ crmStore, filterStore, contactsStore }) => {
     filter,
     getContactsList,
   };
-})(withTranslation(["Home", "Common"])(observer(SectionFilterContent)));
+})(
+  withRouter(
+    withLayoutSize(
+    withTranslation(["Home", "Common"])(
+      observer(SectionFilterContent)
+    )
+    )
+  )
+);

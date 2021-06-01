@@ -1,11 +1,13 @@
 import { action, makeObservable, observable } from "mobx";
-import Filter from "@appserver/common/api/crm/filter";
+import api from "@appserver/common/api";
 import config from "../../package.json";
 import { combineUrl } from "@appserver/common/utils";
 import { AppServerConfig } from "@appserver/common/constants";
 
+const { CrmFilter } = api;
+
 class FilterStore {
-  filter = Filter.getDefault();
+  filter = CrmFilter.getDefault();
 
   constructor() {
     makeObservable(this, {
@@ -36,7 +38,7 @@ class FilterStore {
   };
 
   resetFilter = () => {
-    this.setFilter(Filter.getDefault());
+    this.setFilter(CrmFilter.getDefault());
   };
 
   setFilter = (filter) => {
