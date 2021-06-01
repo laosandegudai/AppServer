@@ -3,6 +3,8 @@ import { getFoldersTree } from "@appserver/common/api/crm";
 
 class TreeFoldersStore {
   treeFolders = [];
+  selectedTreeNode = [];
+  expandedKeys = [];
 
   constructor() {
     makeAutoObservable(this);
@@ -17,6 +19,16 @@ class TreeFoldersStore {
 
   setTreeFolders = (treeFolders) => {
     this.treeFolders = treeFolders;
+  };
+
+  setSelectedNode = (node) => {
+    if (node[0]) {
+      this.selectedTreeNode = node;
+    }
+  };
+
+  setExpandedKeys = (expandedKeys) => {
+    this.expandedKeys = expandedKeys;
   };
 }
 

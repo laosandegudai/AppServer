@@ -46,12 +46,21 @@ const StyledExpanderRightIcon = styled(ExpanderRightIcon)`
   }
 `;
 
-const PureTreeFolders = (props) => {
-  const { t } = props;
-
+const PureTreeFolders = ({
+  t,
+  selectedTreeNode,
+  setSelectedNode,
+  treeFolders,
+  fetchTreeFolders,
+}) => {
   useEffect(() => {
-    props.fetchTreeFolders();
+    fetchTreeFolders();
   }, []);
+
+  const onSelect = (data) => {
+    setSelectedNode(data);
+    console.log(`${data} clicked`);
+  };
 
   const switcherIcon = (obj) => {
     if (obj.isLeaf) {
@@ -123,7 +132,7 @@ const PureTreeFolders = (props) => {
     });
   };
 
-  const treeFoldersData = getItems(props.treeFolders) || [];
+  const treeFoldersData = getItems(treeFolders) || [];
 
   return (
     <StyledTreeMenu
@@ -131,7 +140,9 @@ const PureTreeFolders = (props) => {
       showIcon={true}
       gapBetweenNodes='22'
       gapBetweenNodesTablet='26'
+      isFullFillSelection={false}
       switcherIcon={switcherIcon}
+      onSelect={onSelect}
     >
       {treeFoldersData}
     </StyledTreeMenu>
@@ -141,9 +152,17 @@ const PureTreeFolders = (props) => {
 const TreeFolders = withTranslation("Article")(PureTreeFolders);
 
 export default inject(({ treeFoldersStore }) => {
-  const { treeFolders, fetchTreeFolders } = treeFoldersStore;
-  return {
+  const {
     treeFolders,
     fetchTreeFolders,
+    selectedTreeNode,
+    setSelectedNode,
+  } = treeFoldersStore;
+  return {
+    treeFolders,
+    selectedTreeNode,
+
+    fetchTreeFolders,
+    setSelectedNode,
   };
 })(observer(TreeFolders));

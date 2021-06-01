@@ -44,17 +44,24 @@ const StyledSettingsIcon = styled(SettingsIcon)`
   }
 `;
 
-const PureTreeSettings = ({ t, expandedSetting, setExpandSettingsTree }) => {
-  useEffect(() => {
-    if (!expandedSetting) setExpandSettingsTree(["settings"]);
-  }, [expandedSetting, setExpandSettingsTree]);
-
-  const onSelect = () => {
-    console.log("clicked");
-  };
+const PureTreeSettings = ({
+  t,
+  expandedSetting,
+  selectedTreeNode,
+  setSelectedNode,
+  setExpandSettingsTree,
+}) => {
+  // useEffect(() => {
+  //   if (!expandedSetting) setExpandSettingsTree("settings");
+  // }, [expandedSetting, setExpandSettingsTree]);
 
   const onExpand = (expandedData) => {
     console.log("expanded", expandedData);
+  };
+
+  const onSelect = (data) => {
+    setSelectedNode(data);
+    console.log(`${data} clicked`);
   };
 
   const switcherIcon = (obj) => {
@@ -214,11 +221,11 @@ const PureTreeSettings = ({ t, expandedSetting, setExpandSettingsTree }) => {
       gapBetweenNodesTablet='26'
       defaultExpandParent={false}
       switcherIcon={switcherIcon}
-      isFullFillSelection={false}
+      isFullFillSelection={true}
       onSelect={onSelect}
       onExpand={onExpand}
       // expandedKeys={expandedSetting}
-      // selectedKeys={selectedTreeNode}
+      selectedKeys={selectedTreeNode}
     >
       {nodes}
     </StyledTreeMenu>
@@ -227,12 +234,15 @@ const PureTreeSettings = ({ t, expandedSetting, setExpandSettingsTree }) => {
 
 const TreeSettings = withTranslation("Article")(PureTreeSettings);
 
-export default inject(({ settingsStore }) => {
+export default inject(({ settingsStore, treeFoldersStore }) => {
   const { expandedSetting, setExpandSettingsTree } = settingsStore;
+  const { selectedTreeNode, setSelectedNode } = treeFoldersStore;
 
   return {
     expandedSetting,
+    selectedTreeNode,
 
     setExpandSettingsTree,
+    setSelectedNode,
   };
 })(observer(TreeSettings));

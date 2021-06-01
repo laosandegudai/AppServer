@@ -1,7 +1,7 @@
 export const data = [
     {
         id: "group-contacts",
-        key: '0-0',
+        key: 'contacts',
         title: "Contacts",
         folders: [{title: 'Companies', rootFolderType: 14}, {title: 'Persons', rootFolderType: 14}],
         rootFolderName: '@contacts',
@@ -9,7 +9,7 @@ export const data = [
     },
     {
         id: "group-tasks",
-        key: '0-1',
+        key: 'tasks',
         title: "Tasks",
         folders: [],
         rootFolderName: '@tasks',
@@ -17,7 +17,7 @@ export const data = [
     },
     {
         id: "group-opportunities",
-        key: '0-2',
+        key: 'opportunities',
         title: "Opportunities",
         folders: [],
         rootFolderName: '@opportunities',
@@ -25,7 +25,7 @@ export const data = [
     },
     {
         id: "group-invoices",
-        key: '0-3',
+        key: 'invoices',
         title: "Invoices",
         folders: 
         [
@@ -39,7 +39,7 @@ export const data = [
     },
     {
         id: "group-cases",
-        key: '0-4',
+        key: 'cases',
         title: "Cases",
         folders: [],
         rootFolderName: '@cases',
@@ -47,7 +47,7 @@ export const data = [
     },
     {
         id: "group-reports",
-        key: '0-5',
+        key: 'reports',
         title: "Reports",
         folders: [],
         rootFolderName: '@reports',
