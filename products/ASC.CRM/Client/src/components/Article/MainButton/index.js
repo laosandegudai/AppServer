@@ -49,7 +49,7 @@ class PureArticleMainButtonContent extends React.Component {
   }
 }
 
-const ArticleMainButtonContent = withTranslation("Article")(
+const ArticleMainButtonContent = withTranslation("Home")(
   PureArticleMainButtonContent
 );
 

@@ -52,14 +52,18 @@ const PureTreeFolders = ({
   setSelectedNode,
   treeFolders,
   fetchTreeFolders,
-  selectedFolderTitle,
   setTitle,
 }) => {
   useEffect(() => {
     fetchTreeFolders();
     setSelectedNode(["contacts"]);
-    setTitle(selectedTreeNode);
   }, []);
+
+  useEffect(() => {
+    if (treeFolders.length) {
+      setTitle(treeFolders[0].title);
+    }
+  }, [treeFolders]);
 
   const onSelect = (data, e) => {
     setSelectedNode(data);
@@ -161,7 +165,7 @@ const PureTreeFolders = ({
   );
 };
 
-const TreeFolders = withTranslation("Article")(PureTreeFolders);
+const TreeFolders = withTranslation("Home")(PureTreeFolders);
 
 export default inject(({ treeFoldersStore }) => {
   const {
@@ -174,7 +178,6 @@ export default inject(({ treeFoldersStore }) => {
   return {
     treeFolders,
     selectedTreeNode,
-    selectedFolderTitle: treeFoldersStore.title,
 
     fetchTreeFolders,
     setSelectedNode,

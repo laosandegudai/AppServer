@@ -29,5 +29,7 @@
   "TreeSettingsOpportunityStages": "Opportunity Stages",
   "TreeSettingsTags": "Tags",
   "TreeSettingsWebsiteContactForm": "Website Contact Form",
-  "TreeSettingsPortalAccessRights": "Portal Access Rights"
+  "TreeSettingsPortalAccessRights": "Portal Access Rights",
+  "ImportContacts": "Import Contacts",
+  "ExportContacts": "Export contacts to CSV"
 }

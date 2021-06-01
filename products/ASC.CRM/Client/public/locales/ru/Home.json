@@ -29,5 +29,7 @@
   "TreeSettingsOpportunityStages": "Стадии возможной сделки",
   "TreeSettingsTags": "Теги",
   "TreeSettingsWebsiteContactForm": "Форма 'Контакты с сайта' ",
-  "TreeSettingsPortalAccessRights": "Права доступа на портале"
+  "TreeSettingsPortalAccessRights": "Права доступа на портале",
+  "ImportContacts": "Импорт контактов",
+  "ExportContacts": "Экспортировать список в файл CSV"
 }

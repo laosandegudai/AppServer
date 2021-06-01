@@ -233,7 +233,7 @@ const PureTreeSettings = ({
   );
 };
 
-const TreeSettings = withTranslation("Article")(PureTreeSettings);
+const TreeSettings = withTranslation("Home")(PureTreeSettings);
 
 export default inject(({ treeFoldersStore }) => {
   const {
