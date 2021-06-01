@@ -51,11 +51,8 @@ const PureTreeSettings = ({
   setSelectedNode,
   setExpandSettingsTree,
 }) => {
-  // useEffect(() => {
-  //   if (!expandedSetting) setExpandSettingsTree("settings");
-  // }, [expandedSetting, setExpandSettingsTree]);
-
   const onExpand = (expandedData) => {
+    setExpandSettingsTree(expandedData);
     console.log("expanded", expandedData);
   };
 
@@ -224,7 +221,7 @@ const PureTreeSettings = ({
       isFullFillSelection={true}
       onSelect={onSelect}
       onExpand={onExpand}
-      // expandedKeys={expandedSetting}
+      expandedKeys={expandedSetting}
       selectedKeys={selectedTreeNode}
     >
       {nodes}

@@ -143,6 +143,7 @@ const PureTreeFolders = ({
       isFullFillSelection={false}
       switcherIcon={switcherIcon}
       onSelect={onSelect}
+      selectedKeys={selectedTreeNode}
     >
       {treeFoldersData}
     </StyledTreeMenu>
