@@ -30,6 +30,14 @@ class TreeFoldersStore {
   setExpandedKeys = (expandedKeys) => {
     this.expandedKeys = expandedKeys;
   };
+
+  addExpandedKeys = (item) => {
+    this.expandedKeys.push(item);
+  };
+
+  addExpandSettingsTree = (item) => {
+    this.expandedKeys.push(item[0]);
+  };
 }
 
 export default TreeFoldersStore;
