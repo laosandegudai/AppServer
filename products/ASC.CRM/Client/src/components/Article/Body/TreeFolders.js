@@ -52,14 +52,25 @@ const PureTreeFolders = ({
   setSelectedNode,
   treeFolders,
   fetchTreeFolders,
+  selectedFolderTitle,
+  setTitle,
 }) => {
   useEffect(() => {
     fetchTreeFolders();
+    setSelectedNode(["contacts"]);
+    setTitle(selectedTreeNode);
   }, []);
 
-  const onSelect = (data) => {
+  const onSelect = (data, e) => {
     setSelectedNode(data);
-    console.log(`${data} clicked`);
+    console.log("selected", e.node.props.title);
+
+    const selectedFolderTitle = e.node.props.title || null;
+
+    if (selectedFolderTitle) {
+      document.title = selectedFolderTitle;
+      setTitle(selectedFolderTitle);
+    }
   };
 
   const switcherIcon = (obj) => {
@@ -158,12 +169,15 @@ export default inject(({ treeFoldersStore }) => {
     fetchTreeFolders,
     selectedTreeNode,
     setSelectedNode,
+    setTitle,
   } = treeFoldersStore;
   return {
     treeFolders,
     selectedTreeNode,
+    selectedFolderTitle: treeFoldersStore.title,
 
     fetchTreeFolders,
     setSelectedNode,
+    setTitle,
   };
 })(observer(TreeFolders));

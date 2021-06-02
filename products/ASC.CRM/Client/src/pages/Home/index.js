@@ -7,10 +7,11 @@ import {
   ArticleMainButtonContent,
   ArticleBodyContent,
 } from "../../components/Article";
+import { SectionHeaderContent } from "./Section";
 import { withTranslation } from "react-i18next";
 import { observer, inject } from "mobx-react";
 
-const PureHome = (props) => {
+const PureHome = () => {
   return (
     <PageLayout withBodyScroll withBodyAutoFocus={!isMobile}>
       <PageLayout.ArticleHeader>
@@ -24,6 +25,10 @@ const PureHome = (props) => {
       <PageLayout.ArticleBody>
         <ArticleBodyContent />
       </PageLayout.ArticleBody>
+
+      <PageLayout.SectionHeader>
+        <SectionHeaderContent />
+      </PageLayout.SectionHeader>
     </PageLayout>
   );
 };

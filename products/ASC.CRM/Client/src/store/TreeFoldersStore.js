@@ -6,6 +6,8 @@ class TreeFoldersStore {
   selectedTreeNode = [];
   expandedKeys = [];
 
+  title = null;
+
   constructor() {
     makeAutoObservable(this);
   }
@@ -37,6 +39,10 @@ class TreeFoldersStore {
 
   addExpandSettingsTree = (item) => {
     this.expandedKeys.push(item[0]);
+  };
+
+  setTitle = (title) => {
+    this.title = title;
   };
 }
 
