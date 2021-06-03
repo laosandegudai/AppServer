@@ -7,7 +7,7 @@ import {
   ArticleMainButtonContent,
   ArticleBodyContent,
 } from "../../components/Article";
-import { SectionHeaderContent } from "./Section";
+import { SectionHeaderContent, SectionFilterContent } from "./Section";
 import { withTranslation } from "react-i18next";
 import { observer, inject } from "mobx-react";
 
@@ -29,6 +29,10 @@ const PureHome = () => {
       <PageLayout.SectionHeader>
         <SectionHeaderContent />
       </PageLayout.SectionHeader>
+
+      {/* <PageLayout.SectionFilter>
+        <SectionFilterContent />
+      </PageLayout.SectionFilter> */}
     </PageLayout>
   );
 };
