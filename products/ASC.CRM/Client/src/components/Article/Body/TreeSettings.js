@@ -21,6 +21,14 @@ const StyledTreeMenu = styled(TreeMenu)`
   .rc-tree-treenode-disabled > a span {
     cursor: wait;
   }
+
+  .rc-tree-title {
+    padding-left: 0px !important;
+  }
+
+  .rc-tree-child-tree {
+    padding-left: 20px;
+  }
 `;
 
 const StyledExpanderDownIcon = styled(ExpanderDownIcon)`
