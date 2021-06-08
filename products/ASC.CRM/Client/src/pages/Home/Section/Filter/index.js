@@ -18,7 +18,74 @@ const SectionFilterContent = ({ sectionWidth, isLoaded, t }) => {
   const selectedFilterData = getSelectedFilterData();
 
   const getData = () => {
-    const filterOptions = [];
+    const managerOptions = [
+      {
+        key: "filter-manager",
+        group: "filter-manager",
+        label: t("Manager"),
+        isHeader: true,
+      },
+      {
+        key: "1",
+        group: "filter-manager",
+        label: t("My"),
+      },
+      {
+        key: "2",
+        group: "filter-manager",
+        label: t("NoContactManager"),
+      },
+      {
+        key: "3",
+        group: "filter-manager",
+        label: t("Custom"),
+      },
+    ];
+
+        const accessOptions = [
+          {
+            key: "filter-access",
+            group: "filter-access",
+            label: t("Accessibility"),
+            isHeader: true,
+          },
+          {
+            key: "1",
+            group: "filter-access",
+            label: t("Public"),
+          },
+          {
+            key: "2",
+            group: "filter-access",
+            label: t("Restricted"),
+          },
+        ];
+
+         const otherOptions = [
+           {
+             key: "filter-Other",
+             group: "filter-Other",
+             label: t("Other"),
+             isHeader: true,
+           },
+           {
+             key: "1",
+             group: "filter-Other",
+             label: t("TemperatureLevel"),
+           },
+           {
+             key: "2",
+             group: "filter-Other",
+             label: t("ContactType"),
+           },
+           {
+             key: "3",
+             group: "filter-Other",
+             label: t("WithTag"),
+           }
+         ];
+
+    const filterOptions = [...managerOptions, ...accessOptions, ...otherOptions]
     return filterOptions;
   };
 
