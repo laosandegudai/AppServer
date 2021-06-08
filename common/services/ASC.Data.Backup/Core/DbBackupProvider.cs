@@ -34,6 +34,7 @@ using System.Threading;
 using System.Xml.Linq;
 
 using ASC.Common;
+using ASC.Common.Utils;
 
 namespace ASC.Data.Backup
 {
@@ -42,15 +43,17 @@ namespace ASC.Data.Backup
     {
         private readonly List<string> processedTables = new List<string>();
         private readonly DbHelper dbHelper;
+        private readonly TempStream tempStream;
 
         public string Name
         {
             get { return "databases"; }
         }
 
-        public DbBackupProvider(DbHelper dbHelper)
+        public DbBackupProvider(DbHelper dbHelper, TempStream tempStream)
         {
             this.dbHelper = dbHelper;
+            this.tempStream = tempStream;
         }
         public IEnumerable<XElement> GetElements(int tenant, string[] configs, IDataWriteOperator writer)
         {
@@ -103,7 +106,7 @@ namespace ASC.Data.Backup
             {
                 var map = new ExeConfigurationFileMap
                 {
-                    ExeConfigFilename = string.Compare(Path.GetExtension(config), ".config", true) == 0 ? config : Path.Combine(config, "Web.config")
+                    ExeConfigFilename = string.Compare(Path.GetExtension(config), ".config", true) == 0 ? config : CrossPlatform.PathCombine(config, "Web.config")
                 };
                 return ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None);
             }
@@ -177,14 +180,11 @@ namespace ASC.Data.Backup
                     if (c.DataType == typeof(DateTime)) c.DateTimeMode = DataSetDateTime.Unspecified;
                 }
 
-                var tmp = Path.GetTempFileName();
-                using (var file = File.OpenWrite(tmp))
+                using (var file = tempStream.Create())
                 {
                     dataTable.WriteXml(file, XmlWriteMode.WriteSchema);
+                    writer.WriteEntry(string.Format("{0}\\{1}\\{2}", Name, connectionString.Name, table).ToLower(), file);
                 }
-
-                writer.WriteEntry(string.Format("{0}\\{1}\\{2}", Name, connectionString.Name, table).ToLower(), tmp);
-                File.Delete(tmp);
 
                 processedTables.Add(table);
             }

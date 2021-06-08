@@ -52,6 +52,7 @@ const ServiceItem = (props) => {
   const dataProps = {
     "data-link": capabilityLink,
     "data-title": capabilityName,
+    "data-key": capabilityName,
   };
 
   return <img {...dataProps} {...rest} alt="" />;
@@ -84,16 +85,17 @@ const ThirdPartyDialog = (props) => {
   };
 
   const showOAuthModal = (token, serviceData) => {
-    setConnectDialogVisible(true);
     setConnectItem({
       title: serviceData.title,
       provider_key: serviceData.title,
       link: serviceData.link,
       token,
     });
+    setConnectDialogVisible(true);
   };
 
   const onShowService = (e) => {
+    setThirdPartyDialogVisible(false);
     const item = e.currentTarget.dataset;
     const showAccountSetting = !e.currentTarget.dataset.link;
     if (!showAccountSetting) {
@@ -103,12 +105,16 @@ const ThirdPartyDialog = (props) => {
         "height=600, width=1020"
       );
       openConnectWindow(item.title, authModal).then((modal) =>
-        getOAuthToken(modal).then((token) => showOAuthModal(token, item))
+        getOAuthToken(modal).then((token) => {
+          authModal.close();
+          showOAuthModal(token, item);
+        })
       );
+    } else {
+      setConnectItem(item);
+      setConnectDialogVisible(true);
     }
 
-    setConnectDialogVisible(true);
-    setConnectItem(item);
     setThirdPartyDialogVisible(false);
   };
 
@@ -120,7 +126,9 @@ const ThirdPartyDialog = (props) => {
       zIndex={310}
       onClose={onClose}
     >
-      <ModalDialog.Header>{t("ConnectingAccount")}</ModalDialog.Header>
+      <ModalDialog.Header>
+        {t("Translations:ConnectingAccount")}
+      </ModalDialog.Header>
       <ModalDialog.Body>
         <Text as="div">
           {t("ConnectDescription")}
@@ -217,6 +225,7 @@ const ThirdPartyDialog = (props) => {
               onClick={onShowService}
               className="service-item service-text"
               data-title={webDavConnectItem[0]}
+              data-key={webDavConnectItem[0]}
             >
               {t("ConnextOtherAccount")}
             </Text>
@@ -239,7 +248,6 @@ export default inject(({ auth, settingsStore, dialogsStore }) => {
     ownCloudConnectItem,
     webDavConnectItem,
     sharePointConnectItem,
-    getOAuthToken,
     openConnectWindow,
   } = settingsStore.thirdPartyStore;
   const {
@@ -248,6 +256,7 @@ export default inject(({ auth, settingsStore, dialogsStore }) => {
     setConnectDialogVisible,
     setConnectItem,
   } = dialogsStore;
+  const { getOAuthToken } = auth.settingsStore;
 
   return {
     visible,
@@ -269,4 +278,4 @@ export default inject(({ auth, settingsStore, dialogsStore }) => {
     getOAuthToken,
     openConnectWindow,
   };
-})(withTranslation("Settings")(observer(ThirdPartyDialog)));
+})(withTranslation(["Settings", "Translations"])(observer(ThirdPartyDialog)));

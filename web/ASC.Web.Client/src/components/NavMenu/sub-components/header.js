@@ -45,6 +45,15 @@ const Header = styled.header`
     font-size: 21px;
     line-height: 0;
     margin-top: -5px;
+    cursor: pointer;
+
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 
     @media ${desktop} {
       display: none;
@@ -119,7 +128,7 @@ const HeaderComponent = ({
   backdropClick,
   ...props
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation("Common");
 
   const isNavAvailable = mainModules.length > 0;
 
@@ -145,36 +154,6 @@ const HeaderComponent = ({
     e.preventDefault();
   };
 
-  //TODO: getCustomModules
-  // const getCustomModules = () => {
-  //   if (!isAdmin) {
-  //     return [];
-  //   } // Temporarily hiding the settings module
-
-  //   return (
-  //     <>
-  //       <NavItem
-  //         separator={true}
-  //         key={"nav-modules-separator"}
-  //         data-id={"nav-modules-separator"}
-  //       />
-  //       <NavItem
-  //         separator={false}
-  //         key={"settings"}
-  //         data-id={"settings"}
-  //         data-link="/settings"
-  //         opened={isNavOpened}
-  //         active={"settings" == currentProductId}
-  //         iconName={"SettingsIcon"}
-  //         onClick={onItemClick}
-  //         url="/settings"
-  //       >
-  //         {t("Settings")}
-  //       </NavItem>
-  //     </>
-  //   );
-  // };
-
   return (
     <>
       <Header
@@ -192,7 +171,12 @@ const HeaderComponent = ({
         <LinkWithoutRedirect className="header-logo-wrapper" to={defaultPage}>
           <img alt="logo" src={props.logoUrl} className="header-logo-icon" />
         </LinkWithoutRedirect>
-        <Headline className="header-module-title" type="header" color="#FFF">
+        <Headline
+          className="header-module-title"
+          type="header"
+          color="#FFF"
+          onClick={onClick}
+        >
           {currentProductName}
         </Headline>
       </Header>
@@ -234,11 +218,10 @@ const HeaderComponent = ({
                 url={link}
                 dashed={dashed}
               >
-                {id === "settings" ? i18n.t(title) : title}
+                {id === "settings" ? i18n.t("Common:Settings") : title}
               </NavItem>
             )
           )}
-          {/*getCustomModules()*/}
           <Box className="version-box">
             <Link
               as="a"
@@ -246,7 +229,7 @@ const HeaderComponent = ({
               target="_blank"
               {...versionBadgeProps}
             >
-              {t("Version")} {version}
+              {t("Common:Version")} {version}
             </Link>
             <Text as="span" {...versionBadgeProps}>
               {" "}
@@ -257,7 +240,7 @@ const HeaderComponent = ({
                 to={combineUrl(proxyURL, "/about")}
                 className="nav-menu-header_link"
               >
-                {t("AboutShort")}
+                {t("Common:About")}
               </LinkWithoutRedirect>
             </StyledLink>
           </Box>

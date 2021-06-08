@@ -6,11 +6,7 @@ import TopLoaderService from "@appserver/components/top-loading-indicator";
 export const toUrlParams = (obj, skipNull) => {
   let str = "";
   for (var key in obj) {
-    if (
-      (skipNull && !obj[key] && key !== "withSubfolders") ||
-      (key === "withSubfolders" && obj[key] !== "false")
-    )
-      continue;
+    if (skipNull && !obj[key]) continue;
 
     if (str !== "") {
       str += "&";
@@ -137,7 +133,7 @@ export function isAdmin(currentUser, currentProductId) {
       productName = "people";
       break;
     case "e67be73d-f9ae-4ce1-8fec-1880cb518cb4":
-      productName = "documents";
+      productName = "files";
       break;
     default:
       break;
@@ -150,21 +146,6 @@ export function isAdmin(currentUser, currentProductId) {
 
   return currentUser.isAdmin || currentUser.isOwner || isProductAdmin;
 }
-
-// export function combineUrl(host = "", ...params) {
-//   let url = host.replace(/\/+$/, "");
-
-//   params.forEach((part) => {
-//     const newPart = part.trim().replace(/^\/+/, "");
-//     url += newPart
-//       ? url.length > 0 && url[url.length - 1] === "/"
-//         ? newPart
-//         : `/${newPart}`
-//       : "";
-//   });
-
-//   return url;
-// }
 
 import combineUrlFunc from "./combineUrl";
 
@@ -209,4 +190,79 @@ export function deleteCookie(name) {
   setCookie(name, "", {
     "max-age": -1,
   });
+}
+
+export function clickBackdrop() {
+  var elms = document.getElementsByClassName("backdrop-active");
+  if (elms && elms.length > 0) {
+    elms[0].click();
+  }
+}
+
+export function objectToGetParams(object) {
+  const params = Object.entries(object)
+    .filter(([, value]) => value !== undefined && value !== null)
+    .map(
+      ([key, value]) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`
+    );
+
+  return params.length > 0 ? `?${params.join("&")}` : "";
+}
+
+export function toCommunityHostname(hostname) {
+  let communityHostname;
+  try {
+    communityHostname =
+      hostname.indexOf("m.") > -1
+        ? hostname.substring(2, hostname.length)
+        : hostname;
+  } catch (e) {
+    console.error(e);
+    communityHostname = hostname;
+  }
+
+  return communityHostname;
+}
+
+export function getProviderTranslation(provider, t) {
+  switch (provider) {
+    case "Google":
+      return t("Common:SignInWithGoogle");
+    case "Facebook":
+      return t("Common:SignInWithFacebook");
+    case "Twitter":
+      return t("Common:SignInWithTwitter");
+    case "LinkedIn":
+      return t("Common:SignInWithLinkedIn");
+  }
+}
+
+function getLanguage(lng) {
+  try {
+    let language = lng == "en-US" || lng == "en-GB" ? "en" : lng;
+
+    const splitted = lng.split("-");
+
+    if (splitted.length == 2 && splitted[0] == splitted[1].toLowerCase()) {
+      language = splitted[0];
+    }
+
+    return language;
+  } catch (error) {
+    console.error(error);
+  }
+
+  return lng;
+}
+
+export function loadLanguagePath(homepage, fixedNS = null) {
+  return (lng, ns) => {
+    const language = getLanguage(lng instanceof Array ? lng[0] : lng);
+
+    if (ns.length > 0 && ns[0] === "Common") {
+      return `/static/locales/${language}/Common.json`;
+    }
+    return `${homepage}/locales/${language}/${fixedNS || ns}.json`;
+  };
 }

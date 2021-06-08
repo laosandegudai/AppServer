@@ -80,6 +80,7 @@ const ServiceItem = (props) => {
   const dataProps = {
     "data-link": capabilityLink,
     "data-title": capabilityName,
+    "data-key": capabilityName,
   };
 
   return (
@@ -98,11 +99,12 @@ const PureThirdPartyListContainer = ({
   nextCloudConnectItem,
   webDavConnectItem,
   setConnectItem,
-  setThirdPartyDialogVisible,
+  setConnectDialogVisible,
   setSelectedNode,
   setSelectedFolder,
   getOAuthToken,
   openConnectWindow,
+  setThirdPartyDialogVisible,
   history,
 }) => {
   const redirectAction = () => {
@@ -125,8 +127,10 @@ const PureThirdPartyListContainer = ({
         "Authorization",
         "height=600, width=1020"
       );
-      openConnectWindow(data.title, authModal).then((modal) =>
+      openConnectWindow(data.title, authModal).then((modal) => {
+        redirectAction();
         getOAuthToken(modal).then((token) => {
+          authModal.close();
           const serviceData = {
             title: data.title,
             provider_key: data.title,
@@ -134,17 +138,17 @@ const PureThirdPartyListContainer = ({
             token,
           };
           setConnectItem(serviceData);
-        })
-      );
+          setConnectDialogVisible(true);
+        });
+      });
     } else {
       setConnectItem(data);
+      setConnectDialogVisible(true);
+      redirectAction();
     }
-
-    onShowConnectPanel();
   };
 
   const onShowConnectPanel = () => {
-    //setThirdPartyDialogVisible((prev) => !prev); TODO:
     setThirdPartyDialogVisible(true);
     redirectAction();
   };
@@ -157,7 +161,7 @@ const PureThirdPartyListContainer = ({
         fontWeight={600}
         onClick={onShowConnectPanel}
       >
-        {t("AddAccount")}
+        {t("Translations:AddAccount")}
       </Link>
       <div className="tree-thirdparty-list">
         {googleConnectItem && (
@@ -207,13 +211,14 @@ const PureThirdPartyListContainer = ({
   );
 };
 
-const ThirdPartyList = withTranslation("Article")(
+const ThirdPartyList = withTranslation(["Article", "Translations"])(
   withRouter(PureThirdPartyListContainer)
 );
 
 export default inject(
   ({
     filesStore,
+    auth,
     settingsStore,
     treeFoldersStore,
     selectedFolderStore,
@@ -229,12 +234,16 @@ export default inject(
       oneDriveConnectItem,
       nextCloudConnectItem,
       webDavConnectItem,
-      getOAuthToken,
       openConnectWindow,
     } = settingsStore.thirdPartyStore;
 
-    const { setConnectItem, setThirdPartyDialogVisible } = dialogsStore;
+    const { getOAuthToken } = auth.settingsStore;
 
+    const {
+      setConnectItem,
+      setConnectDialogVisible,
+      setThirdPartyDialogVisible,
+    } = dialogsStore;
     return {
       googleConnectItem,
       boxConnectItem,
@@ -247,9 +256,10 @@ export default inject(
       setSelectedFolder,
       setSelectedNode,
       setConnectItem,
-      setThirdPartyDialogVisible,
+      setConnectDialogVisible,
       getOAuthToken,
       openConnectWindow,
+      setThirdPartyDialogVisible,
     };
   }
 )(observer(ThirdPartyList));

@@ -43,7 +43,6 @@ using ASC.Common;
 using ASC.Common.Caching;
 using ASC.Common.Logging;
 using ASC.Common.Utils;
-using ASC.Common.Web;
 using ASC.Core;
 using ASC.Core.Billing;
 using ASC.Core.Common.Configuration;
@@ -54,21 +53,17 @@ using ASC.Core.Tenants;
 using ASC.Core.Users;
 using ASC.Data.Backup;
 using ASC.Data.Backup.Contracts;
-using ASC.Data.Backup.Service;
 using ASC.Data.Storage;
 using ASC.Data.Storage.Configuration;
 using ASC.Data.Storage.Encryption;
 using ASC.Data.Storage.Migration;
-using ASC.FederatedLogin;
 using ASC.FederatedLogin.LoginProviders;
-using ASC.FederatedLogin.Profile;
 using ASC.IPSecurity;
 using ASC.MessagingSystem;
 using ASC.Security.Cryptography;
 using ASC.Web.Api.Models;
 using ASC.Web.Api.Routing;
 using ASC.Web.Core;
-using ASC.Web.Core.Mobile;
 using ASC.Web.Core.PublicResources;
 using ASC.Web.Core.Sms;
 using ASC.Web.Core.Users;
@@ -122,8 +117,6 @@ namespace ASC.Api.Settings
         private IPSecurity.IPSecurity IpSecurity { get; }
         private IMemoryCache MemoryCache { get; }
         private ProviderManager ProviderManager { get; }
-        private MobileDetector MobileDetector { get; }
-        private IOptionsSnapshot<AccountLinker> AccountLinker { get; }
         private FirstTimeTenantSettings FirstTimeTenantSettings { get; }
         private UserManager UserManager { get; }
         private TenantManager TenantManager { get; }
@@ -163,14 +156,14 @@ namespace ASC.Api.Settings
         private UrlShortener UrlShortener { get; }
         private EncryptionServiceClient EncryptionServiceClient { get; }
         private EncryptionSettingsHelper EncryptionSettingsHelper { get; }
-        private BackupServiceNotifier BackupServiceNotifier { get; }
+        private BackupAjaxHandler BackupAjaxHandler { get; }
         private ICacheNotify<DeleteSchedule> CacheDeleteSchedule { get; }
-        private EncryptionServiceNotifier EncryptionServiceNotifier { get; }
+        private EncryptionWorker EncryptionWorker { get; }
         private PasswordHasher PasswordHasher { get; }
         private ILog Log { get; set; }
         private TelegramHelper TelegramHelper { get; }
-        private BackupAjaxHandler BackupAjaxHandler { get; }
         private PaymentManager PaymentManager { get; }
+        public Constants Constants { get; }
 
         public SettingsController(
             IOptionsMonitor<ILog> option,
@@ -220,8 +213,6 @@ namespace ASC.Api.Settings
             IPSecurity.IPSecurity ipSecurity,
             IMemoryCache memoryCache,
             ProviderManager providerManager,
-            MobileDetector mobileDetector,
-            IOptionsSnapshot<AccountLinker> accountLinker,
             FirstTimeTenantSettings firstTimeTenantSettings,
             ServiceClient serviceClient,
             TelegramHelper telegramHelper,
@@ -229,12 +220,12 @@ namespace ASC.Api.Settings
             UrlShortener urlShortener,
             EncryptionServiceClient encryptionServiceClient,
             EncryptionSettingsHelper encryptionSettingsHelper,
-            BackupServiceNotifier backupServiceNotifier,
-            ICacheNotify<DeleteSchedule> cacheDeleteSchedule,
-            EncryptionServiceNotifier encryptionServiceNotifier,
-            PasswordHasher passwordHasher,
             BackupAjaxHandler backupAjaxHandler,
-            PaymentManager paymentManager)
+            ICacheNotify<DeleteSchedule> cacheDeleteSchedule,
+            EncryptionWorker encryptionWorker,
+            PasswordHasher passwordHasher,
+            PaymentManager paymentManager,
+            Constants constants)
         {
             Log = option.Get("ASC.Api");
             WebHostEnvironment = webHostEnvironment;
@@ -247,8 +238,6 @@ namespace ASC.Api.Settings
             IpSecurity = ipSecurity;
             MemoryCache = memoryCache;
             ProviderManager = providerManager;
-            MobileDetector = mobileDetector;
-            AccountLinker = accountLinker;
             FirstTimeTenantSettings = firstTimeTenantSettings;
             MessageService = messageService;
             StudioNotifyService = studioNotifyService;
@@ -289,15 +278,15 @@ namespace ASC.Api.Settings
             ServiceClient = serviceClient;
             EncryptionServiceClient = encryptionServiceClient;
             EncryptionSettingsHelper = encryptionSettingsHelper;
-            BackupServiceNotifier = backupServiceNotifier;
+            BackupAjaxHandler = backupAjaxHandler;
             CacheDeleteSchedule = cacheDeleteSchedule;
-            EncryptionServiceNotifier = encryptionServiceNotifier;
+            EncryptionWorker = encryptionWorker;
             PasswordHasher = passwordHasher;
             StorageFactory = storageFactory;
             UrlShortener = urlShortener;
             TelegramHelper = telegramHelper;
-            BackupAjaxHandler = backupAjaxHandler;
             PaymentManager = paymentManager;
+            Constants = constants;
         }
 
         [Read("", Check = false)]
@@ -325,13 +314,19 @@ namespace ASC.Api.Settings
             {
                 if (!SettingsManager.Load<WizardSettings>().Completed)
                 {
-                    settings.WizardToken = CommonLinkUtility.GetToken("", ConfirmType.Wizard, userId: Tenant.OwnerId);
+                    settings.WizardToken = CommonLinkUtility.GetToken(Tenant.TenantId, "", ConfirmType.Wizard, userId: Tenant.OwnerId);
                 }
 
                 settings.EnabledJoin =
                     (Tenant.TrustedDomainsType == TenantTrustedDomainsType.Custom &&
                     Tenant.TrustedDomains.Count > 0) ||
                     Tenant.TrustedDomainsType == TenantTrustedDomainsType.All;
+
+                if (settings.EnabledJoin.GetValueOrDefault(false))
+                {
+                    settings.TrustedDomainsType = Tenant.TrustedDomainsType;
+                    settings.TrustedDomains = Tenant.TrustedDomains;
+                }
 
                 var studioAdminMessageSettings = SettingsManager.Load<StudioAdminMessageSettings>();
 
@@ -501,7 +496,7 @@ namespace ASC.Api.Settings
                     case TenantTrustedDomainsType.Custom:
                     {
                         var address = new MailAddress(email);
-                        if (Tenant.TrustedDomains.Any(d => address.Address.EndsWith("@" + d, StringComparison.InvariantCultureIgnoreCase)))
+                        if (Tenant.TrustedDomains.Any(d => address.Address.EndsWith("@" + d.Replace("*", ""), StringComparison.InvariantCultureIgnoreCase)))
                         {
                             StudioNotifyService.SendJoinMsg(email, emplType);
                             MessageService.Send(MessageInitiator.System, MessageAction.SentInviteInstructions, email);
@@ -538,9 +533,11 @@ namespace ASC.Api.Settings
                     .Select(r =>
                     {
                         var names = CustomNamingPeople.GetPeopleNames(r.Key);
-                        var schemaItem = new SchemaItemModel
+
+                        return new SchemaModel
                         {
                             Id = names.Id,
+                            Name = names.SchemaName,
                             UserCaption = names.UserCaption,
                             UsersCaption = names.UsersCaption,
                             GroupCaption = names.GroupCaption,
@@ -551,24 +548,83 @@ namespace ASC.Api.Settings
                             GuestCaption = names.GuestCaption,
                             GuestsCaption = names.GuestsCaption,
                         };
-
-                        return new SchemaModel
-                        {
-                            Id = r.Key,
-                            Name = r.Value,
-                            Items = schemaItem
-                        };
                     })
                     .ToList();
         }
 
+        [Create("customschemas")]
+        public SchemaModel SaveNamingSettings(SchemaModel model)
+        {
+            PermissionContext.DemandPermissions(SecutiryConstants.EditPortalSettings);
+
+            CustomNamingPeople.SetPeopleNames(model.Id);
+
+            TenantManager.SaveTenant(TenantManager.GetCurrentTenant());
+
+            MessageService.Send(MessageAction.TeamTemplateChanged);
+
+            return PeopleSchema(model.Id);
+        }
+
+        [Update("customschemas")]
+        public SchemaModel SaveCustomNamingSettings(SchemaModel model)
+        {
+            PermissionContext.DemandPermissions(SecutiryConstants.EditPortalSettings);
+
+            var usrCaption =  (model.UserCaption ?? "").Trim();
+            var usrsCaption = (model.UsersCaption ?? "").Trim();
+            var grpCaption =  (model.GroupCaption ?? "").Trim();
+            var grpsCaption = (model.GroupsCaption ?? "").Trim();
+            var usrStatusCaption = (model.UserPostCaption ?? "").Trim();
+            var regDateCaption = (model.RegDateCaption ?? "").Trim();
+            var grpHeadCaption = (model.GroupHeadCaption ?? "").Trim();
+            var guestCaption = (model.GuestCaption ?? "").Trim();
+            var guestsCaption = (model.GuestsCaption ?? "").Trim();
+
+            if (string.IsNullOrEmpty(usrCaption)
+             || string.IsNullOrEmpty(usrsCaption)
+             || string.IsNullOrEmpty(grpCaption)
+             || string.IsNullOrEmpty(grpsCaption)
+             || string.IsNullOrEmpty(usrStatusCaption)
+             || string.IsNullOrEmpty(regDateCaption)
+             || string.IsNullOrEmpty(grpHeadCaption)
+             || string.IsNullOrEmpty(guestCaption)
+             || string.IsNullOrEmpty(guestsCaption))
+            {
+                throw new Exception(Resource.ErrorEmptyFields);
+            }
+
+            var names = new PeopleNamesItem
+            {
+                Id = PeopleNamesItem.CustomID,
+                UserCaption = usrCaption.Substring(0, Math.Min(30, usrCaption.Length)),
+                UsersCaption = usrsCaption.Substring(0, Math.Min(30, usrsCaption.Length)),
+                GroupCaption = grpCaption.Substring(0, Math.Min(30, grpCaption.Length)),
+                GroupsCaption = grpsCaption.Substring(0, Math.Min(30, grpsCaption.Length)),
+                UserPostCaption = usrStatusCaption.Substring(0, Math.Min(30, usrStatusCaption.Length)),
+                RegDateCaption = regDateCaption.Substring(0, Math.Min(30, regDateCaption.Length)),
+                GroupHeadCaption = grpHeadCaption.Substring(0, Math.Min(30, grpHeadCaption.Length)),
+                GuestCaption = guestCaption.Substring(0, Math.Min(30, guestCaption.Length)),
+                GuestsCaption = guestsCaption.Substring(0, Math.Min(30, guestsCaption.Length)),
+            };
+
+            CustomNamingPeople.SetPeopleNames(names);
+
+            TenantManager.SaveTenant(TenantManager.GetCurrentTenant());
+
+            MessageService.Send(MessageAction.TeamTemplateChanged);
+
+            return PeopleSchema(PeopleNamesItem.CustomID);
+        }
+
         [Read("customschemas/{id}")]
-        public SchemaItemModel PeopleSchema(string id)
+        public SchemaModel PeopleSchema(string id)
         {
             var names = CustomNamingPeople.GetPeopleNames(id);
-            var schemaItem = new SchemaItemModel
+            var schemaItem = new SchemaModel
             {
                 Id = names.Id,
+                Name = names.SchemaName,
                 UserCaption = names.UserCaption,
                 UsersCaption = names.UsersCaption,
                 GroupCaption = names.GroupCaption,
@@ -585,52 +641,7 @@ namespace ASC.Api.Settings
         [Read("quota")]
         public QuotaWrapper GetQuotaUsed()
         {
-            return new QuotaWrapper(Tenant, CoreBaseSettings, CoreConfiguration, TenantExtra, TenantStatisticsProvider, AuthContext, SettingsManager, WebItemManager);
-        }
-
-
-        [AllowAnonymous]
-        [Read("authproviders")]
-        public ICollection<AccountInfo> GetAuthProviders(bool inviteView, bool settingsView, string clientCallback, string fromOnly)
-        {
-            ICollection<AccountInfo> infos = new List<AccountInfo>();
-            IEnumerable<LoginProfile> linkedAccounts = new List<LoginProfile>();
-
-            if (AuthContext.IsAuthenticated)
-            {
-                linkedAccounts = AccountLinker.Get("webstudio").GetLinkedProfiles(AuthContext.CurrentAccount.ID.ToString());
-            }
-
-            fromOnly = string.IsNullOrWhiteSpace(fromOnly) ? string.Empty : fromOnly.ToLower();
-
-            foreach (var provider in ProviderManager.AuthProviders.Where(provider => string.IsNullOrEmpty(fromOnly) || fromOnly == provider || (provider == "google" && fromOnly == "openid")))
-            {
-                if (inviteView && provider.ToLower() == "twitter") continue;
-
-                var loginProvider = ProviderManager.GetLoginProvider(provider);
-                if (loginProvider != null && loginProvider.IsEnabled)
-                {
-
-                    var url = VirtualPathUtility.ToAbsolute("~/login.ashx") + $"?auth={provider}";
-                    var mode = (settingsView || inviteView || (!MobileDetector.IsMobile() && !Request.DesktopApp())
-                                     ? ("&mode=popup&callback=" + clientCallback)
-                                     : ("&mode=Redirect&returnurl="
-                                    + HttpUtility.UrlEncode(new Uri(Request.GetUrlRewriter(),
-                                        "Auth.aspx"
-                                        + (Request.DesktopApp() ? "?desktop=true" : "")
-                                        ).ToString())
-                                 ));
-
-                    infos.Add(new AccountInfo
-                    {
-                        Linked = linkedAccounts.Any(x => x.Provider == provider),
-                        Provider = provider,
-                        Url = url + mode
-                    });
-                }
-            }
-
-            return infos;
+            return new QuotaWrapper(Tenant, CoreBaseSettings, CoreConfiguration, TenantExtra, TenantStatisticsProvider, AuthContext, SettingsManager, WebItemManager, Constants);
         }
 
         [AllowAnonymous]
@@ -1366,21 +1377,54 @@ namespace ASC.Api.Settings
             return FirstTimeTenantSettings.SaveData(wizardModel);
         }
 
+        [Read("tfaapp")]
+        public IEnumerable<TfaSettings> GetTfaSettings()
+        {
+            var result = new List<TfaSettings>();
+
+            var SmsVisible = StudioSmsNotificationSettingsHelper.IsVisibleSettings();
+            var SmsEnable = SmsVisible && SmsProviderManager.Enabled();
+            var TfaVisible = TfaAppAuthSettings.IsVisibleSettings;
+
+            if (SmsVisible)
+            {
+                result.Add(new TfaSettings
+                {
+                    Enabled = StudioSmsNotificationSettingsHelper.Enable,
+                    Id = "sms",
+                    Title = Resource.ButtonSmsEnable,
+                    Avaliable = SmsEnable
+                });
+            }
+
+            if (TfaVisible)
+            {
+                result.Add(new TfaSettings
+                {
+                    Enabled = SettingsManager.Load<TfaAppAuthSettings>().EnableSetting,
+                    Id = "app",
+                    Title = Resource.ButtonTfaAppEnable,
+                    Avaliable = true
+                });
+            }
+
+            return result;
+        }
 
         [Update("tfaapp")]
         public bool TfaSettingsFromBody([FromBody]TfaModel model)
         {
-            return TfaSettings(model);
+            return TfaSettingsUpdate(model);
         }
 
         [Update("tfaapp")]
         [Consumes("application/x-www-form-urlencoded")]
         public bool TfaSettingsFromForm([FromForm] TfaModel model)
         {
-            return TfaSettings(model);
+            return TfaSettingsUpdate(model);
         }
         
-        private bool TfaSettings(TfaModel model)
+        private bool TfaSettingsUpdate(TfaModel model)
         {
             PermissionContext.DemandPermissions(SecutiryConstants.EditPortalSettings);
 
@@ -2168,7 +2212,7 @@ namespace ASC.Api.Settings
 
             foreach (var tenant in tenants)
             {
-                var progress = BackupServiceNotifier.GetBackupProgress(tenant.TenantId);
+                var progress = BackupAjaxHandler.GetBackupProgress(tenant.TenantId);
                 if (progress != null && progress.IsCompleted == false)
                 {
                     throw new Exception();
@@ -2300,7 +2344,7 @@ namespace ASC.Api.Settings
                 throw new BillingException(Resource.ErrorNotAllowedOption, "DiscEncryption");
             }
 
-            return EncryptionServiceNotifier.GetEncryptionProgress(Tenant.TenantId)?.Progress;
+            return EncryptionWorker.GetEncryptionProgress();
         }
 
         [Update("storage")]
@@ -2693,7 +2737,10 @@ namespace ASC.Api.Settings
         private bool SaveAuthKeys(AuthServiceModel model)
         {
             PermissionContext.DemandPermissions(SecutiryConstants.EditPortalSettings);
-            if (!SetupInfo.IsVisibleSettings(ManagementType.ThirdPartyAuthorization.ToString()))
+
+            var saveAvailable = CoreBaseSettings.Standalone || TenantManager.GetTenantQuota(TenantManager.GetCurrentTenant().TenantId).ThirdParty;
+            if (!SetupInfo.IsVisibleSettings(ManagementType.ThirdPartyAuthorization.ToString())
+                || !saveAvailable)
                 throw new BillingException(Resource.ErrorNotAllowedOption, "ThirdPartyAuthorization");
 
             var changed = false;

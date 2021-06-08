@@ -96,12 +96,12 @@ class SectionFilterContent extends React.Component {
           {
             key: "1",
             group: "filter-status",
-            label: t("LblActive"),
+            label: t("Common:Active"),
           },
           {
             key: "2",
             group: "filter-status",
-            label: t("LblTerminated"),
+            label: t("Translations:DisabledEmployeeStatus"),
           },
         ];
 
@@ -119,23 +119,23 @@ class SectionFilterContent extends React.Component {
       {
         key: "filter-email",
         group: "filter-email",
-        label: t("Email"),
+        label: t("Common:Email"),
         isHeader: true,
       },
       {
         key: "1",
         group: "filter-email",
-        label: t("LblActive"),
+        label: t("Common:Active"),
       },
       {
         key: "2",
         group: "filter-email",
-        label: t("LblPending"),
+        label: t("Translations:PendingTitle"),
       },
       {
         key: "filter-type",
         group: "filter-type",
-        label: t("UserType"),
+        label: t("Common:Type"),
         isHeader: true,
       },
       { key: "admin", group: "filter-type", label: t("Administrator") },
@@ -160,7 +160,7 @@ class SectionFilterContent extends React.Component {
         group: "filter-other",
         subgroup: "filter-group",
         label: groupCaption,
-        defaultSelectLabel: t("LblSelect"),
+        defaultSelectLabel: t("Common:Select"),
       },
       ...groupOptions,
     ];
@@ -174,8 +174,12 @@ class SectionFilterContent extends React.Component {
     const { t } = this.props;
 
     return [
-      { key: "firstname", label: t("ByFirstNameSorting"), default: true },
-      { key: "lastname", label: t("ByLastNameSorting"), default: true },
+      {
+        key: "firstname",
+        label: t("Common:ByFirstNameSorting"),
+        default: true,
+      },
+      { key: "lastname", label: t("Common:ByLastNameSorting"), default: true },
     ];
   };
 
@@ -221,39 +225,21 @@ class SectionFilterContent extends React.Component {
     return selectedFilterData;
   };
 
-  isTranslationsLoaded = () => {
-    const { t, i18n } = this.props;
-
-    const { store, services, language } = i18n;
-
-    let translationIsLoaded = false;
-    try {
-      translationIsLoaded = store.hasResourceBundle(
-        services.languageUtils.getLanguagePartFromCode(language),
-        "Home"
-      );
-    } catch {
-      translationIsLoaded = t("UserStatus") !== "UserStatus";
-    }
-
-    return translationIsLoaded;
-  };
-
   render() {
     const selectedFilterData = this.getSelectedFilterData();
-    const { t, isLoaded, sectionWidth } = this.props;
+    const { t, isLoaded, sectionWidth, tReady } = this.props;
 
-    return isLoaded && this.isTranslationsLoaded() ? (
+    return isLoaded && tReady ? (
       <FilterInput
         sectionWidth={sectionWidth}
         getFilterData={this.getData}
         getSortData={this.getSortData}
         selectedFilterData={selectedFilterData}
         onFilter={this.onFilter}
-        directionAscLabel={t("DirectionAscLabel")}
-        directionDescLabel={t("DirectionDescLabel")}
-        placeholder={t("Search")}
-        contextMenuHeader={t("AddFilter")}
+        directionAscLabel={t("Common:DirectionAscLabel")}
+        directionDescLabel={t("Common:DirectionDescLabel")}
+        placeholder={t("Common:Search")}
+        contextMenuHeader={t("Common:AddFilter")}
         isMobile={isMobileOnly}
       />
     ) : (
@@ -274,5 +260,13 @@ export default withRouter(
       filter: peopleStore.filterStore.filter,
       setIsLoading: peopleStore.setIsLoading,
     };
-  })(observer(withLayoutSize(withTranslation("Home")(SectionFilterContent))))
+  })(
+    observer(
+      withLayoutSize(
+        withTranslation(["Home", "Common", "Translations"])(
+          SectionFilterContent
+        )
+      )
+    )
+  )
 );

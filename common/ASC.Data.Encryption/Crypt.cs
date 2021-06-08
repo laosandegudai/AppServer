@@ -29,6 +29,7 @@ using System.IO;
 using System.Security.Cryptography;
 
 using ASC.Common;
+using ASC.Common.Utils;
 using ASC.Core.Encryption;
 
 using Microsoft.Extensions.Configuration;
@@ -43,17 +44,19 @@ namespace ASC.Data.Encryption
         private string TempDir { get; set; }
 
         private IConfiguration Configuration { get; set; }
+        public TempPath TempPath { get; }
 
         public void Init(string storageName, EncryptionSettings encryptionSettings)
         {
             Storage = storageName;
             Settings = encryptionSettings;
-            TempDir = Configuration["storage:encryption:tempdir"] ?? Path.GetTempPath();
+            TempDir = TempPath.GetTempPath();
         }
 
-        public Crypt(IConfiguration configuration)
+        public Crypt(IConfiguration configuration, TempPath tempPath)
         {
             Configuration = configuration;
+            TempPath = tempPath;
         }
 
         public byte Version { get { return 1; } }
@@ -292,12 +295,12 @@ namespace ASC.Data.Encryption
         {
             var dir = string.IsNullOrEmpty(TempDir) ? Path.GetDirectoryName(filePath) : TempDir;
             var name = Path.GetFileNameWithoutExtension(filePath);
-            var result = Path.Combine(dir, string.Format("{0}_{1}{2}", Storage, name, ext));
+            var result = CrossPlatform.PathCombine(dir, string.Format("{0}_{1}{2}", Storage, name, ext));
             var index = 1;
 
             while (File.Exists(result))
             {
-                result = Path.Combine(dir, string.Format("{0}_{1}({2}){3}", Storage, name, index++, ext));
+                result = CrossPlatform.PathCombine(dir, string.Format("{0}_{1}({2}){3}", Storage, name, index++, ext));
             }
 
             return result;

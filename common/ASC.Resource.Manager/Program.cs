@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -37,7 +39,7 @@ namespace ASC.Resource.Manager
             {
                 if(args[i] == "--pathToConf" || args[i] == "--ConnectionStrings:default:connectionString")
                 {
-                    i = i + 2;
+                    i++;
                     continue;
                 }
                 copy.Add(args[i]);
@@ -219,12 +221,17 @@ namespace ASC.Resource.Manager
 
                         regex = new Regex(@"\<AssemblyName\>(\S*)\<\/AssemblyName\>", RegexOptions.IgnoreCase);
                         matches = regex.Matches(File.ReadAllText(asmbl));
+                        string assName = "";
                         if (!matches.Any() || matches[0].Groups.Count < 2)
                         {
-                            return;
+                            assName = Path.GetFileNameWithoutExtension(asmbl);
+                        }
+                        else
+                        {
+                            assName = matches[0].Groups[1].Value;
                         }
 
-                        key = CheckExist(fileName, $"{nsp}.{name},{matches[0].Groups[1].Value}", exportPath);
+                        key = CheckExist(fileName, $"{nsp}.{name},{assName}", exportPath);
                         var additional =  string.Join(",", keys.Where(r => r.Length > 1 && r.Contains("*")).ToArray());
 
                         if (!string.IsNullOrEmpty(additional))
@@ -236,7 +243,10 @@ namespace ASC.Resource.Manager
                     }
                     else
                     {
-                        exportPath = Path.GetDirectoryName(filePath);
+                        if (export != JsonManager.Export)
+                        {
+                            exportPath = Path.GetDirectoryName(filePath);
+                        }
                     }
 
                     if (string.IsNullOrEmpty(exportPath))
@@ -244,7 +254,20 @@ namespace ASC.Resource.Manager
                         return;
                     }
 
+                    var exportPath1 = exportPath;
+
                     ParallelEnumerable.ForAll(cultures.AsParallel(), c => {
+                        if (export == JsonManager.Export)
+                        {
+                            var files = Directory.GetFiles(exportPath1, $"{fileName}", SearchOption.AllDirectories);
+
+                            exportPath = files.FirstOrDefault(r=>  Path.GetDirectoryName(r) == c);
+                            if(exportPath == null)
+                            {
+                                exportPath = Path.GetDirectoryName(Path.GetDirectoryName(files.FirstOrDefault()));
+                            }
+                        }
+
                         var any = export(serviceProvider, projectName, moduleName, fileName, c, exportPath, key);
                         if (any)
                         {
@@ -298,6 +321,7 @@ namespace ASC.Resource.Manager
             var bag = new ConcurrentBag<string>();
 
             var csFiles = Directory.GetFiles(Path.GetFullPath(path), "*.cs", SearchOption.AllDirectories).Except(Directory.GetFiles(Path.GetFullPath(path), "*Resource.Designer.cs", SearchOption.AllDirectories));
+            csFiles = csFiles.Concat(Directory.GetFiles(Path.GetFullPath(path), "*.cshtml", SearchOption.AllDirectories)).ToArray();
             csFiles = csFiles.Concat(Directory.GetFiles(Path.GetFullPath(path), "*.aspx", SearchOption.AllDirectories)).ToArray();
             csFiles = csFiles.Concat(Directory.GetFiles(Path.GetFullPath(path), "*.Master", SearchOption.AllDirectories)).ToArray();
             csFiles = csFiles.Concat(Directory.GetFiles(Path.GetFullPath(path), "*.ascx", SearchOption.AllDirectories)).ToArray();
@@ -435,6 +459,69 @@ namespace ASC.Resource.Manager
             }
 
             doc.Save(csproj);
+        }
+
+        private static void Sort(string path)
+        {
+            foreach(var f in Directory.GetFiles(path))
+            {
+                if (File.ReadAllText(f) == "{}")
+                {
+                    File.Delete(f);
+                    continue;
+                }
+
+                var name = Path.GetFileName(f);
+                var baseDirName = Path.GetDirectoryName(f);
+                var ext = name.Split('.');
+                string dirName;
+                if (ext.Length <= 2)
+                {
+                    dirName = "en";
+                }
+                else
+                {
+                    dirName = ext[^2];
+                    name = name.Replace(ext[^2] + ".", "");
+                }
+
+                dirName = Path.Combine(baseDirName, dirName);
+                if (!Directory.Exists(dirName))
+                {
+                    Directory.CreateDirectory(dirName);
+                }
+                File.Move(f, Path.Combine(dirName, name));
+            }
+        }
+
+        private static void SortFromFolder(string path)
+        {
+            foreach(var f in Directory.GetFiles(path, "*.*", SearchOption.AllDirectories))
+            {
+                if (File.ReadAllText(f) == "{}") continue;
+
+                var name = Path.GetFileName(f);
+                var baseDir = Path.GetDirectoryName(f);
+                var baseDirName = Path.GetFileName(baseDir);
+
+                if(baseDirName != "en")
+                {
+                    name = name.Replace(".json", $".{baseDirName}.json");
+                }
+
+
+                File.Move(f, Path.GetFullPath(Path.Combine(baseDir, "..", name)));
+            }
+        }
+
+        private static void SortJson(string path)
+        {
+            foreach(var f in Directory.GetFiles(path, "*", SearchOption.AllDirectories))
+            {
+                var text = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(f, Encoding.UTF8));
+                text = text.OrderBy(r => r.Key).ToDictionary(r=> r.Key, r=> r.Value);
+                File.WriteAllText(f, JsonSerializer.Serialize(text, new JsonSerializerOptions() { WriteIndented = true }), Encoding.UTF8);
+            }
         }
     }
 

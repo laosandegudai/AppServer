@@ -8,6 +8,7 @@ class TreeFoldersStore {
   treeFolders = [];
   selectedTreeNode = [];
   expandedKeys = [];
+  expandedPanelKeys = null;
 
   constructor(selectedFolderStore) {
     makeAutoObservable(this);
@@ -19,6 +20,8 @@ class TreeFoldersStore {
     this.setTreeFolders(treeFolders);
     return treeFolders;
   };
+
+  getFoldersTree = () => getFoldersTree();
 
   setTreeFolders = (treeFolders) => {
     this.treeFolders = treeFolders;
@@ -34,6 +37,10 @@ class TreeFoldersStore {
     this.expandedKeys = expandedKeys;
   };
 
+  setExpandedPanelKeys = (expandedPanelKeys) => {
+    this.expandedPanelKeys = expandedPanelKeys;
+  };
+
   addExpandedKeys = (item) => {
     this.expandedKeys.push(item);
   };
@@ -41,6 +48,13 @@ class TreeFoldersStore {
   updateRootBadge = (id, count) => {
     const rootItem = this.treeFolders.find((x) => x.id === id);
     if (rootItem) rootItem.newItems -= count;
+  };
+
+  isCommon = (commonType) => commonType === FolderType.COMMON;
+  isShare = (shareType) => shareType === FolderType.SHARE;
+
+  getRootFolder = (rootFolderType) => {
+    return this.treeFolders.find((x) => x.rootFolderType === rootFolderType);
   };
 
   get myFolder() {
@@ -135,7 +149,8 @@ class TreeFoldersStore {
         (folder) =>
           (folder.rootFolderType === FolderType.USER ||
             folder.rootFolderType === FolderType.COMMON ||
-            folder.rootFolderType === FolderType.Projects) &&
+            folder.rootFolderType === FolderType.Projects ||
+            folder.rootFolderType === FolderType.SHARE) &&
           folder
       );
     }

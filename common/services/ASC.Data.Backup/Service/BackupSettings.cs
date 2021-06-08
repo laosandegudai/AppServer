@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+
+using ASC.Common.Utils;
 
 namespace ASC.Data.Backup.Service
 {
     public class BackupSettings
     {
-
-        public string TempFolder { get; set; }
-
         public string UpgradesPath { get; set; }
 
         public int Limit { get; set; }
@@ -52,7 +50,7 @@ namespace ASC.Data.Backup.Service
                     }
                     if (Elements.Count == 0)
                     {
-                        return Path.Combine("..", "..", "WebStudio");
+                        return CrossPlatform.PathCombine("..", "..", "WebStudio");
                     }
                     if (Elements.Count == 1)
                     {

@@ -30,6 +30,7 @@ using System.IO;
 using System.Linq;
 
 using ASC.Common.Logging;
+using ASC.Common.Utils;
 using ASC.Data.Storage;
 
 using Microsoft.Extensions.Options;
@@ -40,14 +41,22 @@ namespace ASC.Core.ChunkedUploader
     {
         public static readonly TimeSpan SlidingExpiration = TimeSpan.FromHours(12);
 
+        private TempPath TempPath { get; }
         private IOptionsMonitor<ILog> Option { get; }
-        private IDataStore DataStore { get; set; }
+        public IDataStore DataStore { get; set; }
         private string Domain { get; set; }
         private long MaxChunkUploadSize { get; set; }
+
         private const string StoragePath = "sessions";
 
-        public CommonChunkedUploadSessionHolder(IOptionsMonitor<ILog> option, IDataStore dataStore, string domain, long maxChunkUploadSize = 10 * 1024 * 1024)
+        public CommonChunkedUploadSessionHolder(
+            TempPath tempPath,
+            IOptionsMonitor<ILog> option,
+            IDataStore dataStore,
+            string domain,
+            long maxChunkUploadSize = 10 * 1024 * 1024)
         {
+            TempPath = tempPath;
             Option = option;
             DataStore = dataStore;
             Domain = domain;
@@ -110,9 +119,9 @@ namespace ASC.Core.ChunkedUploader
             DataStore.FinalizeChunkedUpload(Domain, tempPath, uploadId, eTags);
         }
 
-        public void Move(CommonChunkedUploadSession chunkedUploadSession, string newPath)
+        public void Move(CommonChunkedUploadSession chunkedUploadSession, string newPath, bool quotaCheckFileSize = true)
         {
-            DataStore.Move(Domain, chunkedUploadSession.TempPath, string.Empty, newPath);
+            DataStore.Move(Domain, chunkedUploadSession.TempPath, string.Empty, newPath, quotaCheckFileSize);
         }
 
         public void Abort(CommonChunkedUploadSession uploadSession)
@@ -156,7 +165,9 @@ namespace ASC.Core.ChunkedUploader
                 //This is hack fixing strange behaviour of plupload in flash mode.
 
                 if (string.IsNullOrEmpty(uploadSession.ChunksBuffer))
-                    uploadSession.ChunksBuffer = Path.GetTempFileName();
+                {
+                    uploadSession.ChunksBuffer = TempPath.GetTempFileName();
+                }
 
                 using (var bufferStream = new FileStream(uploadSession.ChunksBuffer, FileMode.Append))
                 {
@@ -177,7 +188,7 @@ namespace ASC.Core.ChunkedUploader
 
         private string GetPathWithId(string id)
         {
-            return Path.Combine(StoragePath, id + ".session");
+            return CrossPlatform.PathCombine(StoragePath, id + ".session");
         }
     }
 }

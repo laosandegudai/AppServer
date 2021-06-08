@@ -2,7 +2,7 @@ import React from "react";
 import { withTranslation } from "react-i18next";
 import styled from "styled-components";
 import Text from "@appserver/components/text";
-import Loader from "@appserver/components/loader";
+import Box from "@appserver/components/box";
 import toastr from "@appserver/components/toast/toastr";
 import Link from "@appserver/components/link";
 import ArrowRightIcon from "../../../../../../public/images/arrow.right.react.svg";
@@ -11,12 +11,7 @@ import commonIconsStyles from "@appserver/components/utils/common-icons-style";
 import { showLoader, hideLoader, combineUrl } from "@appserver/common/utils";
 import { inject, observer } from "mobx-react";
 import { AppServerConfig } from "@appserver/common/constants";
-
-const mapCulturesToArray = (cultures, t) => {
-  return cultures.map((culture) => {
-    return { key: culture, label: t(`Culture_${culture}`) };
-  });
-};
+import withCultureNames from "@appserver/common/hoc/withCultureNames";
 
 const mapTimezonesToArray = (timezones) => {
   return timezones.map((timezone) => {
@@ -95,12 +90,11 @@ class Customization extends React.Component {
     const {
       portalLanguage,
       portalTimeZoneId,
-      rawCultures,
+      cultureNames,
       rawTimezones,
       /*organizationName,*/
       t,
     } = props;
-    const languages = mapCulturesToArray(rawCultures, t);
     const timezones = mapTimezonesToArray(rawTimezones);
 
     setDocumentTitle(t("Customization"));
@@ -112,10 +106,9 @@ class Customization extends React.Component {
         timezones,
         portalTimeZoneId || timezones[0]
       ),
-      languages,
       language: findSelectedItemByKey(
-        languages,
-        portalLanguage || languages[0]
+        cultureNames,
+        portalLanguage || cultureNames[0]
       ),
       isLoadingGreetingSave: false,
       isLoadingGreetingRestore: false,
@@ -124,52 +117,47 @@ class Customization extends React.Component {
 
   componentDidMount() {
     const {
-      getPortalCultures,
       portalLanguage,
       portalTimeZoneId,
-      t,
       getPortalTimezones,
+      cultureNames,
     } = this.props;
-    const { timezones, languages } = this.state;
-    showLoader();
-    if (!timezones.length && !languages.length) {
-      let languages;
-      getPortalCultures()
-        .then(() => {
-          languages = mapCulturesToArray(this.props.rawCultures, t);
-        })
-        .then(() => getPortalTimezones())
-        .then(() => {
-          const timezones = mapTimezonesToArray(this.props.rawTimezones);
-          const timezone =
-            findSelectedItemByKey(timezones, portalTimeZoneId) || timezones[0];
-          const language =
-            findSelectedItemByKey(languages, portalLanguage) || languages[0];
 
-          this.setState({ languages, language, timezones, timezone });
-        });
+    const { timezones } = this.state;
+    showLoader();
+    if (!timezones.length && !cultureNames.length) {
+      getPortalTimezones().then(() => {
+        const timezones = mapTimezonesToArray(this.props.rawTimezones);
+        const timezone =
+          findSelectedItemByKey(timezones, portalTimeZoneId) || timezones[0];
+        const language =
+          findSelectedItemByKey(cultureNames, portalLanguage) ||
+          cultureNames[0];
+
+        this.setState({ language, timezones, timezone });
+      });
     }
+
     hideLoader();
   }
 
   componentDidUpdate(prevProps) {
-    const { i18n, language, nameSchemaId, getCurrentCustomSchema } = this.props;
+    const {
+      i18n,
+      language,
+      nameSchemaId,
+      getCurrentCustomSchema,
+      cultureNames,
+    } = this.props;
 
     if (language !== prevProps.language) {
       changeLanguage(i18n)
-        .then((t) => {
-          const newLocaleLanguages = mapCulturesToArray(
-            this.props.rawCultures,
-            t
-          );
+        .then(() => {
           const newLocaleSelectedLanguage =
-            findSelectedItemByKey(
-              newLocaleLanguages,
-              this.state.language.key
-            ) || newLocaleLanguages[0];
+            findSelectedItemByKey(cultureNames, this.state.language.key) ||
+            cultureNames[0];
 
           this.setState({
-            languages: newLocaleLanguages,
             language: newLocaleSelectedLanguage,
           });
         })
@@ -204,8 +192,9 @@ class Customization extends React.Component {
   };
 
   render() {
-    const { t } = this.props;
+    const { t, helpUrlCommonSettings, customNames } = this.props;
     const { language, timezone } = this.state;
+
     return (
       <StyledComponent>
         <div className="category-item-wrapper">
@@ -251,6 +240,38 @@ class Customization extends React.Component {
             {t("CustomTitlesSettingsDescription")}
           </Text>
         </div>
+        <div className="category-item-wrapper">
+          <div className="category-item-heading">
+            <Link
+              truncate={true}
+              className="inherit-title-link header"
+              onClick={this.onClickLink}
+              href={combineUrl(
+                AppServerConfig.proxyURL,
+                "/settings/common/customization/team-template"
+              )}
+            >
+              {t("TeamTemplate")}
+            </Link>
+            <StyledArrowRightIcon size="small" color="#333333" />
+          </div>
+          <Box marginProp="4px 0 6px 0">
+            <Text fontWeight="600">{`${customNames.name}`}</Text>
+          </Box>
+          <Text className="category-item-description">
+            {t("TeamTemplateSettingsDescription")}
+          </Text>
+          <Box marginProp="16px 0 0 0">
+            <Link
+              color="#316DAA"
+              target="_blank"
+              isHovered={true}
+              href={helpUrlCommonSettings}
+            >
+              {t("Common:LearnMore")}
+            </Link>
+          </Box>
+        </div>
       </StyledComponent>
     );
   }
@@ -261,12 +282,12 @@ export default inject(({ auth, setup }) => {
     culture,
     timezone,
     timezones,
-    cultures,
     nameSchemaId,
     organizationName,
-    getPortalCultures,
     getCurrentCustomSchema,
     getPortalTimezones,
+    helpUrlCommonSettings,
+    customNames,
   } = auth.settingsStore;
 
   const { setLanguageAndTime } = setup;
@@ -276,12 +297,16 @@ export default inject(({ auth, setup }) => {
     language: culture,
     portalTimeZoneId: timezone,
     rawTimezones: timezones,
-    rawCultures: cultures,
     nameSchemaId,
     organizationName,
-    getPortalCultures,
     setLanguageAndTime,
     getPortalTimezones,
     getCurrentCustomSchema,
+    helpUrlCommonSettings,
+    customNames,
   };
-})(withTranslation("Settings")(observer(Customization)));
+})(
+  withCultureNames(
+    observer(withTranslation(["Settings", "Common"])(Customization))
+  )
+);

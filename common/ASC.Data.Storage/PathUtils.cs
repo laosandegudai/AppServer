@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.IO;
 
 using ASC.Common;
+using ASC.Common.Utils;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -85,9 +86,9 @@ namespace ASC.Data.Storage
             if (virtPath.StartsWith("~") && !Uri.IsWellFormedUriString(virtPath, UriKind.Absolute))
             {
                 var rootPath = "/";
-                if (!string.IsNullOrEmpty(WebHostEnvironment.WebRootPath) && WebHostEnvironment.WebRootPath.Length > 1)
+                if (!string.IsNullOrEmpty(WebHostEnvironment?.WebRootPath) && WebHostEnvironment?.WebRootPath.Length > 1)
                 {
-                    rootPath = WebHostEnvironment.WebRootPath.Trim('/');
+                    rootPath = WebHostEnvironment?.WebRootPath.Trim('/');
                 }
                 virtPath = virtPath.Replace("~", rootPath);
             }
@@ -113,7 +114,7 @@ namespace ASC.Data.Storage
 
             if (!Path.IsPathRooted(physPath))
             {
-                physPath = Path.GetFullPath(Path.Combine(HostEnvironment.ContentRootPath, physPath.Trim(Path.DirectorySeparatorChar)));
+                physPath = Path.GetFullPath(CrossPlatform.PathCombine(HostEnvironment.ContentRootPath, physPath.Trim(Path.DirectorySeparatorChar)));
             }
             return physPath;
         }

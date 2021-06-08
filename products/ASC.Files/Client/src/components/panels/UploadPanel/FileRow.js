@@ -140,7 +140,7 @@ const FileRow = (props) => {
               <LoadErrorIcon
                 size="medium"
                 data-for="errorTooltip"
-                data-tip={item.error || t("UnknownError")}
+                data-tip={item.error || t("Common:UnknownError")}
               />
               <Tooltip
                 id="errorTooltip"
@@ -183,8 +183,11 @@ export default inject(
     }
 
     const { iconFormatsStore, mediaViewersFormatsStore } = formatsStore;
-    const { cancelCurrentUpload } = filesStore;
-    const { uploaded, primaryProgressDataStore } = uploadDataStore;
+    const {
+      uploaded,
+      primaryProgressDataStore,
+      cancelCurrentUpload,
+    } = uploadDataStore;
     const { loadingFile: file } = primaryProgressDataStore;
     const isMedia = mediaViewersFormatsStore.isMediaOrImage(ext);
     const fileIcon = iconFormatsStore.getIconSrc(ext, 24);

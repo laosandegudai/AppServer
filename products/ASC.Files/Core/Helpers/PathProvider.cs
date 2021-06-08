@@ -31,6 +31,7 @@ using System.Linq;
 using System.Web;
 
 using ASC.Common;
+using ASC.Common.Utils;
 using ASC.Common.Web;
 using ASC.Core.Common;
 using ASC.Files.Core;
@@ -184,7 +185,12 @@ namespace ASC.Web.Files.Classes
 
             var store = GlobalStore.GetStore();
             var fileName = string.Format("{0}{1}", Guid.NewGuid(), ext);
-            var path = Path.Combine("temp_stream", fileName);
+            var path = CrossPlatform.PathCombine("temp_stream", fileName);
+
+            if (store.IsFile(FileConstant.StorageDomainTmp, path))
+            {
+                store.Delete(FileConstant.StorageDomainTmp, path);
+            }
 
             store.Save(
                 FileConstant.StorageDomainTmp,

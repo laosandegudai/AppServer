@@ -13,7 +13,8 @@ class SettingsStore {
   culture = "en-US";
   cultures = [];
   trustedDomains = [];
-  trustedDomainsType = 1;
+  trustedDomainsType = 0;
+  trustedDomains = [];
   timezone = "UTC";
   timezones = [];
   utcOffset = "00:00:00";
@@ -34,6 +35,7 @@ class SettingsStore {
   organizationName = "ONLYOFFICE";
   greetingSettings = "Web Office Applications";
   enableAdmMess = false;
+  enabledJoin = false;
   urlLicense = "https://gnu.org/licenses/gpl-3.0.html";
   urlSupport = "https://helpdesk.onlyoffice.com/";
   logoUrl = combineUrl(proxyURL, "/static/images/nav.logo.opened.react.svg");
@@ -70,6 +72,8 @@ class SettingsStore {
   passwordSettings = null;
   hasShortenService = false;
 
+  customSchemaList = [];
+
   constructor() {
     makeAutoObservable(this);
   }
@@ -82,6 +86,13 @@ class SettingsStore {
 
   get wizardCompleted() {
     return this.isLoaded && !this.wizardToken;
+  }
+
+  get helpUrlCommonSettings() {
+    const substring = this.culture.substring(0, this.culture.indexOf("-"));
+    const lang = substring.length > 0 ? substring : "en";
+
+    return `https://helpcenter.onlyoffice.com/${lang}/administration/configuration.aspx#CustomizingPortal_block`;
   }
 
   setValue = (key, value) => {
@@ -115,6 +126,10 @@ class SettingsStore {
 
   getCurrentCustomSchema = async (id) => {
     this.customNames = await api.settings.getCurrentCustomSchema(id);
+  };
+
+  getCustomSchemaList = async () => {
+    this.customSchemaList = await api.settings.getCustomSchemaList();
   };
 
   getPortalSettings = async () => {
@@ -169,8 +184,39 @@ class SettingsStore {
     this.updateEncryptionKeys(encryptionKeys);
   };
 
+  getOAuthToken = (tokenGetterWin) => {
+    return new Promise((resolve, reject) => {
+      localStorage.removeItem("code");
+      let interval = null;
+      interval = setInterval(() => {
+        try {
+          const code = localStorage.getItem("code");
+
+          if (code) {
+            localStorage.removeItem("code");
+            clearInterval(interval);
+            resolve(code);
+          } else if (tokenGetterWin && tokenGetterWin.closed) {
+            clearInterval(interval);
+            reject();
+          }
+        } catch {
+          return;
+        }
+      }, 500);
+    });
+  };
+
+  getLoginLink = (token, code) => {
+    return combineUrl(proxyURL, `/login.ashx?p=${token}&code=${code}`);
+  };
+
   setModuleInfo = (homepage, productId) => {
-    if (this.homepage == homepage) return;
+    if (this.homepage === homepage || this.currentProductId === productId)
+      return;
+
+    console.log(`setModuleInfo('${homepage}', '${productId}')`);
+
     this.homepage = homepage;
     this.setCurrentProductId(productId);
 
@@ -181,7 +227,9 @@ class SettingsStore {
           ? homepage
           : `${homepage}/`
         : "/";
+
       console.log("SET base URL", baseUrl);
+
       baseElm[0].setAttribute("href", baseUrl);
     }
   };

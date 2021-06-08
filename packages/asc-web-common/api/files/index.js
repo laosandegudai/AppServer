@@ -4,12 +4,22 @@ import FilesFilter from "./filter";
 import { FolderType } from "../../constants";
 import find from "lodash/find";
 
-export function openEdit(fileId, doc) {
-  const params = doc ? `?doc=${doc}` : "";
+export function openEdit(fileId, version, doc) {
+  const params = []; // doc ? `?doc=${doc}` : "";
+
+  if (version) {
+    params.push(`version=${version}`);
+  }
+
+  if (doc) {
+    params.push(`doc=${doc}`);
+  }
+
+  const paramsString = params.length > 0 ? `?${params.join("&")}` : "";
 
   const options = {
     method: "get",
-    url: `/files/file/${fileId}/openedit${params}`,
+    url: `/files/file/${fileId}/openedit${paramsString}`,
   };
 
   return request(options);
@@ -417,6 +427,15 @@ export function setShareFiles(
   });
 }
 
+export function removeShareFiles(fileIds, folderIds) {
+  const data = { fileIds, folderIds };
+  return request({
+    method: "delete",
+    url: "/files/share",
+    data,
+  });
+}
+
 export function setFileOwner(folderIds, fileIds, userId) {
   const data = { folderIds, fileIds, userId };
   return request({
@@ -451,6 +470,11 @@ export function downloadFormatFiles(fileConvertIds, folderIds) {
 
 export function getProgress() {
   return request({ method: "get", url: "/files/fileops" });
+}
+
+export function checkFileConflicts(destFolderId, folderIds, fileIds) {
+  const data = { destFolderId, folderIds, fileIds };
+  return request({ method: "post", url: "/files/fileops/move", data });
 }
 
 export function copyToFolder(
@@ -623,8 +647,7 @@ export function getSettingsFiles() {
 }
 
 export function markAsFavorite(ids) {
-  let items = ids.map((id) => +id);
-  const data = { fileIds: items };
+  const data = { fileIds: ids };
   const options = {
     method: "post",
     url: "/files/favorites",
@@ -635,8 +658,7 @@ export function markAsFavorite(ids) {
 }
 
 export function removeFromFavorite(ids) {
-  let items = ids.map((id) => +id);
-  const data = { fileIds: items };
+  const data = { fileIds: ids };
   const options = {
     method: "delete",
     url: "/files/favorites",
@@ -694,5 +716,21 @@ export function updateFileStream(file, fileId, encrypted, forcesave) {
     method: "put",
     url: `/files/${fileId}/update`,
     data: fd,
+  });
+}
+
+export function setFavoritesSetting(set) {
+  return request({
+    method: "put",
+    url: "/files/settings/favorites",
+    data: { set },
+  });
+}
+
+export function setRecentSetting(set) {
+  return request({
+    method: "put",
+    url: "/files/displayRecent",
+    data: { set },
   });
 }
