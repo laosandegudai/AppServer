@@ -17,6 +17,7 @@ import VersionHistory from "./pages/VersionHistory";
 import ErrorBoundary from "@appserver/common/components/ErrorBoundary";
 import Panels from "./components/FilesPanels";
 import { AppServerConfig } from "@appserver/common/constants";
+import plugin from "js-plugin";
 
 const { proxyURL } = AppServerConfig;
 const homepage = config.homepage;
@@ -38,6 +39,98 @@ window.AppServer.files = {
   HISTORY_URL,
   FILTER_URL,
 };
+
+/*******************************************/
+// Registration Plugin
+/*******************************************/
+
+const script = document.createElement("script");
+script.setAttribute("type", "text/javascript");
+script.setAttribute("id", "files-viewer-plugin");
+
+script.onload = () => {
+  console.log("Plugin has been loaded");
+  if (window.Plugins instanceof Array && window.Plugins.length > 0) {
+    window.Plugins.forEach((p) => {
+      console.log("Plugin found", p);
+      plugin.register(p);
+    });
+  }
+};
+
+script.src = "/plugins/files-viewer-plugin.js";
+script.async = true;
+
+console.log("PureEditor componentDidMount: added script");
+document.body.appendChild(script);
+
+/*******************************************/
+// Registration Plugin1
+/*******************************************/
+// plugin.register({
+//   name: "plugin1",
+//   files: {
+//     article: {
+//       main_button: {
+//         processOptions(items) {
+//           items.push({
+//             key: "plugin1",
+//             icon: "images/tick.rounded.svg",
+//             label: "Say Hello!",
+//             onClick: () => {
+//               toastr.success("Hello, Pavlik!");
+//             },
+//           });
+//         },
+//       },
+//     },
+//   },
+// });
+
+/*******************************************/
+// Registration Plugin2
+/*******************************************/
+// plugin.register({
+//   name: "plugin2",
+//   files: {
+//     context: {
+//       processOptions(options, item) {
+//         options.push({
+//           key: "plugin2-options",
+//           label: "Display file info! (Plugin 2)",
+//           icon: "images/tick.rounded.svg",
+//           onClick: (e) => {
+//             const { title, contentLength } = item;
+//             toastr.info(`'${title}' (${contentLength})`);
+//           },
+//           disabled: false,
+//         });
+//       },
+//     },
+//   },
+// });
+
+/*******************************************/
+// Registration Plugin3
+/*******************************************/
+// plugin.register({
+//   name: "plugin3",
+//   files: {
+//     context: {
+//       processOptions(options, item) {
+//         options.push({
+//           key: "plugin3-options",
+//           label: "Display file info! (Plugin 3)",
+//           icon: "images/tick.rounded.svg",
+//           onClick: (e) => {
+//             alert("Hell");
+//           },
+//           disabled: false,
+//         });
+//       },
+//     },
+//   },
+// });
 
 const Error404 = React.lazy(() => import("studio/Error404"));
 

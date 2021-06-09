@@ -1,0 +1,23 @@
+{
+  "name": "files-viewer-plugin",
+  "version": "0.0.1",
+  "main": "index.js",
+  "devDependencies": {
+    "@babel/core": "7.14.3",
+    "@babel/preset-react": "7.13.13",
+    "babel-loader": "8.2.2",
+    "clean-webpack-plugin": "^3.0.0",
+    "html-webpack-plugin": "5.3.1",
+    "webpack": "5.14.0",
+    "webpack-cli": "4.5.0"
+  },
+  "scripts": {
+    "build": "webpack",
+    "watch": "webpack --watch src"
+  },
+  "dependencies": {
+    "js-plugin": "^1.0.8",
+    "react": "^17.0.2",
+    "styled-components": "^5.3.0"
+  }
+}

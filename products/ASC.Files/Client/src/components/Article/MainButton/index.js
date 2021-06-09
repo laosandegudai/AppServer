@@ -11,6 +11,7 @@ import { encryptionUploadDialog } from "../../../helpers/desktop";
 import { inject, observer } from "mobx-react";
 import config from "../../../../package.json";
 import { combineUrl } from "@appserver/common/utils";
+import plugin from "js-plugin";
 
 class PureArticleMainButtonContent extends React.Component {
   onCreate = (e) => {
@@ -62,9 +63,67 @@ class PureArticleMainButtonContent extends React.Component {
   //   );
   // }
 
+  renderDropDownItems = () => {
+    const { t, isPrivacy } = this.props;
+
+    let options = [
+      {
+        key: "1",
+        icon: "images/actions.documents.react.svg",
+        label: t("NewDocument"),
+        onClick: this.onCreate,
+        "data-format": "docx",
+      },
+      {
+        key: "2",
+        icon: "images/spreadsheet.react.svg",
+        label: t("NewSpreadsheet"),
+        onClick: this.onCreate,
+        "data-format": "xlsx",
+      },
+      {
+        key: "3",
+        icon: "images/actions.presentation.react.svg",
+        label: t("NewPresentation"),
+        onClick: this.onCreate,
+        "data-format": "pptx",
+      },
+      {
+        key: "4",
+        icon: "images/catalog.folder.react.svg",
+        label: t("NewFolder"),
+        onClick: this.onCreate,
+      },
+      {
+        key: "5",
+        isSeparator: true,
+      },
+      {
+        key: "6",
+        icon: "images/actions.upload.react.svg",
+        label: t("UploadFiles"),
+        onClick: this.onUploadFileClick,
+      },
+    ];
+
+    if (!isMobile) {
+      options.push({
+        key: "7",
+        icon: "images/actions.upload.react.svg",
+        label: t("UploadFolder"),
+        disabled: isPrivacy,
+        onClick: this.onUploadFolderClick,
+      });
+    }
+
+    plugin.invoke("files.article.main_button.processOptions", options);
+
+    return options.map((o) => <DropDownItem {...o} />);
+  };
+
   render() {
     //console.log("Files ArticleMainButtonContent render");
-    const { t, canCreate, isDisabled, firstLoad, isPrivacy } = this.props;
+    const { t, canCreate, isDisabled, firstLoad } = this.props;
 
     return firstLoad ? (
       <Loaders.Rectangle />
@@ -74,49 +133,7 @@ class PureArticleMainButtonContent extends React.Component {
         isDropdown={true}
         text={t("Common:Actions")}
       >
-        <DropDownItem
-          className="main-button_drop-down"
-          icon="images/actions.documents.react.svg"
-          label={t("NewDocument")}
-          onClick={this.onCreate}
-          data-format="docx"
-        />
-        <DropDownItem
-          className="main-button_drop-down"
-          icon="images/spreadsheet.react.svg"
-          label={t("NewSpreadsheet")}
-          onClick={this.onCreate}
-          data-format="xlsx"
-        />
-        <DropDownItem
-          className="main-button_drop-down"
-          icon="images/actions.presentation.react.svg"
-          label={t("NewPresentation")}
-          onClick={this.onCreate}
-          data-format="pptx"
-        />
-        <DropDownItem
-          className="main-button_drop-down"
-          icon="images/catalog.folder.react.svg"
-          label={t("NewFolder")}
-          onClick={this.onCreate}
-        />
-        <DropDownItem isSeparator />
-        <DropDownItem
-          className="main-button_drop-down"
-          icon="images/actions.upload.react.svg"
-          label={t("UploadFiles")}
-          onClick={this.onUploadFileClick}
-        />
-        {!isMobile && (
-          <DropDownItem
-            className="main-button_drop-down"
-            icon="images/actions.upload.react.svg"
-            label={t("UploadFolder")}
-            disabled={isPrivacy}
-            onClick={this.onUploadFolderClick}
-          />
-        )}
+        {this.renderDropDownItems()}
         <input
           id="customFileInput"
           className="custom-file-input"

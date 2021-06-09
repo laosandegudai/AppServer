@@ -1,7 +1,7 @@
 import React from "react";
 import { inject, observer } from "mobx-react";
 import copy from "copy-to-clipboard";
-
+import plugin from "js-plugin";
 import { combineUrl } from "@appserver/common/utils";
 import { FileAction, AppServerConfig } from "@appserver/common/constants";
 import toastr from "studio/toastr";
@@ -199,7 +199,8 @@ export default function withContextOptions(WrappedComponent) {
       const { item, t, isThirdPartyFolder } = this.props;
       const { access, contextOptions } = item;
       const isSharable = access !== 1 && access !== 0;
-      return contextOptions.map((option) => {
+
+      let options = contextOptions.map((option) => {
         switch (option) {
           case "open":
             return {
@@ -417,6 +418,10 @@ export default function withContextOptions(WrappedComponent) {
 
         return undefined;
       });
+
+      plugin.invoke("files.context.processOptions", options, item);
+
+      return options;
     };
     render() {
       const { actionType, actionId, actionExtension, item } = this.props;

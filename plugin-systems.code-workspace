@@ -1,0 +1,24 @@
+{
+  "folders": [
+    {
+      "name": "🚀 @appserver/plugin-host",
+      "path": "common\\ASC.Plugin.Host"
+    },
+    {
+      "name": "📦 @appserver/examples",
+      "path": "examples"
+    },
+    {
+      "name": "📦 @appserver/plugins",
+      "path": "plugins"
+    }
+  ],
+  "settings": {
+    "window.zoomLevel": 0,
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "extensions": {
+    "recommendations": ["folke.vscode-monorepo-workspace"]
+  }
+}
