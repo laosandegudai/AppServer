@@ -13,52 +13,63 @@ const ChangePhoneForm = lazy(() => import("./sub-components/changePhone"));
 const PhoneAuth = lazy(() => import("./sub-components/phoneAuth"));
 const ProfileRemoveForm = lazy(() => import("./sub-components/profileRemove"));
 const ChangeOwnerForm = lazy(() => import("./sub-components/changeOwner"));
+const TfaAuthForm = lazy(() => import("./sub-components/tfaAuth"));
+const TfaActivationForm = lazy(() => import("./sub-components/tfaActivation"));
 
 const Confirm = ({ match }) => {
   //console.log("Confirm render");
+  const path = match.path;
   return (
     <Switch>
       <ConfirmRoute
         forUnauthorized
-        path={`${match.path}/LinkInvite`}
+        path={`${path}/LinkInvite`}
         component={CreateUserForm}
       />
       <ConfirmRoute
         forUnauthorized
-        path={`${match.path}/Activation`}
+        path={`${path}/Activation`}
         component={ActivateUserForm}
       />
       <ConfirmRoute
         exact
-        path={`${match.path}/EmailActivation`}
+        path={`${path}/EmailActivation`}
         component={ActivateEmailForm}
       />
       <ConfirmRoute
         exact
-        path={`${match.path}/EmailChange`}
+        path={`${path}/EmailChange`}
         component={ChangeEmailForm}
       />
       <ConfirmRoute
         forUnauthorized
-        path={`${match.path}/PasswordChange`}
+        path={`${path}/PasswordChange`}
         component={ChangePasswordForm}
       />
       <ConfirmRoute
         exact
-        path={`${match.path}/ProfileRemove`}
+        path={`${path}/ProfileRemove`}
         component={ProfileRemoveForm}
       />
       <Route
         exact
-        path={`${match.path}/PhoneActivation`}
+        path={`${path}/PhoneActivation`}
         component={ChangePhoneForm}
       />
       <Route exact path={`${match.path}/PhoneAuth`} component={PhoneAuth} />
       <ConfirmRoute
         exact
-        path={`${match.path}/PortalOwnerChange`}
+        path={`${path}/PortalOwnerChange`}
         component={ChangeOwnerForm}
       />
+      <ConfirmRoute exact path={`${path}/TfaAuth`} component={TfaAuthForm} />
+      <ConfirmRoute
+        exact
+        path={`${path}/TfaActivation`}
+        component={TfaActivationForm}
+      />
+
+      {/* <Route component={Error404} /> */}
     </Switch>
   );
 };
