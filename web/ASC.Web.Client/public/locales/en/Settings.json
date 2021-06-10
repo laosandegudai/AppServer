@@ -82,5 +82,8 @@
   "Admins": "Admins",
   "NoAdmins": "No admins here yet",
   "NoAdminsDescription": "You can add new administrator manually",
-  "AddAdmins": "Add admins"
+  "AddAdmins": "Add admins",
+
+  "PeopleModuleUsers": "People module users",
+  "PeopleModuleUsersDescription": "The People module will be available to all employees added to the list. The module functionality will correspond to the employee's status."
 }
