@@ -6,6 +6,9 @@ import Text from "@appserver/components/text";
 import RadioButtonGroup from "@appserver/components/radio-button-group";
 import Button from "@appserver/components/button";
 import ToggleButton from "@appserver/components/toggle-button";
+import SearchInput from "@appserver/components/search-input";
+import TabContainer from "@appserver/components/tabs-container";
+
 import toastr from "@appserver/components/toast/toastr";
 import Loader from "@appserver/components/loader";
 import { showLoader, hideLoader } from "@appserver/common/utils";
@@ -19,10 +22,19 @@ const MainContainer = styled.div`
   .access-for-all-wrapper {
     background-color: #f8f9f9;
     padding: 14px;
+    margin-bottom: 24px;
+  }
+
+  .toggle-btn {
+    padding-top: 3px;
   }
 
   .text-wrapper {
     margin-left: 48px;
+  }
+
+  .search_container {
+    margin: 12px 0;
   }
 
   .page_loader {
@@ -39,6 +51,7 @@ class PeopleUsers extends Component {
     this.state = {
       isLoaded: false,
       accessForAll: false,
+      searchValue: "",
     };
   }
 
@@ -55,9 +68,30 @@ class PeopleUsers extends Component {
     this.setState({ accessForAll: !accessForAll });
   }
 
+  onSearchChange = (value) => {
+    if (this.state.searchValue === value) return false;
+
+    this.setState({
+      searchValue: value,
+    });
+  };
+
   render() {
-    const { isLoaded, accessForAll } = this.state;
+    const { isLoaded, accessForAll, searchValue } = this.state;
     const { t } = this.props;
+
+    const tabItems = [
+      {
+        key: "0",
+        title: t("Users"),
+        content: <h1>Users</h1>,
+      },
+      {
+        key: "1",
+        title: t("Groups"),
+        content: <h1>Groups</h1>,
+      },
+    ];
 
     return !isLoaded ? (
       <Loader className="pageLoader" type="rombs" size="40px" />
@@ -66,7 +100,7 @@ class PeopleUsers extends Component {
         <div className="access-for-all-wrapper">
           <div>
             <ToggleButton
-              //className="toggle-btn"
+              className="toggle-btn"
               isChecked={accessForAll}
               onChange={() => this.onAccessForAllClick()}
               isDisabled={false}
@@ -76,14 +110,30 @@ class PeopleUsers extends Component {
             <Text isBold={true} fontWeight="600">
               {t("AccessForAllUsers")}
             </Text>
-            <Text fontSize="12">{t("AccessForAllUsersDescription")}</Text>
+            <Text fontSize="12px">{t("AccessForAllUsersDescription")}</Text>
           </div>
         </div>
+
+        <Text isBold={true} fontWeight="600" fontSize="16px">
+          {t("AccessList")}
+        </Text>
+
+        <SearchInput
+          className="search_container"
+          placeholder={t("Common:Search")}
+          onChange={this.onSearchChange}
+          onClearSearch={this.onSearchChange}
+          value={searchValue}
+        />
+
+        <TabContainer elements={tabItems} />
       </MainContainer>
     );
   }
 }
 
-export default inject(({ auth }) => ({
-  organizationName: auth.settingsStore.organizationName,
-}))(withTranslation(["Settings", "Common"])(withRouter(PeopleUsers)));
+export default inject(({ auth, setup }) => {
+  return {
+    organizationName: auth.settingsStore.organizationName,
+  };
+})(withTranslation(["Settings", "Common"])(withRouter(PeopleUsers)));
