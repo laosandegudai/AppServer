@@ -213,7 +213,9 @@ const PureSectionHeaderContent = ({ t, title }) => {
   );
 };
 
-const SectionHeaderContent = withTranslation("Home")(PureSectionHeaderContent);
+const SectionHeaderContent = withTranslation("Home")(
+  PureSectionHeaderContent
+);
 
 export default inject(({ treeFoldersStore }) => {
   return {

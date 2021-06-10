@@ -8,10 +8,10 @@ import AppLoader from "@appserver/common/components/AppLoader";
 import { combineUrl, updateTempContent } from "@appserver/common/utils";
 import config from "../package.json";
 import i18n from "./i18n";
-import { I18nextProvider } from "react-i18next";
 import Home from "./pages/Home";
 import { AppServerConfig } from "@appserver/common/constants";
 import stores from "./store/index";
+import { I18nextProvider, withTranslation } from "react-i18next";
 
 const { proxyURL } = AppServerConfig;
 const homepage = config.homepage;
@@ -57,7 +57,7 @@ const Crm = inject(({ auth, crmStore }) => ({
     auth.setProductVersion(config.version);
   },
   isLoaded: auth.isLoaded && crmStore.isLoaded,
-}))(observer(CrmContent));
+}))(withTranslation("Common")(observer(CrmContent)));
 
 export default (props) => (
   <CrmProvider {...stores}>

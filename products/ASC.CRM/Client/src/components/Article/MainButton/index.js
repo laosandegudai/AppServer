@@ -13,35 +13,35 @@ class PureArticleMainButtonContent extends React.Component {
     return !firstLoad ? (
       <Loaders.Rectangle />
     ) : (
-      <MainButton isDropdown={true} text={t("Actions")}>
+      <MainButton isDropdown={true} text={t("Common:Actions")}>
         <DropDownItem
-          className='main-button_drop-down'
-          icon='images/actions.company.react.svg'
+          className="main-button_drop-down"
+          icon="images/actions.company.react.svg"
           label={t("NewCompany")}
         />
         <DropDownItem
-          className='main-button_drop-down'
-          icon='images/actions.person.react.svg'
+          className="main-button_drop-down"
+          icon="images/actions.person.react.svg"
           label={t("NewPerson")}
         />
         <DropDownItem
-          className='main-button_drop-down'
-          icon='images/actions.task.react.svg'
+          className="main-button_drop-down"
+          icon="images/actions.task.react.svg"
           label={t("NewTask")}
         />
         <DropDownItem
-          className='main-button_drop-down'
-          icon='images/actions.opportunity.react.svg'
+          className="main-button_drop-down"
+          icon="images/actions.opportunity.react.svg"
           label={t("NewOpportunity")}
         />
         <DropDownItem
-          className='main-button_drop-down'
-          icon='images/actions.invoice.react.svg'
+          className="main-button_drop-down"
+          icon="images/actions.invoice.react.svg"
           label={t("NewInvoice")}
         />
         <DropDownItem
-          className='main-button_drop-down'
-          icon='images/actions.case.react.svg'
+          className="main-button_drop-down"
+          icon="images/actions.case.react.svg"
           label={t("NewCase")}
         />
       </MainButton>
@@ -49,7 +49,7 @@ class PureArticleMainButtonContent extends React.Component {
   }
 }
 
-const ArticleMainButtonContent = withTranslation("Home")(
+const ArticleMainButtonContent = withTranslation(["Home", "Common"])(
   PureArticleMainButtonContent
 );
 

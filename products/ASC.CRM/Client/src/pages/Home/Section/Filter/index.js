@@ -122,8 +122,8 @@ const SectionFilterContent = ({ sectionWidth, isLoaded, t }) => {
       getSortData={getSortData}
       selectedFilterData={selectedFilterData}
       onFilter={onFilter}
-      directionAscLabel={t("DirectionAscLabel")}
-      directionDescLabel={t("DirectionDescLabel")}
+      directionAscLabel={t("Common:DirectionAscLabel")}
+      directionDescLabel={t("Common:DirectionDescLabel")}
       placeholder={t("Search")}
       {...filterColumnCount}
       contextMenuHeader={t("AddFilter")}
@@ -140,4 +140,4 @@ export default inject(({ crmStore }) => {
   return {
     isLoaded,
   };
-})(withTranslation("Home")(observer(SectionFilterContent)));
+})(withTranslation(["Home", "Common"])(observer(SectionFilterContent)));
