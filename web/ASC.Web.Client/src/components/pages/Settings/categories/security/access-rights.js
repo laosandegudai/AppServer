@@ -123,32 +123,50 @@ class AccessRights extends PureComponent {
     ) : (
       <MainContainer>
         <OwnerSettings />
-        {
-          <div className="category-item-wrapper">
-            <div className="category-item-heading">
-              <Link
-                className="inherit-title-link header"
-                truncate={true}
-                onClick={this.onClickLink}
-                href={combineUrl(
-                  AppServerConfig.proxyURL,
-                  "/settings/security/access-rights/admins"
-                )}
-              >
-                {t("PortalAdmins")}
-              </Link>
-              <StyledArrowRightIcon size="small" color="#333333" />
-            </div>
-            {adminsTotal > 0 && (
-              <Text className="category-item-subheader" truncate={true}>
-                {adminsTotal} {t("Admins")}
-              </Text>
-            )}
-            <Text className="category-item-description">
-              {t("PortalAdminsDescription")}
-            </Text>
+        <div className="category-item-wrapper">
+          <div className="category-item-heading">
+            <Link
+              className="inherit-title-link header"
+              truncate={true}
+              onClick={this.onClickLink}
+              href={combineUrl(
+                AppServerConfig.proxyURL,
+                "/settings/security/access-rights/admins"
+              )}
+            >
+              {t("PortalAdmins")}
+            </Link>
+            <StyledArrowRightIcon size="small" color="#333333" />
           </div>
-        }
+          {adminsTotal > 0 && (
+            <Text className="category-item-subheader" truncate={true}>
+              {adminsTotal} {t("Admins")}
+            </Text>
+          )}
+          <Text className="category-item-description">
+            {t("PortalAdminsDescription")}
+          </Text>
+        </div>
+
+        <div className="category-item-wrapper">
+          <div className="category-item-heading">
+            <Link
+              className="inherit-title-link header"
+              truncate={true}
+              onClick={this.onClickLink}
+              href={combineUrl(
+                AppServerConfig.proxyURL,
+                "/settings/security/access-rights/people-users"
+              )}
+            >
+              {t("PeopleModuleUsers")}
+            </Link>
+            <StyledArrowRightIcon size="small" color="#333333" />
+          </div>
+          <Text className="category-item-description">
+            {t("PeopleModuleUsersDescription")}
+          </Text>
+        </div>
       </MainContainer>
     );
   }

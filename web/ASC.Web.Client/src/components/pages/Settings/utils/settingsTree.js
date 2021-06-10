@@ -65,6 +65,12 @@ export const settingsTree = [
             link: "admins",
             tKey: "Admins",
           },
+          {
+            key: "1-0-1",
+            icon: "",
+            link: "people-users",
+            tKey: "PeopleModuleUsers",
+          },
         ],
       },
       {

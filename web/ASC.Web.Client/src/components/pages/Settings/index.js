@@ -11,6 +11,9 @@ const SecuritySettings = lazy(() =>
 const Admins = lazy(() =>
   import("./categories/security/sub-components/admins")
 );
+const PeopleUsers = lazy(() =>
+  import("./categories/security/sub-components/people-users")
+);
 
 const AccessPortal = lazy(() => import("./categories/security/access-portal"));
 const TfaPage = lazy(() => import("./categories/security/sub-components/tfa"));
@@ -49,10 +52,15 @@ const TEAM_TEMPLATE_URL = combineUrl(
 );
 //const WHITELABEL_URL = combineUrl(PROXY_BASE_URL, "/common/whitelabel");
 const SECURITY_URL = combineUrl(PROXY_BASE_URL, "/security/access-rights");
+const ADMINS_URL = combineUrl(PROXY_BASE_URL, "/security/access-rights/admins");
+const PEOPLE_USERS_URL = combineUrl(
+  PROXY_BASE_URL,
+  "/security/access-rights/people-users"
+);
+
 const ACCESS_PORTAL_URL = combineUrl(PROXY_BASE_URL, "/security/access-portal");
 const TFA_PAGE_URL = combineUrl(PROXY_BASE_URL, "/security/access-portal/tfa");
 
-const ADMINS_URL = combineUrl(PROXY_BASE_URL, "/security/access-rights/admins");
 const THIRD_PARTY_URL = combineUrl(
   PROXY_BASE_URL,
   "/integration/third-party-services"
@@ -79,6 +87,7 @@ const Settings = () => {
           /> */}
           <Route exact path={SECURITY_URL} component={SecuritySettings} />
           <Route path={ADMINS_URL} component={Admins} />
+          <Route path={PEOPLE_USERS_URL} component={PeopleUsers} />
 
           <Route exact path={ACCESS_PORTAL_URL} component={AccessPortal} />
           <Route exact path={TFA_PAGE_URL} component={TfaPage} />
