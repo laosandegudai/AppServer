@@ -8,6 +8,7 @@ import Button from "@appserver/components/button";
 import ToggleButton from "@appserver/components/toggle-button";
 import SearchInput from "@appserver/components/search-input";
 import TabContainer from "@appserver/components/tabs-container";
+import PeopleSelector from "people/PeopleSelector";
 
 import toastr from "@appserver/components/toast/toastr";
 import Loader from "@appserver/components/loader";
@@ -56,9 +57,18 @@ class PeopleUsers extends Component {
   }
 
   async componentDidMount() {
+    const { setAddUsers } = this.props;
     showLoader();
+
+    setAddUsers(this.addUsers);
+
     hideLoader();
     this.setState({ isLoaded: true });
+  }
+
+  componentWillUnmount() {
+    const { setAddUsers } = this.props;
+    setAddUsers("");
   }
 
   onAccessForAllClick() {
@@ -76,9 +86,26 @@ class PeopleUsers extends Component {
     });
   };
 
+  onSelect = (items) => {
+    const { toggleSelector } = this.props;
+
+    toggleSelector(false);
+    this.addUsers(items);
+  };
+
+  onCancelSelector = () => {
+    const { toggleSelector } = this.props;
+
+    toggleSelector(false);
+  };
+
+  addUsers = (users) => {
+    console.log("addUsers", users);
+  };
+
   render() {
     const { isLoaded, accessForAll, searchValue } = this.state;
-    const { t } = this.props;
+    const { t, selectorIsOpen, groupsCaption } = this.props;
 
     const tabItems = [
       {
@@ -125,6 +152,14 @@ class PeopleUsers extends Component {
           onClearSearch={this.onSearchChange}
           value={searchValue}
         />
+        <PeopleSelector
+          isMultiSelect={true}
+          displayType="aside"
+          isOpen={!!selectorIsOpen}
+          onSelect={this.onSelect}
+          groupsCaption={groupsCaption}
+          onCancel={this.onCancelSelector}
+        />
 
         <TabContainer elements={tabItems} />
       </MainContainer>
@@ -133,7 +168,18 @@ class PeopleUsers extends Component {
 }
 
 export default inject(({ auth, setup }) => {
+  const { moduleStore } = auth;
+  const { modules } = moduleStore;
+  const { setAddUsers, toggleSelector, getUsersByIds } = setup;
+  const { selectorIsOpen } = setup.security.accessRight;
+
   return {
     organizationName: auth.settingsStore.organizationName,
+    modules,
+    setAddUsers,
+    toggleSelector,
+    getUsersByIds,
+    selectorIsOpen,
+    groupsCaption: auth.settingsStore.customNames.groupsCaption,
   };
 })(withTranslation(["Settings", "Common"])(withRouter(PeopleUsers)));
