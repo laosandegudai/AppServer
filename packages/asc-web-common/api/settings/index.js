@@ -315,3 +315,24 @@ export function validateTfaCode(code) {
     data,
   });
 }
+
+export function getSecuritySettings(modules) {
+  return request({
+    method: "get",
+    url: `settings/security?ids=${modules}`,
+  });
+}
+
+export function setSecuritySettings(moduleId, enabled, userOrGroupIdList) {
+  const data = {
+    id: moduleId,
+    enabled,
+    subjects: userOrGroupIdList,
+  };
+
+  return request({
+    method: "put",
+    url: `settings/security`,
+    data: data,
+  });
+}
