@@ -106,6 +106,11 @@ class PeopleUsers extends Component {
     toggleSelector(false);
   };
 
+  onToggleSelector = (isOpen = !this.props.selectorIsOpen) => {
+    const { toggleSelector } = this.props;
+    toggleSelector(isOpen);
+  };
+
   addUsers = (users) => {
     console.log("addUsers", users);
   };
