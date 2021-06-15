@@ -88,5 +88,9 @@
   "PeopleModuleUsersDescription": "The People module will be available to all employees added to the list. The module functionality will correspond to the employee's status.",
   "AccessForAllUsers": "Access for all users",
   "AccessForAllUsersDescription": "The setting enables access to the module for all portal users. Access lists will remain, but will be disabled.",
-  "AccessList": "Access list"
+  "AccessList": "Access list",
+  "EmptyList": "Empty list",
+  "EmptyListDescription": "To give access to the People module to users or groups, add them to the list",
+  "AddUsers": "Add users",
+  "AddGroups": "Add groups"
 }
