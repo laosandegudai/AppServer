@@ -104,9 +104,9 @@ class PeopleUsers extends Component {
   };
 
   onGroupSelect = (items) => {
-    const { toggleSelector } = this.props;
+    const { toggleGroupSelector } = this.props;
 
-    toggleSelector(false);
+    toggleGroupSelector(false);
     this.addGroups(items);
   };
 
