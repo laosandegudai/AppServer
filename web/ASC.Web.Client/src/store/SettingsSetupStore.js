@@ -25,6 +25,7 @@ class SettingsSetupStore {
       owner: {},
       filter: Filter.getDefault(),
       selectorIsOpen: false,
+      groupSelectorIsOpen: false,
       isLoading: false,
     },
   };
@@ -98,6 +99,10 @@ class SettingsSetupStore {
 
   toggleSelector = (isOpen) => {
     this.security.accessRight.selectorIsOpen = isOpen;
+  };
+
+  toggleGroupSelector = (isOpen) => {
+    this.security.accessRight.groupSelectorIsOpen = isOpen;
   };
 
   setSelectedConsumer = (selectedConsumerName) => {

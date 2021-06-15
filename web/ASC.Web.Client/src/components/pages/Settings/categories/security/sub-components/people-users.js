@@ -8,10 +8,12 @@ import Button from "@appserver/components/button";
 import ToggleButton from "@appserver/components/toggle-button";
 import SearchInput from "@appserver/components/search-input";
 import TabContainer from "@appserver/components/tabs-container";
-import PeopleSelector from "people/PeopleSelector";
 import EmptyScreenContainer from "@appserver/components/empty-screen-container";
 import Link from "@appserver/components/link";
 import Box from "@appserver/components/box";
+
+import PeopleSelector from "people/PeopleSelector";
+import GroupSelector from "people/GroupSelector";
 
 import toastr from "@appserver/components/toast/toastr";
 import Loader from "@appserver/components/loader";
@@ -100,19 +102,35 @@ class PeopleUsers extends Component {
     this.addUsers(items);
   };
 
-  onCancelSelector = () => {
+  onGroupSelect = (items) => {
     const { toggleSelector } = this.props;
 
     toggleSelector(false);
+    this.addGroups(items);
+  };
+
+  onCancelSelector = () => {
+    this.props.toggleSelector(false);
+  };
+
+  onCancelGroupSelector = () => {
+    this.props.toggleGroupSelector(false);
   };
 
   onToggleSelector = (isOpen = !this.props.selectorIsOpen) => {
-    const { toggleSelector } = this.props;
-    toggleSelector(isOpen);
+    this.props.toggleSelector(isOpen);
+  };
+
+  onToggleGroupSelector = (isOpen = !this.props.groupSelectorIsOpen) => {
+    this.props.toggleGroupSelector(isOpen);
   };
 
   addUsers = (users) => {
     console.log("addUsers", users);
+  };
+
+  addGroups = (groups) => {
+    console.log("addGroups", groups);
   };
 
   getContent = (content) => {
@@ -160,7 +178,7 @@ class PeopleUsers extends Component {
             <Link
               type="action"
               isHovered={true}
-              onClick={this.onToggleSelector}
+              onClick={this.onToggleGroupSelector}
             >
               {t("AddGroups")}
             </Link>
@@ -171,7 +189,12 @@ class PeopleUsers extends Component {
   };
   render() {
     const { isLoaded, accessForAll, searchValue } = this.state;
-    const { t, selectorIsOpen, groupsCaption } = this.props;
+    const {
+      t,
+      selectorIsOpen,
+      groupSelectorIsOpen,
+      groupsCaption,
+    } = this.props;
 
     const users = [];
     const groups = [];
@@ -231,6 +254,13 @@ class PeopleUsers extends Component {
           groupsCaption={groupsCaption}
           onCancel={this.onCancelSelector}
         />
+        <GroupSelector
+          isOpen={!!groupSelectorIsOpen}
+          isMultiSelect={true}
+          onCancel={this.onCancelGroupSelector}
+          onSelect={this.onGroupSelect}
+          displayType="aside"
+        />
 
         <TabContainer elements={tabItems} />
       </MainContainer>
@@ -241,14 +271,21 @@ class PeopleUsers extends Component {
 export default inject(({ auth, setup }) => {
   const { moduleStore } = auth;
   const { modules } = moduleStore;
-  const { setAddUsers, toggleSelector, getUsersByIds } = setup;
-  const { selectorIsOpen } = setup.security.accessRight;
+  const {
+    setAddUsers,
+    toggleSelector,
+    toggleGroupSelector,
+    getUsersByIds,
+  } = setup;
+  const { selectorIsOpen, groupSelectorIsOpen } = setup.security.accessRight;
 
   return {
     organizationName: auth.settingsStore.organizationName,
     modules,
     setAddUsers,
     toggleSelector,
+    toggleGroupSelector,
+    groupSelectorIsOpen,
     getUsersByIds,
     selectorIsOpen,
     groupsCaption: auth.settingsStore.customNames.groupsCaption,
