@@ -18,7 +18,7 @@ const SectionFilterContent = ({ sectionWidth, isLoaded, t }) => {
   const selectedFilterData = getSelectedFilterData();
 
   const getData = () => {
-    const managerOptions = [
+    const options = [
       {
         key: "filter-manager",
         group: "filter-manager",
@@ -40,52 +40,101 @@ const SectionFilterContent = ({ sectionWidth, isLoaded, t }) => {
         group: "filter-manager",
         label: t("Custom"),
       },
+      {
+        key: "filter-access",
+        group: "filter-access",
+        label: t("Accessibility"),
+        isRowHeader: true,
+      },
+      {
+        key: "5",
+        group: "filter-access",
+        label: t("Public"),
+      },
+      {
+        key: "6",
+        group: "filter-access",
+        label: t("Restricted"),
+      },
+      {
+        key: "filter-other",
+        group: "filter-Other",
+        label: t("Other"),
+        isRowHeader: true,
+      },
+      {
+        key: "7",
+        group: "filter-other",
+        label: t("TemperatureLevel"),
+      },
+      {
+        key: "8",
+        group: "filter-other",
+        label: t("ContactType"),
+      },
+      {
+        key: "9",
+        group: "filter-other",
+        label: t("WithTag"),
+      },
     ];
 
-        const accessOptions = [
-          {
-            key: "filter-access",
-            group: "filter-access",
-            label: t("Accessibility"),
-            isHeader: true,
-          },
-          {
-            key: "1",
-            group: "filter-access",
-            label: t("Public"),
-          },
-          {
-            key: "2",
-            group: "filter-access",
-            label: t("Restricted"),
-          },
-        ];
+    const filterOptions = [
+      ...options,
+      {
+        key: "filter-creation-date",
+        group: "filter-creation-date",
+        label: t("CreationDate"),
+        isHeader: true,
+      },
+      {
+        key: "10",
+        group: "filter-creation-date",
+        label: t("LastMonth"),
+      },
+      {
+        key: "11",
+        group: "filter-creation-date",
+        label: t("Yesterday"),
+      },
+      {
+        key: "12",
+        group: "filter-creation-date",
+        label: t("Today"),
+      },
+      {
+        key: "13",
+        group: "filter-creation-date",
+        label: t("ThisMonth"),
+      },
+      {
+        key: "14",
+        group: "filter-creation-date",
+        label: t("Custom"),
+      },
+      {
+        key: "filter-show",
+        group: "filter-show",
+        label: t("Show"),
+        isRowHeader: true,
+      },
+      {
+        key: "15",
+        group: "filter-show",
+        label: t("Companies"),
+      },
+      {
+        key: "16",
+        group: "filter-show",
+        label: t("Persons"),
+      },
+      {
+        key: "17",
+        group: "filter-show",
+        label: t("WithOpportunities"),
+      },
+    ];
 
-         const otherOptions = [
-           {
-             key: "filter-Other",
-             group: "filter-Other",
-             label: t("Other"),
-             isHeader: true,
-           },
-           {
-             key: "1",
-             group: "filter-Other",
-             label: t("TemperatureLevel"),
-           },
-           {
-             key: "2",
-             group: "filter-Other",
-             label: t("ContactType"),
-           },
-           {
-             key: "3",
-             group: "filter-Other",
-             label: t("WithTag"),
-           }
-         ];
-
-    const filterOptions = [...managerOptions, ...accessOptions, ...otherOptions]
     return filterOptions;
   };
 
@@ -113,7 +162,7 @@ const SectionFilterContent = ({ sectionWidth, isLoaded, t }) => {
   const onFilter = () => {};
 
   const filterColumnCount =
-    window.innerWidth < 500 ? {} : { filterColumnCount: 3 };
+    window.innerWidth < 500 ? {} : { filterColumnCount: 2 };
 
   return isLoaded ? (
     <FilterInput
@@ -124,9 +173,9 @@ const SectionFilterContent = ({ sectionWidth, isLoaded, t }) => {
       onFilter={onFilter}
       directionAscLabel={t("Common:DirectionAscLabel")}
       directionDescLabel={t("Common:DirectionDescLabel")}
-      placeholder={t("Search")}
+      placeholder={t("Common:Search")}
       {...filterColumnCount}
-      contextMenuHeader={t("AddFilter")}
+      contextMenuHeader={t("Common:AddFilter")}
       isMobile={isMobileOnly}
     />
   ) : (

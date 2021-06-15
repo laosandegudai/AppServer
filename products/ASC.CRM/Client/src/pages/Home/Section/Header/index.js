@@ -164,6 +164,7 @@ const PureSectionHeaderContent = ({ t, title }) => {
         label: t("NewPerson"),
         onClick: createNewPerson,
       },
+      { key: "separator", isSeparator: true },
       {
         key: "import-contacts",
         label: t("ImportContacts"),
@@ -213,9 +214,7 @@ const PureSectionHeaderContent = ({ t, title }) => {
   );
 };
 
-const SectionHeaderContent = withTranslation("Home")(
-  PureSectionHeaderContent
-);
+const SectionHeaderContent = withTranslation("Home")(PureSectionHeaderContent);
 
 export default inject(({ treeFoldersStore }) => {
   return {

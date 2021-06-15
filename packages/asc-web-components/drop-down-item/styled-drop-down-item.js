@@ -93,6 +93,14 @@ const StyledDropdownItem = styled.div`
       break-before: column;
     `}
 
+    ${(props) =>
+    props.isRowHeader &&
+    css`
+      ${disabledAndHeaderStyle}
+
+      text-transform: uppercase;
+    `}
+
     @media ${tablet} {
     line-height: ${(props) => props.theme.dropDownItem.tabletLineHeight};
   }
