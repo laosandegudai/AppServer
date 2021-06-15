@@ -76,8 +76,9 @@ class PeopleUsers extends Component {
   }
 
   componentWillUnmount() {
-    const { setAddUsers } = this.props;
+    const { setAddUsers, setCurrentTab } = this.props;
     setAddUsers("");
+    setCurrentTab("0");
   }
 
   onAccessForAllClick() {
@@ -131,6 +132,11 @@ class PeopleUsers extends Component {
 
   addGroups = (groups) => {
     console.log("addGroups", groups);
+  };
+
+  selectTab = (e) => {
+    console.log(e);
+    this.props.setCurrentTab(e.key);
   };
 
   getContent = (content) => {
@@ -262,7 +268,7 @@ class PeopleUsers extends Component {
           displayType="aside"
         />
 
-        <TabContainer elements={tabItems} />
+        <TabContainer elements={tabItems} onSelect={this.selectTab} />
       </MainContainer>
     );
   }
@@ -276,6 +282,7 @@ export default inject(({ auth, setup }) => {
     toggleSelector,
     toggleGroupSelector,
     getUsersByIds,
+    setCurrentTab,
   } = setup;
   const { selectorIsOpen, groupSelectorIsOpen } = setup.security.accessRight;
 
@@ -289,5 +296,6 @@ export default inject(({ auth, setup }) => {
     getUsersByIds,
     selectorIsOpen,
     groupsCaption: auth.settingsStore.customNames.groupsCaption,
+    setCurrentTab,
   };
 })(withTranslation(["Settings", "Common"])(withRouter(PeopleUsers)));

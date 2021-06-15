@@ -184,6 +184,11 @@ class SectionHeaderContent extends React.Component {
     toggleSelector(isOpen);
   };
 
+  onToggleGroupSelector = (isOpen = !this.props.groupSelectorIsOpen) => {
+    const { toggleGroupSelector } = this.props;
+    toggleGroupSelector(isOpen);
+  };
+
   onClose = () => {
     const { deselectUser } = this.props;
     deselectUser();
@@ -213,6 +218,7 @@ class SectionHeaderContent extends React.Component {
       isHeaderChecked,
       isHeaderVisible,
       selection,
+      currentTab,
     } = this.props;
     const { header, isCategoryOrHeader } = this.state;
     const arrayOfParams = this.getArrayOfParams();
@@ -280,7 +286,11 @@ class SectionHeaderContent extends React.Component {
                   color="#A3A9AE"
                   hoverColor="#657077"
                   isFill={true}
-                  onClick={this.onToggleSelector}
+                  onClick={
+                    currentTab === "0"
+                      ? this.onToggleSelector
+                      : this.onToggleGroupSelector
+                  }
                   className="action-button"
                 />
               </div>
@@ -295,7 +305,7 @@ class SectionHeaderContent extends React.Component {
 export default inject(({ auth, setup }) => {
   const { customNames } = auth.settingsStore;
   const { addUsers, removeAdmins } = setup.headerAction;
-  const { toggleSelector } = setup;
+  const { toggleSelector, toggleGroupSelector } = setup;
   const {
     selected,
     setSelected,
@@ -306,7 +316,12 @@ export default inject(({ auth, setup }) => {
     selectAll,
     selection,
   } = setup.selectionStore;
-  const { admins, selectorIsOpen } = setup.security.accessRight;
+  const {
+    admins,
+    selectorIsOpen,
+    groupSelectorIsOpen,
+    currentTab,
+  } = setup.security.accessRight;
 
   return {
     addUsers,
@@ -323,6 +338,9 @@ export default inject(({ auth, setup }) => {
     toggleSelector,
     selectorIsOpen,
     selection,
+    currentTab,
+    toggleGroupSelector,
+    groupSelectorIsOpen,
   };
 })(
   withRouter(

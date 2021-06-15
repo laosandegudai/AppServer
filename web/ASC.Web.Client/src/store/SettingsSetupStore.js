@@ -27,6 +27,7 @@ class SettingsSetupStore {
       selectorIsOpen: false,
       groupSelectorIsOpen: false,
       isLoading: false,
+      currentTab: "0",
     },
   };
 
@@ -264,6 +265,10 @@ class SettingsSetupStore {
 
   sendOwnerChange = (id) => {
     return api.settings.sendOwnerChange(id);
+  };
+
+  setCurrentTab = (key) => {
+    this.security.accessRight.currentTab = key;
   };
 }
 
