@@ -48,8 +48,8 @@ const MainContainer = styled.div`
     left: 50%;
   }
 
-  .link {
-    padding-right: 5px;
+  .empty_screen_children {
+    padding-right: 7px;
   }
 `;
 
@@ -135,7 +135,6 @@ class PeopleUsers extends Component {
   };
 
   selectTab = (e) => {
-    console.log(e);
     this.props.setCurrentTab(e.key);
   };
 
@@ -173,13 +172,19 @@ class PeopleUsers extends Component {
         descriptionText={t("EmptyListDescription")}
         buttons={
           <Box>
+            <img
+              className="empty_screen_children"
+              src="products/files/images/plus.svg"
+              alt="plus_icon"
+            />
+
             <Link
               type="action"
               isHovered={true}
               onClick={this.onToggleSelector}
-              className="link"
+              className="empty_screen_children"
             >
-              {t("AddUsers")}
+              {t("AddUsers")},
             </Link>
             <Link
               type="action"
