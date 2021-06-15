@@ -9,6 +9,9 @@ import ToggleButton from "@appserver/components/toggle-button";
 import SearchInput from "@appserver/components/search-input";
 import TabContainer from "@appserver/components/tabs-container";
 import PeopleSelector from "people/PeopleSelector";
+import EmptyScreenContainer from "@appserver/components/empty-screen-container";
+import Link from "@appserver/components/link";
+import Box from "@appserver/components/box";
 
 import toastr from "@appserver/components/toast/toastr";
 import Loader from "@appserver/components/loader";
@@ -41,6 +44,10 @@ const MainContainer = styled.div`
   .page_loader {
     position: fixed;
     left: 50%;
+  }
+
+  .link {
+    padding-right: 5px;
   }
 `;
 
@@ -103,20 +110,79 @@ class PeopleUsers extends Component {
     console.log("addUsers", users);
   };
 
+  getContent = (content) => {
+    return <h1>{content}</h1>;
+  };
+
+  getEmptyScreen = () => {
+    const { searchValue } = this.state;
+    const { t } = this.props;
+
+    return searchValue.length > 0 ? (
+      <EmptyScreenContainer
+        imageSrc="products/people/images/empty_screen_filter.png"
+        imageAlt="Empty Screen Filter image"
+        headerText={t("NotFoundTitle")}
+        descriptionText={t("NotFoundDescription")}
+        buttons={
+          <>
+            <Link
+              type="action"
+              isHovered={true}
+              onClick={this.onSearchChange.bind(this, "")}
+            >
+              {t("Common:ClearButton")}
+            </Link>
+          </>
+        }
+      />
+    ) : (
+      <EmptyScreenContainer
+        imageSrc="products/people/images/empty_screen_filter.png"
+        imageAlt="Empty List image"
+        headerText={t("EmptyList")}
+        descriptionText={t("EmptyListDescription")}
+        buttons={
+          <Box>
+            <Link
+              type="action"
+              isHovered={true}
+              onClick={this.onToggleSelector}
+              className="link"
+            >
+              {t("AddUsers")}
+            </Link>
+            <Link
+              type="action"
+              isHovered={true}
+              onClick={this.onToggleSelector}
+            >
+              {t("AddGroups")}
+            </Link>
+          </Box>
+        }
+      />
+    );
+  };
   render() {
     const { isLoaded, accessForAll, searchValue } = this.state;
     const { t, selectorIsOpen, groupsCaption } = this.props;
+
+    const users = [];
+    const groups = [];
 
     const tabItems = [
       {
         key: "0",
         title: t("Users"),
-        content: <h1>Users</h1>,
+        content:
+          users.length > 0 ? this.getContent("Users") : this.getEmptyScreen(),
       },
       {
         key: "1",
         title: t("Groups"),
-        content: <h1>Groups</h1>,
+        content:
+          groups.length > 0 ? this.getContent("Groups") : this.getEmptyScreen(),
       },
     ];
 
