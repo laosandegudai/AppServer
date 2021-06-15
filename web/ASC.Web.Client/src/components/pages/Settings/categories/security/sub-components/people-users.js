@@ -174,13 +174,13 @@ class PeopleUsers extends Component {
     const tabItems = [
       {
         key: "0",
-        title: t("Users"),
+        title: t("Users") + ` (${users.length})`,
         content:
           users.length > 0 ? this.getContent("Users") : this.getEmptyScreen(),
       },
       {
         key: "1",
-        title: t("Groups"),
+        title: t("Groups") + ` (${groups.length})`,
         content:
           groups.length > 0 ? this.getContent("Groups") : this.getEmptyScreen(),
       },
