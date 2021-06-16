@@ -149,19 +149,23 @@ class PeopleUsers extends Component {
   };
 
   addUsers = (users) => {
-    const { setSecuritySettings } = this.props;
+    const { t, setSecuritySettings } = this.props;
     const { moduleId } = this.state;
     const usersKey = users.map((user) => user.key);
 
-    setSecuritySettings(moduleId, true, usersKey);
+    setSecuritySettings(moduleId, true, usersKey).then(() =>
+      toastr.success(t("PeopleUsersAddedSuccessfully"))
+    );
   };
 
   addGroups = (groups) => {
-    const { setSecuritySettings } = this.props;
+    const { t, setSecuritySettings } = this.props;
     const { moduleId } = this.state;
     const groupsKey = groups.map((group) => group.key);
 
-    setSecuritySettings(moduleId, true, groupsKey);
+    setSecuritySettings(moduleId, true, groupsKey).then(() =>
+      toastr.success(t("PeopleGroupsAddedSuccessfully"))
+    );
   };
 
   selectTab = (e) => {
@@ -193,7 +197,7 @@ class PeopleUsers extends Component {
               size="min"
               role={userRole}
               userName={user.displayName}
-              source={user.avatar}
+              source={user.avatarSmall}
             />
           );
 
@@ -202,7 +206,6 @@ class PeopleUsers extends Component {
           return (
             <Row
               key={user.id}
-              status={user.status}
               onSelect={this.onContentRowSelect}
               data={user}
               element={element}
