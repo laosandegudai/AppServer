@@ -270,6 +270,18 @@ class SettingsSetupStore {
   setCurrentTab = (key) => {
     this.security.accessRight.currentTab = key;
   };
+
+  getSecuritySettings = (moduleId) => {
+    return api.settings.getSecuritySettings(moduleId);
+  };
+
+  setSecuritySettings = (moduleId, enabled, userOrGroupIdList) => {
+    return api.settings.setSecuritySettings(
+      moduleId,
+      enabled,
+      userOrGroupIdList
+    );
+  };
 }
 
 export default SettingsSetupStore;

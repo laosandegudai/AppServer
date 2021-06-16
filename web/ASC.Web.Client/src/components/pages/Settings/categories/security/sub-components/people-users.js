@@ -3,8 +3,9 @@ import { withRouter } from "react-router";
 import { withTranslation } from "react-i18next";
 import styled from "styled-components";
 import Text from "@appserver/components/text";
-import RadioButtonGroup from "@appserver/components/radio-button-group";
-import Button from "@appserver/components/button";
+import Avatar from "@appserver/components/avatar";
+import Row from "@appserver/components/row";
+import RowContainer from "@appserver/components/row-container";
 import ToggleButton from "@appserver/components/toggle-button";
 import SearchInput from "@appserver/components/search-input";
 import TabContainer from "@appserver/components/tabs-container";
@@ -18,6 +19,7 @@ import GroupSelector from "people/GroupSelector";
 import toastr from "@appserver/components/toast/toastr";
 import Loader from "@appserver/components/loader";
 import { showLoader, hideLoader } from "@appserver/common/utils";
+import { getUserRole } from "@appserver/people/src/helpers/people-helpers";
 
 import { setDocumentTitle } from "../../../../../../helpers/utils";
 import { inject } from "mobx-react";
@@ -62,24 +64,44 @@ class PeopleUsers extends Component {
       isLoaded: false,
       accessForAll: false,
       searchValue: "",
+      moduleId: "",
+      users: [],
+      groups: [],
     };
   }
 
   async componentDidMount() {
-    const { setAddUsers } = this.props;
+    const { setAddUsers, modules } = this.props;
     showLoader();
 
     setAddUsers(this.addUsers);
+    const peopleModule = modules.filter(
+      (module) => module.appName === "people"
+    );
+
+    const list = await this.getPeopleAccessList(peopleModule[0].id);
+
+    this.setState({
+      isLoaded: true,
+      moduleId: peopleModule[0].id,
+      users: list[0].users,
+      groups: list[0].groups,
+    });
 
     hideLoader();
-    this.setState({ isLoaded: true });
   }
 
   componentWillUnmount() {
-    const { setAddUsers, setCurrentTab } = this.props;
+    const { setAddUsers, setCurrentTab, setSelected } = this.props;
     setAddUsers("");
     setCurrentTab("0");
+    setSelected("none");
   }
+
+  getPeopleAccessList = async (moduleId) => {
+    const { getSecuritySettings } = this.props;
+    return await getSecuritySettings(moduleId);
+  };
 
   onAccessForAllClick() {
     console.log("Access for all users");
@@ -127,19 +149,103 @@ class PeopleUsers extends Component {
   };
 
   addUsers = (users) => {
-    console.log("addUsers", users);
+    const { setSecuritySettings } = this.props;
+    const { moduleId } = this.state;
+    const usersKey = users.map((user) => user.key);
+
+    setSecuritySettings(moduleId, true, usersKey);
   };
 
   addGroups = (groups) => {
-    console.log("addGroups", groups);
+    const { setSecuritySettings } = this.props;
+    const { moduleId } = this.state;
+    const groupsKey = groups.map((group) => group.key);
+
+    setSecuritySettings(moduleId, true, groupsKey);
   };
 
   selectTab = (e) => {
     this.props.setCurrentTab(e.key);
   };
 
-  getContent = (content) => {
-    return <h1>{content}</h1>;
+  onContentRowSelect = (checked, user) => {
+    const { selectUser, deselectUser } = this.props;
+
+    if (checked) {
+      selectUser(user);
+    } else {
+      deselectUser(user);
+    }
+  };
+
+  getUsersContent = () => {
+    const { users } = this.state;
+    const { isUserSelected } = this.props;
+    console.log("users", users);
+
+    return (
+      <RowContainer useReactWindow={false}>
+        {users.map((user) => {
+          const userRole = getUserRole(user);
+
+          const element = (
+            <Avatar
+              size="min"
+              role={userRole}
+              userName={user.displayName}
+              source={user.avatar}
+            />
+          );
+
+          const checked = isUserSelected(user.id);
+
+          return (
+            <Row
+              key={user.id}
+              status={user.status}
+              onSelect={this.onContentRowSelect}
+              data={user}
+              element={element}
+              checkbox={true}
+              checked={checked}
+              contextButtonSpacerWidth={"0px"}
+            >
+              <Text fontSize="15px" fontWeight="600" truncate={true}>
+                {user.displayName}
+              </Text>
+            </Row>
+          );
+        })}
+      </RowContainer>
+    );
+  };
+
+  getGroupsContent = () => {
+    const { groups } = this.state;
+    console.log("groups", groups);
+
+    return (
+      <RowContainer useReactWindow={false}>
+        {groups.map((group) => {
+          const checked = false;
+
+          return (
+            <Row
+              key={group.id}
+              onSelect={this.onContentRowSelect}
+              data={group}
+              checkbox={true}
+              checked={checked}
+              contextButtonSpacerWidth={"0px"}
+            >
+              <Text fontSize="15px" fontWeight="600" truncate={true}>
+                {group.name}
+              </Text>
+            </Row>
+          );
+        })}
+      </RowContainer>
+    );
   };
 
   getEmptyScreen = () => {
@@ -199,7 +305,7 @@ class PeopleUsers extends Component {
     );
   };
   render() {
-    const { isLoaded, accessForAll, searchValue } = this.state;
+    const { isLoaded, accessForAll, searchValue, users, groups } = this.state;
     const {
       t,
       selectorIsOpen,
@@ -207,21 +313,18 @@ class PeopleUsers extends Component {
       groupsCaption,
     } = this.props;
 
-    const users = [];
-    const groups = [];
-
     const tabItems = [
       {
         key: "0",
         title: t("Users") + ` (${users.length})`,
         content:
-          users.length > 0 ? this.getContent("Users") : this.getEmptyScreen(),
+          users.length > 0 ? this.getUsersContent() : this.getEmptyScreen(),
       },
       {
         key: "1",
         title: t("Groups") + ` (${groups.length})`,
         content:
-          groups.length > 0 ? this.getContent("Groups") : this.getEmptyScreen(),
+          groups.length > 0 ? this.getGroupsContent() : this.getEmptyScreen(),
       },
     ];
 
@@ -288,8 +391,24 @@ export default inject(({ auth, setup }) => {
     toggleGroupSelector,
     getUsersByIds,
     setCurrentTab,
+    getSecuritySettings,
+    setSecuritySettings,
   } = setup;
-  const { selectorIsOpen, groupSelectorIsOpen } = setup.security.accessRight;
+
+  const {
+    selectorIsOpen,
+    groupSelectorIsOpen,
+    peopleUsers,
+    peopleGroups,
+  } = setup.security.accessRight;
+
+  const {
+    selectUser,
+    deselectUser,
+    selection,
+    isUserSelected,
+    setSelected,
+  } = setup.selectionStore;
 
   return {
     organizationName: auth.settingsStore.organizationName,
@@ -302,5 +421,14 @@ export default inject(({ auth, setup }) => {
     selectorIsOpen,
     groupsCaption: auth.settingsStore.customNames.groupsCaption,
     setCurrentTab,
+    peopleUsers,
+    peopleGroups,
+    selectUser,
+    deselectUser,
+    selection,
+    isUserSelected,
+    setSelected,
+    getSecuritySettings,
+    setSecuritySettings,
   };
 })(withTranslation(["Settings", "Common"])(withRouter(PeopleUsers)));
