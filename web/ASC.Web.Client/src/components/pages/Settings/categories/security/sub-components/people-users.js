@@ -182,14 +182,39 @@ class PeopleUsers extends Component {
     }
   };
 
+  getFilteredUsers = (users, searchValue) => {
+    const filteredUsers = users.filter((user) => {
+      if (
+        user.displayName.toLowerCase().indexOf(searchValue.toLowerCase()) !== -1
+      )
+        return true;
+      return false;
+    });
+
+    return filteredUsers;
+  };
+
+  getFilteredGroups = (groups, searchValue) => {
+    const filteredGroups = groups.filter((group) => {
+      if (group.name.toLowerCase().indexOf(searchValue.toLowerCase()) !== -1)
+        return true;
+      return false;
+    });
+
+    return filteredGroups;
+  };
+
   getUsersContent = () => {
-    const { users } = this.state;
+    const { users, searchValue } = this.state;
     const { isUserSelected } = this.props;
-    console.log("users", users);
+
+    const filteredUsers = searchValue
+      ? this.getFilteredUsers(users, searchValue)
+      : users;
 
     return (
       <RowContainer useReactWindow={false}>
-        {users.map((user) => {
+        {filteredUsers.map((user) => {
           const userRole = getUserRole(user);
 
           const element = (
@@ -224,18 +249,21 @@ class PeopleUsers extends Component {
   };
 
   getGroupsContent = () => {
-    const { groups } = this.state;
-    console.log("groups", groups);
+    const { groups, searchValue } = this.state;
+
+    const filteredGroups = searchValue
+      ? this.getFilteredGroups(groups, searchValue)
+      : groups;
 
     return (
       <RowContainer useReactWindow={false}>
-        {groups.map((group) => {
+        {filteredGroups.map((group) => {
           const checked = false;
 
           return (
             <Row
               key={group.id}
-              onSelect={this.onContentRowSelect}
+              //onSelect={this.onContentRowSelect}
               data={group}
               checkbox={true}
               checked={checked}
