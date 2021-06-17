@@ -283,7 +283,7 @@ class PeopleUsers extends Component {
     const { searchValue } = this.state;
     const { t } = this.props;
 
-    return searchValue.length > 0 ? (
+    return searchValue && searchValue.length > 0 ? (
       <EmptyScreenContainer
         imageSrc="products/people/images/empty_screen_filter.png"
         imageAlt="Empty Screen Filter image"
