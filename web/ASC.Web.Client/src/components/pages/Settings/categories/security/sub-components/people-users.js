@@ -68,12 +68,7 @@ class PeopleUsers extends Component {
   }
 
   async componentDidMount() {
-    const {
-      setAddUsers,
-      modules,
-      setPeopleModuleGroups,
-      setPeopleModuleUsers,
-    } = this.props;
+    const { setAddUsers, modules } = this.props;
     showLoader();
 
     setAddUsers(this.addUsers);
@@ -81,10 +76,7 @@ class PeopleUsers extends Component {
       (module) => module.appName === "people"
     );
 
-    const list = await this.getPeopleAccessList(peopleModule[0].id);
-
-    setPeopleModuleGroups(list[0].groups);
-    setPeopleModuleUsers(list[0].users);
+    this.updatePeopleAccessList(peopleModule[0].id);
 
     this.setState({
       isLoaded: true,
@@ -95,15 +87,22 @@ class PeopleUsers extends Component {
   }
 
   componentWillUnmount() {
-    const { setAddUsers, setCurrentTab, setSelected } = this.props;
+    const { setAddUsers, setCurrentTab } = this.props;
     setAddUsers("");
     setCurrentTab("0");
-    setSelected("none");
   }
 
-  getPeopleAccessList = async (moduleId) => {
-    const { getSecuritySettings } = this.props;
-    return await getSecuritySettings(moduleId);
+  updatePeopleAccessList = async (moduleId) => {
+    const {
+      getSecuritySettings,
+      setPeopleModuleGroups,
+      setPeopleModuleUsers,
+    } = this.props;
+
+    const list = await getSecuritySettings(moduleId);
+
+    setPeopleModuleGroups(list[0].groups);
+    setPeopleModuleUsers(list[0].users);
   };
 
   onAccessForAllClick() {
@@ -164,12 +163,7 @@ class PeopleUsers extends Component {
     const { t, setSecuritySettings, addPeopleModuleUsers } = this.props;
     const { moduleId } = this.state;
     const usersKey = users.map((user) => user.key);
-
-    console.log("usersKey", usersKey);
-
     const allKeys = this.getListKeys().concat(usersKey);
-
-    console.log("allKeys", allKeys);
 
     addPeopleModuleUsers(users);
     setSecuritySettings(moduleId, true, allKeys).then(() =>
@@ -181,12 +175,7 @@ class PeopleUsers extends Component {
     const { t, setSecuritySettings, addPeopleModuleGroups } = this.props;
     const { moduleId } = this.state;
     const groupsKey = groups.map((group) => group.key);
-
-    console.log("groupsKey", groupsKey);
-
     const allKeys = this.getListKeys().concat(groupsKey);
-
-    console.log("allKeys", allKeys);
 
     addPeopleModuleGroups(groups);
     setSecuritySettings(moduleId, true, allKeys).then(() =>
@@ -198,7 +187,7 @@ class PeopleUsers extends Component {
     this.props.setCurrentTab(e.key);
   };
 
-  onContentRowSelect = (checked, user) => {
+  onUserRowSelect = (checked, user) => {
     const { selectUser, deselectUser } = this.props;
 
     if (checked) {
@@ -257,7 +246,7 @@ class PeopleUsers extends Component {
           return (
             <Row
               key={user.id}
-              onSelect={this.onContentRowSelect}
+              onSelect={this.onUserRowSelect}
               data={user}
               element={element}
               checkbox={true}
@@ -282,7 +271,6 @@ class PeopleUsers extends Component {
       ? this.getFilteredGroups(peopleModuleGroups, searchValue)
       : peopleModuleGroups;
 
-    console.log(peopleModuleGroups);
     return (
       <RowContainer useReactWindow={false}>
         {filteredGroups.map((group) => {
@@ -476,7 +464,6 @@ export default inject(({ auth, setup }) => {
     deselectUser,
     selection,
     isUserSelected,
-    setSelected,
   } = setup.selectionStore;
 
   return {
@@ -494,7 +481,6 @@ export default inject(({ auth, setup }) => {
     deselectUser,
     selection,
     isUserSelected,
-    setSelected,
     getSecuritySettings,
     setSecuritySettings,
     peopleModuleUsers,
