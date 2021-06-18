@@ -28,6 +28,8 @@ class SettingsSetupStore {
       groupSelectorIsOpen: false,
       isLoading: false,
       currentTab: "0",
+      peopleModuleUsers: [],
+      peopleModuleGroups: [],
     },
   };
 
@@ -281,6 +283,22 @@ class SettingsSetupStore {
       enabled,
       userOrGroupIdList
     );
+  };
+
+  setPeopleModuleUsers = (users) => {
+    this.security.accessRight.peopleModuleUsers = users;
+  };
+
+  setPeopleModuleGroups = (groups) => {
+    this.security.accessRight.peopleModuleGroups = groups;
+  };
+
+  addPeopleModuleUsers = (users) => {
+    this.security.accessRight.peopleModuleUsers.concat(users);
+  };
+
+  addPeopleModuleGroups = (groups) => {
+    this.security.accessRight.peopleModuleGroups.concat(groups);
   };
 }
 

@@ -59,19 +59,21 @@ class PeopleUsers extends Component {
   constructor(props) {
     super(props);
 
-    const { t } = props;
     this.state = {
       isLoaded: false,
       accessForAll: false,
       searchValue: "",
       moduleId: "",
-      users: [],
-      groups: [],
     };
   }
 
   async componentDidMount() {
-    const { setAddUsers, modules } = this.props;
+    const {
+      setAddUsers,
+      modules,
+      setPeopleModuleGroups,
+      setPeopleModuleUsers,
+    } = this.props;
     showLoader();
 
     setAddUsers(this.addUsers);
@@ -81,11 +83,12 @@ class PeopleUsers extends Component {
 
     const list = await this.getPeopleAccessList(peopleModule[0].id);
 
+    setPeopleModuleGroups(list[0].groups);
+    setPeopleModuleUsers(list[0].users);
+
     this.setState({
       isLoaded: true,
       moduleId: peopleModule[0].id,
-      users: list[0].users,
-      groups: list[0].groups,
     });
 
     hideLoader();
@@ -148,22 +151,45 @@ class PeopleUsers extends Component {
     this.props.toggleGroupSelector(isOpen);
   };
 
+  getListKeys = () => {
+    const { peopleModuleUsers, peopleModuleGroups } = this.props;
+    const usersKey = peopleModuleUsers.map((user) => user.id);
+    const groupsKey = peopleModuleGroups.map((group) => group.id);
+
+    const allKeys = usersKey.concat(groupsKey);
+    return allKeys;
+  };
+
   addUsers = (users) => {
-    const { t, setSecuritySettings } = this.props;
+    const { t, setSecuritySettings, addPeopleModuleUsers } = this.props;
     const { moduleId } = this.state;
     const usersKey = users.map((user) => user.key);
 
-    setSecuritySettings(moduleId, true, usersKey).then(() =>
+    console.log("usersKey", usersKey);
+
+    const allKeys = this.getListKeys().concat(usersKey);
+
+    console.log("allKeys", allKeys);
+
+    addPeopleModuleUsers(users);
+    setSecuritySettings(moduleId, true, allKeys).then(() =>
       toastr.success(t("PeopleUsersAddedSuccessfully"))
     );
   };
 
   addGroups = (groups) => {
-    const { t, setSecuritySettings } = this.props;
+    const { t, setSecuritySettings, addPeopleModuleGroups } = this.props;
     const { moduleId } = this.state;
     const groupsKey = groups.map((group) => group.key);
 
-    setSecuritySettings(moduleId, true, groupsKey).then(() =>
+    console.log("groupsKey", groupsKey);
+
+    const allKeys = this.getListKeys().concat(groupsKey);
+
+    console.log("allKeys", allKeys);
+
+    addPeopleModuleGroups(groups);
+    setSecuritySettings(moduleId, true, allKeys).then(() =>
       toastr.success(t("PeopleGroupsAddedSuccessfully"))
     );
   };
@@ -205,12 +231,12 @@ class PeopleUsers extends Component {
   };
 
   getUsersContent = () => {
-    const { users, searchValue } = this.state;
-    const { isUserSelected } = this.props;
+    const { searchValue } = this.state;
+    const { isUserSelected, peopleModuleUsers } = this.props;
 
     const filteredUsers = searchValue
-      ? this.getFilteredUsers(users, searchValue)
-      : users;
+      ? this.getFilteredUsers(peopleModuleUsers, searchValue)
+      : peopleModuleUsers;
 
     return (
       <RowContainer useReactWindow={false}>
@@ -249,12 +275,14 @@ class PeopleUsers extends Component {
   };
 
   getGroupsContent = () => {
-    const { groups, searchValue } = this.state;
+    const { peopleModuleGroups } = this.props;
+    const { searchValue } = this.state;
 
     const filteredGroups = searchValue
-      ? this.getFilteredGroups(groups, searchValue)
-      : groups;
+      ? this.getFilteredGroups(peopleModuleGroups, searchValue)
+      : peopleModuleGroups;
 
+    console.log(peopleModuleGroups);
     return (
       <RowContainer useReactWindow={false}>
         {filteredGroups.map((group) => {
@@ -336,26 +364,32 @@ class PeopleUsers extends Component {
     );
   };
   render() {
-    const { isLoaded, accessForAll, searchValue, users, groups } = this.state;
+    const { isLoaded, accessForAll, searchValue } = this.state;
     const {
       t,
       selectorIsOpen,
       groupSelectorIsOpen,
       groupsCaption,
+      peopleModuleUsers,
+      peopleModuleGroups,
     } = this.props;
 
     const tabItems = [
       {
         key: "0",
-        title: t("Users") + ` (${users.length})`,
+        title: t("Users") + ` (${peopleModuleUsers.length})`,
         content:
-          users.length > 0 ? this.getUsersContent() : this.getEmptyScreen(),
+          peopleModuleUsers.length > 0
+            ? this.getUsersContent()
+            : this.getEmptyScreen(),
       },
       {
         key: "1",
-        title: t("Groups") + ` (${groups.length})`,
+        title: t("Groups") + ` (${peopleModuleGroups.length})`,
         content:
-          groups.length > 0 ? this.getGroupsContent() : this.getEmptyScreen(),
+          peopleModuleGroups.length > 0
+            ? this.getGroupsContent()
+            : this.getEmptyScreen(),
       },
     ];
 
@@ -424,13 +458,17 @@ export default inject(({ auth, setup }) => {
     setCurrentTab,
     getSecuritySettings,
     setSecuritySettings,
+    setPeopleModuleUsers,
+    setPeopleModuleGroups,
+    addPeopleModuleUsers,
+    addPeopleModuleGroups,
   } = setup;
 
   const {
     selectorIsOpen,
     groupSelectorIsOpen,
-    peopleUsers,
-    peopleGroups,
+    peopleModuleUsers,
+    peopleModuleGroups,
   } = setup.security.accessRight;
 
   const {
@@ -452,8 +490,6 @@ export default inject(({ auth, setup }) => {
     selectorIsOpen,
     groupsCaption: auth.settingsStore.customNames.groupsCaption,
     setCurrentTab,
-    peopleUsers,
-    peopleGroups,
     selectUser,
     deselectUser,
     selection,
@@ -461,5 +497,11 @@ export default inject(({ auth, setup }) => {
     setSelected,
     getSecuritySettings,
     setSecuritySettings,
+    peopleModuleUsers,
+    peopleModuleGroups,
+    addPeopleModuleUsers,
+    addPeopleModuleGroups,
+    setPeopleModuleUsers,
+    setPeopleModuleGroups,
   };
 })(withTranslation(["Settings", "Common"])(withRouter(PeopleUsers)));
