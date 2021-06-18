@@ -16,6 +16,7 @@ import { I18nextProvider, withTranslation } from "react-i18next";
 const { proxyURL } = AppServerConfig;
 const homepage = config.homepage;
 const PROXY_HOMEPAGE_URL = combineUrl(proxyURL, homepage);
+const HOME_FILTER_URL = combineUrl(PROXY_HOMEPAGE_URL, "/filter");
 
 const Error404 = React.lazy(() => import("studio/Error404"));
 
@@ -46,7 +47,8 @@ const CrmContent = (props) => {
   return (
     <Switch>
       <PrivateRoute exact path={PROXY_HOMEPAGE_URL} component={Home} />
-      <PrivateRoute component={Error404Route} />
+       <PrivateRoute exact path={HOME_FILTER_URL} component={Home} />
+           <PrivateRoute component={Error404Route} />
     </Switch>
   );
 };
