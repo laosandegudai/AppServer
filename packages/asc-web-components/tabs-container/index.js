@@ -48,7 +48,7 @@ class TabContainer extends Component {
     return arrayWidths;
   };
 
-  shouldComponentUpdate(nextProps, nextState) {
+  /*shouldComponentUpdate(nextProps, nextState) {
     const { activeTab, onScrollHide } = this.state;
     const { isDisabled } = this.props;
     if (
@@ -59,7 +59,7 @@ class TabContainer extends Component {
       return false;
     }
     return true;
-  }
+  }*/
 
   componentDidMount() {
     const { activeTab } = this.state;
