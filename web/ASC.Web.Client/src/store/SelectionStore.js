@@ -14,7 +14,9 @@ class SelectionStore {
   };
 
   selectUser = (user) => {
-    return this.selection.push(user);
+    const newSelection = [...this.selection, user];
+    this.setSelection(newSelection);
+    return this.selection;
   };
 
   deselectUser = (user) => {

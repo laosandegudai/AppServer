@@ -87,9 +87,10 @@ class PeopleUsers extends Component {
   }
 
   componentWillUnmount() {
-    const { setAddUsers, setCurrentTab } = this.props;
+    const { setAddUsers, setCurrentTab, setSelected } = this.props;
     setAddUsers("");
     setCurrentTab("0");
+    setSelected("none");
   }
 
   updatePeopleAccessList = async (moduleId) => {
@@ -187,7 +188,7 @@ class PeopleUsers extends Component {
     this.props.setCurrentTab(e.key);
   };
 
-  onUserRowSelect = (checked, user) => {
+  onRowSelect = (checked, user) => {
     const { selectUser, deselectUser } = this.props;
 
     if (checked) {
@@ -242,11 +243,11 @@ class PeopleUsers extends Component {
           );
 
           const checked = isUserSelected(user.id);
-
+          console.log(this.props.selection);
           return (
             <Row
               key={user.id}
-              onSelect={this.onUserRowSelect}
+              onSelect={this.onRowSelect}
               data={user}
               element={element}
               checkbox={true}
@@ -264,7 +265,7 @@ class PeopleUsers extends Component {
   };
 
   getGroupsContent = () => {
-    const { peopleModuleGroups } = this.props;
+    const { peopleModuleGroups, isUserSelected } = this.props;
     const { searchValue } = this.state;
 
     const filteredGroups = searchValue
@@ -274,12 +275,13 @@ class PeopleUsers extends Component {
     return (
       <RowContainer useReactWindow={false}>
         {filteredGroups.map((group) => {
-          const checked = false;
+          const checked = isUserSelected(group.id);
+          console.log(this.props.selection);
 
           return (
             <Row
               key={group.id}
-              //onSelect={this.onContentRowSelect}
+              onSelect={this.onRowSelect}
               data={group}
               checkbox={true}
               checked={checked}
