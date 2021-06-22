@@ -466,6 +466,7 @@ export default inject(({ auth, setup }) => {
     deselectUser,
     selection,
     isUserSelected,
+    setSelected,
   } = setup.selectionStore;
 
   return {
@@ -483,6 +484,7 @@ export default inject(({ auth, setup }) => {
     deselectUser,
     selection,
     isUserSelected,
+    setSelected,
     getSecuritySettings,
     setSecuritySettings,
     peopleModuleUsers,
