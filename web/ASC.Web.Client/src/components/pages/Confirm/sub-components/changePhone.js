@@ -45,7 +45,16 @@ const StyledForm = styled(Box)`
 `;
 
 const PhoneForm = (props) => {
-  const { t, currentPhone, greetingTitle } = props;
+  const {
+    t,
+    currentPhone,
+    greetingTitle,
+    requestSmsCode,
+    setAuthPhone,
+    location,
+    login,
+    loginWithCode,
+  } = props;
 
   const [phone, setPhone] = useState("");
   const [isValid, setIsValid] = useState(false);
@@ -55,6 +64,10 @@ const PhoneForm = (props) => {
 
   React.useEffect(() => {
     window.addEventListener("resize", () => setWidth(window.innerWidth));
+
+    return () => {
+      window.removeEventListener("resize", () => setWidth(window.innerWidth));
+    };
   }, []);
 
   const onChangePhone = (obj) => {
@@ -64,7 +77,10 @@ const PhoneForm = (props) => {
   };
 
   const onSubmit = () => {
-    console.log(`Request the code for ${fullNumber}`);
+    const { user, hash } = location.state;
+    setAuthPhone(user, hash, fullNumber);
+
+    console.log(`POST api/2.0/authentication/sendsms -> ${fullNumber} `);
   };
 
   const onKeyPress = (e) => {
@@ -72,6 +88,8 @@ const PhoneForm = (props) => {
     if (e.keyCode === 13 && isValid) return onSubmit();
     return;
   };
+
+  const locale = navigator.language.split("-")[1];
 
   return (
     <StyledForm className="phone-edit-container">
@@ -97,7 +115,7 @@ const PhoneForm = (props) => {
             size={width <= 1024 ? "large" : "base"}
             isAutoFocussed
             tabIndex={1}
-            locale="AG"
+            locale={locale}
             searchEmptyMessage={t("SearchEmptyMessage")}
             searchPlaceholderText={t("SearchPlaceholderText")}
             onChange={onChangePhone}
@@ -134,8 +152,12 @@ const ChangePhoneForm = (props) => {
 
 export default inject(({ auth }) => ({
   isLoaded: auth.isLoaded,
+  login: auth.login,
   currentPhone: auth.userStore.mobilePhone,
   greetingTitle: auth.settingsStore.greetingSettings,
+  requestSmsCode: auth.tfaStore.requestSmsCode,
+  setAuthPhone: auth.tfaStore.setAuthPhone,
+  loginWithCode: auth.loginWithCode,
 }))(
   withRouter(withTranslation(["Confirm", "Common"])(observer(ChangePhoneForm)))
 );
