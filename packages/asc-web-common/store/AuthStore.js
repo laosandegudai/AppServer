@@ -156,10 +156,14 @@ class AuthStore {
     try {
       const response = await api.user.login(user, hash);
 
-      if (!response || (!response.token && !response.tfa))
+      if (!response || (!response.token && !response.tfa)) {
         throw response.error.message;
+      }
 
-      if (response.tfa && response.confirmUrl) {
+      if (
+        (response.tfa && response.confirmUrl) ||
+        (response.sms && response.confirmUrl)
+      ) {
         const url = response.confirmUrl.replace(window.location.origin, "");
         return Promise.resolve({ url, user, hash });
       }

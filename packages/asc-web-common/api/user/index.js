@@ -60,3 +60,23 @@ export function loginWithTfaCode(userName, passwordHash, code) {
     data,
   });
 }
+
+export function requestSmsCode(userName, passwordHash) {
+  const data = { userName, passwordHash };
+
+  return request({
+    method: "post",
+    url: "/authentication/sendsms",
+    data,
+  });
+}
+
+export function setAuthPhone(userName, passwordHash, mobilePhone) {
+  const data = { userName, passwordHash, mobilePhone };
+
+  return request({
+    method: "post",
+    url: "/authentication/setphone",
+    data,
+  });
+}

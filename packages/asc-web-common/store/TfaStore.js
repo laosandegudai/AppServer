@@ -67,6 +67,14 @@ class TfaStore {
   unlinkApp = async () => {
     return api.settings.unlinkTfaApp();
   };
+
+  requestSmsCode = async (userName, passwordHash, mobilePhone) => {
+    return await api.user.requestSmsCode(userName, passwordHash, mobilePhone);
+  };
+
+  setAuthPhone = async (userName, passwordHash, mobilePhone) => {
+    return await api.user.setAuthPhone(userName, passwordHash, mobilePhone);
+  };
 }
 
 export default TfaStore;
