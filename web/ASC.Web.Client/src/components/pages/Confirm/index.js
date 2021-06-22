@@ -51,12 +51,16 @@ const Confirm = ({ match }) => {
         path={`${path}/ProfileRemove`}
         component={ProfileRemoveForm}
       />
-      <Route
+      <ConfirmRoute
         exact
         path={`${path}/PhoneActivation`}
         component={ChangePhoneForm}
       />
-      <Route exact path={`${match.path}/PhoneAuth`} component={PhoneAuth} />
+      <ConfirmRoute
+        exact
+        path={`${match.path}/PhoneAuth`}
+        component={PhoneAuth}
+      />
       <ConfirmRoute
         exact
         path={`${path}/PortalOwnerChange`}
