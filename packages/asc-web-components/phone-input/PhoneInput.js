@@ -3,30 +3,42 @@ import PropTypes from "prop-types";
 import DropDown from "./DropDown";
 import {
   StyledPhoneInput,
-  StyledInputBox,
   StyledDialCode,
   StyledFlagBoxWrapper,
 } from "./StyledPhoneInput";
 import Box from "../box";
 import Text from "../text";
-import TextInput from "../text-input";
 import { Base } from "../themes";
-import { options, countryCodes } from "./options";
+import { options } from "./options";
 
 const PhoneInput = memo(
   ({ searchEmptyMessage, searchPlaceholderText, onChange, ...props }) => {
-    const [country, setCountry] = useState(props.locale);
+    const [locale, setCountry] = useState(props.locale || options[0].code);
+
+    const getCountry = (locale) => {
+      return options.find((o) => o.code === locale) || options[0];
+    };
+
+    const country = getCountry(locale);
+
+    const placeholder =
+      country.mask === null
+        ? "Enter phone number"
+        : country.mask
+            .join("")
+            .replace(/[\/|\\]/g, "")
+            .replace(/[d]/gi, "X");
 
     const onChangeCountry = useCallback((country) => setCountry(country), [
-      country,
+      locale,
     ]);
 
     const onChangeWrapper = (e) => {
       const value = e.target.value.trim();
-      const dialCode = getLocaleCode(country);
+      const dialCode = country.dialCode;
       const fullNumber = dialCode.concat(value);
       const locale = country;
-      const mask = getMask(country);
+      const mask = country.mask;
       const isValid = mask
         ? !!value.length && !Array.isArray(value.match(/_/gm))
         : !!value.length && Array.isArray(value.match(/^[0-9]+$/));
@@ -41,25 +53,11 @@ const PhoneInput = memo(
         });
     };
 
-    const getLocaleCode = (locale) =>
-      options.find((o) => o.code === locale).dialCode;
-
-    const getMask = (locale) => options.find((o) => o.code === locale).mask;
-
-    const getPlaceholder = (locale) =>
-      options.find((o) => o.code === locale).mask === null
-        ? "Enter phone number"
-        : options
-            .find((o) => o.code === locale)
-            .mask.join("")
-            .replace(/[\/|\\]/g, "")
-            .replace(/[d]/gi, "X");
-
     return (
       <Box displayProp="flex" className="input-container">
         <StyledFlagBoxWrapper>
           <DropDown
-            value={country}
+            value={country.code}
             onChange={onChangeCountry}
             options={options}
             theme={props.theme}
@@ -69,11 +67,11 @@ const PhoneInput = memo(
           />
         </StyledFlagBoxWrapper>
         <StyledDialCode size={props.size}>
-          <Text className="dial-code-text">{getLocaleCode(country)}</Text>
+          <Text className="dial-code-text">{country.dialCode}</Text>
         </StyledDialCode>
         <StyledPhoneInput
-          mask={getMask(country)}
-          placeholder={getPlaceholder(country)}
+          mask={country.mask}
+          placeholder={placeholder}
           onChange={onChangeWrapper}
           {...props}
         />
@@ -83,7 +81,7 @@ const PhoneInput = memo(
 );
 
 PhoneInput.propTypes = {
-  locale: PropTypes.oneOf(countryCodes),
+  locale: PropTypes.string,
   getLocaleCode: PropTypes.func,
   getMask: PropTypes.func,
   getPlaceholder: PropTypes.func,
@@ -92,10 +90,10 @@ PhoneInput.propTypes = {
   theme: PropTypes.object,
   searchPlaceholderText: PropTypes.string,
   searchEmptyMessage: PropTypes.string,
+  size: PropTypes.string,
 };
 
 PhoneInput.defaultProps = {
-  locale: "RU",
   type: "text",
   value: "",
   theme: Base,

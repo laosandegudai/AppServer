@@ -52,8 +52,10 @@ const Dropdown = memo(
     useEffect(() => {
       if (open) {
         setFilteredCountries(
-          options.filter((option) =>
-            option.name.toLowerCase().includes(search.toLowerCase())
+          options.filter(
+            (option) =>
+              option.name.toLowerCase().includes(search.toLowerCase()) ||
+              option.dialCode.includes(search)
           )
         );
       }
