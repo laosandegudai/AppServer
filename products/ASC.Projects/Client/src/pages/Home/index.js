@@ -20,16 +20,29 @@ import { inject } from "mobx-react";
 import i18n from "../../i18n";
 import { I18nextProvider } from "react-i18next";
 import { toCommunityHostname, deleteCookie } from "@appserver/common/utils";
-
+import {
+  ArticleHeaderContent,
+  ArticleMainButtonContent,
+} from "../../components/Article";
 const Home = () => {
-  return <div>projects</div>;
+  return (
+    <PageLayout>
+      <PageLayout.ArticleHeader>
+        <ArticleHeaderContent />
+      </PageLayout.ArticleHeader>
+
+      <PageLayout.ArticleMainButton>
+        <ArticleMainButtonContent />
+      </PageLayout.ArticleMainButton>
+    </PageLayout>
+  );
 };
 
 const HomeWrapper = inject(({ auth }) => ({
   modules: auth.moduleStore.modules,
   isLoaded: auth.isLoaded,
   setCurrentProductId: auth.settingsStore.setCurrentProductId,
-}))(withRouter(withTranslation(["ComingSoon", "Common"])(Home)));
+}))(withRouter(withTranslation(["Article", "Common"])(Home)));
 
 export default (props) => (
   <I18nextProvider i18n={i18n}>

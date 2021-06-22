@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Provider as PeopleProvider, inject, observer } from "mobx-react";
+import { Provider as ProjectProvider, inject, observer } from "mobx-react";
 import { Switch } from "react-router-dom";
 import ProjectsStore from "./store/ProjectsStore";
 import ErrorBoundary from "@appserver/common/components/ErrorBoundary";
@@ -62,9 +62,9 @@ const Projects = inject(({ auth, projectsStore }) => ({
 const projectsStore = new ProjectsStore();
 
 export default (props) => (
-  <PeopleProvider projectsStore={projectsStore}>
+  <ProjectProvider projectsStore={projectsStore}>
     <I18nextProvider i18n={i18n}>
       <Projects {...props} />
     </I18nextProvider>
-  </PeopleProvider>
+  </ProjectProvider>
 );
