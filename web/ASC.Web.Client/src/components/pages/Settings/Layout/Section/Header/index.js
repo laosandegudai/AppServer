@@ -224,9 +224,16 @@ class SectionHeaderContent extends React.Component {
     removeAdmins();
   };
 
+  removeModuleUsers = () => {
+    const { removeUsers } = this.props;
+    if (!removeUsers) return;
+    removeUsers();
+  };
+
   render() {
     const {
       t,
+      location,
       addUsers,
       isHeaderIndeterminate,
       isHeaderChecked,
@@ -236,9 +243,16 @@ class SectionHeaderContent extends React.Component {
       moduleIsHeaderVisible,
       moduleIsHeaderIndeterminate,
       moduleIsHeaderChecked,
+      moduleSelection,
     } = this.props;
     const { header, isCategoryOrHeader } = this.state;
     const arrayOfParams = this.getArrayOfParams();
+
+    const isPeopleModuleUsers = location.pathname.includes("people-users");
+
+    const disabledRemoveButton = isPeopleModuleUsers
+      ? !moduleSelection || !moduleSelection.length > 0
+      : !selection || !selection.length > 0;
 
     const menuItems = [
       {
@@ -258,8 +272,10 @@ class SectionHeaderContent extends React.Component {
       },
       {
         label: t("Common:Delete"),
-        disabled: !selection || !selection.length > 0,
-        onClick: this.removeAdmins,
+        disabled: disabledRemoveButton,
+        onClick: isPeopleModuleUsers
+          ? this.removeModuleUsers
+          : this.removeAdmins,
       },
     ];
 
@@ -325,7 +341,7 @@ class SectionHeaderContent extends React.Component {
 
 export default inject(({ auth, setup, module }) => {
   const { customNames } = auth.settingsStore;
-  const { addUsers, removeAdmins } = setup.headerAction;
+  const { addUsers, removeAdmins, removeUsers } = setup.headerAction;
   const { toggleSelector, toggleGroupSelector } = setup;
   const {
     selected,
@@ -348,6 +364,7 @@ export default inject(({ auth, setup, module }) => {
   return {
     addUsers,
     removeAdmins,
+    removeUsers,
     groupsCaption: customNames.groupsCaption,
     selected,
     setSelected,
@@ -365,6 +382,7 @@ export default inject(({ auth, setup, module }) => {
     moduleDeselectUser: module.deselectUser,
     moduleSelectAll: module.selectAll,
     moduleSetSelected: module.setSelected,
+    moduleSelection: module.selection,
 
     toggleSelector,
     selectorIsOpen,

@@ -68,10 +68,12 @@ class PeopleUsers extends Component {
   }
 
   async componentDidMount() {
-    const { setAddUsers, modules } = this.props;
+    const { setAddUsers, setRemoveUsers, modules } = this.props;
     showLoader();
 
     setAddUsers(this.addUsers);
+    setRemoveUsers(this.removeUsers);
+
     const peopleModule = modules.filter(
       (module) => module.appName === "people"
     );
@@ -87,8 +89,15 @@ class PeopleUsers extends Component {
   }
 
   componentWillUnmount() {
-    const { setAddUsers, setCurrentTab, setSelected } = this.props;
+    const {
+      setAddUsers,
+      setRemoveUsers,
+      setCurrentTab,
+      setSelected,
+    } = this.props;
+
     setAddUsers("");
+    setRemoveUsers("");
     setCurrentTab("0");
     setSelected("none");
   }
@@ -184,6 +193,10 @@ class PeopleUsers extends Component {
     );
   };
 
+  removeUsers = () => {
+    console.log("Remove users");
+  };
+
   selectTab = (e) => {
     this.props.setCurrentTab(e.key);
   };
@@ -243,7 +256,7 @@ class PeopleUsers extends Component {
           );
 
           const checked = isUserSelected(user.id);
-          console.log(this.props.selection);
+
           return (
             <Row
               key={user.id}
@@ -276,7 +289,6 @@ class PeopleUsers extends Component {
       <RowContainer useReactWindow={false}>
         {filteredGroups.map((group) => {
           const checked = isUserSelected(group.id);
-          console.log(this.props.selection);
 
           return (
             <Row
@@ -442,6 +454,7 @@ export default inject(({ auth, setup, module }) => {
   const { modules } = moduleStore;
   const {
     setAddUsers,
+    setRemoveUsers,
     toggleSelector,
     toggleGroupSelector,
     getUsersByIds,
@@ -470,6 +483,7 @@ export default inject(({ auth, setup, module }) => {
     organizationName: auth.settingsStore.organizationName,
     modules,
     setAddUsers,
+    setRemoveUsers,
     toggleSelector,
     toggleGroupSelector,
     groupSelectorIsOpen,

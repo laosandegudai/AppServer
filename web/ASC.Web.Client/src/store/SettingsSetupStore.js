@@ -33,6 +33,7 @@ class SettingsSetupStore {
   headerAction = {
     addUsers: "",
     removeAdmins: "",
+    removeUsers: "",
   };
 
   integration = {
@@ -95,6 +96,10 @@ class SettingsSetupStore {
 
   setRemoveAdmins = (func) => {
     this.headerAction.removeAdmins = func;
+  };
+
+  setRemoveUsers = (func) => {
+    this.headerAction.removeUsers = func;
   };
 
   toggleSelector = (isOpen) => {
