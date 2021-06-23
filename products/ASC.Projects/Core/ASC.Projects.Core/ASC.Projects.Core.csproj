@@ -13,4 +13,12 @@
     <PackageReference Include="System.Linq.Expressions" Version="4.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\common\ASC.Core.Common\ASC.Core.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="DataAccess\Domain\Entities\" />
+  </ItemGroup>
+
 </Project>
