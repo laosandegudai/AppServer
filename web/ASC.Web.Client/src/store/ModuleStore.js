@@ -21,11 +21,15 @@ class ModuleStore {
   };
 
   addPeopleModuleUsers = (users) => {
-    this.peopleModuleUsers.concat(users);
+    const newUsers = this.peopleModuleUsers.concat(users);
+    console.log(newUsers);
+    this.setPeopleModuleUsers(newUsers);
   };
 
   addPeopleModuleGroups = (groups) => {
-    this.peopleModuleGroups.concat(groups);
+    const newGroups = this.peopleModuleGroups.concat(groups);
+    console.log(newGroups);
+    this.setPeopleModuleGroups(newGroups);
   };
 
   setCurrentTab = (key) => {

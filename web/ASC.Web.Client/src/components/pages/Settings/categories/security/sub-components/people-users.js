@@ -172,7 +172,12 @@ class PeopleUsers extends Component {
   addUsers = (users) => {
     const { t, setSecuritySettings, addPeopleModuleUsers } = this.props;
     const { moduleId } = this.state;
-    const usersKey = users.map((user) => user.key);
+    const usersKey = users.map((user) => {
+      user.id = user.key;
+      user.displayName = user.label;
+      user.avatarSmall = user.avatarUrl;
+      return user.id;
+    });
     const allKeys = this.getListKeys().concat(usersKey);
 
     addPeopleModuleUsers(users);
@@ -184,7 +189,11 @@ class PeopleUsers extends Component {
   addGroups = (groups) => {
     const { t, setSecuritySettings, addPeopleModuleGroups } = this.props;
     const { moduleId } = this.state;
-    const groupsKey = groups.map((group) => group.key);
+    const groupsKey = groups.map((group) => {
+      group.id = group.key;
+      group.name = group.label;
+      return group.key;
+    });
     const allKeys = this.getListKeys().concat(groupsKey);
 
     addPeopleModuleGroups(groups);
