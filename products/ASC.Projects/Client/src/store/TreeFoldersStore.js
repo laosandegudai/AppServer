@@ -11,7 +11,6 @@ class TreeFoldersStore {
   }
 
   fetchTreeFolders = async () => {
-    console.log("работает");
     const treeFolders = await getFolderTree();
     this.setTreeFolders(treeFolders);
 

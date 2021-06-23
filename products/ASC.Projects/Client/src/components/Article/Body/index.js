@@ -5,14 +5,21 @@ import Loaders from "@appserver/common/components/Loaders";
 import isEmpty from "lodash/isEmpty";
 import TreeFolders from "./TreeFolders";
 import { useEffect } from "react";
+import TreeSettings from "./TreeSettings";
 
 const ArticleBodyContent = (props) => {
   console.log(props);
-  const { treeFolders, fetchTreeFolders } = props;
+  const {
+    treeFolders,
+    fetchTreeFolders,
+    fetchTreeSettings,
+    treeSettings,
+    isLoading,
+  } = props;
 
   useEffect(() => {
-    console.log("test");
     fetchTreeFolders();
+    fetchTreeSettings();
   }, []);
 
   return isEmpty(treeFolders) ? (
@@ -20,18 +27,25 @@ const ArticleBodyContent = (props) => {
   ) : (
     <>
       <TreeFolders data={treeFolders} />
+      <TreeSettings data={treeSettings} isLoading={isLoading} />
     </>
   );
 };
 
-export default inject(({ projectsStore, treeFoldersStore }) => {
-  const { treeFolders, fetchTreeFolders } = treeFoldersStore;
-  const { isLoading } = projectsStore;
-  console.log(fetchTreeFolders);
+export default inject(
+  ({ projectsStore, treeFoldersStore, treeSettingsStore }) => {
+    const { treeFolders, fetchTreeFolders } = treeFoldersStore;
+    const { treeSettings, fetchTreeSettings } = treeSettingsStore;
 
-  return {
-    treeFolders,
-    fetchTreeFolders,
-    isLoading,
-  };
-})(observer(withRouter(ArticleBodyContent)));
+    const { isLoading } = projectsStore;
+    console.log(fetchTreeFolders);
+
+    return {
+      treeFolders,
+      treeSettings,
+      fetchTreeSettings,
+      fetchTreeFolders,
+      isLoading,
+    };
+  }
+)(observer(withRouter(ArticleBodyContent)));

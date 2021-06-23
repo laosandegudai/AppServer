@@ -2,9 +2,9 @@ export const folderTree = [
   {
     id: "folder-projects",
     key: "projects",
-    title: "projects",
+    title: "test4332",
     rootFolderName: "@projects",
-    rootFolderType: 2,
+    rootFolderType: 3,
     folders: [
       { title: "My Projects", rootFolderType: 1, key: "projects1" },
       { title: "Followed", rootFolderType: 1, key: "projects2" },
