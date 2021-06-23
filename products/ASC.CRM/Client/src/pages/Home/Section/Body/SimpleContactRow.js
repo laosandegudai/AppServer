@@ -5,7 +5,7 @@ import { inject, observer } from "mobx-react";
 import { Trans, useTranslation } from "react-i18next";
 import { AppServerConfig, EmployeeStatus } from "@appserver/common/constants";
 
-const SimpleContactRow = ({ contact, sectionWidth, isMobile }) => {
+const SimpleContactRow = ({ contacts, sectionWidth, isMobile }) => {
   return (
     <Row sectionWidth={sectionWidth}>
       <RowContent></RowContent>

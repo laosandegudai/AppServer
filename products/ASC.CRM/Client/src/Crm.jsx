@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Provider as CrmProvider, inject, observer } from "mobx-react";
-import { Switch } from "react-router-dom";
+import { Redirect, Switch } from "react-router-dom";
 import ErrorBoundary from "@appserver/common/components/ErrorBoundary";
 import toastr from "studio/toastr";
 import PrivateRoute from "@appserver/common/components/PrivateRoute";
@@ -12,11 +12,15 @@ import Home from "./pages/Home";
 import { AppServerConfig } from "@appserver/common/constants";
 import stores from "./store/index";
 import { I18nextProvider, withTranslation } from "react-i18next";
+import Filter from "@appserver/common/api/crm/filter";
 
 const { proxyURL } = AppServerConfig;
 const homepage = config.homepage;
+
 const PROXY_HOMEPAGE_URL = combineUrl(proxyURL, homepage);
-const HOME_FILTER_URL = combineUrl(PROXY_HOMEPAGE_URL, "/filter");
+
+const HOME_URL = combineUrl(PROXY_HOMEPAGE_URL, "/") || "/";
+const HOME_FILTER_URL = combineUrl(PROXY_HOMEPAGE_URL, "/contact/filter");
 
 const Error404 = React.lazy(() => import("studio/Error404"));
 
@@ -28,6 +32,16 @@ const Error404Route = (props) => (
   </React.Suspense>
 );
 
+const HomeRedirectToFilter = () => {
+  const filter = Filter.getDefault();
+  const urlFilter = filter.toUrlParams();
+  return (
+    <Redirect
+      to={combineUrl(PROXY_HOMEPAGE_URL, `/contact/filter?${urlFilter}`)}
+    />
+  );
+};
+
 const CrmContent = (props) => {
   const { isLoaded, loadBaseInfo } = props;
 
@@ -35,7 +49,6 @@ const CrmContent = (props) => {
     loadBaseInfo()
       .catch((err) => toastr.error(err))
       .finally(() => {
-        //this.props.setIsLoaded(true);
         updateTempContent();
       });
   }, []);
@@ -46,9 +59,9 @@ const CrmContent = (props) => {
 
   return (
     <Switch>
-      <PrivateRoute exact path={PROXY_HOMEPAGE_URL} component={Home} />
-       <PrivateRoute exact path={HOME_FILTER_URL} component={Home} />
-           <PrivateRoute component={Error404Route} />
+      <PrivateRoute exact path={HOME_URL} component={HomeRedirectToFilter} />
+      <PrivateRoute path={HOME_FILTER_URL} component={Home} />
+      <PrivateRoute component={Error404Route} />
     </Switch>
   );
 };

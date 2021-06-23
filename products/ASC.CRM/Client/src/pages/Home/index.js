@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import { withRouter } from "react-router";
 import CrmFilter from "@appserver/common/api/crm/filter";
 import { isMobile } from "react-device-detect";
@@ -11,26 +11,25 @@ import {
 import {
   SectionHeaderContent,
   SectionFilterContent,
-  // SectionBodyContent,
+  SectionBodyContent,
 } from "./Section";
 import { withTranslation } from "react-i18next";
 import { observer, inject } from "mobx-react";
 
-const PureHome = ({history, getContactsList}) => {
+const PureHome = ({ history, getContactsList }) => {
   const { location } = history;
   const { pathname } = location;
 
-    useEffect(() => {
-      console.log('!!!!', pathname)
-    if (pathname.indexOf("/crm/filter") > -1) {
+  useEffect(() => {
+    if (pathname.indexOf("/crm/contact/filter") > -1) {
       const newFilter = CrmFilter.getFilter(location);
-      console.log("CONTACTS URL changed", pathname, newFilter);
-      getContactsList(newFilter)
+
+      getContactsList(newFilter);
     }
   }, [pathname, location]);
 
   return (
-    <PageLayout withBodyScroll uploadFiles withBodyAutoFocus={!isMobile}>
+    <PageLayout withBodyScroll withBodyAutoFocus={!isMobile}>
       <PageLayout.ArticleHeader>
         <ArticleHeaderContent />
       </PageLayout.ArticleHeader>
@@ -60,11 +59,8 @@ const PureHome = ({history, getContactsList}) => {
 
 const Home = withTranslation("Home")(PureHome);
 
-export default inject(({ auth, contactsStore }) => {
+export default inject(({ contactsStore }) => {
   return {
-    modules: auth.moduleStore.modules,
-    isLoaded: auth.isLoaded,
-    setCurrentProductId: auth.settingsStore.setCurrentProductId,
-    getContactsList: contactsStore.getContactsList
+    getContactsList: contactsStore.getContactsList,
   };
 })(withRouter(observer(Home)));

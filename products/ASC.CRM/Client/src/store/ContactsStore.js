@@ -9,12 +9,11 @@ class ContactsStore {
   filterStore = null;
 
   constructor() {
-      this.filterStore = new FilterStore();
+    this.filterStore = new FilterStore();
     makeObservable(this, {
       contacts: observable,
       getContactsList: action,
       contactsList: computed,
-      
     });
   }
 

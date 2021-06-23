@@ -13,7 +13,7 @@
   "ExportContacts": "Export contacts to CSV",
   "ImportContacts": "Import Contacts",
   "Invoices": "Invoices",
-  "LastMonth": "LastMonth",
+  "LastMonth": "Last Month",
   "Manager": "Manager",
   "My": "My",
   "NewCase": "New Case",
@@ -31,6 +31,7 @@
   "Restricted": "Restricted",
   "Show": "Show",
   "Tasks": "Tasks",
+  "ThisMonth": "This Month",
   "TemperatureLevel": "Temperature Level",
   "Today": "Today",
   "TreeSettingsCommonSettings": "Common settings",
@@ -53,6 +54,6 @@
   "ViewList": "List",
   "ViewTiles": "Tiles",
   "Yesterday": "Yesterday",
-  "WithOpportunities": "WithOpportunities",
+  "WithOpportunities": "With Opportunities",
   "WithTag": "With tag"
 }
