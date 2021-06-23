@@ -4,6 +4,7 @@ import history from "../history";
 
 class TfaStore {
   tfaSettings = null;
+  phoneNoise = "";
   backupCodes = [];
   tfaAndroidAppUrl =
     "https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2";
@@ -74,6 +75,10 @@ class TfaStore {
 
   setAuthPhone = async (userName, passwordHash, mobilePhone) => {
     return await api.user.setAuthPhone(userName, passwordHash, mobilePhone);
+  };
+
+  setPhoneNoise = (phoneNoise) => {
+    this.phoneNoise = phoneNoise;
   };
 }
 
