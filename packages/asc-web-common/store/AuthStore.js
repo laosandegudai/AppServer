@@ -156,7 +156,11 @@ class AuthStore {
     try {
       const response = await api.user.login(user, hash);
 
-      if (!response || (!response.token && !response.tfa)) {
+      if (response.sms && response.phoneNoise) {
+        this.tfaStore.setPhoneNoise(response.phoneNoise);
+      }
+
+      if (!response || (!response.token && !response.tfa && !response.sms)) {
         throw response.error.message;
       }
 
