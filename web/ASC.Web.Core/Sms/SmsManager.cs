@@ -31,6 +31,7 @@ using ASC.Core;
 using ASC.Core.Common.Security;
 using ASC.Core.Tenants;
 using ASC.Core.Users;
+using ASC.Web.Core;
 using ASC.Web.Core.PublicResources;
 using ASC.Web.Core.Sms;
 
@@ -41,6 +42,7 @@ namespace ASC.Web.Studio.Core.SMS
     {
         private UserManager UserManager { get; }
         private SecurityContext SecurityContext { get; }
+        private CookiesManager CookiesManager { get; }
         private TenantManager TenantManager { get; }
         private SmsKeyStorage SmsKeyStorage { get; }
         private SmsSender SmsSender { get; }
@@ -52,10 +54,12 @@ namespace ASC.Web.Studio.Core.SMS
             TenantManager tenantManager,
             SmsKeyStorage smsKeyStorage,
             SmsSender smsSender,
+            CookiesManager cookiesManager,
             StudioSmsNotificationSettingsHelper studioSmsNotificationSettingsHelper)
         {
             UserManager = userManager;
             SecurityContext = securityContext;
+            CookiesManager = cookiesManager;
             TenantManager = tenantManager;
             SmsKeyStorage = smsKeyStorage;
             SmsSender = smsSender;
@@ -141,7 +145,7 @@ namespace ASC.Web.Studio.Core.SMS
             if (!SecurityContext.IsAuthenticated)
             {
                 var cookiesKey = SecurityContext.AuthenticateMe(user.ID);
-                //CookiesManager.SetCookies(CookiesType.AuthKey, cookiesKey);
+                CookiesManager.SetCookies(CookiesType.AuthKey, cookiesKey);
             }
 
             if (user.MobilePhoneActivationStatus == MobilePhoneActivationStatus.NotActivated)
