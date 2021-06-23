@@ -437,7 +437,7 @@ class PeopleUsers extends Component {
   }
 }
 
-export default inject(({ auth, setup }) => {
+export default inject(({ auth, setup, module }) => {
   const { moduleStore } = auth;
   const { modules } = moduleStore;
   const {
@@ -445,6 +445,13 @@ export default inject(({ auth, setup }) => {
     toggleSelector,
     toggleGroupSelector,
     getUsersByIds,
+  } = setup;
+
+  const { selectorIsOpen, groupSelectorIsOpen } = setup.security.accessRight;
+
+  const {
+    peopleModuleUsers,
+    peopleModuleGroups,
     setCurrentTab,
     getSecuritySettings,
     setSecuritySettings,
@@ -452,22 +459,12 @@ export default inject(({ auth, setup }) => {
     setPeopleModuleGroups,
     addPeopleModuleUsers,
     addPeopleModuleGroups,
-  } = setup;
-
-  const {
-    selectorIsOpen,
-    groupSelectorIsOpen,
-    peopleModuleUsers,
-    peopleModuleGroups,
-  } = setup.security.accessRight;
-
-  const {
     selectUser,
     deselectUser,
     selection,
     isUserSelected,
     setSelected,
-  } = setup.selectionStore;
+  } = module;
 
   return {
     organizationName: auth.settingsStore.organizationName,
