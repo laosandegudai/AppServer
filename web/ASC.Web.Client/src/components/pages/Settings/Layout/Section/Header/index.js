@@ -190,18 +190,32 @@ class SectionHeaderContent extends React.Component {
   };
 
   onClose = () => {
-    const { deselectUser } = this.props;
+    const { deselectUser, moduleDeselectUser } = this.props;
     deselectUser();
+    moduleDeselectUser();
   };
 
   onCheck = (checked) => {
-    const { setSelected } = this.props;
-    setSelected(checked ? "all" : "close");
+    const { location, setSelected, moduleSetSelected } = this.props;
+
+    const isPeopleModuleUsers = location.pathname.includes("people-users");
+
+    if (isPeopleModuleUsers) {
+      moduleSetSelected(checked ? "all" : "close");
+    } else {
+      setSelected(checked ? "all" : "close");
+    }
   };
 
   onSelectAll = () => {
-    const { setSelected } = this.props;
-    setSelected("all");
+    const { location, setSelected, moduleSelectAll } = this.props;
+    const isPeopleModuleUsers = location.pathname.includes("people-users");
+
+    if (isPeopleModuleUsers) {
+      moduleSelectAll("all");
+    } else {
+      setSelected("all");
+    }
   };
 
   removeAdmins = () => {
@@ -219,6 +233,9 @@ class SectionHeaderContent extends React.Component {
       isHeaderVisible,
       selection,
       currentTab,
+      moduleIsHeaderVisible,
+      moduleIsHeaderIndeterminate,
+      moduleIsHeaderChecked,
     } = this.props;
     const { header, isCategoryOrHeader } = this.state;
     const arrayOfParams = this.getArrayOfParams();
@@ -246,13 +263,17 @@ class SectionHeaderContent extends React.Component {
       },
     ];
 
+    const headerVisible = isHeaderVisible || moduleIsHeaderVisible;
+    const checked = isHeaderChecked || moduleIsHeaderChecked;
+    const indeterminate = isHeaderIndeterminate || moduleIsHeaderIndeterminate;
+
     return (
-      <StyledContainer isHeaderVisible={isHeaderVisible}>
-        {isHeaderVisible ? (
+      <StyledContainer isHeaderVisible={headerVisible}>
+        {headerVisible ? (
           <div className="group-button-menu-container">
             <GroupButtonsMenu
-              checked={isHeaderChecked}
-              isIndeterminate={isHeaderIndeterminate}
+              checked={checked}
+              isIndeterminate={indeterminate}
               onChange={this.onCheck}
               menuItems={menuItems}
               visible={true}
@@ -302,7 +323,7 @@ class SectionHeaderContent extends React.Component {
   }
 }
 
-export default inject(({ auth, setup }) => {
+export default inject(({ auth, setup, module }) => {
   const { customNames } = auth.settingsStore;
   const { addUsers, removeAdmins } = setup.headerAction;
   const { toggleSelector, toggleGroupSelector } = setup;
@@ -320,8 +341,9 @@ export default inject(({ auth, setup }) => {
     admins,
     selectorIsOpen,
     groupSelectorIsOpen,
-    currentTab,
   } = setup.security.accessRight;
+
+  const { currentTab } = module;
 
   return {
     addUsers,
@@ -335,12 +357,20 @@ export default inject(({ auth, setup }) => {
     isHeaderVisible,
     deselectUser,
     selectAll,
+    selection,
+
+    moduleIsHeaderVisible: module.isHeaderVisible,
+    moduleIsHeaderIndeterminate: module.isHeaderIndeterminate,
+    moduleIsHeaderChecked: module.isHeaderChecked,
+    moduleDeselectUser: module.deselectUser,
+    moduleSelectAll: module.selectAll,
+    moduleSetSelected: module.setSelected,
+
     toggleSelector,
     selectorIsOpen,
-    selection,
-    currentTab,
     toggleGroupSelector,
     groupSelectorIsOpen,
+    currentTab,
   };
 })(
   withRouter(
