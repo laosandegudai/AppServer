@@ -27,9 +27,6 @@ class SettingsSetupStore {
       selectorIsOpen: false,
       groupSelectorIsOpen: false,
       isLoading: false,
-      currentTab: "0",
-      peopleModuleUsers: [],
-      peopleModuleGroups: [],
     },
   };
 
@@ -267,38 +264,6 @@ class SettingsSetupStore {
 
   sendOwnerChange = (id) => {
     return api.settings.sendOwnerChange(id);
-  };
-
-  setCurrentTab = (key) => {
-    this.security.accessRight.currentTab = key;
-  };
-
-  getSecuritySettings = (moduleId) => {
-    return api.settings.getSecuritySettings(moduleId);
-  };
-
-  setSecuritySettings = (moduleId, enabled, userOrGroupIdList) => {
-    return api.settings.setSecuritySettings(
-      moduleId,
-      enabled,
-      userOrGroupIdList
-    );
-  };
-
-  setPeopleModuleUsers = (users) => {
-    this.security.accessRight.peopleModuleUsers = users;
-  };
-
-  setPeopleModuleGroups = (groups) => {
-    this.security.accessRight.peopleModuleGroups = groups;
-  };
-
-  addPeopleModuleUsers = (users) => {
-    this.security.accessRight.peopleModuleUsers.concat(users);
-  };
-
-  addPeopleModuleGroups = (groups) => {
-    this.security.accessRight.peopleModuleGroups.concat(groups);
   };
 }
 
