@@ -12,6 +12,7 @@ import i18n from "./i18n";
 import { I18nextProvider } from "react-i18next";
 import Home from "./pages/Home";
 import { AppServerConfig } from "@appserver/common/constants";
+import stores from "./store";
 
 const { proxyURL } = AppServerConfig;
 const homepage = config.homepage;
@@ -59,10 +60,8 @@ const Projects = inject(({ auth, projectsStore }) => ({
   isLoaded: auth.isLoaded && projectsStore.isLoaded,
 }))(observer(ProjectsContent));
 
-const projectsStore = new ProjectsStore();
-
 export default (props) => (
-  <ProjectProvider projectsStore={projectsStore}>
+  <ProjectProvider {...stores}>
     <I18nextProvider i18n={i18n}>
       <Projects {...props} />
     </I18nextProvider>

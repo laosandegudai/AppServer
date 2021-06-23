@@ -9,14 +9,13 @@ import { inject, observer } from "mobx-react";
 class PureArticleMainButtonContent extends React.Component {
   render() {
     const { t, firstLoad } = this.props;
-    console.log(t);
     return !firstLoad ? (
       <Loaders.Rectangle />
     ) : (
       <MainButton isDropdown={true} text={t("Common:Actions")}>
         <DropDownItem
           className="main-button_drop-down"
-          icon="images/action.document.react.svg"
+          icon="images/action.projects.react.svg"
           label={t("NewProject")}
         />
         <DropDownItem

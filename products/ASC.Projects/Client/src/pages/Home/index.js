@@ -21,6 +21,7 @@ import i18n from "../../i18n";
 import { I18nextProvider } from "react-i18next";
 import { toCommunityHostname, deleteCookie } from "@appserver/common/utils";
 import {
+  ArticleBodyContent,
   ArticleHeaderContent,
   ArticleMainButtonContent,
 } from "../../components/Article";
@@ -34,6 +35,10 @@ const Home = () => {
       <PageLayout.ArticleMainButton>
         <ArticleMainButtonContent />
       </PageLayout.ArticleMainButton>
+
+      <PageLayout.ArticleBody>
+        <ArticleBodyContent />
+      </PageLayout.ArticleBody>
     </PageLayout>
   );
 };
