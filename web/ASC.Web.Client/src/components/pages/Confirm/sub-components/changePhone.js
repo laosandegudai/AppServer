@@ -1,15 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { withRouter } from "react-router";
 import { withTranslation } from "react-i18next";
 import styled from "styled-components";
+import { inject, observer } from "mobx-react";
+
 import Button from "@appserver/components/button";
-import TextInput from "@appserver/components/text-input";
 import PhoneInput from "@appserver/components/phone-input";
 import Text from "@appserver/components/text";
 import PageLayout from "@appserver/common/components/PageLayout";
-import { inject, observer } from "mobx-react";
 import Box from "@appserver/components/box";
+import toastr from "@appserver/components/toast/toastr";
 import { mobile, tablet } from "@appserver/components/utils/device";
+import PhoneAuth from "./phoneAuth";
+import withLoader from "../withLoader";
 
 const StyledForm = styled(Box)`
   margin: 120px auto auto 216px;
@@ -44,23 +47,21 @@ const StyledForm = styled(Box)`
   }
 `;
 
-const PhoneForm = (props) => {
+const ChangePhone = withLoader((props) => {
   const {
     t,
     currentPhone,
     greetingTitle,
-    requestSmsCode,
-    setAuthPhone,
-    location,
-    login,
-    loginWithCode,
+    onSubmit,
+    onChangePhone,
+    isValid,
+    phone,
+    loading,
   } = props;
 
-  const [phone, setPhone] = useState("");
-  const [isValid, setIsValid] = useState(false);
-  const [fullNumber, setFullNumber] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [width, setWidth] = useState(window.innerWidth);
+
+  const isTabletWidth = width <= 1024;
 
   React.useEffect(() => {
     window.addEventListener("resize", () => setWidth(window.innerWidth));
@@ -70,26 +71,12 @@ const PhoneForm = (props) => {
     };
   }, []);
 
-  const onChangePhone = (obj) => {
-    setPhone(obj.value);
-    setIsValid(obj.isValid);
-    obj.isValid && setFullNumber(obj.fullNumber);
-  };
-
-  const onSubmit = () => {
-    const { user, hash } = location.state;
-    setAuthPhone(user, hash, fullNumber);
-
-    console.log(`POST api/2.0/authentication/sendsms -> ${fullNumber} `);
-  };
-
   const onKeyPress = (e) => {
-    console.log(phone);
     if (e.keyCode === 13 && isValid) return onSubmit();
-    return;
   };
 
-  const locale = navigator.language.split("-")[1];
+  const splitted = navigator.language.split("-");
+  const locale = splitted[splitted.length - 1];
 
   return (
     <StyledForm className="phone-edit-container">
@@ -112,7 +99,7 @@ const PhoneForm = (props) => {
       <Box displayProp="flex" className="phone-edit-wrapper">
         <Box className="phone-edit-input">
           <PhoneInput
-            size={width <= 1024 ? "large" : "base"}
+            size={isTabletWidth ? "large" : "base"}
             isAutoFocussed
             tabIndex={1}
             locale={locale}
@@ -127,37 +114,95 @@ const PhoneForm = (props) => {
           <Button
             primary
             scale
-            size={width <= 1024 ? "large" : "medium"}
+            size={isTabletWidth ? "large" : "medium"}
             tabIndex={3}
-            label={isLoading ? t("Common:LoadingProcessing") : t("GetCode")}
-            isDisabled={!isValid || isLoading}
-            isLoading={isLoading}
+            label={loading ? t("Common:LoadingProcessing") : t("GetCode")}
+            isDisabled={loading || !isValid}
+            isLoading={loading}
             onClick={onSubmit}
           />
         </Box>
       </Box>
     </StyledForm>
   );
-};
+});
 
-const ChangePhoneForm = (props) => {
-  return (
+const ChangePhoneWrapper = (props) => {
+  const [showPhoneAuth, setShowPhoneAuth] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [isValid, setIsValid] = useState(false);
+  const [fullNumber, setFullNumber] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const {
+    setAuthPhone,
+    setPhoneNoise,
+    location,
+    setIsLoaded,
+    setIsLoading,
+  } = props;
+
+  const onChangePhone = (obj) => {
+    const { isValid, fullNumber, value } = obj;
+
+    setPhone(value);
+    setIsValid(isValid);
+    if (isValid) setFullNumber(fullNumber);
+  };
+
+  const onSubmit = async () => {
+    const { user, hash } = (location && location.state) || {};
+
+    try {
+      setLoading(true);
+      const response = await setAuthPhone(user, hash, fullNumber);
+      setPhoneNoise(response.phoneNoise);
+      setLoading(false);
+      setShowPhoneAuth(true);
+    } catch (e) {
+      setLoading(false);
+      toastr.error(e);
+    }
+  };
+
+  useEffect(() => {
+    setIsLoaded(true);
+    setIsLoading(false);
+  }, []);
+
+  return showPhoneAuth ? (
+    <PhoneAuth />
+  ) : (
     <PageLayout>
       <PageLayout.SectionBody>
-        <PhoneForm {...props} />
+        <ChangePhone
+          onSubmit={onSubmit}
+          onChangePhone={onChangePhone}
+          isValid={isValid}
+          phone={phone}
+          loading={loading}
+          {...props}
+        />
       </PageLayout.SectionBody>
     </PageLayout>
   );
 };
 
-export default inject(({ auth }) => ({
-  isLoaded: auth.isLoaded,
-  login: auth.login,
-  currentPhone: auth.userStore.mobilePhone,
-  greetingTitle: auth.settingsStore.greetingSettings,
-  requestSmsCode: auth.tfaStore.requestSmsCode,
-  setAuthPhone: auth.tfaStore.setAuthPhone,
-  loginWithCode: auth.loginWithCode,
-}))(
-  withRouter(withTranslation(["Confirm", "Common"])(observer(ChangePhoneForm)))
+export default inject(({ auth, confirm }) => {
+  const { currentPhone, greetingTitle } = auth;
+  const { setAuthPhone, setPhoneNoise } = auth.tfaStore;
+  const { setIsLoaded, setIsLoading } = confirm;
+
+  return {
+    setIsLoaded,
+    setIsLoading,
+    currentPhone,
+    greetingTitle,
+    setAuthPhone,
+    setPhoneNoise,
+  };
+})(
+  withRouter(
+    withTranslation(["Confirm", "Common"])(observer(ChangePhoneWrapper))
+  )
 );

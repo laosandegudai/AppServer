@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { withRouter } from "react-router";
-import { withTranslation } from "react-i18next";
+import { withTranslation, Trans } from "react-i18next";
 import styled from "styled-components";
+import { inject, observer } from "mobx-react";
+
 import Button from "@appserver/components/button";
 import TextInput from "@appserver/components/text-input";
 import Text from "@appserver/components/text";
 import PageLayout from "@appserver/common/components/PageLayout";
-import { inject, observer } from "mobx-react";
 import Box from "@appserver/components/box";
 import Link from "@appserver/components/link";
+import toastr from "@appserver/components/toast/toastr";
 import { mobile, tablet } from "@appserver/components/utils/device";
+import withLoader from "../withLoader";
 
 const StyledForm = styled(Box)`
   margin: 63px auto auto 216px;
@@ -44,28 +47,66 @@ const StyledForm = styled(Box)`
   }
 `;
 
-const PhoneAuthForm = (props) => {
-  const { t } = props;
+const PhoneAuth = withLoader((props) => {
+  const {
+    t,
+    requestSmsCode,
+    loginWithCode,
+    phoneNoise,
+    location,
+    history,
+  } = props;
 
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [timer, setTimer] = useState(30);
   const [width, setWidth] = useState(window.innerWidth);
 
+  const isValidLength = code.length === 6;
+  const isTicking = timer > 0;
+  const isTabletWidth = width <= 1024;
+
   React.useEffect(() => {
     window.addEventListener("resize", () => setWidth(window.innerWidth));
+
+    return () => {
+      window.removeEventListener("resize", () => setWidth(window.innerWidth));
+    };
   }, []);
 
-  const onSubmit = () => {
-    console.log("POST api/2.0/authentication/{code}"); // https://api.onlyoffice.com/portals/method/authentication/post/api/2.0/authentication/%7bcode%7d
+  const onChangeCode = (e) => setCode(e.target.value);
+
+  const onSubmit = async () => {
+    const { user, hash } = (location && location.state) || {};
+
+    try {
+      setIsLoading(true);
+      const url = await loginWithCode(user, hash, code);
+      setIsLoading(false);
+      history.push(url || "/");
+    } catch (e) {
+      setIsLoading(false);
+      toastr.error(e);
+    }
   };
 
   const onKeyPress = (target) => {
-    if (target.code === "Enter") onSubmit();
+    if (target.code === "Enter" && isValidLength) return onSubmit();
+  };
+
+  const sendSmsCodeAgain = () => {
+    const { user, hash } = (location && location.state) || {};
+
+    try {
+      setTimer(30);
+      requestSmsCode(user, hash);
+    } catch (e) {
+      toastr.error(e);
+    }
   };
 
   useEffect(() => {
-    if (timer > 0) {
+    if (isTicking) {
       setTimeout(() => setTimer(timer - 1), 1000);
     }
   });
@@ -76,7 +117,15 @@ const PhoneAuthForm = (props) => {
         <Text isBold fontSize="14px" className="phone-code-text">
           {t("EnterCodeTitle")}
         </Text>
-        <Text>{t("EnterCodeDescription")}</Text>
+        <Text>
+          <Trans t={t} i18nKey="EnterCodeDescription" ns="Confirm">
+            An SMS with portal access code has been sent to your
+            <b>{phoneNoise ? { phoneNoise } : ""}</b>
+            mobile number. Please enter the code and click the "Continue"
+            button. If no message is received for more than three minutes, click
+            the "Send code again" link.
+          </Trans>
+        </Text>
       </Box>
       <Box displayProp="flex" className="phone-code-wrapper">
         <Box className="phone-code-input">
@@ -84,65 +133,84 @@ const PhoneAuthForm = (props) => {
             id="code"
             name="code"
             type="text"
-            size={width <= 1024 ? "large" : "base"}
+            size={isTabletWidth ? "large" : "base"}
             scale
             isAutoFocussed
             tabIndex={1}
+            maxLength={6}
             placeholder={t("EnterCodePlaceholder")}
             isDisabled={isLoading}
-            onChange={(e) => setCode(e.target.value)}
+            onChange={onChangeCode}
             value={code}
+            onKeyDown={onKeyPress}
           />
         </Box>
         <Box className="phone-code-continue-btn" marginProp="0 0 0 8px">
           <Button
             scale
             primary
-            size={width <= 1024 ? "large" : "medium"}
+            size={isTabletWidth ? "large" : "medium"}
             tabIndex={3}
-            label={isLoading ? t("LoadingProcessing") : t("Continue")}
-            isDisabled={!code.length || isLoading}
+            label={isLoading ? t("Common:LoadingProcessing") : t("Continue")}
+            isDisabled={!isValidLength || isLoading}
             isLoading={isLoading}
             onClick={onSubmit}
           />
         </Box>
       </Box>
       <Box marginProp="32px 0 0 0">
-        {timer > 0 ? (
-          <Text
-            color="#D0D5DA"
-            fontWeight="600"
-            textAlign={width <= 1024 ? "center" : null}
-          >
-            {t("SendCodeAgain")} ({timer} {t("Second")})
-          </Text>
-        ) : (
-          <Link
-            fontWeight="600"
-            color="#316DAA"
-            onClick={() => {
-              console.log("POST api/2.0/authentication/sendsms"); // https://api.onlyoffice.com/portals/method/authentication/post/api/2.0/authentication/sendsms
-              setTimer(30);
-            }}
-          >
-            {t("SendCodeAgain")}
-          </Link>
-        )}
+        <Text
+          color={isTicking ? "#D0D5DA" : "#316DAA"}
+          fontWeight="600"
+          textAlign={isTabletWidth ? "center" : null}
+        >
+          {isTicking ? (
+            `${t("SendCodeAgain")} (${timer} ${t("Second")})`
+          ) : (
+            <Link fontWeight="600" color="#316DAA" onClick={sendSmsCodeAgain}>
+              {t("SendCodeAgain")}
+            </Link>
+          )}
+        </Text>
       </Box>
     </StyledForm>
   );
-};
+});
 
-const PhoneAuthFormWrapper = (props) => {
+const PhoneAuthWrapper = (props) => {
+  const { setIsLoaded, setIsLoading } = props;
+
+  useEffect(() => {
+    setIsLoaded(true);
+    setIsLoading(false);
+  }, []);
+
   return (
     <PageLayout>
       <PageLayout.SectionBody>
-        <PhoneAuthForm {...props} />
+        <PhoneAuth {...props} />
       </PageLayout.SectionBody>
     </PageLayout>
   );
 };
 
-export default inject(({ auth }) => ({
-  isLoaded: auth.isLoaded,
-}))(withRouter(withTranslation("Confirm")(observer(PhoneAuthFormWrapper))));
+export default inject(({ auth, confirm }) => {
+  const { loginWithCode, isLoaded, login, loginWithSmsCode, smsLogin } = auth;
+  const { requestSmsCode, loginWithCodeAndCookie, phoneNoise } = auth.tfaStore;
+  const { setIsLoaded, setIsLoading } = confirm;
+
+  return {
+    loginWithCode,
+    isLoaded,
+    login,
+    requestSmsCode,
+    loginWithSmsCode,
+    loginWithCodeAndCookie,
+    smsLogin,
+    phoneNoise,
+    setIsLoaded,
+    setIsLoading,
+  };
+})(
+  withRouter(withTranslation(["Confirm", "Common"])(observer(PhoneAuthWrapper)))
+);
