@@ -19,7 +19,7 @@
   "GetCode": "Get code",
   "EnterCodeTitle": "Enter code from SMS",
   "EnterCodePlaceholder": "Enter code",
-  "EnterCodeDescription": "An SMS with portal access code has been sent to your {{mobilePhone}} mobile number. Please enter the code and click the \"Continue\" button. If no message is received for more than three minutes, click the \"Send code again\" link.",
+  "EnterCodeDescription": "An SMS with portal access code has been sent to your <1>{{phoneNoise}}</1> mobile number. Please enter the code and click the \"Continue\" button. If no message is received for more than three minutes, click the \"Send code again\" link.",
   "SendCodeAgain": "Send code again",
   "Second": "sec",
   "SearchEmptyMessage": "Nothing found",
