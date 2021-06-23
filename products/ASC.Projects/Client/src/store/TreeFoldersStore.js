@@ -1,8 +1,10 @@
 import { makeAutoObservable } from "mobx";
-import { getFolderTree } from "../components/Article/utils";
+//import { getFolderTree } from "../components/Article/utils";
+import { getFolders } from "@appserver/common/api/projects";
 
 class TreeFoldersStore {
   treeFolders = [];
+  selectedTreeNode = [];
   expandedKeys = [];
   expandedPanelKeys = null;
 
@@ -10,16 +12,22 @@ class TreeFoldersStore {
     makeAutoObservable(this);
   }
 
-  fetchTreeFolders = async () => {
-    console.log("работает");
-    const treeFolders = await getFolderTree();
-    this.setTreeFolders(treeFolders);
+  getFoldersTree = () => getFolders();
 
+  fetchTreeFolders = async () => {
+    const treeFolders = await getFolders();
+    this.setTreeFolders(treeFolders);
     return treeFolders;
   };
 
   setTreeFolders = (treeFolders) => {
     this.treeFolders = treeFolders;
+  };
+
+  setSelectedNode = (node) => {
+    if (node[0]) {
+      this.selectedTreeNode = node;
+    }
   };
 
   setExpandedKeys = (expandedKeys) => {
@@ -28,6 +36,10 @@ class TreeFoldersStore {
 
   setExpandedPanelKeys = (expandedPanelKeys) => {
     this.expandedPanelKeys = expandedPanelKeys;
+  };
+
+  getRootFolder = (rootFolderType) => {
+    return this.treeFolders.find((x) => x.rootFolderType === rootFolderType);
   };
 }
 

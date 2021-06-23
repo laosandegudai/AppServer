@@ -2,13 +2,13 @@ export const folderTree = [
   {
     id: "folder-projects",
     key: "projects",
-    title: "projects",
+    title: "Projects",
     rootFolderName: "@projects",
-    rootFolderType: 2,
+    rootFolderType: 1,
     folders: [
-      { title: "My Projects", rootFolderType: 1, key: "projects1" },
-      { title: "Followed", rootFolderType: 1, key: "projects2" },
-      { title: "Active", rootFolderType: 1, key: "projects3" },
+      { title: "My Projects", rootFolderType: 0, key: "projects1" },
+      { title: "Followed", rootFolderType: 0, key: "projects2" },
+      { title: "Active", rootFolderType: 0, key: "projects3" },
     ],
   },
   {
@@ -23,7 +23,7 @@ export const folderTree = [
         rootFolderType: 2,
         key: "milestones1",
       },
-      { title: "Upcoming", rootFolderType: 2, key: "milestones1" },
+      { title: "Upcoming", rootFolderType: 0, key: "milestones2" },
     ],
   },
   {
@@ -33,8 +33,8 @@ export const folderTree = [
     rootFolderName: "@tasks",
     rootFolderType: 3,
     folders: [
-      { title: "My Tasks", rootFolderType: 3, key: "tasks1" },
-      { title: "Upcoming", rootFolderType: 3, key: "tasks2" },
+      { title: "My Tasks", rootFolderType: 0, key: "tasks1" },
+      { title: "Upcoming", rootFolderType: 0, key: "tasks2" },
     ],
   },
   {
@@ -44,8 +44,8 @@ export const folderTree = [
     rootFolderName: "@discussions",
     rootFolderType: 4,
     folders: [
-      { title: "My Discussions", rootFolderType: 4, key: "discussions1" },
-      { title: "Latest", rootFolderType: 4, key: "discussions2" },
+      { title: "My Discussions", rootFolderType: 0, key: "discussions1" },
+      { title: "Latest", rootFolderType: 0, key: "discussions2" },
     ],
   },
   {

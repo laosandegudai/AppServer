@@ -7,11 +7,10 @@ import TreeFolders from "./TreeFolders";
 import { useEffect } from "react";
 
 const ArticleBodyContent = (props) => {
-  console.log(props);
+  //console.log(props);
   const { treeFolders, fetchTreeFolders } = props;
 
   useEffect(() => {
-    console.log("test");
     fetchTreeFolders();
   }, []);
 
@@ -24,10 +23,11 @@ const ArticleBodyContent = (props) => {
   );
 };
 
-export default inject(({ projectsStore, treeFoldersStore }) => {
+export default inject(({ projectsStore }) => {
+  const { isLoading, treeFoldersStore } = projectsStore;
   const { treeFolders, fetchTreeFolders } = treeFoldersStore;
-  const { isLoading } = projectsStore;
-  console.log(fetchTreeFolders);
+
+  console.log(treeFolders);
 
   return {
     treeFolders,

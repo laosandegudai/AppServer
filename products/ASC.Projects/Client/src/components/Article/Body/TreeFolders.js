@@ -48,12 +48,13 @@ const StyledExpanderRightIcon = styled(ExpanderRightIcon)`
 
 const TreeFolders = (props) => {
   const { isLoading, treeFolders, data } = props;
-  console.log(data);
+  //console.log(props);
+
   const getFolderIcon = (item) => {
     let iconUrl = "images/catalog.folder.react.svg";
     switch (item.rootFolderType) {
       case FolderType.Projects:
-        iconUrl = "images/action.document.react.svg";
+        iconUrl = "images/action.projects.react.svg";
         break;
       case FolderType.Milestones:
         iconUrl = "images/action.spreadsheet.react.svg";
@@ -80,6 +81,7 @@ const TreeFolders = (props) => {
         iconUrl = "images/action.template.react.svg";
         break;
       default:
+        iconUrl = "images/catalog.folder.react.svg";
         break;
     }
 
@@ -149,7 +151,8 @@ const TreeFolders = (props) => {
   );
 };
 
-export default inject(({ treeFoldersStore, projectsStore }) => {
+export default inject(({ projectsStore }) => {
+  const { isLoading, treeFoldersStore } = projectsStore;
   const {
     treeFolders,
     fetchTreeFolders,
@@ -157,7 +160,6 @@ export default inject(({ treeFoldersStore, projectsStore }) => {
     setExpandedKeys,
     setExpandedPanelKeys,
   } = treeFoldersStore;
-  const { isLoading } = projectsStore;
   return {
     treeFolders,
     isLoading,
