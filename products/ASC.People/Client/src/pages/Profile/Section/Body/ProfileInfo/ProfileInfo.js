@@ -300,8 +300,8 @@ class ProfileInfo extends React.PureComponent {
         )}
         {mobilePhone && (
           <InfoItem>
-            <InfoItemLabel>{t("PhoneLbl")}:</InfoItemLabel>
-            <InfoItemValue>{mobilePhone}</InfoItemValue>
+            <InfoItemLabel>{t("Profile:PhoneLbl")}:</InfoItemLabel>
+            <InfoItemValue>+{mobilePhone}</InfoItemValue>
           </InfoItem>
         )}
         {sex && (
