@@ -12,12 +12,8 @@ import SaveCancelButtons from "@appserver/components/save-cancel-buttons";
 import { saveToSessionStorage, getFromSessionStorage } from "../../utils";
 import { setDocumentTitle } from "../../../../../helpers/utils";
 import { inject, observer } from "mobx-react";
-
-const mapCulturesToArray = (cultures, t) => {
-  return cultures.map((culture) => {
-    return { key: culture, label: t(`Culture_${culture}`) };
-  });
-};
+import { LANGUAGE } from "@appserver/common/constants";
+import withCultureNames from "@appserver/common/hoc/withCultureNames";
 
 const mapTimezonesToArray = (timezones) => {
   return timezones.map((timezone) => {
@@ -63,16 +59,17 @@ class LanguageAndTimeZone extends React.Component {
     const {
       portalLanguage,
       portalTimeZoneId,
-      rawCultures,
       rawTimezones,
+      cultureNames,
       /*organizationName,*/
       t,
+      //i18n,
     } = props;
-    const languages = mapCulturesToArray(rawCultures, t);
+
     const timezones = mapTimezonesToArray(rawTimezones);
     const language = findSelectedItemByKey(
-      languages,
-      portalLanguage || languages[0]
+      cultureNames,
+      portalLanguage || cultureNames[0]
     );
     const timezone = findSelectedItemByKey(
       timezones,
@@ -90,7 +87,6 @@ class LanguageAndTimeZone extends React.Component {
       timezones,
       timezone: timezoneFromSessionStorage || timezone,
       timezoneDefault: timezone,
-      languages,
       language: languageFromSessionStorage || language,
       languageDefault: language,
       isLoadingGreetingSave: false,
@@ -102,13 +98,12 @@ class LanguageAndTimeZone extends React.Component {
 
   componentDidMount() {
     const {
-      getPortalCultures,
+      cultureNames,
       portalLanguage,
       portalTimeZoneId,
-      t,
       getPortalTimezones,
     } = this.props;
-    const { timezones, languages, isLoadedData, showReminder } = this.state;
+    const { timezones, isLoadedData, showReminder } = this.state;
 
     if (
       (languageFromSessionStorage || timezoneFromSessionStorage) &&
@@ -119,83 +114,71 @@ class LanguageAndTimeZone extends React.Component {
       });
     }
 
-    if (!timezones.length || !languages.length) {
-      let languages;
-      getPortalCultures()
-        .then(() => {
-          languages = mapCulturesToArray(this.props.rawCultures, t);
-        })
-        .then(() => getPortalTimezones())
-        .then(() => {
-          const timezones = mapTimezonesToArray(this.props.rawTimezones);
+    if (!timezones.length) {
+      getPortalTimezones().then(() => {
+        const timezones = mapTimezonesToArray(this.props.rawTimezones);
 
-          const language =
-            languageFromSessionStorage ||
-            findSelectedItemByKey(languages, portalLanguage) ||
-            languages[0];
-          const timezone =
-            timezoneFromSessionStorage ||
-            findSelectedItemByKey(timezones, portalTimeZoneId) ||
-            timezones[0];
+        const language =
+          languageFromSessionStorage ||
+          findSelectedItemByKey(cultureNames, portalLanguage) ||
+          cultureNames[0];
+        const timezone =
+          timezoneFromSessionStorage ||
+          findSelectedItemByKey(timezones, portalTimeZoneId) ||
+          timezones[0];
 
-          const languageDefault =
-            findSelectedItemByKey(languages, portalLanguage) || languages[0];
-          const timezoneDefault =
-            findSelectedItemByKey(timezones, portalTimeZoneId) || timezones[0];
+        const languageDefault =
+          findSelectedItemByKey(cultureNames, portalLanguage) ||
+          cultureNames[0];
+        const timezoneDefault =
+          findSelectedItemByKey(timezones, portalTimeZoneId) || timezones[0];
 
-          this.setState({
-            languages,
-            language,
-            timezones,
-            timezone,
-            languageDefault,
-            timezoneDefault,
-          });
-
-          if (!timezoneDefault) {
-            this.setState({
-              timezoneDefault: timezone,
-            });
-          }
-          if (!languageDefault) {
-            this.setState({
-              languageDefault: language,
-            });
-          }
+        this.setState({
+          language,
+          timezones,
+          timezone,
+          languageDefault,
+          timezoneDefault,
         });
+
+        if (!timezoneDefault) {
+          this.setState({
+            timezoneDefault: timezone,
+          });
+        }
+        if (!languageDefault) {
+          this.setState({
+            languageDefault: language,
+          });
+        }
+      });
     }
-    if (timezones.length && languages.length && !isLoadedData) {
+    if (timezones.length && !isLoadedData) {
       this.setState({ isLoadedData: true });
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
+    const { timezones, timezoneDefault, languageDefault } = this.state;
     const {
-      timezones,
-      languages,
-      timezoneDefault,
-      languageDefault,
-    } = this.state;
-    const { i18n, language, nameSchemaId, getCurrentCustomSchema } = this.props;
+      i18n,
+      language,
+      nameSchemaId,
+      getCurrentCustomSchema,
+      cultureNames,
+    } = this.props;
 
-    if (timezones.length && languages.length && !prevState.isLoadedData) {
+    if (timezones.length && !prevState.isLoadedData) {
       this.setState({ isLoadedData: true });
     }
     if (language !== prevProps.language) {
       i18n
         .changeLanguage(language)
-        .then((t) => {
-          const newLocaleLanguages = mapCulturesToArray(
-            this.props.rawCultures,
-            t
-          );
+        .then(() => {
           const newLocaleSelectedLanguage =
-            findSelectedItemByKey(
-              newLocaleLanguages,
-              this.state.language.key
-            ) || newLocaleLanguages[0];
+            findSelectedItemByKey(cultureNames, this.state.language.key) ||
+            cultureNames[0];
           this.setState({
-            languages: newLocaleLanguages,
             language: languageFromSessionStorage || newLocaleSelectedLanguage,
           });
         })
@@ -229,12 +212,20 @@ class LanguageAndTimeZone extends React.Component {
   };
 
   onSaveLngTZSettings = () => {
-    const { t, setLanguageAndTime, i18n } = this.props;
+    const { t, setLanguageAndTime, user, language: lng } = this.props;
     const { language, timezone } = this.state;
+
     this.setState({ isLoading: true }, function () {
       setLanguageAndTime(language.key, timezone.key)
-        .then(() => i18n.changeLanguage(language.key))
+        .then(
+          () =>
+            !user.cultureName &&
+            localStorage.setItem(LANGUAGE, language.key || "en-US")
+        )
         .then(() => toastr.success(t("SuccessfullySaveSettingsMessage")))
+        .then(
+          () => !user.cultureName && lng !== language.key && location.reload()
+        )
         .catch((error) => toastr.error(error))
         .finally(() => this.setState({ isLoading: false }));
     });
@@ -294,10 +285,9 @@ class LanguageAndTimeZone extends React.Component {
   };
 
   render() {
-    const { t } = this.props;
+    const { t, cultureNames } = this.props;
     const {
       isLoadedData,
-      languages,
       language,
       isLoading,
       timezones,
@@ -305,10 +295,11 @@ class LanguageAndTimeZone extends React.Component {
       hasChanged,
       showReminder,
     } = this.state;
+
     const supportEmail = "documentation@onlyoffice.com";
     const tooltipLanguage = (
       <Text fontSize="13px">
-        <Trans t={t} i18nKey="NotFoundLanguage" ns="Settings">
+        <Trans t={t} i18nKey="NotFoundLanguage" ns="Common">
           "In case you cannot find your language in the list of the available
           ones, feel free to write to us at
           <Link href={`mailto:${supportEmail}`} isHovered={true}>
@@ -320,7 +311,7 @@ class LanguageAndTimeZone extends React.Component {
           isHovered={true}
           href="https://helpcenter.onlyoffice.com/ru/guides/become-translator.aspx"
         >
-          {t("LearnMore")}
+          {t("Common:LearnMore")}
         </Link>
       </Text>
     );
@@ -334,14 +325,14 @@ class LanguageAndTimeZone extends React.Component {
             <FieldContainer
               id="fieldContainerLanguage"
               className="field-container-width"
-              labelText={`${t("Language")}:`}
+              labelText={`${t("Common:Language")}:`}
               tooltipContent={tooltipLanguage}
-              helpButtonHeaderContent={t("Language")}
+              helpButtonHeaderContent={t("Common:Language")}
               isVertical={true}
             >
               <ComboBox
                 id="comboBoxLanguage"
-                options={languages}
+                options={cultureNames}
                 selectedOption={language}
                 onSelect={this.onLanguageSelect}
                 isDisabled={isLoading}
@@ -379,8 +370,8 @@ class LanguageAndTimeZone extends React.Component {
               onCancelClick={this.onCancelClick}
               showReminder={showReminder}
               reminderTest={t("YouHaveUnsavedChanges")}
-              saveButtonLabel={t("SaveButton")}
-              cancelButtonLabel={t("CancelButton")}
+              saveButtonLabel={t("Common:SaveButton")}
+              cancelButtonLabel={t("Common:CancelButton")}
             />
           )}
         </StyledComponent>
@@ -394,29 +385,36 @@ export default inject(({ auth, setup }) => {
     culture,
     timezone,
     timezones,
-    cultures,
+    //cultures,
     nameSchemaId,
     organizationName,
     greetingSettings,
-    getPortalCultures,
+    //getPortalCultures,
     getPortalTimezones,
     getCurrentCustomSchema,
   } = auth.settingsStore;
 
+  const { user } = auth.userStore;
+
   const { setLanguageAndTime } = setup;
 
   return {
+    user,
     portalLanguage: culture,
     portalTimeZoneId: timezone,
     language: culture,
     rawTimezones: timezones,
-    rawCultures: cultures,
+    //rawCultures: cultures,
     greetingSettings,
     nameSchemaId,
     organizationName,
-    getPortalCultures,
+    //getPortalCultures,
     setLanguageAndTime,
     getCurrentCustomSchema,
     getPortalTimezones,
   };
-})(withTranslation("Settings")(observer(LanguageAndTimeZone)));
+})(
+  withCultureNames(
+    withTranslation(["Settings", "Common"])(observer(LanguageAndTimeZone))
+  )
+);

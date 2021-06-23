@@ -19,6 +19,10 @@ const StyledTreeMenu = styled(TreeMenu)`
     margin-top: 14px !important;
   }
 
+  .rc-tree-node-content-wrapper {
+    width: 98% !important;
+  }
+
   .rc-tree-node-selected {
     background: #dfe2e3 !important;
   }
@@ -81,6 +85,7 @@ const PureTreeSettings = ({
   history,
   setIsLoading,
   t,
+  isVisitor,
 }) => {
   const { setting } = match.params;
 
@@ -148,7 +153,7 @@ const PureTreeSettings = ({
       <TreeNode
         id="settings"
         key="settings"
-        title={t("TreeSettingsMenuTitle")}
+        title={t("Common:Settings")}
         isLeaf={false}
         icon={<StyledSettingsIcon size="scale" />}
       >
@@ -157,7 +162,7 @@ const PureTreeSettings = ({
           id="common-settings"
           key="common"
           isLeaf={true}
-          title={t("TreeSettingsCommonSettings")}
+          title={t("CommonSettings")}
         />
         {isAdmin ? (
           <TreeNode
@@ -165,17 +170,17 @@ const PureTreeSettings = ({
             id="admin-settings"
             key="admin"
             isLeaf={true}
-            title={t("TreeSettingsAdminSettings")}
+            title={t("Common:AdminSettings")}
           />
         ) : null}
-        {enableThirdParty ? (
+        {enableThirdParty && !isVisitor ? (
           <TreeNode
             selectable={true}
             className="settings-node"
             id="connected-clouds"
             key="thirdParty"
             isLeaf={true}
-            title={t("TreeSettingsConnectedCloud")}
+            title={t("ThirdPartySettings")}
           />
         ) : null}
       </TreeNode>
@@ -204,7 +209,9 @@ const PureTreeSettings = ({
   );
 };
 
-const TreeSettings = withTranslation("Settings")(withRouter(PureTreeSettings));
+const TreeSettings = withTranslation(["Settings", "Common"])(
+  withRouter(PureTreeSettings)
+);
 
 export default inject(
   ({
@@ -226,6 +233,7 @@ export default inject(
 
     return {
       isAdmin: auth.isAdmin,
+      isVisitor: auth.userStore.user.isVisitor,
       isLoading,
       selectedTreeNode,
       enableThirdParty,

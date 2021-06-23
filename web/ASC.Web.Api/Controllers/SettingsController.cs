@@ -43,7 +43,6 @@ using ASC.Common;
 using ASC.Common.Caching;
 using ASC.Common.Logging;
 using ASC.Common.Utils;
-using ASC.Common.Web;
 using ASC.Core;
 using ASC.Core.Billing;
 using ASC.Core.Common.Configuration;
@@ -54,21 +53,17 @@ using ASC.Core.Tenants;
 using ASC.Core.Users;
 using ASC.Data.Backup;
 using ASC.Data.Backup.Contracts;
-using ASC.Data.Backup.Service;
 using ASC.Data.Storage;
 using ASC.Data.Storage.Configuration;
 using ASC.Data.Storage.Encryption;
 using ASC.Data.Storage.Migration;
-using ASC.FederatedLogin;
 using ASC.FederatedLogin.LoginProviders;
-using ASC.FederatedLogin.Profile;
 using ASC.IPSecurity;
 using ASC.MessagingSystem;
 using ASC.Security.Cryptography;
 using ASC.Web.Api.Models;
 using ASC.Web.Api.Routing;
 using ASC.Web.Core;
-using ASC.Web.Core.Mobile;
 using ASC.Web.Core.PublicResources;
 using ASC.Web.Core.Sms;
 using ASC.Web.Core.Users;
@@ -88,10 +83,13 @@ using ASC.Web.Studio.UserControls.Management;
 using ASC.Web.Studio.UserControls.Statistics;
 using ASC.Web.Studio.Utility;
 
+using Google.Authenticator;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -122,8 +120,6 @@ namespace ASC.Api.Settings
         private IPSecurity.IPSecurity IpSecurity { get; }
         private IMemoryCache MemoryCache { get; }
         private ProviderManager ProviderManager { get; }
-        private MobileDetector MobileDetector { get; }
-        private IOptionsSnapshot<AccountLinker> AccountLinker { get; }
         private FirstTimeTenantSettings FirstTimeTenantSettings { get; }
         private UserManager UserManager { get; }
         private TenantManager TenantManager { get; }
@@ -163,14 +159,14 @@ namespace ASC.Api.Settings
         private UrlShortener UrlShortener { get; }
         private EncryptionServiceClient EncryptionServiceClient { get; }
         private EncryptionSettingsHelper EncryptionSettingsHelper { get; }
-        private BackupServiceNotifier BackupServiceNotifier { get; }
+        private BackupAjaxHandler BackupAjaxHandler { get; }
         private ICacheNotify<DeleteSchedule> CacheDeleteSchedule { get; }
-        private EncryptionServiceNotifier EncryptionServiceNotifier { get; }
+        private EncryptionWorker EncryptionWorker { get; }
         private PasswordHasher PasswordHasher { get; }
         private ILog Log { get; set; }
         private TelegramHelper TelegramHelper { get; }
-        private BackupAjaxHandler BackupAjaxHandler { get; }
         private PaymentManager PaymentManager { get; }
+        public Constants Constants { get; }
 
         public SettingsController(
             IOptionsMonitor<ILog> option,
@@ -220,8 +216,6 @@ namespace ASC.Api.Settings
             IPSecurity.IPSecurity ipSecurity,
             IMemoryCache memoryCache,
             ProviderManager providerManager,
-            MobileDetector mobileDetector,
-            IOptionsSnapshot<AccountLinker> accountLinker,
             FirstTimeTenantSettings firstTimeTenantSettings,
             ServiceClient serviceClient,
             TelegramHelper telegramHelper,
@@ -229,12 +223,12 @@ namespace ASC.Api.Settings
             UrlShortener urlShortener,
             EncryptionServiceClient encryptionServiceClient,
             EncryptionSettingsHelper encryptionSettingsHelper,
-            BackupServiceNotifier backupServiceNotifier,
-            ICacheNotify<DeleteSchedule> cacheDeleteSchedule,
-            EncryptionServiceNotifier encryptionServiceNotifier,
-            PasswordHasher passwordHasher,
             BackupAjaxHandler backupAjaxHandler,
-            PaymentManager paymentManager)
+            ICacheNotify<DeleteSchedule> cacheDeleteSchedule,
+            EncryptionWorker encryptionWorker,
+            PasswordHasher passwordHasher,
+            PaymentManager paymentManager,
+            Constants constants)
         {
             Log = option.Get("ASC.Api");
             WebHostEnvironment = webHostEnvironment;
@@ -247,8 +241,6 @@ namespace ASC.Api.Settings
             IpSecurity = ipSecurity;
             MemoryCache = memoryCache;
             ProviderManager = providerManager;
-            MobileDetector = mobileDetector;
-            AccountLinker = accountLinker;
             FirstTimeTenantSettings = firstTimeTenantSettings;
             MessageService = messageService;
             StudioNotifyService = studioNotifyService;
@@ -289,15 +281,15 @@ namespace ASC.Api.Settings
             ServiceClient = serviceClient;
             EncryptionServiceClient = encryptionServiceClient;
             EncryptionSettingsHelper = encryptionSettingsHelper;
-            BackupServiceNotifier = backupServiceNotifier;
+            BackupAjaxHandler = backupAjaxHandler;
             CacheDeleteSchedule = cacheDeleteSchedule;
-            EncryptionServiceNotifier = encryptionServiceNotifier;
+            EncryptionWorker = encryptionWorker;
             PasswordHasher = passwordHasher;
             StorageFactory = storageFactory;
             UrlShortener = urlShortener;
             TelegramHelper = telegramHelper;
-            BackupAjaxHandler = backupAjaxHandler;
             PaymentManager = paymentManager;
+            Constants = constants;
         }
 
         [Read("", Check = false)]
@@ -325,13 +317,19 @@ namespace ASC.Api.Settings
             {
                 if (!SettingsManager.Load<WizardSettings>().Completed)
                 {
-                    settings.WizardToken = CommonLinkUtility.GetToken("", ConfirmType.Wizard, userId: Tenant.OwnerId);
+                    settings.WizardToken = CommonLinkUtility.GetToken(Tenant.TenantId, "", ConfirmType.Wizard, userId: Tenant.OwnerId);
                 }
 
                 settings.EnabledJoin =
                     (Tenant.TrustedDomainsType == TenantTrustedDomainsType.Custom &&
                     Tenant.TrustedDomains.Count > 0) ||
                     Tenant.TrustedDomainsType == TenantTrustedDomainsType.All;
+
+                if (settings.EnabledJoin.GetValueOrDefault(false))
+                {
+                    settings.TrustedDomainsType = Tenant.TrustedDomainsType;
+                    settings.TrustedDomains = Tenant.TrustedDomains;
+                }
 
                 var studioAdminMessageSettings = SettingsManager.Load<StudioAdminMessageSettings>();
 
@@ -501,7 +499,7 @@ namespace ASC.Api.Settings
                     case TenantTrustedDomainsType.Custom:
                     {
                         var address = new MailAddress(email);
-                        if (Tenant.TrustedDomains.Any(d => address.Address.EndsWith("@" + d, StringComparison.InvariantCultureIgnoreCase)))
+                        if (Tenant.TrustedDomains.Any(d => address.Address.EndsWith("@" + d.Replace("*", ""), StringComparison.InvariantCultureIgnoreCase)))
                         {
                             StudioNotifyService.SendJoinMsg(email, emplType);
                             MessageService.Send(MessageInitiator.System, MessageAction.SentInviteInstructions, email);
@@ -646,52 +644,7 @@ namespace ASC.Api.Settings
         [Read("quota")]
         public QuotaWrapper GetQuotaUsed()
         {
-            return new QuotaWrapper(Tenant, CoreBaseSettings, CoreConfiguration, TenantExtra, TenantStatisticsProvider, AuthContext, SettingsManager, WebItemManager);
-        }
-
-
-        [AllowAnonymous]
-        [Read("authproviders")]
-        public ICollection<AccountInfo> GetAuthProviders(bool inviteView, bool settingsView, string clientCallback, string fromOnly)
-        {
-            ICollection<AccountInfo> infos = new List<AccountInfo>();
-            IEnumerable<LoginProfile> linkedAccounts = new List<LoginProfile>();
-
-            if (AuthContext.IsAuthenticated)
-            {
-                linkedAccounts = AccountLinker.Get("webstudio").GetLinkedProfiles(AuthContext.CurrentAccount.ID.ToString());
-            }
-
-            fromOnly = string.IsNullOrWhiteSpace(fromOnly) ? string.Empty : fromOnly.ToLower();
-
-            foreach (var provider in ProviderManager.AuthProviders.Where(provider => string.IsNullOrEmpty(fromOnly) || fromOnly == provider || (provider == "google" && fromOnly == "openid")))
-            {
-                if (inviteView && provider.ToLower() == "twitter") continue;
-
-                var loginProvider = ProviderManager.GetLoginProvider(provider);
-                if (loginProvider != null && loginProvider.IsEnabled)
-                {
-
-                    var url = VirtualPathUtility.ToAbsolute("~/login.ashx") + $"?auth={provider}";
-                    var mode = (settingsView || inviteView || (!MobileDetector.IsMobile() && !Request.DesktopApp())
-                                     ? ("&mode=popup&callback=" + clientCallback)
-                                     : ("&mode=Redirect&returnurl="
-                                    + HttpUtility.UrlEncode(new Uri(Request.GetUrlRewriter(),
-                                        "Auth.aspx"
-                                        + (Request.DesktopApp() ? "?desktop=true" : "")
-                                        ).ToString())
-                                 ));
-
-                    infos.Add(new AccountInfo
-                    {
-                        Linked = linkedAccounts.Any(x => x.Provider == provider),
-                        Provider = provider,
-                        Url = url + mode
-                    });
-                }
-            }
-
-            return infos;
+            return new QuotaWrapper(Tenant, CoreBaseSettings, CoreConfiguration, TenantExtra, TenantStatisticsProvider, AuthContext, SettingsManager, WebItemManager, Constants);
         }
 
         [AllowAnonymous]
@@ -849,7 +802,7 @@ namespace ASC.Api.Settings
         }
 
         [Read("security")]
-        public IEnumerable<SecurityWrapper> GetWebItemSecurityInfo(IEnumerable<string> ids)
+        public IEnumerable<SecurityWrapper> GetWebItemSecurityInfo([FromQuery]IEnumerable<string> ids)
         {
             if (ids == null || !ids.Any())
             {
@@ -1427,21 +1380,89 @@ namespace ASC.Api.Settings
             return FirstTimeTenantSettings.SaveData(wizardModel);
         }
 
+        [Read("tfaapp")]
+        public IEnumerable<TfaSettings> GetTfaSettings()
+        {
+            var result = new List<TfaSettings>();
+
+            var SmsVisible = StudioSmsNotificationSettingsHelper.IsVisibleSettings();
+            var SmsEnable = SmsVisible && SmsProviderManager.Enabled();
+            var TfaVisible = TfaAppAuthSettings.IsVisibleSettings;
+
+            if (SmsVisible)
+            {
+                result.Add(new TfaSettings
+                {
+                    Enabled = StudioSmsNotificationSettingsHelper.Enable,
+                    Id = "sms",
+                    Title = Resource.ButtonSmsEnable,
+                    Avaliable = SmsEnable
+                });
+            }
+
+            if (TfaVisible)
+            {
+                result.Add(new TfaSettings
+                {
+                    Enabled = SettingsManager.Load<TfaAppAuthSettings>().EnableSetting,
+                    Id = "app",
+                    Title = Resource.ButtonTfaAppEnable,
+                    Avaliable = true
+                });
+            }
+
+            return result;
+        }
+
+        [Create("tfaapp/validate")]
+        [Authorize(AuthenticationSchemes = "confirm", Roles = "TfaActivation,Everyone")]
+        public bool TfaValidateAuthCode(TfaValidateModel model)
+        {
+            ApiContext.AuthByClaim();
+            var user = UserManager.GetUsers(AuthContext.CurrentAccount.ID);
+            return TfaManager.ValidateAuthCode(user, model.Code);
+        }
+
+        [Read("tfaapp/confirm")]
+        public object TfaConfirmUrl()
+        {
+            var user = UserManager.GetUsers(AuthContext.CurrentAccount.ID);
+            if (StudioSmsNotificationSettingsHelper.IsVisibleSettings() && StudioSmsNotificationSettingsHelper.Enable)// && smsConfirm.ToLower() != "true")
+            {
+                var confirmType = string.IsNullOrEmpty(user.MobilePhone) ||
+                               user.MobilePhoneActivationStatus == MobilePhoneActivationStatus.NotActivated
+                                   ? ConfirmType.PhoneActivation
+                                   : ConfirmType.PhoneAuth;
+
+                return CommonLinkUtility.GetConfirmationUrl(user.Email, confirmType);
+            }
+
+            if (TfaAppAuthSettings.IsVisibleSettings && SettingsManager.Load<TfaAppAuthSettings>().EnableSetting)
+            {
+                var confirmType = TfaAppUserSettings.EnableForUser(SettingsManager, AuthContext.CurrentAccount.ID)
+                    ? ConfirmType.TfaAuth
+                    : ConfirmType.TfaActivation;
+
+                return CommonLinkUtility.GetConfirmationUrl(user.Email, confirmType);
+            }
+
+            return string.Empty;
+        }
 
         [Update("tfaapp")]
         public bool TfaSettingsFromBody([FromBody]TfaModel model)
         {
-            return TfaSettings(model);
+            return TfaSettingsUpdate(model);
         }
 
         [Update("tfaapp")]
         [Consumes("application/x-www-form-urlencoded")]
         public bool TfaSettingsFromForm([FromForm] TfaModel model)
         {
-            return TfaSettings(model);
+            return TfaSettingsUpdate(model);
         }
         
-        private bool TfaSettings(TfaModel model)
+        private bool TfaSettingsUpdate(TfaModel model)
         {
             PermissionContext.DemandPermissions(SecutiryConstants.EditPortalSettings);
 
@@ -1518,7 +1539,24 @@ namespace ASC.Api.Settings
             return result;
         }
 
-        ///<visible>false</visible>
+        [Read("tfaapp/setup")]
+        [Authorize(AuthenticationSchemes = "confirm", Roles = "TfaActivation")]
+        public SetupCode TfaAppGenerateSetupCode()
+        {
+            ApiContext.AuthByClaim();
+            var currentUser = UserManager.GetUsers(AuthContext.CurrentAccount.ID);
+
+            if (!TfaAppAuthSettings.IsVisibleSettings || 
+                !SettingsManager.Load<TfaAppAuthSettings>().EnableSetting ||
+                TfaAppUserSettings.EnableForUser(SettingsManager, currentUser.ID))
+                throw new Exception(Resource.TfaAppNotAvailable);
+
+            if (currentUser.IsVisitor(UserManager) || currentUser.IsOutsider(UserManager))
+                throw new NotSupportedException("Not available.");
+
+            return TfaManager.GenerateSetupCode(currentUser);
+        }
+
         [Read("tfaappcodes")]
         public IEnumerable<object> TfaAppGetCodes()
         {
@@ -1550,7 +1588,7 @@ namespace ASC.Api.Settings
         }
 
         [Update("tfaappnewapp")]
-        public object TfaAppNewAppFromBody([FromBody]TfaModel model)
+        public object TfaAppNewAppFromBody([FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)]TfaModel model)
         {
             return TfaAppNewApp(model);
         }
@@ -1564,8 +1602,9 @@ namespace ASC.Api.Settings
 
         private object TfaAppNewApp(TfaModel model)
         {
-            var isMe = model.Id.Equals(Guid.Empty);
-            var user = UserManager.GetUsers(isMe ? AuthContext.CurrentAccount.ID : model.Id);
+            var id = model?.Id ?? Guid.Empty;
+            var isMe = id.Equals(Guid.Empty);
+            var user = UserManager.GetUsers(isMe ? AuthContext.CurrentAccount.ID : id);
 
             if (!isMe && !PermissionContext.CheckPermissions(new UserSecurityProvider(user.ID), Constants.Action_EditUser))
                 throw new SecurityAccessDeniedException(Resource.ErrorAccessDenied);
@@ -2229,7 +2268,7 @@ namespace ASC.Api.Settings
 
             foreach (var tenant in tenants)
             {
-                var progress = BackupServiceNotifier.GetBackupProgress(tenant.TenantId);
+                var progress = BackupAjaxHandler.GetBackupProgress(tenant.TenantId);
                 if (progress != null && progress.IsCompleted == false)
                 {
                     throw new Exception();
@@ -2361,7 +2400,7 @@ namespace ASC.Api.Settings
                 throw new BillingException(Resource.ErrorNotAllowedOption, "DiscEncryption");
             }
 
-            return EncryptionServiceNotifier.GetEncryptionProgress(Tenant.TenantId)?.Progress;
+            return EncryptionWorker.GetEncryptionProgress();
         }
 
         [Update("storage")]
@@ -2754,7 +2793,10 @@ namespace ASC.Api.Settings
         private bool SaveAuthKeys(AuthServiceModel model)
         {
             PermissionContext.DemandPermissions(SecutiryConstants.EditPortalSettings);
-            if (!SetupInfo.IsVisibleSettings(ManagementType.ThirdPartyAuthorization.ToString()))
+
+            var saveAvailable = CoreBaseSettings.Standalone || TenantManager.GetTenantQuota(TenantManager.GetCurrentTenant().TenantId).ThirdParty;
+            if (!SetupInfo.IsVisibleSettings(ManagementType.ThirdPartyAuthorization.ToString())
+                || !saveAvailable)
                 throw new BillingException(Resource.ErrorNotAllowedOption, "ThirdPartyAuthorization");
 
             var changed = false;

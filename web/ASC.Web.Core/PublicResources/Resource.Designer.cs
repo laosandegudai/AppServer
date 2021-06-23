@@ -106,6 +106,24 @@ namespace ASC.Web.Core.PublicResources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to By SMS.
+        /// </summary>
+        public static string ButtonSmsEnable {
+            get {
+                return ResourceManager.GetString("ButtonSmsEnable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to By authenticator app.
+        /// </summary>
+        public static string ButtonTfaAppEnable {
+            get {
+                return ResourceManager.GetString("ButtonTfaAppEnable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to A link to confirm the operation has been sent to :email (the email address of the portal owner)..
         /// </summary>
         public static string ChangePortalOwnerMsg {
@@ -1911,6 +1929,15 @@ namespace ASC.Web.Core.PublicResources {
         public static string OrgServerRegion {
             get {
                 return ResourceManager.GetString("OrgServerRegion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Owner.
+        /// </summary>
+        public static string Owner {
+            get {
+                return ResourceManager.GetString("Owner", resourceCulture);
             }
         }
         
