@@ -94,5 +94,6 @@
   "AddUsers": "Добавить пользователей",
   "AddGroups": "Добавить группы",
   "PeopleUsersAddedSuccessfully": "Пользователи успешно добавлены",
-  "PeopleGroupsAddedSuccessfully": "Группы пользователей успешно добавлены"
+  "PeopleGroupsAddedSuccessfully": "Группы пользователей успешно добавлены",
+  "PeopleUsersRemovedSuccessfully": "Пользователи успешно удалены"
 }

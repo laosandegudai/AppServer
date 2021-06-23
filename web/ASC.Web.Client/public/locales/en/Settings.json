@@ -94,5 +94,6 @@
   "AddUsers": "Add users",
   "AddGroups": "Add groups",
   "PeopleUsersAddedSuccessfully": "Users successfully added",
-  "PeopleGroupsAddedSuccessfully": "User groups successfully added"
+  "PeopleGroupsAddedSuccessfully": "User groups successfully added",
+  "PeopleUsersRemovedSuccessfully": "Users successfully removed"
 }
