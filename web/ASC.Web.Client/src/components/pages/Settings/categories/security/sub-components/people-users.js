@@ -195,6 +195,49 @@ class PeopleUsers extends Component {
 
   removeUsers = () => {
     console.log("Remove users");
+
+    const {
+      t,
+      selection,
+      setSelected,
+      setSecuritySettings,
+      peopleModuleUsers,
+      peopleModuleGroups,
+      setPeopleModuleUsers,
+      setPeopleModuleGroups,
+    } = this.props;
+    const { moduleId } = this.state;
+
+    if (!selection && selection.length === 0) return;
+
+    const ids = selection.map((user) => user.id);
+
+    const newPeopleModuleUsers = peopleModuleUsers
+      .map((user) => {
+        if (!ids.includes(user.id)) return user;
+      })
+      .filter((user) => {
+        if (user) return user;
+      });
+
+    const newPeopleModuleGroups = peopleModuleGroups
+      .map((group) => {
+        if (!ids.includes(group.id)) return group;
+      })
+      .filter((group) => {
+        if (group) return group;
+      });
+
+    const newList = newPeopleModuleUsers.concat(newPeopleModuleGroups);
+
+    const deletedIds = newList.map((item) => item.id);
+
+    setSecuritySettings(moduleId, true, deletedIds).then(() =>
+      toastr.success(t("PeopleUsersRemovedSuccessfully"))
+    );
+    setPeopleModuleUsers(newPeopleModuleUsers);
+    setPeopleModuleGroups(newPeopleModuleGroups);
+    setSelected("none");
   };
 
   selectTab = (e) => {
