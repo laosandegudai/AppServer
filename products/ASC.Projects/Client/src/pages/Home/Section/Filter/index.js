@@ -6,8 +6,8 @@ import { FilterType } from "../../../../constants";
 import FilterInput from "@appserver/common/components/FilterInput";
 
 const PureSectionFilterContent = (props) => {
+  const { t } = props;
   const getData = () => {
-    const { t, customNames } = props;
     const options = [
       {
         key: "filter-filterType",
