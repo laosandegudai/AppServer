@@ -5,6 +5,7 @@ import Button from "@appserver/components/button";
 import Text from "@appserver/components/text";
 import { withTranslation } from "react-i18next";
 import toastr from "studio/toastr";
+import { inject, observer } from "mobx-react";
 
 class ChangePhoneDialogComponent extends React.Component {
   constructor(props) {
@@ -26,14 +27,18 @@ class ChangePhoneDialogComponent extends React.Component {
 
   render() {
     console.log("ChangePhoneDialog render");
-    const { t, visible, onClose } = this.props;
+    const { t, visible, onClose, isAdmin, isMe } = this.props;
     const { isRequestRunning } = this.state;
 
     return (
       <ModalDialog visible={visible} onClose={onClose}>
         <ModalDialog.Header>{t("MobilePhoneChangeTitle")}</ModalDialog.Header>
         <ModalDialog.Body>
-          <Text>{t("MobilePhoneEraseDescription")}</Text>
+          <Text>
+            {isAdmin && !isMe
+              ? t("MobilePhoneUserEraseDescription")
+              : t("MobilePhoneEraseDescription")}
+          </Text>
         </ModalDialog.Body>
         <ModalDialog.Footer>
           <Button
@@ -60,4 +65,9 @@ ChangePhoneDialog.propTypes = {
   user: PropTypes.object.isRequired,
 };
 
-export default ChangePhoneDialog;
+// export default ChangePhoneDialog;
+
+export default inject(({ auth, peopleStore }) => ({
+  isAdmin: auth.isAdmin,
+  isMe: peopleStore.targetUserStore.isMe,
+}))(observer(ChangePhoneDialog));
