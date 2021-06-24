@@ -9,3 +9,9 @@ export const FolderType = Object.freeze({
   Reports: 8,
   ProjectsTemplate: 9,
 });
+
+export const FilterType = Object.freeze({
+  Active: 1,
+  Paused: 2,
+  Closed: 3,
+});
