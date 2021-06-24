@@ -54,7 +54,7 @@ namespace ASC.Projects.Core.DataAccess.Repositories
             return set;
         }
 
-        public TEntity GetById(TKey id)
+        public virtual TEntity GetById(TKey id)
         {
             var result = DbContext.Set<TEntity>()
                 .FirstOrDefault(e => e.Id.Equals(id));

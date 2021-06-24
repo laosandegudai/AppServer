@@ -2,7 +2,8 @@
 using System.Text;
 
 using ASC.Api.Core;
-
+using ASC.Projects.Mappings;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -25,6 +26,8 @@ namespace ASC.Projects
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
+            ConfigureAutoMapper(services);
+
             base.ConfigureServices(services);
         }
 
@@ -37,6 +40,19 @@ namespace ASC.Projects
                     .AllowAnyMethod());
 
             base.Configure(app, env);
+        }
+
+        private static void ConfigureAutoMapper(IServiceCollection services)
+        {
+            var mapperConfig = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new ProjectMappingProfile());
+                cfg.AddProfile(new ProjectTagMappingProfile());
+            });
+
+            var mapper = mapperConfig.CreateMapper();
+
+            services.AddSingleton(mapper);
         }
     }
 }

@@ -72,6 +72,11 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
         public Guid? LastEditorId { get; set; }
 
         /// <summary>
+        /// Project which this tag associated with.
+        /// </summary>
+        public int ProjectId { get; set; }
+
+        /// <summary>
         /// Projects which were been tagged by this tag.
         /// </summary>
         public List<DbProject> TaggedProjects { get; set; }

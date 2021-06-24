@@ -61,6 +61,15 @@ namespace ASC.Projects.Core.DataAccess.Repositories
             return predicate;
         }
 
+        public override TEntity GetById(TKey id)
+        {
+            var result = DbContext
+                .Set<TEntity>()
+                .FirstOrDefault(e => e.Id.Equals(id) && e.TenantId == TenantId);
+
+            return result;
+        }
+
         public override TEntity Create(TEntity newItem)
         {
             newItem.TenantId = TenantId;

@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\common\ASC.Api.Core\ASC.Api.Core.csproj" />
+    <ProjectReference Include="..\Core\ASC.Projects.Core\ASC.Projects.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
