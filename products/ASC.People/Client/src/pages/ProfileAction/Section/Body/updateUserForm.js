@@ -567,6 +567,7 @@ class UpdateUserForm extends React.Component {
       isMy,
       isSelf,
       language,
+      tfaSettings,
     } = this.props;
     const {
       guestCaption,
@@ -735,17 +736,19 @@ class UpdateUserForm extends React.Component {
               buttonTabIndex={2}
               dataDialog={dialogsDataset.changePassword}
             />
-            {/*TODO: uncomment this after added phone form */}
-            {/* <TextChangeField
-              labelText={`${t("Phone")}:`}
-              inputName="phone"
-              inputValue={profile.mobilePhone}
-              buttonText={t("ChangeButton")}
-              buttonIsDisabled={isLoading}
-              buttonOnClick={this.toggleDialogsVisible}
-              buttonTabIndex={3}
-              dataDialog={dialogsDataset.changePhone}
-            /> */}
+
+            {tfaSettings === "sms" && (
+              <TextChangeField
+                labelText={`${t("Phone")}:`}
+                inputName="phone"
+                inputValue={profile.mobilePhone}
+                buttonText={t("ChangeButton")}
+                buttonIsDisabled={isLoading}
+                buttonOnClick={this.toggleDialogsVisible}
+                buttonTabIndex={3}
+                dataDialog={dialogsDataset.changePhone}
+              />
+            )}
             <TextField
               isRequired={true}
               hasError={errors.firstName}
@@ -938,7 +941,7 @@ class UpdateUserForm extends React.Component {
 }
 
 export default withRouter(
-  inject(({ auth, peopleStore }) => ({
+  inject(({ auth, peopleStore, tfaStore }) => ({
     customNames: auth.settingsStore.customNames,
     isAdmin: auth.isAdmin,
     language: auth.language,
@@ -961,6 +964,7 @@ export default withRouter(
     isSelf: peopleStore.targetUserStore.isMe,
     setIsEditTargetUser: peopleStore.targetUserStore.setIsEditTargetUser,
     isEditTargetUser: peopleStore.targetUserStore.isEditTargetUser,
+    tfaSettings: auth.tfaStore.tfaSettings,
   }))(
     observer(
       withTranslation(["ProfileAction", "Common", "Translations"])(
