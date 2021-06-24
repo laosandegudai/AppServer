@@ -1,4 +1,6 @@
-﻿/*
+﻿#region License agreement statement
+
+/*
  *
  * (c) Copyright Ascensio System Limited 2010-2018
  *
@@ -22,6 +24,8 @@
  * Pursuant to Section 7 § 3(e) we decline to grant you any rights under trademark law for use of our trademarks.
  *
 */
+
+#endregion License agreement statement
 
 using System;
 
