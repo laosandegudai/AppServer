@@ -42,6 +42,7 @@ class AuthStore {
     if (this.isAuthenticated) {
       requests.push(this.userStore.init());
       requests.push(this.moduleStore.init());
+      requests.push(this.tfaStore.getTfaType());
     }
 
     return Promise.all(requests);
