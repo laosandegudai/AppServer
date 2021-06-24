@@ -8,18 +8,17 @@ import { useEffect } from "react";
 import TreeSettings from "./TreeSettings";
 
 const ArticleBodyContent = (props) => {
-  console.log(props);
+  //console.log(props);
   const {
     treeFolders,
     fetchTreeFolders,
-    fetchTreeSettings,
     treeSettings,
+    fetchTreeSettings,
     isLoading,
   } = props;
 
   useEffect(() => {
     fetchTreeFolders();
-    fetchTreeSettings();
   }, []);
 
   return isEmpty(treeFolders) ? (
@@ -27,25 +26,18 @@ const ArticleBodyContent = (props) => {
   ) : (
     <>
       <TreeFolders data={treeFolders} />
-      <TreeSettings data={treeSettings} isLoading={isLoading} />
+      <TreeSettings isLoading={isLoading} />
     </>
   );
 };
 
-export default inject(
-  ({ projectsStore, treeFoldersStore, treeSettingsStore }) => {
-    const { treeFolders, fetchTreeFolders } = treeFoldersStore;
-    const { treeSettings, fetchTreeSettings } = treeSettingsStore;
+export default inject(({ projectsStore }) => {
+  const { isLoading, treeFoldersStore } = projectsStore;
+  const { treeFolders, fetchTreeFolders } = treeFoldersStore;
 
-    const { isLoading } = projectsStore;
-    console.log(fetchTreeFolders);
-
-    return {
-      treeFolders,
-      treeSettings,
-      fetchTreeSettings,
-      fetchTreeFolders,
-      isLoading,
-    };
-  }
-)(observer(withRouter(ArticleBodyContent)));
+  return {
+    treeFolders,
+    fetchTreeFolders,
+    isLoading,
+  };
+})(observer(withRouter(ArticleBodyContent)));

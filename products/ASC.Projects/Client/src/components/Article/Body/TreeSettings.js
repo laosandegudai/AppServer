@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { inject, observer } from "mobx-react";
 import styled from "styled-components";
 import TreeMenu from "@appserver/components/tree-menu";
@@ -7,6 +7,8 @@ import ExpanderDownIcon from "../../../../public/images/expander-down.react.svg"
 import ExpanderRightIcon from "../../../../public/images/expander-right.react.svg";
 import commonIconsStyles from "@appserver/components/utils/common-icons-style";
 import SettingsIcon from "../../../../public/images/settings.react.svg";
+import { withTranslation } from "react-i18next";
+import { withRouter } from "react-router";
 
 const StyledTreeMenu = styled(TreeMenu)`
   margin-top: 18px !important;
@@ -76,14 +78,14 @@ const StyledSettingsIcon = styled(SettingsIcon)`
   }
 `;
 
-const TreeSettings = (props) => {
-  const { treeSettings, fetchTreeSettings, data, isLoading } = props;
+const PureTreeSettings = (props) => {
+  const { isLoading, isAdmin, t } = props;
   const renderTreeNode = () => {
     return (
       <TreeNode
         id="settings"
         key="settings"
-        title={"Settings"}
+        title={t("Settings")}
         isLeaf={false}
         icon={<StyledSettingsIcon size="scale" />}
       >
@@ -92,8 +94,17 @@ const TreeSettings = (props) => {
           id="common-settings"
           key="common"
           isLeaf={true}
-          title={"Common Settings"}
+          title={t("CommonSettings")}
         />
+        {isAdmin ? (
+          <TreeNode
+            className="settings-node"
+            id="admin-settings"
+            key="admin"
+            isLeaf={true}
+            title={t("AdminSettings")}
+          />
+        ) : null}
       </TreeNode>
     );
   };
@@ -115,10 +126,12 @@ const TreeSettings = (props) => {
   );
 };
 
-export default inject(({ treeSettingsStore }) => {
-  const { treeSettings, fetchTreeSettings } = treeSettingsStore;
+const TreeSettings = withTranslation(["Article", "Common"])(
+  withRouter(PureTreeSettings)
+);
+
+export default inject(({ auth }) => {
   return {
-    treeSettings,
-    fetchTreeSettings,
+    isAdmin: auth.isAdmin,
   };
 })(observer(TreeSettings));

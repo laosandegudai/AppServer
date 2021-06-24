@@ -7,6 +7,7 @@ import * as modules from "./modules";
 import * as portal from "./portal";
 import * as groups from "./groups";
 import * as files from "./files";
+import * as projects from "./projects";
 
 export default {
   Filter,
@@ -18,4 +19,5 @@ export default {
   portal,
   groups,
   files,
+  projects,
 };

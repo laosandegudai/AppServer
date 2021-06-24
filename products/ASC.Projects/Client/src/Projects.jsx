@@ -12,7 +12,7 @@ import i18n from "./i18n";
 import { I18nextProvider } from "react-i18next";
 import Home from "./pages/Home";
 import { AppServerConfig } from "@appserver/common/constants";
-import stores from "./store";
+import stores from "./store/index";
 
 const { proxyURL } = AppServerConfig;
 const homepage = config.homepage;
@@ -29,20 +29,16 @@ const Error404Route = (props) => (
 );
 
 const ProjectsContent = (props) => {
-  const { isLoaded, loadBaseInfo } = props;
+  const { isLoaded, loadBaseInfo, setIsLoaded } = props;
 
   useEffect(() => {
     loadBaseInfo()
       .catch((err) => toastr.error(err))
       .finally(() => {
-        //this.props.setIsLoaded(true);
+        setIsLoaded(true);
         updateTempContent();
       });
   }, []);
-
-  useEffect(() => {
-    if (isLoaded) updateTempContent();
-  }, [isLoaded]);
 
   return (
     <Switch>
@@ -52,14 +48,20 @@ const ProjectsContent = (props) => {
   );
 };
 
-const Projects = inject(({ auth, projectsStore }) => ({
-  loadBaseInfo: async () => {
-    await projectsStore.init();
-    auth.setProductVersion(config.version);
-  },
-  isLoaded: auth.isLoaded && projectsStore.isLoaded,
-}))(observer(ProjectsContent));
-
+const Projects = inject(({ auth, projectsStore }) => {
+  return {
+    user: auth.userStore.user,
+    isAuthenticated: auth.isAuthenticated,
+    isLoaded: auth.isLoaded && projectsStore.isLoaded,
+    setIsLoaded: projectsStore.setIsLoaded,
+    loadBaseInfo: async () => {
+      await projectsStore.init();
+      auth.setProductVersion(config.version);
+    },
+    isLoaded: auth.isLoaded && projectsStore.isLoaded,
+  };
+})(observer(ProjectsContent));
+console.log(stores);
 export default (props) => (
   <ProjectProvider {...stores}>
     <I18nextProvider i18n={i18n}>

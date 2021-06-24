@@ -4,5 +4,7 @@
   "NewTask": "New Task",
   "NewDiscussion": "New Discussion",
   "NewTemplate": "New Template",
-  "TimerStart/Stop": "Timer Start/Stop"
+  "TimerStart/Stop": "Timer Start/Stop",
+  "CommonSettings": "Common Settings",
+  "AdminSettings": "Admin Settings"
 }

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import TreeNode from "@appserver/components/tree-menu/sub-components/tree-node";
 import TreeMenu from "@appserver/components/tree-menu";
 import styled from "styled-components";
@@ -8,6 +8,8 @@ import ExpanderDownIcon from "../../../../public/images/expander-down.react.svg"
 import ExpanderRightIcon from "../../../../public/images/expander-right.react.svg";
 import commonIconsStyles from "@appserver/components/utils/common-icons-style";
 import { inject, observer } from "mobx-react";
+import { withTranslation } from "react-i18next";
+import { withRouter } from "react-router";
 
 const StyledTreeMenu = styled(TreeMenu)`
   .rc-tree-node-content-wrapper {
@@ -46,14 +48,15 @@ const StyledExpanderRightIcon = styled(ExpanderRightIcon)`
   }
 `;
 
-const TreeFolders = (props) => {
-  const { isLoading, treeFolders, data } = props;
-  console.log(data);
+const PureTreeFolders = (props) => {
+  const { isLoading, treeFolders, data, t } = props;
+  //console.log(props);
+
   const getFolderIcon = (item) => {
     let iconUrl = "images/catalog.folder.react.svg";
     switch (item.rootFolderType) {
       case FolderType.Projects:
-        iconUrl = "images/action.document.react.svg";
+        iconUrl = "images/action.projects.react.svg";
         break;
       case FolderType.Milestones:
         iconUrl = "images/action.spreadsheet.react.svg";
@@ -80,6 +83,7 @@ const TreeFolders = (props) => {
         iconUrl = "images/action.template.react.svg";
         break;
       default:
+        iconUrl = "images/catalog.folder.react.svg";
         break;
     }
 
@@ -110,7 +114,7 @@ const TreeFolders = (props) => {
             id={item.id}
             key={item.key}
             className={className}
-            title={item.title}
+            title={t(item.title)}
             icon={getFolderIcon(item)}
             isLeaf={false}
           >
@@ -123,7 +127,7 @@ const TreeFolders = (props) => {
           id={item.id}
           key={item.key}
           className={className}
-          title={item.title}
+          title={t(item.title)}
           icon={getFolderIcon(item)}
           isLeaf={true}
         />
@@ -149,7 +153,12 @@ const TreeFolders = (props) => {
   );
 };
 
-export default inject(({ treeFoldersStore, projectsStore }) => {
+const TreeFolders = withTranslation(["Article", "Common"])(
+  withRouter(PureTreeFolders)
+);
+
+export default inject(({ projectsStore }) => {
+  const { isLoading, treeFoldersStore } = projectsStore;
   const {
     treeFolders,
     fetchTreeFolders,
@@ -157,7 +166,6 @@ export default inject(({ treeFoldersStore, projectsStore }) => {
     setExpandedKeys,
     setExpandedPanelKeys,
   } = treeFoldersStore;
-  const { isLoading } = projectsStore;
   return {
     treeFolders,
     isLoading,
