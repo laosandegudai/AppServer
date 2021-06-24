@@ -35,7 +35,7 @@ using ASC.Projects.Core.DataAccess.Repositories.Interfaces;
 
 namespace ASC.Projects.Core.DataAccess.Repositories
 {
-    internal class BaseRepository<TEntity, TKey> : IRepository<TEntity, TKey>
+    public class BaseRepository<TEntity, TKey> : IRepository<TEntity, TKey>
         where TEntity : class, IBaseDbEntity<TKey>
         where TKey : struct
     {

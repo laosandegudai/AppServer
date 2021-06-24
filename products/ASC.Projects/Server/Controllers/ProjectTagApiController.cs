@@ -43,6 +43,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ASC.Projects.Controllers
 {
     [Scope]
+    [DefaultRoute]
     [ApiController]
     public class ProjectTagApiController : ProjectApiControllerBase
     {

@@ -1,7 +1,7 @@
-
 using System.Text;
 
 using ASC.Api.Core;
+using ASC.Projects.Controllers;
 using ASC.Projects.Mappings;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
@@ -14,7 +14,7 @@ namespace ASC.Projects
 {
     public class Startup : BaseStartup
     {
-        public override string[] LogParams { get => new string[] { "ASC.Projects" }; }
+        public override string[] LogParams => new [] { "ASC.Projects" };
 
         public Startup(IConfiguration configuration, IHostEnvironment hostEnvironment)
             : base(configuration, hostEnvironment)
@@ -27,6 +27,8 @@ namespace ASC.Projects
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             ConfigureAutoMapper(services);
+
+            DIHelper.TryAdd<ProjectTimeTrackingApiController>();
 
             base.ConfigureServices(services);
         }
@@ -48,6 +50,7 @@ namespace ASC.Projects
             {
                 cfg.AddProfile(new ProjectMappingProfile());
                 cfg.AddProfile(new ProjectTagMappingProfile());
+                cfg.AddProfile(new TimeTrackingItemMappingProfile());
             });
 
             var mapper = mapperConfig.CreateMapper();
