@@ -114,7 +114,12 @@ class AccessRights extends PureComponent {
   };
 
   render() {
-    const { t, adminsTotal } = this.props;
+    const {
+      t,
+      adminsTotal,
+      peopleModuleUsers,
+      peopleModuleGroups,
+    } = this.props;
     const { isLoading } = this.state;
     return isLoading ? (
       <MainContainer>
@@ -163,6 +168,12 @@ class AccessRights extends PureComponent {
             </Link>
             <StyledArrowRightIcon size="small" color="#333333" />
           </div>
+          {(peopleModuleUsers.length > 0 || peopleModuleGroups.length > 0) && (
+            <Text className="category-item-subheader" truncate={true}>
+              {peopleModuleUsers.length} {t("Users")} /{" "}
+              {peopleModuleGroups.length} {t("Groups")}
+            </Text>
+          )}
           <Text className="category-item-description">
             {t("PeopleModuleUsersDescription")}
           </Text>
@@ -172,13 +183,16 @@ class AccessRights extends PureComponent {
   }
 }
 
-export default inject(({ auth, setup }) => {
+export default inject(({ auth, setup, module }) => {
   const { updateListAdmins } = setup;
   const { admins, adminsTotal } = setup.security.accessRight;
+  const { peopleModuleUsers, peopleModuleGroups } = module;
   return {
     admins,
     adminsTotal,
     updateListAdmins,
+    peopleModuleUsers,
+    peopleModuleGroups,
     organizationName: auth.settingsStore.organizationName,
     owner: auth.settingsStore.owner,
   };
