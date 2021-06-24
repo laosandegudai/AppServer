@@ -25,6 +25,7 @@ import {
   ArticleHeaderContent,
   ArticleMainButtonContent,
 } from "../../components/Article";
+import { SectionHeaderContent } from "./Section";
 const Home = () => {
   return (
     <PageLayout>
@@ -39,6 +40,9 @@ const Home = () => {
       <PageLayout.ArticleBody>
         <ArticleBodyContent />
       </PageLayout.ArticleBody>
+      <PageLayout.SectionHeader>
+        <SectionHeaderContent />
+      </PageLayout.SectionHeader>
     </PageLayout>
   );
 };
