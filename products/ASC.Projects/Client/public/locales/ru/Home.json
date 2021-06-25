@@ -1,0 +1,17 @@
+{
+  "Active": "Активные",
+  "Status": "Статус",
+  "Paused": "Приостановленные",
+  "Closed": "Закрытые",
+  "ByProjectManager": "Менеджер Проекта",
+  "Me": "Я",
+  "OtherUsers": "Другие пользователи",
+  "Other": "Другое",
+  "Followed": "Отслеживаемые",
+  "WithTag": "С тегом",
+  "WithoutTag": "Без тегов",
+  "TeamMember": "Участник Команды",
+  "Groups": "Группы",
+  "ByCreationDate": "Дата создания",
+  "ByTitle": "Название"
+}

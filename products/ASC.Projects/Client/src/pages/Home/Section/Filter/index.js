@@ -12,23 +12,23 @@ const PureSectionFilterContent = (props) => {
       {
         key: "filter-filterType",
         group: "filter-filterType",
-        label: t("Common:Status"),
+        label: t("Status"),
         isHeader: true,
       },
       {
         key: FilterType.Active.toString(),
         group: "filter-filterType",
-        label: t("Common:Active"),
+        label: t("Active"),
       },
       {
         key: FilterType.Paused.toString(),
         group: "filter-filterType",
-        label: t("Common:Paused"),
+        label: t("Paused"),
       },
       {
         key: FilterType.Closed.toString(),
         group: "filter-filterType",
-        label: t("Common:Closed"),
+        label: t("Closed"),
       },
     ];
 
@@ -43,23 +43,59 @@ const PureSectionFilterContent = (props) => {
       {
         key: "me",
         group: "filter-author",
-        label: t("Common:Me"),
-        // defaultOptionLabel: t("Common:MeLabel"),
-        // defaultSelectLabel: t("Common:Select"),
+        label: t("Me"),
+        defaultOptionLabel: t("Common:MeLabel"),
+        defaultSelectLabel: t("Common:Select"),
         // groupsCaption,
         // defaultOption: user,
         // selectedItem,
       },
       {
-        key: "other",
+        key: "other-users",
         group: "filter-author",
-        label: t("Common:OtherUsers"),
+        label: t("OtherUsers"),
       },
       {
-        key: "filter-author",
+        key: "other",
         group: "filter-author",
         label: t("Other"),
         isHeader: true,
+      },
+      {
+        key: "followed",
+        group: "filter-author",
+        label: t("Followed"),
+      },
+      {
+        key: "withTag",
+        group: "filter-author",
+        label: t("WithTag"),
+      },
+      {
+        key: "withoutTag",
+        group: "filter-author",
+        label: t("WithoutTag"),
+      },
+      {
+        key: "filter-test",
+        group: "filter-member",
+        label: t("TeamMember"),
+        isHeader: true,
+      },
+      {
+        key: "team-me",
+        group: "filter-member",
+        label: t("Me"),
+      },
+      {
+        key: "team-otherUsers",
+        group: "filter-member",
+        label: t("OtherUsers"),
+      },
+      {
+        key: "team-groups",
+        group: "filter-member",
+        label: t("Groups"),
       },
     ];
 
@@ -70,7 +106,6 @@ const PureSectionFilterContent = (props) => {
     const commonOptions = [
       { key: "DateAndTimeCreation", label: t("ByCreationDate"), default: true },
       { key: "AZ", label: t("ByTitle"), default: true },
-      { key: "Title", label: t("Title"), default: true },
     ];
 
     const viewSettings = [
@@ -83,7 +118,7 @@ const PureSectionFilterContent = (props) => {
       : commonOptions;
   };
   const filterColumnCount =
-    window.innerWidth < 500 ? {} : { filterColumnCount: 3 };
+    window.innerWidth < 500 ? {} : { filterColumnCount: 4 };
 
   const selectedFilterData = {
     filterValues: [
@@ -115,7 +150,7 @@ const PureSectionFilterContent = (props) => {
   );
 };
 
-const SectionFilterContent = withTranslation(["Article", "Common"])(
+const SectionFilterContent = withTranslation(["Home", "Common"])(
   withRouter(PureSectionFilterContent)
 );
 
