@@ -1,4 +1,5 @@
 import { request } from "../client";
+import { mockSecurityRes } from "./mock";
 
 export function getSettings() {
   return request({
@@ -317,10 +318,11 @@ export function validateTfaCode(code) {
 }
 
 export function getSecuritySettings(modules) {
-  return request({
+  /*return request({
     method: "get",
     url: `settings/security?ids=${modules}`,
-  });
+  });*/
+  return Promise.resolve(mockSecurityRes);
 }
 
 export function setSecuritySettings(moduleId, enabled, userOrGroupIdList) {
