@@ -17,20 +17,20 @@ const SectionFilterContent = ({
   filter,
   getContactsList,
 }) => {
-  // const getAccessibilityType = (filterValues) => {
-  //   const isShared = result(
-  //     find(filterValues, (value) => {
-  //       return value.group === "filter-access";
-  //     }),
-  //     "key"
-  //   );
+  const getAccessibilityType = (filterValues) => {
+    const isShared = result(
+      find(filterValues, (value) => {
+        return value.group === "filter-access";
+      }),
+      "key"
+    );
 
-  //   return isShared
-  //     ? isShared === "filter-access-public"
-  //       ? "true"
-  //       : "false"
-  //     : null;
-  // };
+    return isShared
+      ? isShared === "filter-access-public"
+        ? "true"
+        : "false"
+      : null;
+  };
 
   const getSelectedFilterData = () => {
     const selectedFilterData = {
@@ -44,7 +44,7 @@ const SectionFilterContent = ({
   const selectedFilterData = getSelectedFilterData();
 
   const onFilter = (data) => {
-    // const isShared = getAccessibilityType(data.filterValues);
+    const isShared = getAccessibilityType(data.filterValues);
     const sortBy = data.sortId;
     const sortOrder =
       data.sortDirection === "desc" ? "descending" : "ascending";
@@ -52,7 +52,7 @@ const SectionFilterContent = ({
     const newFilter = filter.clone();
     newFilter.sortBy = sortBy;
     newFilter.sortOrder = sortOrder;
-    // newFilter.isShared = isShared;
+    newFilter.isShared = isShared;
     getContactsList(newFilter);
   };
 
@@ -232,11 +232,9 @@ export default inject(({ crmStore, filterStore, contactsStore }) => {
     getContactsList,
   };
 })(
-  withRouter(
-    withLayoutSize(
-    withTranslation(["Home", "Common"])(
-      observer(SectionFilterContent)
-    )
-    )
-  )
+  // withRouter(
+  //   withLayoutSize(
+  withTranslation(["Home", "Common"])(observer(SectionFilterContent))
+  //   )
+  // )
 );

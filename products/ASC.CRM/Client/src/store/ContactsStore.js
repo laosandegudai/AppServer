@@ -27,14 +27,44 @@ class ContactsStore {
     const res = await api.crm.getContactsList(filterData);
     filterData.total = res.total;
     this.filterStore.setFilterParams(filterData);
-    this.setContacts(res.contacts);
+    this.setContacts(res.items);
   };
 
   setContacts = (contacts) => {
     this.contacts = contacts;
   };
 
-  get contactsList() {}
+  get contactsList() {
+    const list = this.contacts.map((contact) => {
+      const {
+        about,
+        accessList,
+        canDelete,
+        canEdit,
+        commonData,
+        createdBy,
+        created,
+        currency,
+        displayName,
+        firstName,
+        lastName,
+        haveLateTasks,
+        id,
+        industry,
+        isCompany,
+        isPrivate,
+        isShared,
+        mediumFotoUrl,
+        shareType,
+        smallFotoUrl,
+        title,
+      } = contact;
+
+      return contact;
+    });
+
+    return list;
+  }
 }
 
 export default ContactsStore;

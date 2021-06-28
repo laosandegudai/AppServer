@@ -9,7 +9,7 @@ const DEFAULT_SORT_ORDER = "descending";
 const DEFAULT_CONTACT_STAGE = -1;
 const DEFAULT_CONTACT_TYPE = -1;
 const DEFAULT_SEARCH = "";
-const DEFAULT_ACCESSIBILITY_TYPE = null;
+const DEFAULT_ACCESSIBILITY_TYPE = "";
 
 const CONTACT_TYPE = "contactType";
 const PAGE = "page";
@@ -50,7 +50,7 @@ class CrmFilter {
       startIndex,
       pageCount,
       total,
-      isShared
+      isShared,
     });
 
     return newFilter;
@@ -65,7 +65,7 @@ class CrmFilter {
     page = DEFAULT_PAGE,
     contactType = DEFAULT_CONTACT_TYPE,
     search = DEFAULT_SEARCH,
-    isShared = DEFAULT_ACCESSIBILITY_TYPE
+    isShared = DEFAULT_ACCESSIBILITY_TYPE,
   }) {
     this.page = page;
     this.pageCount = pageCount;
@@ -87,7 +87,7 @@ class CrmFilter {
       pageCount: pageCount,
       sortOrder: sortOrder,
       Count: pageCount,
-      // isShared: isShared,
+      isShared: isShared,
     };
 
     const str = toUrlParams(dtoFilter, false);
@@ -98,9 +98,9 @@ class CrmFilter {
     const { sortBy, sortOrder, pageCount, startIndex, isShared } = this;
     const dtoFilter = {};
 
-    // if (isShared) {
-    //   dtoFilter[ACCESSIBILITY_TYPE] = isShared;
-    // } 
+    if (isShared) {
+      dtoFilter[ACCESSIBILITY_TYPE] = isShared;
+    }
 
     dtoFilter[SORT_BY] = sortBy;
     dtoFilter[SORT_ORDER] = sortOrder;

@@ -50,9 +50,9 @@ const PureHome = ({ history, getContactsList }) => {
         <SectionFilterContent />
       </PageLayout.SectionFilter>
 
-      {/* <PageLayout.SectionBody>
+      <PageLayout.SectionBody>
         <SectionBodyContent />
-      </PageLayout.SectionBody> */}
+      </PageLayout.SectionBody>
     </PageLayout>
   );
 };
