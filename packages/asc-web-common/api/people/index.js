@@ -256,3 +256,11 @@ export function getSelectorUserList() {
     url: "/people/filter.json?fields=id,displayName,groups",
   });
 }
+
+export function resetMobilePhone(userId) {
+  return request({
+    method: "post",
+    url: "/people/phone",
+    data: { userId },
+  });
+}
