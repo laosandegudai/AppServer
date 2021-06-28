@@ -90,6 +90,43 @@ const folderTree = [
   },
 ];
 
+const filterProjects = [
+  {
+    canDelete: true,
+    canEdit: true,
+    created: "2021-06-25T15:57:44.0000000+05:00",
+    createdById: "da436a14-3f06-45de-8ee6-0957e190bb12",
+    description: "213213",
+    id: 262363,
+    participantCount: 1,
+    projectFolder: "2352104",
+    taskCount: 2,
+    title: "test",
+    status: 1,
+    updated: "2021-06-25T15:57:44.0000000+05:00",
+    updatedById: "da436a14-3f06-45de-8ee6-0957e190bb12",
+  },
+  {
+    canDelete: true,
+    canEdit: true,
+    created: "2021-06-25T16:00:44.0000000+05:00",
+    createdById: "da436a14-3f06-45de-8ee6-0957e190bb12",
+    description: "test44444",
+    id: 262362,
+    participantCount: 2,
+    taskCount: 3,
+    projectFolder: "2352104",
+    title: "project1",
+    status: 1,
+    updated: "2021-06-25T16:00:44.0000000+05:00",
+    updatedById: "da436a14-3f06-45de-8ee6-0957e190bb12",
+  },
+];
+
 export function getFolders() {
   return Promise.resolve(folderTree);
+}
+
+export function getFilterProjects() {
+  return Promise.resolve(filterProjects);
 }

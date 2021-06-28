@@ -4,3 +4,9 @@ export function getFolders(fake = true) {
     return fakeProjects.getFolders();
   }
 }
+
+export function getFilterProjects(fake = true) {
+  if (fake) {
+    return fakeProjects.getFilterProjects();
+  }
+}
