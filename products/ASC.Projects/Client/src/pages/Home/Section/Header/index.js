@@ -192,9 +192,6 @@ const SectionHeaderContent = withTranslation(["Article", "Common"])(
 );
 
 export default inject(({ auth, projectsStore }) => {
-  console.log(auth);
-  console.log(projectsStore);
-
   return {
     auth,
     projectsStore,

@@ -25,8 +25,16 @@ import {
   ArticleHeaderContent,
   ArticleMainButtonContent,
 } from "../../components/Article";
-import { SectionFilterContent, SectionHeaderContent } from "./Section";
-const Home = () => {
+import {
+  SectionBodyContent,
+  SectionFilterContent,
+  SectionHeaderContent,
+} from "./Section";
+const Home = ({ fetchProjectsItems }) => {
+  useEffect(() => {
+    fetchProjectsItems();
+  }, []);
+
   return (
     <PageLayout>
       <PageLayout.ArticleHeader>
@@ -46,14 +54,18 @@ const Home = () => {
       <PageLayout.SectionFilter>
         <SectionFilterContent />
       </PageLayout.SectionFilter>
+      <PageLayout.SectionBody>
+        <SectionBodyContent />
+      </PageLayout.SectionBody>
     </PageLayout>
   );
 };
 
-const HomeWrapper = inject(({ auth }) => ({
+const HomeWrapper = inject(({ auth, projectsStore }) => ({
   modules: auth.moduleStore.modules,
   isLoaded: auth.isLoaded,
   setCurrentProductId: auth.settingsStore.setCurrentProductId,
+  fetchProjectsItems: projectsStore.filterStore.fetchProjectsItems,
 }))(withRouter(withTranslation(["Article", "Common"])(Home)));
 
 export default (props) => (

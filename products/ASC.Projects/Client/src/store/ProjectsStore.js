@@ -6,6 +6,7 @@ class ProjectsStore {
   authStore;
   settingsStore;
   userStore;
+  filterStore;
   treeFoldersStore;
   isLoading = false;
   isLoaded = false;
@@ -13,11 +14,18 @@ class ProjectsStore {
 
   firstLoad = true;
 
-  constructor(authStore, settingsStore, userStore, treeFoldersStore) {
+  constructor(
+    authStore,
+    settingsStore,
+    userStore,
+    treeFoldersStore,
+    filterStore
+  ) {
     this.authStore = authStore;
     this.settingsStore = settingsStore;
     this.userStore = userStore;
     this.treeFoldersStore = treeFoldersStore;
+    this.filterStore = filterStore;
 
     makeObservable(this, {
       isLoading: observable,

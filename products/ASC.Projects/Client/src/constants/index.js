@@ -10,6 +10,10 @@ export const FolderType = Object.freeze({
   ProjectsTemplate: 9,
 });
 
+export const ProjectStatus = Object.freeze({
+  Default: 0,
+});
+
 export const FilterType = Object.freeze({
   Active: 1,
   Paused: 2,

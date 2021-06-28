@@ -156,7 +156,6 @@ const SectionFilterContent = withTranslation(["Home", "Common"])(
 
 export default inject(({ auth }) => {
   const { customNames } = auth.settingsStore;
-  console.log(customNames.usersCaption);
   return {
     customNames,
   };

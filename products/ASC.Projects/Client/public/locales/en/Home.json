@@ -1,5 +1,12 @@
 {
   "WithTag": "With tag",
   "WithoutTag": "Without tag",
-  "OtherUsers": "Other Users"
+  "OtherUsers": "Other users",
+  "ByProjectManager": "Project Manager",
+  "AddSubtask": "Add subtask",
+  "MoveToMilestone": "Move to milestone",
+  "NotifyResponsible": "Notify responsible",
+  "TrackTime": "Track time",
+  "TeamMember": "Team member",
+  "OpenTask": "Open task"
 }
