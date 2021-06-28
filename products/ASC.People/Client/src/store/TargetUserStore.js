@@ -91,6 +91,11 @@ class TargetUserStore {
   setIsEditTargetUser = (isEditTargetUser) => {
     this.isEditTargetUser = isEditTargetUser;
   };
+
+  resetMobilePhone = async (userId) => {
+    const res = await api.people.resetMobilePhone(userId);
+    return res;
+  };
 }
 
 export default TargetUserStore;
