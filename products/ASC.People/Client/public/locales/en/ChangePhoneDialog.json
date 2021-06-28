@@ -1,6 +1,6 @@
 {
   "MobilePhoneChangeTitle": "Change mobile phone",
-  "MobilePhoneEraseDescription": "The instructions on how to change the user mobile number will be sent to the user email address",
+  "MobilePhoneEraseDescription": "To change the phone number use the text message with the code which has been sent to your new phone.",
   "MobilePhoneUserEraseDescription": "The instructions on how to change the user mobile number will be sent to the user email address",
   "ChangePhoneInstructionSent": "The phone change instructions have been successfully sent"
 }
