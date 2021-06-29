@@ -14,7 +14,7 @@ const SimpleContactRow = ({ contact, sectionWidth, isMobile }) => {
     canDelete,
     canEdit,
     commonData,
-    createdBy,
+    createBy,
     created,
     currency,
     displayName,
@@ -54,8 +54,8 @@ const SimpleContactRow = ({ contact, sectionWidth, isMobile }) => {
           onClick: function noRefCheck() {},
         },
         {
-          key: "Edit e-mail",
-          label: "Open in a new tab",
+          key: "key3",
+          label: "Edit e-mail",
           onClick: function noRefCheck() {},
         },
         {
@@ -100,30 +100,21 @@ const SimpleContactRow = ({ contact, sectionWidth, isMobile }) => {
           color="#A3A9AE"
           fontSize="12px"
           isTextOverflow
-          title="Visitors"
+          title={title}
           type="action"
+          containerMinWidth="120px"
         >
-          Visitors
+          {title}
         </Link>
-        <Link
+        {/* <Link
           color="#A3A9AE"
           fontSize="12px"
           isTextOverflow
-          title="+7 715 6018678"
+          title={commonData[0].data}
           type="page"
         >
-          +7 715 6018678
-        </Link>
-        <Link
-          color="#A3A9AE"
-          containerWidth="220px"
-          fontSize="12px"
-          isTextOverflow
-          title="fidel_kerlu@hotmail.com"
-          type="page"
-        >
-          fidel_kerlu@hotmail.com
-        </Link>
+          {commonData[0].data}
+        </Link> */}
       </RowContent>
     </Row>
   );

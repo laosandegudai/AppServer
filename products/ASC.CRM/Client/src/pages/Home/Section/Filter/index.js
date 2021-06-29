@@ -32,12 +32,38 @@ const SectionFilterContent = ({
       : null;
   };
 
+  const getContactListViewType = (filterValues) => {
+    const contactListView = result(
+      find(filterValues, (value) => {
+        return value.group === "filter-show";
+      }),
+      "key"
+    );
+
+    return contactListView || null;
+  };
+
   const getSelectedFilterData = () => {
     const selectedFilterData = {
       filterValues: [],
       sortDirection: filter.sortOrder === "ascending" ? "asc" : "desc",
       sortId: filter.sortBy,
     };
+
+    if (filter.isShared) {
+      selectedFilterData.filterValues.push({
+        key: filter.usShared,
+        group: "filter-access",
+      });
+    }
+
+    if (filter.contactListView) {
+      selectedFilterData.filterValues.push({
+        key: filter.contactListView,
+        group: "filter-show",
+      });
+    }
+
     return selectedFilterData;
   };
 
@@ -45,6 +71,7 @@ const SectionFilterContent = ({
 
   const onFilter = (data) => {
     const isShared = getAccessibilityType(data.filterValues);
+    const contactListView = getContactListViewType(data.filterValues);
     const sortBy = data.sortId;
     const sortOrder =
       data.sortDirection === "desc" ? "descending" : "ascending";
@@ -53,6 +80,8 @@ const SectionFilterContent = ({
     newFilter.sortBy = sortBy;
     newFilter.sortOrder = sortOrder;
     newFilter.isShared = isShared;
+    newFilter.contactListView = contactListView;
+
     getContactsList(newFilter);
   };
 
@@ -221,20 +250,20 @@ const SectionFilterContent = ({
   );
 };
 
-export default inject(({ crmStore, filterStore, contactsStore }) => {
-  const { isLoaded } = crmStore;
-  const { filter } = filterStore;
-  const { getContactsList } = contactsStore;
+export default withRouter(
+  inject(({ crmStore, filterStore, contactsStore }) => {
+    const { isLoaded } = crmStore;
+    const { filter } = filterStore;
+    const { getContactsList } = contactsStore;
 
-  return {
-    isLoaded,
-    filter,
-    getContactsList,
-  };
-})(
-  // withRouter(
-  //   withLayoutSize(
-  withTranslation(["Home", "Common"])(observer(SectionFilterContent))
-  //   )
-  // )
+    return {
+      isLoaded,
+      filter,
+      getContactsList,
+    };
+  })(
+    observer(
+      withLayoutSize(withTranslation(["Home", "Common"])(SectionFilterContent))
+    )
+  )
 );
