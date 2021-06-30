@@ -93,7 +93,7 @@ const StyledDropdownItem = styled.div`
       break-before: column;
     `}
 
-    ${(props) =>
+  ${(props) =>
     props.isRowHeader &&
     css`
       ${disabledAndHeaderStyle}

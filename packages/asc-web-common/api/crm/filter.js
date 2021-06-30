@@ -14,7 +14,7 @@ const DEFAULT_CONTACT_LIST_VIEW = null;
 
 const CONTACT_TYPE = "contactType";
 const PAGE = "page";
-const PAGE_COUNT = "count";
+const PAGE_COUNT = "Сount";
 const SORT_BY = "sortBy";
 const SORT_ORDER = "sortOrder";
 const START_INDEX = "StartIndex";
@@ -44,6 +44,8 @@ class CrmFilter {
       defaultFilter.pageCount;
     const startIndex = urlFilter[START_INDEX] || defaultFilter.startIndex;
     const total = defaultFilter.total;
+    const contactType = urlFilter[CONTACT_TYPE] || defaultFilter.contactType;
+    const contactStage = urlFilter[CONTACT_STAGE] || defaultFilter.contactStage;
     const isShared = urlFilter[ACCESSIBILITY_TYPE] || defaultFilter.isShared;
     const contactListView =
       urlFilter[CONTACT_LIST_VIEW] || defaultFilter.contactListView;
@@ -52,6 +54,8 @@ class CrmFilter {
       sortBy,
       sortOrder,
       startIndex,
+      contactType,
+      contactStage,
       pageCount,
       total,
       isShared,
@@ -69,6 +73,7 @@ class CrmFilter {
     total = DEFAULT_TOTAL,
     page = DEFAULT_PAGE,
     contactType = DEFAULT_CONTACT_TYPE,
+    contactStage = DEFAULT_CONTACT_STAGE,
     search = DEFAULT_SEARCH,
     isShared = DEFAULT_ACCESSIBILITY_TYPE,
     contactListView = DEFAULT_CONTACT_LIST_VIEW,
@@ -79,6 +84,7 @@ class CrmFilter {
     this.sortOrder = sortOrder;
     this.startIndex = startIndex;
     this.contactType = contactType;
+    this.contactStage = contactStage;
     this.search = search;
     this.total = total;
     this.isShared = isShared;
@@ -103,20 +109,23 @@ class CrmFilter {
       sortOrder: sortOrder,
       Count: pageCount,
       isShared: isShared,
+      contactListView: contactListView,
     };
 
-    switch (contactListView) {
-      case "company":
-        dtoFilter.isCompany = true;
-        break;
-      case "person":
-        dtoFilter.contactListViewType = 1;
-        break;
-      case "withopportunity":
-        dtoFilter.contactListViewType = 2;
-        break;
-    }
-    const str = toUrlParams(dtoFilter, false);
+    // switch (contactListView) {
+    //   case "company":
+    //     dtoFilter.isCompany = true;
+    //     break;
+    //   case "person":
+    //     dtoFilter.contactListViewType = 1;
+    //     break;
+    //   case "withopportunity":
+    //     dtoFilter.contactListViewType = 2;
+    //     break;
+    // }
+
+    const str = toUrlParams(dtoFilter, true);
+
     return str;
   };
 
@@ -129,13 +138,15 @@ class CrmFilter {
       isShared,
       contactListView,
     } = this;
+
     const dtoFilter = {};
 
     if (isShared) {
       dtoFilter[ACCESSIBILITY_TYPE] = isShared;
     }
+
     if (contactListView) {
-      dtoFilter[ROLE] = contactListView;
+      dtoFilter[CONTACT_LIST_VIEW] = contactListView;
     }
 
     dtoFilter[SORT_BY] = sortBy;
@@ -143,7 +154,7 @@ class CrmFilter {
     dtoFilter[START_INDEX] = startIndex;
     dtoFilter[PAGE_COUNT] = pageCount;
 
-    const str = toUrlParams(dtoFilter, false);
+    const str = toUrlParams(dtoFilter, true);
 
     return str;
   };

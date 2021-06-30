@@ -40,7 +40,13 @@ const SectionFilterContent = ({
       "key"
     );
 
-    return contactListView || null;
+    return contactListView
+      ? contactListView === "filter-show-company"
+        ? "company"
+        : contactListView === "filter-show-person"
+        ? "person"
+        : "withopportunity"
+      : null;
   };
 
   const getSelectedFilterData = () => {
@@ -52,14 +58,14 @@ const SectionFilterContent = ({
 
     if (filter.isShared) {
       selectedFilterData.filterValues.push({
-        key: filter.usShared,
+        key: `${filter.isShared}`,
         group: "filter-access",
       });
     }
 
     if (filter.contactListView) {
       selectedFilterData.filterValues.push({
-        key: filter.contactListView,
+        key: `${filter.contactListView}`,
         group: "filter-show",
       });
     }
@@ -187,17 +193,17 @@ const SectionFilterContent = ({
         isRowHeader: true,
       },
       {
-        key: "15",
+        key: "filter-show-company",
         group: "filter-show",
         label: t("Companies"),
       },
       {
-        key: "16",
+        key: "filter-show-person",
         group: "filter-show",
         label: t("Persons"),
       },
       {
-        key: "17",
+        key: "filter-show-with-opportunity",
         group: "filter-show",
         label: t("WithOpportunities"),
       },
