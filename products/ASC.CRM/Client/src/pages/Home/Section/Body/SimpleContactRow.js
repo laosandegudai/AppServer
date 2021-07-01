@@ -32,6 +32,8 @@ const SimpleContactRow = ({ contact, sectionWidth, isMobile }) => {
     title,
   } = contact;
 
+  const [email, phone] = commonData.data;
+
   const element = (
     <Avatar size="min" userName={displayName} source="" role="user" />
   );
@@ -100,21 +102,22 @@ const SimpleContactRow = ({ contact, sectionWidth, isMobile }) => {
           color="#A3A9AE"
           fontSize="12px"
           isTextOverflow
-          title={title}
+          title={phone}
           type="action"
           containerMinWidth="120px"
         >
-          {title}
+          {phone}
         </Link>
-        {/* <Link
+        <Link
           color="#A3A9AE"
           fontSize="12px"
           isTextOverflow
-          title={commonData[0].data}
+          title={email}
           type="page"
+          containerMinWidth="120px"
         >
-          {commonData[0].data}
-        </Link> */}
+          {email}
+        </Link>
       </RowContent>
     </Row>
   );
