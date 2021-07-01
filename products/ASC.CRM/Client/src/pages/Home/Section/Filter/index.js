@@ -56,6 +56,8 @@ const SectionFilterContent = ({
       sortId: filter.sortBy,
     };
 
+    selectedFilterData.inputValue = filter.search;
+
     if (filter.isShared) {
       selectedFilterData.filterValues.push({
         key: `${filter.isShared}`,
@@ -81,12 +83,14 @@ const SectionFilterContent = ({
     const sortBy = data.sortId;
     const sortOrder =
       data.sortDirection === "desc" ? "descending" : "ascending";
+    const search = data.inputValue || "";
 
     const newFilter = filter.clone();
     newFilter.sortBy = sortBy;
     newFilter.sortOrder = sortOrder;
     newFilter.isShared = isShared;
     newFilter.contactListView = contactListView;
+    newFilter.search = search;
 
     getContactsList(newFilter);
   };

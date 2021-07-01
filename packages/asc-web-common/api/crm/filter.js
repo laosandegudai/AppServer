@@ -11,6 +11,7 @@ const DEFAULT_CONTACT_TYPE = -1;
 const DEFAULT_SEARCH = "";
 const DEFAULT_ACCESSIBILITY_TYPE = null;
 const DEFAULT_CONTACT_LIST_VIEW = null;
+const DEFAULT_MANAGER = null;
 
 const CONTACT_TYPE = "contactType";
 const PAGE = "page";
@@ -22,6 +23,7 @@ const SEARCH = "search";
 const CONTACT_STAGE = "contactStage";
 const ACCESSIBILITY_TYPE = "isShared";
 const CONTACT_LIST_VIEW = "contactListView";
+const MANAGER = "responsibleid";
 
 class CrmFilter {
   static getDefault() {
@@ -49,6 +51,8 @@ class CrmFilter {
     const isShared = urlFilter[ACCESSIBILITY_TYPE] || defaultFilter.isShared;
     const contactListView =
       urlFilter[CONTACT_LIST_VIEW] || defaultFilter.contactListView;
+    const manager = urlFilter[MANAGER] || defaultFilter.manager;
+    const search = urlFilter[SEARCH] || defaultFilter.search;
 
     const newFilter = new CrmFilter({
       sortBy,
@@ -60,6 +64,8 @@ class CrmFilter {
       total,
       isShared,
       contactListView,
+      manager,
+      search,
     });
 
     return newFilter;
@@ -77,6 +83,7 @@ class CrmFilter {
     search = DEFAULT_SEARCH,
     isShared = DEFAULT_ACCESSIBILITY_TYPE,
     contactListView = DEFAULT_CONTACT_LIST_VIEW,
+    manager = DEFAULT_MANAGER,
   }) {
     this.page = page;
     this.pageCount = pageCount;
@@ -89,6 +96,7 @@ class CrmFilter {
     this.total = total;
     this.isShared = isShared;
     this.contactListView = contactListView;
+    this.manager = manager;
   }
 
   toApiUrlParams = () => {
@@ -100,6 +108,8 @@ class CrmFilter {
       startIndex,
       isShared,
       contactListView,
+      manager,
+      search,
     } = this;
 
     let dtoFilter = {
@@ -110,19 +120,9 @@ class CrmFilter {
       Count: pageCount,
       isShared: isShared,
       contactListView: contactListView,
+      responsibleid: manager,
+      filtervalue: (search ?? "").trim(),
     };
-
-    // switch (contactListView) {
-    //   case "company":
-    //     dtoFilter.isCompany = true;
-    //     break;
-    //   case "person":
-    //     dtoFilter.contactListViewType = 1;
-    //     break;
-    //   case "withopportunity":
-    //     dtoFilter.contactListViewType = 2;
-    //     break;
-    // }
 
     const str = toUrlParams(dtoFilter, true);
 
@@ -137,6 +137,8 @@ class CrmFilter {
       startIndex,
       isShared,
       contactListView,
+      manager,
+      search,
     } = this;
 
     const dtoFilter = {};
@@ -149,10 +151,19 @@ class CrmFilter {
       dtoFilter[CONTACT_LIST_VIEW] = contactListView;
     }
 
+    if (manager) {
+      dtoFilter[MANAGER] = manager;
+    }
+
+    if (search) {
+      dtoFilter[SEARCH] = search.trim();
+    }
+
     dtoFilter[SORT_BY] = sortBy;
     dtoFilter[SORT_ORDER] = sortOrder;
     dtoFilter[START_INDEX] = startIndex;
     dtoFilter[PAGE_COUNT] = pageCount;
+    dtoFilter[MANAGER] = manager;
 
     const str = toUrlParams(dtoFilter, true);
 
@@ -172,6 +183,8 @@ class CrmFilter {
       total: this.total,
       isShared: this.isShared,
       contactListView: this.contactListView,
+      manager: this.manager,
+      search: this.search,
     });
   }
 }
