@@ -136,7 +136,6 @@ class PureHome extends React.Component {
 
   onDrop = (files, uploadToFolder) => {
     const { t, startUpload, setDragging, dragging } = this.props;
-
     dragging && setDragging(false);
     startUpload(files, uploadToFolder, t);
   };
@@ -226,6 +225,7 @@ class PureHome extends React.Component {
       fileActionId,
       firstLoad,
       isHeaderVisible,
+      isPrivacyFolder,
       isRecycleBinFolder,
 
       primaryProgressDataVisible,
@@ -241,7 +241,6 @@ class PureHome extends React.Component {
       isLoading,
       dragging,
     } = this.props;
-
     return (
       <>
         <MediaViewer />
@@ -251,7 +250,7 @@ class PureHome extends React.Component {
           withBodyScroll
           withBodyAutoFocus={!isMobile}
           uploadFiles
-          onDrop={isRecycleBinFolder ? null : this.onDrop}
+          onDrop={isRecycleBinFolder || isPrivacyFolder ? null : this.onDrop}
           setSelections={this.props.setSelections}
           onMouseMove={this.onMouseMove}
           showPrimaryProgressBar={primaryProgressDataVisible}
@@ -272,6 +271,7 @@ class PureHome extends React.Component {
           isHeaderVisible={isHeaderVisible}
           onOpenUploadPanel={this.showUploadPanel}
           isLoading={isLoading}
+          dragging={dragging}
         >
           <PageLayout.ArticleHeader>
             <ArticleHeaderContent />
@@ -330,6 +330,7 @@ export default inject(
     const { id } = fileActionStore;
     const {
       isRecycleBinFolder,
+      isPrivacyFolder,
       expandedKeys,
       setExpandedKeys,
     } = treeFoldersStore;
@@ -372,6 +373,7 @@ export default inject(
       uploaded,
       converted,
       isRecycleBinFolder,
+      isPrivacyFolder,
       isVisitor: auth.userStore.user.isVisitor,
       expandedKeys,
 
