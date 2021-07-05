@@ -29,13 +29,14 @@
 
 using ASC.Notify.Recipients;
 using ASC.Projects.Core.BusinessLogic.Data;
+using ASC.Projects.Core.BusinessLogic.Notifications.Data;
 
 namespace ASC.Projects.Core.BusinessLogic.Notifications.Interfaces
 {
     /// <summary>
     /// An interface of sender of'Projects' product-related messages.
     /// </summary>
-    public interface IProjectsNotificationSender
+    public interface IProjectNotificationSender
     {
         /// <summary>
         /// Sends a letter which contains an invitation to project team.
@@ -50,5 +51,42 @@ namespace ASC.Projects.Core.BusinessLogic.Notifications.Interfaces
         /// <param name="recipient">Recipient of letter.</param>
         /// <param name="project">Project related data.</param>
         void SendRemovingFromProjectTeam(IRecipient recipient, ProjectData project);
+
+        /// <summary>
+        /// Sends a letter which contains a notification about milestone removal.
+        /// </summary>
+        /// <param name="notificationData">Data which is needed for notification sending.</param>
+        void SendMilestoneRemovalNotification(MilestoneNotificationData notificationData);
+
+        /// <summary>
+        /// Sends a letter which contains a notification about milestone closing.
+        /// </summary>
+        /// <param name="notificationData">Data which is needed for notification sending.</param>
+        void SendMilestoneClosingNotification(MilestoneNotificationData notificationData);
+
+        /// <summary>
+        /// Sends a letter which contains a notification about milestone resuming.
+        /// </summary>
+        /// <param name="notificationData">Data which is needed for notification sending.</param>
+        void SendMilestoneResumedNotification(MilestoneNotificationData notificationData);
+
+        /// <summary>
+        /// Sends a letter which contains a notification about milestone creation.
+        /// </summary>
+        /// <param name="notificationData">Data which is needed for notification sending.</param>
+        void SendMilestoneCreatedNotification(MilestoneNotificationData notificationData);
+
+        /// <summary>
+        /// Sends a letter which contains a notification about milestone responsible person change.
+        /// </summary>
+        /// <param name="notificationData">Data which is needed for notification sending.</param>
+        void SendMilestoneResponsibleChangedNotification(MilestoneNotificationData notificationData);
+
+        /// <summary>
+        /// Sends a letter which contains a notification about milestone update.
+        /// </summary>
+        /// <param name="notificationData">Data which is needed for notification sending.</param>
+        void SendMilestoneUpdatedNotification(MilestoneNotificationData notificationData);
+
     }
 }

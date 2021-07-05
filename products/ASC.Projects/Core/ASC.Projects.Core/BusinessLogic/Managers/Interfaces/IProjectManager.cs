@@ -9,5 +9,7 @@ namespace ASC.Projects.Core.BusinessLogic.Managers.Interfaces
     public interface IProjectManager
     {
         bool Exists(int projectId);
+
+        bool IsInTeam(int projectId, Guid participantId);
     }
 }

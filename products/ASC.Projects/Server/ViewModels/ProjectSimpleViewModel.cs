@@ -3,12 +3,14 @@
 namespace ASC.Projects.ViewModels
 {
     [DataContract(Name = "project", Namespace = "")]
-    public class ProjectSimpleViewModel : BaseViewModel
+    public class ProjectSimpleViewModel
     {
-        [DataMember(Order = 31)]
-        public bool CanEdit { get; set; }
+        public int Id { get; set; }
 
-        [DataMember(Order = 32)]
+        public string Title { get; set; }
+
+        public int Status { get; set; }
+
         public bool IsPrivate { get; set; }
     }
 }

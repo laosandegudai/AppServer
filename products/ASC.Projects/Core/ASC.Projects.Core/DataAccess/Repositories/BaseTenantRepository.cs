@@ -36,7 +36,7 @@ using ASC.Projects.Core.DataAccess.EF;
 
 namespace ASC.Projects.Core.DataAccess.Repositories
 {
-    internal class BaseTenantRepository<TEntity, TKey> : BaseRepository<TEntity, TKey>
+    public class BaseTenantRepository<TEntity, TKey> : BaseRepository<TEntity, TKey>
         where TEntity : class, ITenantEntity<TKey>
         where TKey : struct
     {

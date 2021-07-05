@@ -30,6 +30,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using ASC.Projects.Core.DataAccess.Domain.Entities.Interfaces;
 using ASC.Projects.Core.DataAccess.Domain.Enums;
 using ASC.Projects.Core.DataAccess.EF.Helpers;
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +42,7 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
     /// Milestone.
     /// </summary>
     [DebuggerDisplay("Milestone: ID = {Id}, Title = {Title}, Deadline = {Deadline}")]
-    public class DbMilestone : BaseDbEntity<int>
+    public class DbMilestone : BaseDbEntity<int>, ITenantEntity<int>
     {
         /// <summary>
         /// Title of milestone.
