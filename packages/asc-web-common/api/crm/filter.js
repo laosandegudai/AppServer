@@ -11,7 +11,9 @@ const DEFAULT_CONTACT_TYPE = -1;
 const DEFAULT_SEARCH = "";
 const DEFAULT_ACCESSIBILITY_TYPE = null;
 const DEFAULT_CONTACT_LIST_VIEW = null;
-const DEFAULT_MANAGER = null;
+const DEFAULT_MANAGER_TYPE = null;
+const DEFAULT_FROM_DATE_TYPE = null;
+const DEFAULT_TO_DATE_TYPE = null;
 
 const CONTACT_TYPE = "contactType";
 const PAGE = "page";
@@ -23,7 +25,9 @@ const SEARCH = "search";
 const CONTACT_STAGE = "contactStage";
 const ACCESSIBILITY_TYPE = "isShared";
 const CONTACT_LIST_VIEW = "contactListView";
-const MANAGER = "responsibleid";
+const MANAGER_TYPE = "responsibleid";
+const FROM_DATE_TYPE = "fromDate";
+const TO_DATE_TYPE = "toDate";
 
 class CrmFilter {
   static getDefault() {
@@ -51,8 +55,11 @@ class CrmFilter {
     const isShared = urlFilter[ACCESSIBILITY_TYPE] || defaultFilter.isShared;
     const contactListView =
       urlFilter[CONTACT_LIST_VIEW] || defaultFilter.contactListView;
-    const manager = urlFilter[MANAGER] || defaultFilter.manager;
+    const responsibleid =
+      urlFilter[MANAGER_TYPE] || defaultFilter.responsibleid;
     const search = urlFilter[SEARCH] || defaultFilter.search;
+    const fromDate = urlFilter[FROM_DATE_TYPE] || defaultFilter.fromDate;
+    const toDate = urlFilter[TO_DATE_TYPE] || defaultFilter.toDate;
 
     const newFilter = new CrmFilter({
       sortBy,
@@ -64,8 +71,10 @@ class CrmFilter {
       total,
       isShared,
       contactListView,
-      manager,
+      responsibleid,
       search,
+      fromDate,
+      toDate,
     });
 
     return newFilter;
@@ -83,7 +92,9 @@ class CrmFilter {
     search = DEFAULT_SEARCH,
     isShared = DEFAULT_ACCESSIBILITY_TYPE,
     contactListView = DEFAULT_CONTACT_LIST_VIEW,
-    manager = DEFAULT_MANAGER,
+    responsibleid = DEFAULT_MANAGER_TYPE,
+    fromDate = DEFAULT_FROM_DATE_TYPE,
+    toDate = DEFAULT_TO_DATE_TYPE,
   }) {
     this.page = page;
     this.pageCount = pageCount;
@@ -96,7 +107,9 @@ class CrmFilter {
     this.total = total;
     this.isShared = isShared;
     this.contactListView = contactListView;
-    this.manager = manager;
+    this.responsibleid = responsibleid;
+    this.fromDate = fromDate;
+    this.toDate = toDate;
   }
 
   toApiUrlParams = () => {
@@ -108,8 +121,10 @@ class CrmFilter {
       startIndex,
       isShared,
       contactListView,
-      manager,
+      responsibleid,
       search,
+      fromDate,
+      toDate,
     } = this;
 
     let dtoFilter = {
@@ -120,8 +135,10 @@ class CrmFilter {
       Count: pageCount,
       isShared: isShared,
       contactListView: contactListView,
-      responsibleid: manager,
+      responsibleid: responsibleid,
       filtervalue: (search ?? "").trim(),
+      fromDate: fromDate,
+      toDate: toDate,
     };
 
     const str = toUrlParams(dtoFilter, true);
@@ -137,8 +154,10 @@ class CrmFilter {
       startIndex,
       isShared,
       contactListView,
-      manager,
+      responsibleid,
       search,
+      fromDate,
+      toDate,
     } = this;
 
     const dtoFilter = {};
@@ -151,19 +170,23 @@ class CrmFilter {
       dtoFilter[CONTACT_LIST_VIEW] = contactListView;
     }
 
-    if (manager) {
-      dtoFilter[MANAGER] = manager;
+    if (responsibleid) {
+      dtoFilter[MANAGER_TYPE] = responsibleid;
     }
 
     if (search) {
       dtoFilter[SEARCH] = search.trim();
     }
 
+    if (fromDate && toDate) {
+      dtoFilter[FROM_DATE_TYPE] = fromDate;
+      dtoFilter[TO_DATE_TYPE] = toDate;
+    }
+
     dtoFilter[SORT_BY] = sortBy;
     dtoFilter[SORT_ORDER] = sortOrder;
     dtoFilter[START_INDEX] = startIndex;
     dtoFilter[PAGE_COUNT] = pageCount;
-    dtoFilter[MANAGER] = manager;
 
     const str = toUrlParams(dtoFilter, true);
 
@@ -183,8 +206,10 @@ class CrmFilter {
       total: this.total,
       isShared: this.isShared,
       contactListView: this.contactListView,
-      manager: this.manager,
+      responsibleid: this.responsibleid,
       search: this.search,
+      fromDate: this.fromDate,
+      toDate: this.toDate,
     });
   }
 }

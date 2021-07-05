@@ -8,6 +8,7 @@ import { isMobileOnly } from "react-device-detect";
 import FilterInput from "@appserver/common/components/FilterInput";
 import { withLayoutSize } from "@appserver/common/utils";
 import { withRouter } from "react-router";
+import moment from "moment";
 
 const SectionFilterContent = ({
   sectionWidth,
@@ -16,7 +17,20 @@ const SectionFilterContent = ({
   t,
   filter,
   getContactsList,
+  customNames,
+  user,
 }) => {
+  const getManagerType = (filterValues) => {
+    const responsibleid = result(
+      find(filterValues, (value) => {
+        return value.group === "filter-manager";
+      }),
+      "key"
+    );
+
+    return responsibleid ? responsibleid : null;
+  };
+
   const getAccessibilityType = (filterValues) => {
     const isShared = result(
       find(filterValues, (value) => {
@@ -30,6 +44,61 @@ const SectionFilterContent = ({
         ? "true"
         : "false"
       : null;
+  };
+
+  const getOtherType = (filterValues) => {};
+
+  const getDateType = (filterValues) => {
+    const lastMonthStart = moment()
+      .subtract(1, "months")
+      .date(1)
+      .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+      .format();
+
+    const lastMonthEnd = moment()
+      .subtract(1, "months")
+      .endOf("month")
+      .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+      .format();
+
+    const yesterday = moment()
+      .subtract(1, "days")
+      .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+      .format();
+
+    const today = moment()
+      .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+      .format();
+    const thisMonth = moment()
+      .startOf("month")
+      .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+      .format();
+
+    const date = result(
+      find(filterValues, (value) => {
+        return value.group === "filter-creation-date";
+      }),
+      "key"
+    );
+
+    return date
+      ? date === "filter-last-month"
+        ? {
+            fromDate: lastMonthStart,
+            toDate: lastMonthEnd,
+          }
+        : date === "filter-yesterday"
+        ? {
+            fromDate: yesterday,
+            toDate: yesterday,
+          }
+        : date === "filter-today"
+        ? {
+            fromDate: today,
+            toDate: today,
+          }
+        : { fromDate: thisMonth, toDate: today }
+      : { fromDate: null, toDate: null };
   };
 
   const getContactListViewType = (filterValues) => {
@@ -78,8 +147,10 @@ const SectionFilterContent = ({
   const selectedFilterData = getSelectedFilterData();
 
   const onFilter = (data) => {
+    const responsibleid = getManagerType(data.filterValues);
     const isShared = getAccessibilityType(data.filterValues);
     const contactListView = getContactListViewType(data.filterValues);
+    const { fromDate, toDate } = getDateType(data.filterValues);
     const sortBy = data.sortId;
     const sortOrder =
       data.sortDirection === "desc" ? "descending" : "ascending";
@@ -88,14 +159,18 @@ const SectionFilterContent = ({
     const newFilter = filter.clone();
     newFilter.sortBy = sortBy;
     newFilter.sortOrder = sortOrder;
+    newFilter.responsibleid = responsibleid;
     newFilter.isShared = isShared;
     newFilter.contactListView = contactListView;
     newFilter.search = search;
+    newFilter.fromDate = fromDate;
+    newFilter.toDate = toDate;
 
     getContactsList(newFilter);
   };
 
   const getData = () => {
+    const { groupsCaption } = customNames;
     const options = [
       {
         key: "filter-manager",
@@ -104,20 +179,36 @@ const SectionFilterContent = ({
         isHeader: true,
       },
       {
-        key: "1",
+        key: "filter-my-manager",
         group: "filter-manager",
         label: t("My"),
+        isSelector: true,
+        defaultOptionLabel: t("Common:MeLabel"),
+        defaultSelectLabel: t("Common:Select"),
+        groupsCaption,
+        defaultOption: user,
+        selectedItem: {},
       },
       {
-        key: "2",
-        group: "filter-manager",
-        label: t("NoContactManager"),
+        key: "group",
+        group: "filter-author",
+        label: groupsCaption,
+        defaultSelectLabel: t("Common:Select"),
+        isSelector: true,
+        selectedItem: {},
       },
-      {
-        key: "3",
-        group: "filter-manager",
-        label: t("Custom"),
-      },
+      // {
+      //   key: "filter-no-manager",
+      //   group: "filter-manager",
+      //   label: t("NoContactManager"),
+      //   isSelector: true,
+      // },
+      // {
+      //   key: "filter-custom-manager",
+      //   group: "filter-manager",
+      //   label: t("Custom"),
+      //   isSelector: true,
+      // },
       {
         key: "filter-access",
         group: "filter-access",
@@ -141,17 +232,17 @@ const SectionFilterContent = ({
         isRowHeader: true,
       },
       {
-        key: "7",
+        key: "filter-other-temperature-level",
         group: "filter-other",
         label: t("TemperatureLevel"),
       },
       {
-        key: "8",
+        key: "filter-other-contact-type",
         group: "filter-other",
         label: t("ContactType"),
       },
       {
-        key: "9",
+        key: "filter-other-with-tag",
         group: "filter-other",
         label: t("WithTag"),
       },
@@ -166,29 +257,24 @@ const SectionFilterContent = ({
         isHeader: true,
       },
       {
-        key: "10",
+        key: "filter-last-month",
         group: "filter-creation-date",
         label: t("LastMonth"),
       },
       {
-        key: "11",
+        key: "filter-yesterday",
         group: "filter-creation-date",
         label: t("Yesterday"),
       },
       {
-        key: "12",
+        key: "filter-today",
         group: "filter-creation-date",
         label: t("Today"),
       },
       {
-        key: "13",
+        key: "filter-this-month",
         group: "filter-creation-date",
         label: t("ThisMonth"),
-      },
-      {
-        key: "14",
-        group: "filter-creation-date",
-        label: t("Custom"),
       },
       {
         key: "filter-show",
@@ -261,15 +347,19 @@ const SectionFilterContent = ({
 };
 
 export default withRouter(
-  inject(({ crmStore, filterStore, contactsStore }) => {
+  inject(({ auth, crmStore, filterStore, contactsStore }) => {
     const { isLoaded } = crmStore;
     const { filter } = filterStore;
     const { getContactsList } = contactsStore;
+    const { customNames } = auth.settingsStore;
+    const { user } = auth.userStore;
 
     return {
       isLoaded,
       filter,
       getContactsList,
+      customNames,
+      user,
     };
   })(
     observer(
