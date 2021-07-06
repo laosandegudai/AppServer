@@ -2,7 +2,7 @@ import React from "react";
 import { inject, observer } from "mobx-react";
 import { withTranslation } from "react-i18next";
 import { withRouter } from "react-router";
-import { FilterType } from "../../../../constants";
+import { RowProjectOptionStatus } from "../../../../constants";
 import FilterInput from "@appserver/common/components/FilterInput";
 
 const PureSectionFilterContent = (props) => {
@@ -16,17 +16,17 @@ const PureSectionFilterContent = (props) => {
         isHeader: true,
       },
       {
-        key: FilterType.Active.toString(),
+        key: RowProjectOptionStatus.Active.toString(),
         group: "filter-filterType",
         label: t("Active"),
       },
       {
-        key: FilterType.Paused.toString(),
+        key: RowProjectOptionStatus.Paused.toString(),
         group: "filter-filterType",
         label: t("Paused"),
       },
       {
-        key: FilterType.Closed.toString(),
+        key: RowProjectOptionStatus.Closed.toString(),
         group: "filter-filterType",
         label: t("Closed"),
       },

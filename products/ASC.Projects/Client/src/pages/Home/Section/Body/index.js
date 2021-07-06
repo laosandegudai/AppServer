@@ -38,9 +38,10 @@ const SectionBodyContent = withTranslation(["Home", "Common"])(
 );
 
 export default inject(({ projectsStore }) => {
-  const { filterStore } = projectsStore;
+  const { projectsFilterStore, items } = projectsStore;
+  console.log(items);
   return {
     projectsStore,
-    projectsList: filterStore.projectList,
+    projectsList: projectsFilterStore.projectList,
   };
 })(observer(SectionBodyContent));

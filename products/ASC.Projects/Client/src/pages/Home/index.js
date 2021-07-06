@@ -12,14 +12,10 @@ import Loaders from "@appserver/common/components/Loaders";
 import toastr from "studio/toastr";
 import PageLayout from "@appserver/common/components/PageLayout";
 import { withTranslation } from "react-i18next";
-import styled from "styled-components";
-import { isMobile, isTablet, isIOS } from "react-device-detect";
 
-import { setDocumentTitle } from "../../helpers/utils";
 import { inject } from "mobx-react";
 import i18n from "../../i18n";
 import { I18nextProvider } from "react-i18next";
-import { toCommunityHostname, deleteCookie } from "@appserver/common/utils";
 import {
   ArticleBodyContent,
   ArticleHeaderContent,
@@ -30,9 +26,54 @@ import {
   SectionFilterContent,
   SectionHeaderContent,
 } from "./Section";
-const Home = ({ fetchProjectsItems }) => {
+import ProjectsFilter from "@appserver/common/api/projects/filter";
+import config from "../../../package.json";
+const Home = ({
+  homepage,
+  fetchAllProjects,
+  projects,
+  setIsLoading,
+  firstLoad,
+  setFirstLoad,
+  fetchProjects,
+  history,
+}) => {
+  const { location } = history;
+  const { pathname } = location;
   useEffect(() => {
-    fetchProjectsItems();
+    // спросить по этому участку Илью
+    const reg = new RegExp(`${homepage}((/?)$|/filter)`, "gm");
+    const match = window.location.pathname.match(reg);
+    let filterObj = null;
+
+    console.log(match);
+
+    if (match && match.length > 0) {
+      filterObj = ProjectsFilter.getFilter(window.location);
+      console.log(filterObj);
+
+      if (!filterObj) {
+        filterObj = ProjectsFilter.getDefault();
+        // setIsLoading(true);
+        console.log("da");
+        fetchProjects(filterObj);
+        // .finally(() => {
+        //   setIsLoading(false);
+        //   setFirstLoad(false);
+        // });
+      }
+    }
+
+    if (!filterObj) return;
+    // вот здесь мы должны определить url путь и уже делать запрос
+    if (pathname.indexOf("/projects/filter") > -1) {
+      const newFilter = ProjectsFilter.getFilter(location);
+      fetchAllProjects(newFilter);
+    }
+    const newFilter = filterObj ? filterObj.clone() : FilesFilter.getDefault();
+
+    console.log(filterObj);
+    const filter = ProjectsFilter.getDefault();
   }, []);
 
   return (
@@ -61,12 +102,31 @@ const Home = ({ fetchProjectsItems }) => {
   );
 };
 
-const HomeWrapper = inject(({ auth, projectsStore }) => ({
-  modules: auth.moduleStore.modules,
-  isLoaded: auth.isLoaded,
-  setCurrentProductId: auth.settingsStore.setCurrentProductId,
-  fetchProjectsItems: projectsStore.filterStore.fetchProjectsItems,
-}))(withRouter(withTranslation(["Article", "Common"])(Home)));
+const HomeWrapper = inject(({ auth, projectsStore, projectsFilterStore }) => {
+  const { isLoading, firstLoad, setIsLoading, setFirstLoad } = projectsStore;
+  const {
+    fetchAllProjects,
+    projects,
+    filter,
+    fetchProjects,
+  } = projectsFilterStore;
+  return {
+    modules: auth.moduleStore.modules,
+    isLoaded: auth.isLoaded,
+    setCurrentProductId: auth.settingsStore.setCurrentProductId,
+    fetchProjectsItems: projectsStore.projectsFilterStore.fetchProjectsItems,
+    homepage: config.homepage,
+    fetchProjects,
+    isLoading,
+    firstLoad,
+    setIsLoading,
+    setFirstLoad,
+
+    fetchAllProjects,
+    filter,
+    projects,
+  };
+})(withRouter(withTranslation(["Article", "Common"])(Home)));
 
 export default (props) => (
   <I18nextProvider i18n={i18n}>

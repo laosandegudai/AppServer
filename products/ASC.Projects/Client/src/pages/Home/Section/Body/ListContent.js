@@ -2,6 +2,9 @@ import React from "react";
 import { withRouter } from "react-router";
 import RowContent from "@appserver/components/row-content";
 import Link from "@appserver/components/link";
+import LinkWithDropdown from "@appserver/components/link-with-dropdown";
+import Text from "@appserver/components/text";
+import Box from "@appserver/components/box";
 import { useTranslation } from "react-i18next";
 
 const ListContent = ({ isMobile, list, sectionWidth }) => {
@@ -9,7 +12,7 @@ const ListContent = ({ isMobile, list, sectionWidth }) => {
   const { t } = useTranslation(["Home", "Common"]);
 
   const taskCountTitle = t("OpenTask") + ": " + taskCount;
-  const participantCountTitle = t("Team") + ": l" + participantCount;
+  const participantCountTitle = t("Team") + ": " + participantCount;
   return (
     <RowContent isMobile={isMobile} sectionWidth={sectionWidth} disableSideInfo>
       <Link

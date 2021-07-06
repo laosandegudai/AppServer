@@ -5,6 +5,7 @@ import Row from "@appserver/components/row";
 import ComboBox from "@appserver/components/combobox";
 import ListContent from "./ListContent";
 import { useTranslation } from "react-i18next";
+import { RowProjectOptionStatus } from "../../../../constants";
 
 const SimpleProjectsRow = ({ list, sectionWidth, isMobile }) => {
   const {
@@ -72,6 +73,29 @@ const SimpleProjectsRow = ({ list, sectionWidth, isMobile }) => {
     contextOptions: getProjectsContextOptions(id),
   };
 
+  const getSelectedOption = () => {
+    switch (list.status) {
+      case RowProjectOptionStatus.Active:
+        return {
+          icon: "images/catalog.status-play.react.svg",
+          key: 0,
+          label: "Open",
+        };
+      case RowProjectOptionStatus.Closed:
+        return {
+          icon: "images/catalog.status-closed.react.svg",
+          key: 2,
+          label: "Closed",
+        };
+      case RowProjectOptionStatus.Paused:
+        return {
+          icon: "images/catalog.status-pause.react.svg",
+          key: 1,
+          label: "Paused",
+        };
+    }
+  };
+
   const element = (
     <ComboBox
       options={[
@@ -92,11 +116,7 @@ const SimpleProjectsRow = ({ list, sectionWidth, isMobile }) => {
         },
       ]}
       scaled={false}
-      selectedOption={{
-        icon: "images/catalog.status-play.react.svg",
-        key: 1,
-        label: "Open",
-      }}
+      selectedOption={getSelectedOption()}
       size="content"
     />
   );

@@ -49,7 +49,7 @@ const StyledExpanderRightIcon = styled(ExpanderRightIcon)`
 `;
 
 const PureTreeFolders = (props) => {
-  const { isLoading, treeFolders, data, t } = props;
+  const { isLoading, treeFolders, data, t, onSelect } = props;
   //console.log(props);
 
   const getFolderIcon = (item) => {
@@ -140,6 +140,7 @@ const PureTreeFolders = (props) => {
       className="files-tree-menu"
       checkable={false}
       draggable
+      onSelect={onSelect}
       disabled={isLoading}
       multiple={false}
       switcherIcon={switcherIcon}
