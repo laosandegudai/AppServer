@@ -17,6 +17,7 @@
     "url": ""
   },
   "dependencies": {
+    "faker": "^5.5.3",
     "global": "^4.4.0",
     "react-selecto": "^1.12.0"
   }

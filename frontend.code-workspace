@@ -52,7 +52,10 @@
   "settings": {
     "window.zoomLevel": 0,
     "editor.formatOnSave": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "cSpell.words": [
+      "sortorder"
+    ]
   },
   "extensions": {
     "recommendations": ["folke.vscode-monorepo-workspace"]
