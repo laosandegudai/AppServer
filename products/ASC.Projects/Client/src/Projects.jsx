@@ -17,6 +17,8 @@ import stores from "./store/index";
 const { proxyURL } = AppServerConfig;
 const homepage = config.homepage;
 const PROXY_HOMEPAGE_URL = combineUrl(proxyURL, homepage);
+const HOME_URL = combineUrl(PROXY_HOMEPAGE_URL, "/");
+const FILTER_URL = combineUrl(PROXY_HOMEPAGE_URL, "/filter");
 
 const Error404 = React.lazy(() => import("studio/Error404"));
 
@@ -42,7 +44,8 @@ const ProjectsContent = (props) => {
 
   return (
     <Switch>
-      <PrivateRoute exact path={PROXY_HOMEPAGE_URL} component={Home} />
+      <PrivateRoute exact path={HOME_URL} component={Home} />
+      <PrivateRoute path={FILTER_URL} component={Home} />
       <PrivateRoute component={Error404Route} />
     </Switch>
   );
@@ -61,7 +64,7 @@ const Projects = inject(({ auth, projectsStore }) => {
     isLoaded: auth.isLoaded && projectsStore.isLoaded,
   };
 })(withTranslation("Common")(observer(ProjectsContent)));
-console.log(stores);
+
 export default (props) => (
   <ProjectProvider {...stores}>
     <I18nextProvider i18n={i18n}>
