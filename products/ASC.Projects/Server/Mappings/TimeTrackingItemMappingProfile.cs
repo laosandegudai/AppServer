@@ -33,7 +33,7 @@ namespace ASC.Projects.Mappings
                 });
 
             CreateMap<TimeTrackingItemViewModel, TimeTrackingItemData>()
-                .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date))
+                .ForMember(dest => dest.TrackingDate, opt => opt.MapFrom(src => src.Date))
                 .ForMember(dest => dest.PersonId, opt => opt.MapFrom(src => src.PersonId))
                 .ForMember(dest => dest.Hours, opt => opt.MapFrom(src => src.Hours))
                 .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note))
@@ -41,7 +41,7 @@ namespace ASC.Projects.Mappings
 
             CreateMap<TimeTrackingItemData, DbTimeTrackingItem>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.TrackingDate, opt => opt.MapFrom(src => src.Date))
+                .ForMember(dest => dest.TrackingDate, opt => opt.MapFrom(src => src.TrackingDate))
                 .ForMember(dest => dest.PersonId, opt => opt.MapFrom(src => src.PersonId))
                 .ForMember(dest => dest.Hours, opt => opt.MapFrom(src => src.Hours))
                 .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note))
