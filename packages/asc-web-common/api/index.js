@@ -1,5 +1,6 @@
 import Filter from "./people/filter";
 import FilesFilter from "./files/filter";
+import ProjectsFilter from "./projects/filter";
 import * as people from "./people";
 import * as user from "./user";
 import * as settings from "./settings";
@@ -12,6 +13,7 @@ import * as projects from "./projects";
 export default {
   Filter,
   FilesFilter,
+  ProjectsFilter,
   people,
   user,
   settings,

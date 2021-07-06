@@ -1,14 +1,30 @@
+var faker = require("faker");
 const folderTree = [
   {
     id: "folder-projects",
     key: "projects",
     title: "Projects",
     rootFolderName: "@projects",
-    rootFolderType: 1,
+    rootFolderType: 0,
     folders: [
-      { title: "My Projects", rootFolderType: 0, key: "projects1" },
-      { title: "Followed", rootFolderType: 0, key: "projects2" },
-      { title: "Active", rootFolderType: 0, key: "projects3" },
+      {
+        title: "My Projects",
+        rootFolderType: 9,
+        key: "my-projects",
+        rootFolderName: "@my-projects",
+      },
+      {
+        title: "Followed",
+        rootFolderType: 9,
+        key: "projects-followed",
+        rootFolderName: "@projects-followed",
+      },
+      {
+        title: "Active",
+        rootFolderType: 9,
+        key: "projects-active",
+        rootFolderName: "@projects-active",
+      },
     ],
   },
   {
@@ -16,14 +32,14 @@ const folderTree = [
     key: "milestones",
     title: "Milestones",
     rootFolderName: "@milestones",
-    rootFolderType: 2,
+    rootFolderType: 1,
     folders: [
       {
         title: "Milestones with My Tasks",
-        rootFolderType: 2,
+        rootFolderType: 9,
         key: "milestones1",
       },
-      { title: "Upcoming", rootFolderType: 0, key: "milestones2" },
+      { title: "Upcoming", rootFolderType: 9, key: "milestones2" },
     ],
   },
   {
@@ -31,10 +47,10 @@ const folderTree = [
     key: "tasks",
     title: "Tasks",
     rootFolderName: "@tasks",
-    rootFolderType: 3,
+    rootFolderType: 2,
     folders: [
-      { title: "My Tasks", rootFolderType: 0, key: "tasks1" },
-      { title: "Upcoming", rootFolderType: 0, key: "tasks2" },
+      { title: "My Tasks", rootFolderType: 9, key: "tasks1" },
+      { title: "Upcoming", rootFolderType: 9, key: "tasks2" },
     ],
   },
   {
@@ -42,10 +58,10 @@ const folderTree = [
     key: "discussions",
     title: "Discussions",
     rootFolderName: "@discussions",
-    rootFolderType: 4,
+    rootFolderType: 3,
     folders: [
-      { title: "My Discussions", rootFolderType: 0, key: "discussions1" },
-      { title: "Latest", rootFolderType: 0, key: "discussions2" },
+      { title: "My Discussions", rootFolderType: 9, key: "discussions1" },
+      { title: "Latest", rootFolderType: 9, key: "discussions2" },
     ],
   },
   {
@@ -53,7 +69,7 @@ const folderTree = [
     key: "ganttChart",
     title: "Gantt Chart",
     rootFolderName: "@ganttChart",
-    rootFolderType: 5,
+    rootFolderType: 4,
     folders: [],
   },
   {
@@ -61,7 +77,7 @@ const folderTree = [
     key: "timeTracking",
     title: "Time Tracking",
     rootFolderName: "@timeTracking",
-    rootFolderType: 6,
+    rootFolderType: 5,
     folders: [],
   },
   {
@@ -69,7 +85,7 @@ const folderTree = [
     key: "documents",
     title: "Documents",
     rootFolderName: "@documents",
-    rootFolderType: 7,
+    rootFolderType: 6,
     folders: [],
   },
   {
@@ -77,7 +93,7 @@ const folderTree = [
     key: "reports",
     title: "Reports",
     rootFolderName: "@reports",
-    rootFolderType: 8,
+    rootFolderType: 7,
     folders: [],
   },
   {
@@ -85,48 +101,62 @@ const folderTree = [
     key: "projectsTemplates",
     title: "Projects Templates",
     rootFolderName: "@projectsTemplates",
-    rootFolderType: 9,
+    rootFolderType: 8,
     folders: [],
   },
 ];
 
-const filterProjects = [
-  {
-    canDelete: true,
-    canEdit: true,
-    created: "2021-06-25T15:57:44.0000000+05:00",
-    createdById: "da436a14-3f06-45de-8ee6-0957e190bb12",
-    description: "213213",
-    id: 262363,
-    participantCount: 1,
-    projectFolder: "2352104",
-    taskCount: 2,
-    title: "test",
-    status: 1,
-    updated: "2021-06-25T15:57:44.0000000+05:00",
-    updatedById: "da436a14-3f06-45de-8ee6-0957e190bb12",
-  },
-  {
-    canDelete: true,
-    canEdit: true,
-    created: "2021-06-25T16:00:44.0000000+05:00",
-    createdById: "da436a14-3f06-45de-8ee6-0957e190bb12",
-    description: "test44444",
-    id: 262362,
-    participantCount: 2,
-    taskCount: 3,
-    projectFolder: "2352104",
-    title: "project1",
-    status: 1,
-    updated: "2021-06-25T16:00:44.0000000+05:00",
-    updatedById: "da436a14-3f06-45de-8ee6-0957e190bb12",
-  },
-];
+const generateProjects = () => {
+  function randomNum(min, max) {
+    let rand = min - 0.5 + Math.random() * (max - min + 1);
+    return Math.round(rand);
+  }
+
+  const generate = (id) => {
+    const project = {
+      title: faker.commerce.productName(),
+      projectFolder: faker.datatype.number(),
+      id: faker.datatype.number(),
+      follow: faker.datatype.boolean(),
+      taskCount: randomNum(0, 15),
+      participantCount: randomNum(0, 20),
+      status: randomNum(0, 2),
+      createdBy: {
+        id: id || faker.datatype.uuid(),
+        displayName: faker.name.findName(),
+        title: "Manager",
+      },
+    };
+    return project;
+  };
+
+  const allProjects = Array.from({ length: 12 }, generate);
+
+  const myProjects = Array.from({ length: 5 }, () =>
+    generate("00000000-0000-0000-0000-000000000000")
+  );
+  return [...allProjects, ...myProjects];
+};
+
+const projects = generateProjects();
 
 export function getFolders() {
   return Promise.resolve(folderTree);
 }
 
-export function getFilterProjects() {
-  return Promise.resolve(filterProjects);
+export function getAllProjects() {
+  return Promise.resolve(projects);
+}
+
+export function getMyProjects() {
+  const fakeUserId = "00000000-0000-0000-0000-000000000000";
+  return Promise.resolve(projects.filter((i) => i.createdBy.id === fakeUserId));
+}
+
+export function getFollowedProjects() {
+  return Promise.resolve(projects.filter((i) => i.follow));
+}
+
+export function getActiveProjects() {
+  return Promise.resolve(projects.filter((i) => i.status === 0));
 }
