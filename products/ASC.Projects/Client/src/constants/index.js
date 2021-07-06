@@ -1,21 +1,28 @@
 export const FolderType = Object.freeze({
-  Projects: 1,
-  Milestones: 2,
-  Tasks: 3,
-  Discussions: 4,
-  GanttChart: 5,
-  TimeTracking: 6,
-  Documents: 7,
-  Reports: 8,
-  ProjectsTemplate: 9,
+  Projects: 0,
+  Milestones: 1,
+  Tasks: 2,
+  Discussions: 3,
+  GanttChart: 4,
+  TimeTracking: 5,
+  Documents: 6,
+  Reports: 7,
+  ProjectsTemplate: 8,
 });
 
 export const ProjectStatus = Object.freeze({
   Default: 0,
 });
 
-export const FilterType = Object.freeze({
-  Active: 1,
-  Paused: 2,
-  Closed: 3,
+export const FolderKey = Object.freeze({
+  Projects: "projects",
+  MyProjects: "my-projects",
+  ProjectsFollowed: "projects-followed",
+  ProjectsActive: "projects-active",
+});
+
+export const RowProjectOptionStatus = Object.freeze({
+  Active: 0,
+  Paused: 1,
+  Closed: 2,
 });
