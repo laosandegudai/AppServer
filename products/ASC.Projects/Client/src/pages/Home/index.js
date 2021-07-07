@@ -30,50 +30,43 @@ import ProjectsFilter from "@appserver/common/api/projects/filter";
 import config from "../../../package.json";
 const Home = ({
   homepage,
-  fetchAllProjects,
-  projects,
   setIsLoading,
   firstLoad,
   setFirstLoad,
   fetchProjects,
   history,
+  selectedTreeNode,
 }) => {
   const { location } = history;
   const { pathname } = location;
   useEffect(() => {
-    // спросить по этому участку Илью
     const reg = new RegExp(`${homepage}((/?)$|/filter)`, "gm");
     const match = window.location.pathname.match(reg);
     let filterObj = null;
 
-    console.log(match);
-
     if (match && match.length > 0) {
       filterObj = ProjectsFilter.getFilter(window.location);
-      console.log(filterObj);
 
       if (!filterObj) {
         filterObj = ProjectsFilter.getDefault();
-        // setIsLoading(true);
-        console.log("da");
-        fetchProjects(filterObj);
-        // .finally(() => {
-        //   setIsLoading(false);
-        //   setFirstLoad(false);
-        // });
+        setIsLoading(true);
+        fetchProjects(filterObj).finally(() => {
+          setIsLoading(false);
+          setFirstLoad(false);
+        });
       }
     }
 
     if (!filterObj) return;
-    // вот здесь мы должны определить url путь и уже делать запрос
+
     if (pathname.indexOf("/projects/filter") > -1) {
       const newFilter = ProjectsFilter.getFilter(location);
-      fetchAllProjects(newFilter);
+      setIsLoading(true);
+      fetchProjects(newFilter).finally(() => {
+        setIsLoading(false);
+        setFirstLoad(false);
+      });
     }
-    const newFilter = filterObj ? filterObj.clone() : FilesFilter.getDefault();
-
-    console.log(filterObj);
-    const filter = ProjectsFilter.getDefault();
   }, []);
 
   return (
@@ -102,31 +95,33 @@ const Home = ({
   );
 };
 
-const HomeWrapper = inject(({ auth, projectsStore, projectsFilterStore }) => {
-  const { isLoading, firstLoad, setIsLoading, setFirstLoad } = projectsStore;
-  const {
-    fetchAllProjects,
-    projects,
-    filter,
-    fetchProjects,
-  } = projectsFilterStore;
-  return {
-    modules: auth.moduleStore.modules,
-    isLoaded: auth.isLoaded,
-    setCurrentProductId: auth.settingsStore.setCurrentProductId,
-    fetchProjectsItems: projectsStore.projectsFilterStore.fetchProjectsItems,
-    homepage: config.homepage,
-    fetchProjects,
-    isLoading,
-    firstLoad,
-    setIsLoading,
-    setFirstLoad,
-
-    fetchAllProjects,
-    filter,
-    projects,
-  };
-})(withRouter(withTranslation(["Article", "Common"])(Home)));
+const HomeWrapper = inject(
+  ({ auth, projectsStore, projectsFilterStore, treeFoldersStore }) => {
+    const { isLoading, firstLoad, setIsLoading, setFirstLoad } = projectsStore;
+    const { selectedTreeNode } = treeFoldersStore;
+    const {
+      fetchAllProjects,
+      projects,
+      filter,
+      fetchProjects,
+    } = projectsFilterStore;
+    return {
+      modules: auth.moduleStore.modules,
+      isLoaded: auth.isLoaded,
+      setCurrentProductId: auth.settingsStore.setCurrentProductId,
+      homepage: config.homepage,
+      fetchProjects,
+      isLoading,
+      firstLoad,
+      setIsLoading,
+      setFirstLoad,
+      selectedTreeNode,
+      fetchAllProjects,
+      filter,
+      projects,
+    };
+  }
+)(withRouter(withTranslation(["Article", "Common"])(Home)));
 
 export default (props) => (
   <I18nextProvider i18n={i18n}>

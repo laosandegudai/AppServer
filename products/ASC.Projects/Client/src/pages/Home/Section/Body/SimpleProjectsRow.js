@@ -79,19 +79,19 @@ const SimpleProjectsRow = ({ list, sectionWidth, isMobile }) => {
         return {
           icon: "images/catalog.status-play.react.svg",
           key: 0,
-          label: "Open",
+          //label: "Open",
         };
       case RowProjectOptionStatus.Closed:
         return {
           icon: "images/catalog.status-closed.react.svg",
           key: 2,
-          label: "Closed",
+          //label: "Closed",
         };
       case RowProjectOptionStatus.Paused:
         return {
           icon: "images/catalog.status-pause.react.svg",
           key: 1,
-          label: "Paused",
+          //label: "Paused",
         };
     }
   };

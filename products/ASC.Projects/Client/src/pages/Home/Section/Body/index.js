@@ -6,8 +6,8 @@ import { Consumer } from "@appserver/components/utils/context";
 import SimpleProjectsRow from "./SimpleProjectsRow";
 import { isMobile } from "react-device-detect";
 
-const PureSectionBodyContent = ({ projectsList }) => {
-  return projectsList.length > 0 ? (
+const PureSectionBodyContent = ({ items }) => {
+  return items.length > 0 ? (
     <>
       <Consumer>
         {(context) => (
@@ -16,7 +16,7 @@ const PureSectionBodyContent = ({ projectsList }) => {
             useReactWindow={false}
             // tReady={tReady}
           >
-            {projectsList.map((list) => (
+            {items.map((list) => (
               <SimpleProjectsRow
                 isMobile={isMobile}
                 key={list.id}
@@ -37,11 +37,10 @@ const SectionBodyContent = withTranslation(["Home", "Common"])(
   observer(PureSectionBodyContent)
 );
 
-export default inject(({ projectsStore }) => {
-  const { projectsFilterStore, items } = projectsStore;
-  console.log(items);
+export default inject(({ projectsStore, projectsFilterStore }) => {
+  const { items } = projectsStore;
   return {
     projectsStore,
-    projectsList: projectsFilterStore.projectList,
+    items,
   };
 })(observer(SectionBodyContent));

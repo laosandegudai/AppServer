@@ -8,6 +8,8 @@ import { useEffect } from "react";
 import TreeSettings from "./TreeSettings";
 import { setDocumentTitle } from "../../../helpers/utils";
 import { FolderKey } from "../../../constants";
+import api from "@appserver/common/api";
+const { ProjectsFilter } = api;
 
 const ArticleBodyContent = (props) => {
   //console.log(props);
@@ -17,26 +19,19 @@ const ArticleBodyContent = (props) => {
     treeSettings,
     fetchTreeSettings,
     isLoading,
-    fetchFollowedProjects,
     selectedNode,
     setSelectedNode,
     filter,
-    fetchAllProjects,
-    fetchMyProjects,
-    fetchActiveProjects,
-    setFilterType,
+    setIsLoading,
+
+    setFilter,
     fetchProjects,
   } = props;
 
   const onSelect = (data, e) => {
     console.log(data);
     setSelectedNode(data);
-
-    setFilterType(data[0]);
-
-    // const newFilter = filter.clone();
-    // newFilter.page = 0;
-    // newFilter.startIndex = 0;
+    setIsLoading(true);
 
     const selectedFolderTitle =
       (e.node && e.node.props && e.node.props.title) || null;
@@ -46,30 +41,9 @@ const ArticleBodyContent = (props) => {
       : setDocumentTitle();
 
     if (window.location.pathname.indexOf("/projects/filter") > 0) {
-      fetchProjects(filter, data[0]);
+      setFilter(ProjectsFilter.getDefault());
+      fetchProjects(filter, data[0]).finally(() => setIsLoading(false));
     }
-
-    // if (window.location.pathname.indexOf("/filter") > 0) {
-    //   // здесь проверка на project/filter, кидаем в общую функцию и там уже проверяем
-    //   switch (data[0]) {
-    //     case FolderKey.Projects:
-    //       fetchAllProjects(newFilter);
-    //       break;
-    //     case FolderKey.MyProjects:
-    //       fetchMyProjects(newFilter);
-    //       break;
-    //     case FolderKey.ProjectsFollowed:
-    //       newFilter.follow = true;
-    //       fetchFollowedProjects(newFilter);
-    //       break;
-    //     case FolderKey.ProjectsActive:
-    //       newFilter.status = "open";
-    //       fetchActiveProjects(newFilter);
-
-    //     default:
-    //       break;
-    //   }
-    // }
   };
 
   useEffect(() => {
@@ -86,21 +60,16 @@ const ArticleBodyContent = (props) => {
   );
 };
 
-export default inject(({ projectsStore }) => {
+export default inject(({ projectsStore, projectsFilterStore }) => {
   const {
     isLoading,
     treeFoldersStore,
-    projectsFilterStore,
     setFilterType,
     filter,
+    setFilter,
+    setIsLoading,
   } = projectsStore;
-  const {
-    fetchAllProjects,
-    fetchFollowedProjects,
-    fetchActiveProjects,
-    fetchMyProjects,
-    fetchProjects,
-  } = projectsFilterStore;
+  const { fetchProjects } = projectsFilterStore;
   const { treeFolders, fetchTreeFolders, setSelectedNode } = treeFoldersStore;
   const selectedNode = treeFoldersStore.selectedTreeNode;
 
@@ -111,11 +80,9 @@ export default inject(({ projectsStore }) => {
     fetchTreeFolders,
     isLoading,
     filter,
-    fetchAllProjects,
-    fetchFollowedProjects,
-    fetchActiveProjects,
-    fetchMyProjects,
+    setFilter,
     setFilterType,
     fetchProjects,
+    setIsLoading,
   };
 })(observer(withRouter(ArticleBodyContent)));
