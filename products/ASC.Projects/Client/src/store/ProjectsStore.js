@@ -2,7 +2,6 @@ import { action, makeObservable, observable } from "mobx";
 import config from "../../package.json";
 import { updateTempContent } from "@appserver/common/utils";
 import api from "@appserver/common/api";
-import { FolderKey } from "../constants";
 
 const { ProjectsFilter } = api;
 
@@ -44,7 +43,7 @@ class ProjectsStore {
       setIsLoaded: action,
       setItems: action,
       init: action,
-      setFilterType: action,
+      // setFilterType: action,
     });
   }
 
@@ -93,26 +92,9 @@ class ProjectsStore {
     this.items = items;
   };
 
-  setFilterType = (folderId) => {
-    const {
-      myProjectsFolder,
-      followedFolder,
-      activeFolder,
-    } = this.treeFoldersStore;
-
-    console.log(folderId);
-    switch (folderId) {
-      case FolderKey.Projects:
-      case FolderKey.MyProjects:
-      case FolderKey.ProjectsActive:
-      case FolderKey.ProjectsFollowed:
-        console.log("it's projects filter");
-        this.filter = ProjectsFilter.getDefault();
-        break;
-
-      default:
-        break;
-    }
+  setFilter = (filter) => {
+    console.log(filter);
+    this.filter = filter;
   };
 }
 

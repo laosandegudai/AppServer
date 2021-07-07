@@ -1,18 +1,7 @@
-import {
-  getFilterProjects,
-  getProjectsList,
-} from "@appserver/common/api/projects";
 import { action, computed, makeObservable, observable } from "mobx";
 import history from "@appserver/common/history";
 import { combineUrl } from "@appserver/common/utils";
-import {
-  FolderType,
-  FilterType,
-  FileType,
-  FileAction,
-  AppServerConfig,
-  FilesFormats,
-} from "@appserver/common/constants";
+import { AppServerConfig } from "@appserver/common/constants";
 import config from "../../package.json";
 import api from "@appserver/common/api";
 import { FolderKey } from "../constants";
@@ -29,11 +18,8 @@ class ProjectsFilterStore {
     this.projectsStore = projectsStore;
     makeObservable(this, {
       projects: observable,
-      fetchAllProjects: action,
-      fetchFollowedProjects: action,
-      fetchActiveProjects: action,
-      fetchMyProjects: action,
       setProjects: action,
+      fetchProjects: action,
 
       projectList: computed,
     });
@@ -44,98 +30,61 @@ class ProjectsFilterStore {
     this.filter = filter;
   };
 
-  fetchAllProjects = (filter, folderId) => {
-    const filterData = filter ? filter.clone() : ProjectsFilter.getDefault();
-    const request = () => {
-      api.projects.getAllProjectsList(true, filter).then(async (data) => {
-        this.setProjectFilter(filterData);
-        this.setProjects(data);
-
-        return Promise.resolve(data);
-      });
-    };
-    return request();
-  };
-
   // пока функции повторяются.
   resolveData = async (data, filterData) => {
     this.setProjects([]);
     this.setProjectFilter(filterData);
     this.setProjects(data);
-    console.log(this.projectList);
-    console.log(this.projectsStore);
-    this.projectsStore.setItems(data);
+    this.projectsStore.setItems(this.projectList);
+    const items = {
+      items: this.projectList,
+    };
+    return Promise.resolve(items);
   };
 
-  fetchProjects = (filter, folderId) => {
+  fetchProjects = (filter, folderName) => {
     const newFilter = filter.clone();
     newFilter.page = 0;
     newFilter.startIndex = 0;
+
     const filterData = newFilter
       ? newFilter.clone()
       : ProjectsFilter.getDefault;
 
-    console.log(filter, folderId);
-    if (!folderId) {
-      api.projects
+    if (
+      filterData.status === "open" ||
+      folderName === FolderKey.ProjectsActive
+    ) {
+      filterData.status = "open";
+      return api.projects
+        .getActiveProjectsList(true)
+        .then(async (data) => this.resolveData(data, filterData));
+    }
+
+    if (filterData.follow || folderName === FolderKey.ProjectsFollowed) {
+      filterData.follow = true;
+      return api.projects
+        .getFollowedProjectsList(true)
+        .then(async (data) => this.resolveData(data, filterData));
+    }
+    // for example
+    if (
+      filterData.manager === "10000000-0000-0000-0000-000000000000" ||
+      FolderKey.MyProjects === folderName
+    ) {
+      filterData.manager = "10000000-0000-0000-0000-000000000000";
+      return api.projects
+        .getMyProjectsList(true)
+        .then(async (data) => this.resolveData(data, filterData));
+    }
+
+    if (folderName === FolderKey.Projects || !folderName) {
+      console.log("dadadadada");
+      this.filter = ProjectsFilter.getDefault();
+      return api.projects
         .getAllProjectsList(true)
-        .then((data) => this.resolveData(data, filterData));
+        .then(async (data) => this.resolveData(data, filterData));
     }
-    switch (folderId) {
-      case FolderKey.Projects:
-        api.projects
-          .getAllProjectsList(true)
-          .then((data) => this.resolveData(data, filterData));
-        break;
-      case FolderKey.MyProjects:
-        filterData.manager = "10000000-0000-0000-0000-000000000000";
-        api.projects
-          .getMyProjectsList(true)
-          .then((data) => this.resolveData(data, filterData));
-        break;
-      case FolderKey.ProjectsFollowed:
-        filterData.follow = true;
-        api.projects
-          .getFollowedProjectsList(true)
-          .then((data) => this.resolveData(data, filterData));
-        break;
-      case FolderKey.ProjectsActive:
-        filterData.status = "open";
-        api.projects
-          .getActiveProjectsList(true)
-          .then((data) => this.resolveData(data, filterData));
-      default:
-        break;
-    }
-  };
-
-  fetchMyProjects = (filter) => {
-    const filterData = filter ? filter.clone() : ProjectsFilter.getDefault;
-    api.projects.getMyProjectsList(true).then(async (data) => {
-      this.setProjects([]);
-      this.setProjectFilter(filterData);
-      this.setProjects(this.projectList);
-    });
-  };
-  fetchFollowedProjects = (filter) => {
-    const filterData = filter ? filter.clone() : ProjectsFilter.getDefault;
-    api.projects
-      .getFollowedProjectsList(true, filter, true)
-      .then(async (data) => {
-        this.setProjects([]);
-        this.setProjectFilter(filterData);
-        this.setProjects(data);
-      });
-  };
-
-  fetchActiveProjects = (filter) => {
-    const filterData = filter ? filter.clone() : ProjectsFilter.getDefault;
-    console.log(filterData);
-    api.projects.getActiveProjectsList(true).then(async (data) => {
-      this.setProjects([]);
-      this.setProjectFilter(filterData);
-      this.setProjects(data);
-    });
   };
 
   setFilter = (filter) => {
@@ -144,7 +93,6 @@ class ProjectsFilterStore {
 
   setFilterUrl = (filter) => {
     const urlFilter = filter.toUrlParams();
-    console.log(urlFilter);
     history.push(
       combineUrl(
         AppServerConfig.proxyURL,
