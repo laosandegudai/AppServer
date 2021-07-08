@@ -32,8 +32,8 @@ const SimpleContactRow = ({ contact, sectionWidth, isMobile }) => {
     title,
   } = contact;
 
-  // const email = commonData ? commonData[0].data : "";
-  // const phone = commonData ? commonData[1].data : "";
+  const email = commonData.length ? commonData[0].data : "";
+  const phone = commonData.length > 1 ? commonData[1].data : "";
 
   const element = (
     <Avatar size="min" userName={displayName} source="" role="user" />
@@ -99,7 +99,7 @@ const SimpleContactRow = ({ contact, sectionWidth, isMobile }) => {
             width: "110px",
           }}
         />
-        {/* <Link
+        <Link
           color="#A3A9AE"
           fontSize="12px"
           isTextOverflow
@@ -118,7 +118,7 @@ const SimpleContactRow = ({ contact, sectionWidth, isMobile }) => {
           containerMinWidth="120px"
         >
           {email}
-        </Link> */}
+        </Link>
       </RowContent>
     </Row>
   );

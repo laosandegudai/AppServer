@@ -14,6 +14,7 @@ const DEFAULT_CONTACT_LIST_VIEW = null;
 const DEFAULT_MANAGER_TYPE = null;
 const DEFAULT_FROM_DATE_TYPE = null;
 const DEFAULT_TO_DATE_TYPE = null;
+const DEFAULT_SELECTED_ITEM = {};
 
 const CONTACT_TYPE = "contactType";
 const PAGE = "page";
@@ -60,6 +61,7 @@ class CrmFilter {
     const search = urlFilter[SEARCH] || defaultFilter.search;
     const fromDate = urlFilter[FROM_DATE_TYPE] || defaultFilter.fromDate;
     const toDate = urlFilter[TO_DATE_TYPE] || defaultFilter.toDate;
+    const selectedItem = defaultFilter.selectedItem;
 
     const newFilter = new CrmFilter({
       sortBy,
@@ -75,6 +77,7 @@ class CrmFilter {
       search,
       fromDate,
       toDate,
+      selectedItem,
     });
 
     return newFilter;
@@ -95,6 +98,7 @@ class CrmFilter {
     responsibleid = DEFAULT_MANAGER_TYPE,
     fromDate = DEFAULT_FROM_DATE_TYPE,
     toDate = DEFAULT_TO_DATE_TYPE,
+    selectedItem = DEFAULT_SELECTED_ITEM,
   }) {
     this.page = page;
     this.pageCount = pageCount;
@@ -110,6 +114,7 @@ class CrmFilter {
     this.responsibleid = responsibleid;
     this.fromDate = fromDate;
     this.toDate = toDate;
+    this.selectedItem = selectedItem;
   }
 
   toApiUrlParams = () => {
@@ -210,6 +215,7 @@ class CrmFilter {
       search: this.search,
       fromDate: this.fromDate,
       toDate: this.toDate,
+      selectedItem: this.selectedItem,
     });
   }
 }

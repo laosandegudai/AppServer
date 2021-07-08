@@ -28,7 +28,13 @@ const SectionFilterContent = ({
       "key"
     );
 
-    return responsibleid ? responsibleid : null;
+    return responsibleid
+      ? responsibleid.includes("user")
+        ? responsibleid.slice(5)
+        : responsibleid === "filter-my-manager"
+        ? ""
+        : "00000000-0000-0000-0000-000000000000"
+      : null;
   };
 
   const getAccessibilityType = (filterValues) => {
@@ -118,6 +124,11 @@ const SectionFilterContent = ({
       : null;
   };
 
+  const getSelectedItem = (filterValues, type) => {
+    const selectedItem = filterValues.find((item) => item.key === type);
+    return selectedItem || null;
+  };
+
   const getSelectedFilterData = () => {
     const selectedFilterData = {
       filterValues: [],
@@ -127,10 +138,38 @@ const SectionFilterContent = ({
 
     selectedFilterData.inputValue = filter.search;
 
+    if (filter.responsibleid) {
+      selectedFilterData.filterValues.push({
+        key: `${filter.responsibleid}`,
+        group: "filter-manager",
+      });
+    }
+
     if (filter.isShared) {
       selectedFilterData.filterValues.push({
         key: `${filter.isShared}`,
         group: "filter-access",
+      });
+    }
+
+    // if (filter.other) {
+    //   selectedFilterData.filterValues.push({
+    //     key: `${filter.other}`,
+    //     group: "filter-other",
+    //   });
+    // }
+
+    if (filter.fromDate) {
+      selectedFilterData.filterValues.push({
+        key: `${filter.fromDate}`,
+        group: "filter-creation-date",
+      });
+    }
+
+    if (filter.toDate) {
+      selectedFilterData.filterValues.push({
+        key: `${filter.fromDate}`,
+        group: "filter-creation-date",
       });
     }
 
@@ -156,6 +195,10 @@ const SectionFilterContent = ({
       data.sortDirection === "desc" ? "descending" : "ascending";
     const search = data.inputValue || "";
 
+    const selectedItem = responsibleid
+      ? getSelectedItem(data.filterValues, responsibleid)
+      : null;
+
     const newFilter = filter.clone();
     newFilter.sortBy = sortBy;
     newFilter.sortOrder = sortOrder;
@@ -165,12 +208,15 @@ const SectionFilterContent = ({
     newFilter.search = search;
     newFilter.fromDate = fromDate;
     newFilter.toDate = toDate;
+    newFilter.selectedItem = selectedItem;
 
     getContactsList(newFilter);
   };
 
   const getData = () => {
     const { groupsCaption } = customNames;
+    const { selectedItem } = filter;
+
     const options = [
       {
         key: "filter-manager",
@@ -182,33 +228,23 @@ const SectionFilterContent = ({
         key: "filter-my-manager",
         group: "filter-manager",
         label: t("My"),
+      },
+      {
+        key: "filter-no-manager",
+        group: "filter-manager",
+        label: t("NoContactManager"),
+      },
+      {
+        key: "user",
         isSelector: true,
         defaultOptionLabel: t("Common:MeLabel"),
         defaultSelectLabel: t("Common:Select"),
         groupsCaption,
         defaultOption: user,
-        selectedItem: {},
+        group: "filter-manager",
+        label: t("Custom"),
+        selectedItem,
       },
-      {
-        key: "group",
-        group: "filter-author",
-        label: groupsCaption,
-        defaultSelectLabel: t("Common:Select"),
-        isSelector: true,
-        selectedItem: {},
-      },
-      // {
-      //   key: "filter-no-manager",
-      //   group: "filter-manager",
-      //   label: t("NoContactManager"),
-      //   isSelector: true,
-      // },
-      // {
-      //   key: "filter-custom-manager",
-      //   group: "filter-manager",
-      //   label: t("Custom"),
-      //   isSelector: true,
-      // },
       {
         key: "filter-access",
         group: "filter-access",
@@ -227,7 +263,7 @@ const SectionFilterContent = ({
       },
       {
         key: "filter-other",
-        group: "filter-Other",
+        group: "filter-other",
         label: t("Other"),
         isRowHeader: true,
       },
@@ -235,6 +271,7 @@ const SectionFilterContent = ({
         key: "filter-other-temperature-level",
         group: "filter-other",
         label: t("TemperatureLevel"),
+        //add prop
       },
       {
         key: "filter-other-contact-type",
@@ -360,6 +397,7 @@ export default withRouter(
       getContactsList,
       customNames,
       user,
+      selectedItem: filter.selectedItem,
     };
   })(
     observer(
