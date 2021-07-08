@@ -19,6 +19,8 @@ export const FolderKey = Object.freeze({
   MyProjects: "my-projects",
   ProjectsFollowed: "projects-followed",
   ProjectsActive: "projects-active",
+  Tasks: "tasks",
+  MyTasks: "my-tasks",
 });
 
 export const RowProjectOptionStatus = Object.freeze({

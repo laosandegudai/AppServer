@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import TreeNode from "@appserver/components/tree-menu/sub-components/tree-node";
 import TreeMenu from "@appserver/components/tree-menu";
 import styled from "styled-components";
@@ -49,8 +49,19 @@ const StyledExpanderRightIcon = styled(ExpanderRightIcon)`
 `;
 
 const PureTreeFolders = (props) => {
-  const { isLoading, treeFolders, data, t, onSelect } = props;
-  //console.log(props);
+  const [needUpdate, setNeedUpdate] = useState(true);
+  const {
+    isLoading,
+    treeFolders,
+    data,
+    t,
+    onSelect,
+    selectedKeys,
+    setExpandedKeys,
+    setExpandedPanelKeys,
+    expandedKeys,
+    expandedPanelKeys,
+  } = props;
 
   const getFolderIcon = (item) => {
     let iconUrl = "images/catalog.folder.react.svg";
@@ -105,6 +116,16 @@ const PureTreeFolders = (props) => {
     }
   };
 
+  const onExpand = (expandedKeys, treeNode) => {
+    console.log(expandedKeys);
+    console.log(treeNode);
+    if (needUpdate) {
+      setExpandedKeys(expandedKeys);
+    } else {
+      setExpandedPanelKeys(expandedKeys);
+    }
+  };
+
   const getItems = (data) => {
     return data.map((item) => {
       let className = `tree-drag tree-id_${item.id}`;
@@ -139,8 +160,11 @@ const PureTreeFolders = (props) => {
     <StyledTreeMenu
       className="files-tree-menu"
       checkable={false}
+      selectedKeys={selectedKeys}
       draggable
       onSelect={onSelect}
+      expandedKeys={expandedPanelKeys ? expandedPanelKeys : expandedKeys}
+      onExpand={onExpand}
       disabled={isLoading}
       multiple={false}
       switcherIcon={switcherIcon}
@@ -166,12 +190,14 @@ export default inject(({ projectsStore }) => {
     expandedKeys,
     setExpandedKeys,
     setExpandedPanelKeys,
+    expandedPanelKeys,
   } = treeFoldersStore;
   return {
     treeFolders,
     isLoading,
     fetchTreeFolders,
     expandedKeys,
+    expandedPanelKeys,
     setExpandedKeys,
     setExpandedPanelKeys,
   };

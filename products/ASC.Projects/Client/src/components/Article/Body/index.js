@@ -9,7 +9,7 @@ import TreeSettings from "./TreeSettings";
 import { setDocumentTitle } from "../../../helpers/utils";
 import { FolderKey } from "../../../constants";
 import api from "@appserver/common/api";
-const { ProjectsFilter } = api;
+const { ProjectsFilter, TasksFilter } = api;
 
 const ArticleBodyContent = (props) => {
   //console.log(props);
@@ -23,13 +23,14 @@ const ArticleBodyContent = (props) => {
     setSelectedNode,
     filter,
     setIsLoading,
-
+    findRootFolder,
     setFilter,
     fetchProjects,
+    fetchTasks,
+    isProjectsFolder,
   } = props;
 
   const onSelect = (data, e) => {
-    console.log(data);
     setSelectedNode(data);
     setIsLoading(true);
 
@@ -40,9 +41,27 @@ const ArticleBodyContent = (props) => {
       ? setDocumentTitle(selectedFolderTitle)
       : setDocumentTitle();
 
-    if (window.location.pathname.indexOf("/projects/filter") > 0) {
-      setFilter(ProjectsFilter.getDefault());
-      fetchProjects(filter, data[0]).finally(() => setIsLoading(false));
+    let filterObj = null;
+
+    switch (data[0]) {
+      case FolderKey.Projects:
+      case FolderKey.ProjectsActive:
+      case FolderKey.ProjectsFollowed:
+      case FolderKey.MyProjects:
+        filterObj = ProjectsFilter.getDefault();
+        setFilter(filterObj);
+        fetchProjects(filterObj, data[0]).finally(() => setIsLoading(false));
+        break;
+
+      case FolderKey.Tasks:
+      case FolderKey.MyTasks:
+        filterObj = TasksFilter.getDefault();
+        setFilter(filterObj);
+        fetchTasks(filterObj, data[0]).finally(() => setIsLoading(false));
+        break;
+
+      default:
+        break;
     }
   };
 
@@ -54,35 +73,51 @@ const ArticleBodyContent = (props) => {
     <Loaders.TreeFolders />
   ) : (
     <>
-      <TreeFolders data={treeFolders} onSelect={onSelect} />
+      <TreeFolders
+        data={treeFolders}
+        onSelect={onSelect}
+        selectedKeys={selectedNode}
+      />
       <TreeSettings isLoading={isLoading} />
     </>
   );
 };
 
-export default inject(({ projectsStore, projectsFilterStore }) => {
-  const {
-    isLoading,
-    treeFoldersStore,
-    setFilterType,
-    filter,
-    setFilter,
-    setIsLoading,
-  } = projectsStore;
-  const { fetchProjects } = projectsFilterStore;
-  const { treeFolders, fetchTreeFolders, setSelectedNode } = treeFoldersStore;
-  const selectedNode = treeFoldersStore.selectedTreeNode;
+export default inject(
+  ({ projectsStore, projectsFilterStore, tasksFilterStore }) => {
+    const { fetchTasks } = tasksFilterStore;
+    const {
+      isLoading,
+      treeFoldersStore,
+      setFilterType,
+      filter,
+      setFilter,
+      setIsLoading,
+    } = projectsStore;
+    const { fetchProjects } = projectsFilterStore;
+    const {
+      treeFolders,
+      fetchTreeFolders,
+      setSelectedNode,
+      findRootFolder,
+      isProjectsFolder,
+    } = treeFoldersStore;
+    const selectedNode = treeFoldersStore.selectedTreeNode;
 
-  return {
-    treeFolders,
-    selectedNode,
-    setSelectedNode,
-    fetchTreeFolders,
-    isLoading,
-    filter,
-    setFilter,
-    setFilterType,
-    fetchProjects,
-    setIsLoading,
-  };
-})(observer(withRouter(ArticleBodyContent)));
+    return {
+      findRootFolder,
+      treeFolders,
+      selectedNode,
+      setSelectedNode,
+      fetchTreeFolders,
+      isLoading,
+      filter,
+      setFilter,
+      setFilterType,
+      fetchProjects,
+      setIsLoading,
+      fetchTasks,
+      isProjectsFolder,
+    };
+  }
+)(observer(withRouter(ArticleBodyContent)));
