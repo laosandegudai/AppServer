@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading;
+﻿using System.IO;
 
 using ASC.Common.Logging;
 using ASC.Core;
@@ -30,10 +28,11 @@ namespace ASC.Files.Benchmark
 
         private const string TestConnection = "Server=localhost;Database=onlyoffice_benchmark;User ID=root;Password=onlyoffice;Pooling=true;Character Set=utf8;AutoEnlist=false;SSL Mode=none;AllowPublicKeyRetrieval=True";
 
+
         public BenchmarkFilesSut()
         {
             Host = Program.CreateHostBuilder(new string[] {
-                "--pathToConf" , Path.Combine("..", "..", "..", "..","..", "..", "config"),
+                "--pathToConf" , Path.Combine("..", "..", "..", "..", "..", "config"),
                 "--ConnectionStrings:default:connectionString", TestConnection,
                  "--migration:enabled", "true" }).Build();
         }
@@ -67,6 +66,16 @@ namespace ASC.Files.Benchmark
         public void DeleteFile(int fileId)
         {
             FilesControllerHelper.DeleteFile(fileId, false, true);
+        }
+
+        public void GetFileInfo(int fileId)
+        {
+            FilesControllerHelper.GetFileInfo(fileId);
+        }
+
+        public void UpdateFileStream(int fileId, Stream stream)
+        {
+            FilesControllerHelper.UpdateFileStream(stream, fileId);
         }
     }
 }
