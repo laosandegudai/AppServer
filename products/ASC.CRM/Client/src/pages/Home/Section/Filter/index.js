@@ -124,11 +124,6 @@ const SectionFilterContent = ({
       : null;
   };
 
-  const getSelectedItem = (filterValues, type) => {
-    const selectedItem = filterValues.find((item) => item.key === type);
-    return selectedItem || null;
-  };
-
   const getSelectedFilterData = () => {
     const selectedFilterData = {
       filterValues: [],
@@ -195,10 +190,6 @@ const SectionFilterContent = ({
       data.sortDirection === "desc" ? "descending" : "ascending";
     const search = data.inputValue || "";
 
-    const selectedItem = responsibleid
-      ? getSelectedItem(data.filterValues, responsibleid)
-      : null;
-
     const newFilter = filter.clone();
     newFilter.sortBy = sortBy;
     newFilter.sortOrder = sortOrder;
@@ -208,7 +199,6 @@ const SectionFilterContent = ({
     newFilter.search = search;
     newFilter.fromDate = fromDate;
     newFilter.toDate = toDate;
-    newFilter.selectedItem = selectedItem;
 
     getContactsList(newFilter);
   };
@@ -216,6 +206,63 @@ const SectionFilterContent = ({
   const getData = () => {
     const { groupsCaption } = customNames;
     const { selectedItem } = filter;
+
+    const groupOptions = [
+      {
+        key: "not-specified",
+        inSubgroup: true,
+        group: "filter-other-temperature",
+        label: "NotSpecified",
+      },
+      {
+        key: "cold-temperature",
+        inSubgroup: true,
+        group: "filter-other-temperature",
+        label: "ColdTemperature",
+      },
+      {
+        key: "warm-temperature",
+        inSubgroup: true,
+        group: "filter-other-temperature",
+        label: "WarmTemperature",
+      },
+      {
+        key: "hot-temperature",
+        inSubgroup: true,
+        group: "filter-other-temperature",
+        label: "HotTemperature",
+      },
+      {
+        key: "no-category",
+        inSubgroup: true,
+        group: "filter-other-contact-type",
+        label: "NoCategorySpecified",
+      },
+      {
+        key: "client-type",
+        inSubgroup: true,
+        group: "filter-other-contact-type",
+        label: "Client",
+      },
+      {
+        key: "provider-type",
+        inSubgroup: true,
+        group: "filter-other-contact-type",
+        label: "Provider",
+      },
+      {
+        key: "partner-type",
+        inSubgroup: true,
+        group: "filter-other-contact-type",
+        label: "Partner",
+      },
+      {
+        key: "competitor-type",
+        inSubgroup: true,
+        group: "filter-other-contact-type",
+        label: "Competitor",
+      },
+    ];
 
     const options = [
       {
@@ -270,12 +317,13 @@ const SectionFilterContent = ({
       {
         key: "filter-other-temperature-level",
         group: "filter-other",
+        subgroup: "filter-other-temperature",
         label: t("TemperatureLevel"),
-        //add prop
       },
       {
         key: "filter-other-contact-type",
         group: "filter-other",
+        subgroup: "filter-other-contact-type",
         label: t("ContactType"),
       },
       {
@@ -283,6 +331,7 @@ const SectionFilterContent = ({
         group: "filter-other",
         label: t("WithTag"),
       },
+      ...groupOptions,
     ];
 
     const filterOptions = [

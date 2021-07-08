@@ -46,9 +46,8 @@ class CrmFilter {
 
     const sortBy = urlFilter[SORT_BY] || defaultFilter.sortBy;
     const sortOrder = urlFilter[SORT_ORDER] || defaultFilter.sortOrder;
-    const pageCount =
-      (urlFilter[PAGE_COUNT] && +urlFilter[PAGE_COUNT]) ||
-      defaultFilter.pageCount;
+    const count =
+      (urlFilter[PAGE_COUNT] && +urlFilter[PAGE_COUNT]) || defaultFilter.count;
     const startIndex = urlFilter[START_INDEX] || defaultFilter.startIndex;
     const total = defaultFilter.total;
     const contactType = urlFilter[CONTACT_TYPE] || defaultFilter.contactType;
@@ -69,7 +68,7 @@ class CrmFilter {
       startIndex,
       contactType,
       contactStage,
-      pageCount,
+      count,
       total,
       isShared,
       contactListView,
@@ -87,7 +86,7 @@ class CrmFilter {
     sortBy = DEFAULT_SORT_BY,
     sortOrder = DEFAULT_SORT_ORDER,
     startIndex = DEFAULT_START_INDEX,
-    pageCount = DEFAULT_PAGE_COUNT,
+    count = DEFAULT_PAGE_COUNT,
     total = DEFAULT_TOTAL,
     page = DEFAULT_PAGE,
     contactType = DEFAULT_CONTACT_TYPE,
@@ -101,7 +100,7 @@ class CrmFilter {
     selectedItem = DEFAULT_SELECTED_ITEM,
   }) {
     this.page = page;
-    this.pageCount = pageCount;
+    this.count = count;
     this.sortBy = sortBy;
     this.sortOrder = sortOrder;
     this.startIndex = startIndex;
@@ -120,7 +119,7 @@ class CrmFilter {
   toApiUrlParams = () => {
     const {
       page,
-      pageCount,
+      count,
       sortBy,
       sortOrder,
       startIndex,
@@ -135,9 +134,8 @@ class CrmFilter {
     let dtoFilter = {
       StartIndex: startIndex,
       sortBy: sortBy,
-      pageCount: pageCount,
       sortOrder: sortOrder,
-      Count: pageCount,
+      Count: count,
       isShared: isShared,
       contactListView: contactListView,
       responsibleid: responsibleid,
@@ -155,7 +153,7 @@ class CrmFilter {
     const {
       sortBy,
       sortOrder,
-      pageCount,
+      count,
       startIndex,
       isShared,
       contactListView,
@@ -191,7 +189,7 @@ class CrmFilter {
     dtoFilter[SORT_BY] = sortBy;
     dtoFilter[SORT_ORDER] = sortOrder;
     dtoFilter[START_INDEX] = startIndex;
-    dtoFilter[PAGE_COUNT] = pageCount;
+    dtoFilter[PAGE_COUNT] = count;
 
     const str = toUrlParams(dtoFilter, true);
 
@@ -201,7 +199,7 @@ class CrmFilter {
   clone() {
     return new CrmFilter({
       page: this.page,
-      pageCount: this.pageCount,
+      count: this.count,
       total: this.total,
       sortBy: this.sortBy,
       sortOrder: this.sortOrder,
