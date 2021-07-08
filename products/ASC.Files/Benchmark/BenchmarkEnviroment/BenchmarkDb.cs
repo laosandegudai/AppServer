@@ -16,10 +16,10 @@ namespace ASC.Files.Benchmark
         public void Create()
         {
             var host = Program.CreateHostBuilder(new string[] {
-                "--pathToConf", Path.Combine("..", "..", "..", "..","..", "..", "config"),
+                "--pathToConf", Path.Combine("..", "..", "..", "..", "..", "config"),
                 "--ConnectionStrings:default:connectionString", TestConnection,
                 "--migration:enabled", "true",
-                "--core:products:folder", Path.Combine("..", "..", "..", "..","..", "..", "products")}).Build();
+                "--core:products:folder", Path.Combine("..", "..", "..", "products")}).Build();
 
             Migrate(host.Services);
             Migrate(host.Services, Assembly.GetExecutingAssembly().GetName().Name);
