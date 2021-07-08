@@ -29,18 +29,39 @@
 
 namespace ASC.Projects.Core.BusinessLogic.Notifications.Data
 {
+    /// <summary>
+    /// Represents a data, which is needed for milestones notifications sending.
+    /// </summary>
     public class MilestoneNotificationData : BaseNotificationData
     {
+        /// <summary>
+        /// Id of notification.
+        /// </summary>
         public string NotificationId { get; set; }
 
+        /// <summary>
+        /// Milestone description.
+        /// </summary>
         public string Description { get; set; }
 
+        /// <summary>
+        /// Id of project, which is milestone related for.
+        /// </summary>
         public int ProjectId { get; set; }
 
+        /// <summary>
+        /// Title of project, which is milestone related for.
+        /// </summary>
         public string ProjectTitle { get; set; }
 
+        /// <summary>
+        /// Id of milestone.
+        /// </summary>
         public int MilestoneId { get; set; }
 
+        /// <summary>
+        /// Title of milestone.
+        /// </summary>
         public string MilestoneTitle { get; set; }
     }
 }

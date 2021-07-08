@@ -31,10 +31,19 @@ using ASC.Notify.Recipients;
 
 namespace ASC.Projects.Core.BusinessLogic.Notifications.Data
 {
+    /// <summary>
+    /// Represents a basic data, needed for all Projects notification sending.
+    /// </summary>
     public class BaseNotificationData
     {
+        /// <summary>
+        /// Id of initiator.
+        /// </summary>
         public string InitiatorId { get; set; }
 
+        /// <summary>
+        /// Recipients of notification.
+        /// </summary>
         public IRecipient[] Recipients { get; set; }
     }
 }

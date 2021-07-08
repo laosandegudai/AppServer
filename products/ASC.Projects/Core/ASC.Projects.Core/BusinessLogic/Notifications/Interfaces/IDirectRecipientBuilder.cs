@@ -31,16 +31,43 @@ using ASC.Notify.Recipients;
 
 namespace ASC.Projects.Core.BusinessLogic.Notifications.Interfaces
 {
+    /// <summary>
+    /// An interface of notifications recipients builder.
+    /// </summary>
     public interface IDirectRecipientBuilder
     {
+        /// <summary>
+        /// Sets up a specified of recipient.
+        /// </summary>
+        /// <param name="id">Id of recipient.</param>
+        /// <returns>A current instance of <see cref="IDirectRecipientBuilder"/>.</returns>
         IDirectRecipientBuilder WithId(string id);
 
+        /// <summary>
+        /// Sets up a name of recipient.
+        /// </summary>
+        /// <param name="name">Name of recipient.</param>
+        /// <returns>A current instance of <see cref="IDirectRecipientBuilder"/>.</returns>
         IDirectRecipientBuilder WithName(string name);
 
+        /// <summary>
+        /// Sets up an addresses of recipients.
+        /// </summary>
+        /// <param name="addresses">Addresses of recipients.</param>
+        /// <returns>A current instance of <see cref="IDirectRecipientBuilder"/>.</returns>
         IDirectRecipientBuilder WithAddresses(string[] addresses);
 
+        /// <summary>
+        /// Sets up a need of activation check.
+        /// </summary>
+        /// <param name="isActivationCheckRequired">Determines need for activation check.</param>
+        /// <returns>A current instance of <see cref="IDirectRecipientBuilder"/>.</returns>
         IDirectRecipientBuilder WithCheckActivation(bool isActivationCheckRequired);
 
+        /// <summary>
+        /// Constructs an instance of <see cref="DirectRecipient"/> having specified parameters.
+        /// </summary>
+        /// <returns>Just constructed recipient <see cref="DirectRecipient"/>.</returns>
         DirectRecipient Build();
     }
 }

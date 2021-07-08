@@ -32,17 +32,18 @@ using ASC.Notify;
 namespace ASC.Projects.Core.BusinessLogic.Notifications.Interfaces
 {
     /// <summary>
-    /// An interface of notification sender interceptor builder.
+    /// An interface of notification sender initiator interceptor builder.
     /// </summary>
     public interface IInitiatorInterceptorBuilder
     {
         /// <summary>
-        /// Builds an interceptor of notification sender.
+        /// Constructs an initiator interceptor of notification sender.
         /// </summary>
         /// <param name="id">Id.</param>
         /// <param name="name">Name of interceptor.</param>
         /// <param name="addresses"></param>
         /// <param name="isActivationCheckRequired"></param>
+        /// <returns>Just constructed initiator interceptor <see cref="InitiatorInterceptor"/>.</returns>
         InitiatorInterceptor Build(string id,
             string name = null,
             string[] addresses = null,

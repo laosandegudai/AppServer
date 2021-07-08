@@ -34,10 +34,12 @@ using ASC.Projects.Core.BusinessLogic.Notifications.Interfaces;
 namespace ASC.Projects.Core.BusinessLogic.Notifications
 {
     /// <summary>
-    /// Notification sender interceptor builder.
+    /// Notification sender initiator interceptor builder.
     /// </summary>
     public class InitiatorInterceptorBuilder : IInitiatorInterceptorBuilder
     {
+        #region Fields and .ctor
+
         private readonly IDirectRecipientBuilder _directRecipientBuilder;
 
         public InitiatorInterceptorBuilder(IDirectRecipientBuilder directRecipientBuilder)
@@ -45,13 +47,16 @@ namespace ASC.Projects.Core.BusinessLogic.Notifications
             _directRecipientBuilder = directRecipientBuilder.NotNull(nameof(directRecipientBuilder));
         }
 
+        #endregion Fields and .ctor
+
         /// <summary>
-        /// Builds an interceptor of notification sender.
+        /// Constructs an initiator interceptor of notification sender.
         /// </summary>
         /// <param name="id">Id.</param>
         /// <param name="name">Name of interceptor.</param>
         /// <param name="addresses"></param>
         /// <param name="isActivationCheckRequired"></param>
+        /// <returns>Just constructed initiator interceptor <see cref="InitiatorInterceptor"/>.</returns>
         public InitiatorInterceptor Build(string id,
             string name = null,
             string[] addresses = null,

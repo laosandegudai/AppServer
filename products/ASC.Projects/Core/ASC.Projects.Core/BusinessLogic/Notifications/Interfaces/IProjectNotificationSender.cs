@@ -34,68 +34,68 @@ using ASC.Projects.Core.BusinessLogic.Notifications.Data;
 namespace ASC.Projects.Core.BusinessLogic.Notifications.Interfaces
 {
     /// <summary>
-    /// An interface of sender of'Projects' product-related messages.
+    /// An interface of sender of'Projects' product-related notifications.
     /// </summary>
     public interface IProjectNotificationSender
     {
         /// <summary>
-        /// Sends a letter which contains an invitation to project team.
+        /// Sends an invitation to project team.
         /// </summary>
         /// <param name="recipient">Recipient of letter.</param>
         /// <param name="project">Project related data.</param>
         void SendProjectTeamInvitation(IRecipient recipient, ProjectData project);
 
         /// <summary>
-        /// Sends a letter which contains a notification about removing from project team.
+        /// Sends a notification about removing from project team.
         /// </summary>
         /// <param name="recipient">Recipient of letter.</param>
         /// <param name="project">Project related data.</param>
         void SendRemovingFromProjectTeam(IRecipient recipient, ProjectData project);
 
         /// <summary>
-        /// Sends a letter which contains a notification about milestone removal.
+        /// Sends a notification about milestone removal.
         /// </summary>
         /// <param name="notificationData">Data which is needed for notification sending.</param>
         void SendMilestoneRemovalNotification(MilestoneNotificationData notificationData);
 
         /// <summary>
-        /// Sends a letter which contains a notification about milestone closing.
+        /// Sends a notification about milestone closing.
         /// </summary>
         /// <param name="notificationData">Data which is needed for notification sending.</param>
         void SendMilestoneClosingNotification(MilestoneNotificationData notificationData);
 
         /// <summary>
-        /// Sends a letter which contains a notification about milestone resuming.
+        /// Sends a notification about milestone resuming.
         /// </summary>
         /// <param name="notificationData">Data which is needed for notification sending.</param>
         void SendMilestoneResumedNotification(MilestoneNotificationData notificationData);
 
         /// <summary>
-        /// Sends a letter which contains a notification about milestone creation.
+        /// Sends a notification about milestone creation.
         /// </summary>
         /// <param name="notificationData">Data which is needed for notification sending.</param>
         void SendMilestoneCreatedNotification(MilestoneNotificationData notificationData);
 
         /// <summary>
-        /// Sends a letter which contains a notification about milestone responsible person change.
+        /// Sends a notification about milestone responsible person change.
         /// </summary>
         /// <param name="notificationData">Data which is needed for notification sending.</param>
         void SendMilestoneResponsibleChangedNotification(MilestoneNotificationData notificationData);
 
         /// <summary>
-        /// Sends a letter which contains a notification about milestone update.
+        /// Sends a notification about milestone update.
         /// </summary>
         /// <param name="notificationData">Data which is needed for notification sending.</param>
         void SendMilestoneUpdatedNotification(MilestoneNotificationData notificationData);
 
         /// <summary>
-        /// Sends a letter which contains a notification about subtask creation.
+        /// Sends a notification about subtask creation.
         /// </summary>
         /// <param name="notificationData">Data which is needed for notification sending.</param>
         void SendSubtaskCreatedNotification(SubtaskNotificationData notificationData);
 
         /// <summary>
-        /// Sends a letter which contains a notification about subtask modification.
+        /// Sends a notification about subtask modification.
         /// </summary>
         /// <param name="notificationData">Data which is needed for notification sending.</param>
         void SendSubtaskModifiedNotification(SubtaskNotificationData notificationData);

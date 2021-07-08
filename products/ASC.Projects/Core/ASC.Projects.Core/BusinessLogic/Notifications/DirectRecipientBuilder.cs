@@ -33,8 +33,13 @@ using ASC.Projects.Core.BusinessLogic.Notifications.Interfaces;
 
 namespace ASC.Projects.Core.BusinessLogic.Notifications
 {
+    /// <summary>
+    /// Notifications recipients builder.
+    /// </summary>
     public class DirectRecipientBuilder : IDirectRecipientBuilder
     {
+        #region Fields an .ctor
+
         private string _id;
 
         private string _name;
@@ -43,6 +48,13 @@ namespace ASC.Projects.Core.BusinessLogic.Notifications
 
         private bool _isActivationCheckRequired;
 
+        #endregion Fields and .ctor
+
+        /// <summary>
+        /// Sets up a specified of recipient.
+        /// </summary>
+        /// <param name="id">Id of recipient.</param>
+        /// <returns>A current instance of <see cref="IDirectRecipientBuilder"/>.</returns>
         public IDirectRecipientBuilder WithId(string id)
         {
             _id = id;
@@ -50,6 +62,11 @@ namespace ASC.Projects.Core.BusinessLogic.Notifications
             return this;
         }
 
+        /// <summary>
+        /// Sets up a name of recipient.
+        /// </summary>
+        /// <param name="name">Name of recipient.</param>
+        /// <returns>A current instance of <see cref="IDirectRecipientBuilder"/>.</returns>
         public IDirectRecipientBuilder WithName(string name)
         {
             _name = name;
@@ -57,6 +74,11 @@ namespace ASC.Projects.Core.BusinessLogic.Notifications
             return this;
         }
 
+        /// <summary>
+        /// Sets up an addresses of recipients.
+        /// </summary>
+        /// <param name="addresses">Addresses of recipients.</param>
+        /// <returns>A current instance of <see cref="IDirectRecipientBuilder"/>.</returns>
         public IDirectRecipientBuilder WithAddresses(string[] addresses)
         {
             _addresses = addresses;
@@ -64,6 +86,11 @@ namespace ASC.Projects.Core.BusinessLogic.Notifications
             return this;
         }
 
+        /// <summary>
+        /// Sets up a need of activation check.
+        /// </summary>
+        /// <param name="isActivationCheckRequired">Determines need for activation check.</param>
+        /// <returns>A current instance of <see cref="IDirectRecipientBuilder"/>.</returns>
         public IDirectRecipientBuilder WithCheckActivation(bool isActivationCheckRequired)
         {
             _isActivationCheckRequired = isActivationCheckRequired;
@@ -71,6 +98,10 @@ namespace ASC.Projects.Core.BusinessLogic.Notifications
             return this;
         }
 
+        /// <summary>
+        /// Constructs an instance of <see cref="DirectRecipient"/> having specified parameters.
+        /// </summary>
+        /// <returns>Just constructed recipient <see cref="DirectRecipient"/>.</returns>
         public DirectRecipient Build()
         {
             var directRecipient = new DirectRecipient(_id,

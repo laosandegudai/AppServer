@@ -50,6 +50,8 @@ namespace ASC.Projects.Core.BusinessLogic.Notifications
     /// </summary>
     public class ProjectNotificationSender : IProjectNotificationSender
     {
+        #region Fields and .ctor
+
         private readonly INotifyClient _notifyClient;
 
         private readonly IInitiatorInterceptorBuilder _initiatorInterceptorBuilder;
@@ -64,6 +66,8 @@ namespace ASC.Projects.Core.BusinessLogic.Notifications
             _initiatorInterceptorBuilder = initiatorInterceptorBuilder.NotNull(nameof(initiatorInterceptorBuilder));
             _replyToTagProvider = replyToTagProvider.NotNull(nameof(replyToTagProvider));
         }
+
+        #endregion Fields and .ctor
 
         /// <summary>
         /// Sends a letter which contains an invitation to project team.
