@@ -28,32 +28,11 @@
 #endregion License agreement statement
 
 using System;
-using ASC.Projects.Core.BusinessLogic.Data;
 
-namespace ASC.Projects.Core.Security.Interfaces
+namespace ASC.Projects.Core.BusinessLogic.Data
 {
-    public interface IProjectSecurityTemplateManager<TData>
+    public class ParticipantData
     {
-        bool CanCreateEntities(TData project);
-
-        bool CanReadEntities(Guid userId);
-
-        bool CanReadEntities(TData project);
-
-        bool CanReadEntity(TData entity);
-        
-        bool CanReadEntity(TData entity, Guid userId);
-
-        bool CanUpdateEntity(TData entity);
-
-        bool CanCreateComment(TData entity);
-
-        bool CanDeleteEntity(TData entity);
-
-        bool CanEditFiles(TData entity);
-
-        bool CanEditComment(TData entity, CommentData comment);
-
-        bool CanGoToFeed(TData entity, Guid userId);
+        public Guid Id { get; set; }
     }
 }

@@ -35,6 +35,9 @@ using ASC.Projects.Core.BusinessLogic.Converters.Interfaces;
 
 namespace ASC.Projects.Core.BusinessLogic.Converters
 {
+    /// <summary>
+    /// Notifications recipient converter.
+    /// </summary>
     public class RecipientConverter : IRecipientConverter
     {
         private readonly INotifySource _notifySource;
@@ -44,6 +47,11 @@ namespace ASC.Projects.Core.BusinessLogic.Converters
             _notifySource = notifySource.NotNull(nameof(notifySource));
         }
 
+        /// <summary>
+        /// Converts notification recipient Id to recipient data.
+        /// </summary>
+        /// <param name="userId">Id of converting user.</param>
+        /// <returns>Notification recipient data <see cref="IRecipient"/>.</returns>
         public IRecipient Convert(Guid userId)
         {
             var result = _notifySource

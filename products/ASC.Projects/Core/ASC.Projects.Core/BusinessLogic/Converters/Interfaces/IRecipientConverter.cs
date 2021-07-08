@@ -33,8 +33,16 @@ using ASC.Notify.Recipients;
 
 namespace ASC.Projects.Core.BusinessLogic.Converters.Interfaces
 {
+    /// <summary>
+    /// An interface of notifications recipient converter.
+    /// </summary>
     public interface IRecipientConverter
     {
+        /// <summary>
+        /// Converts notification recipient Id to recipient data.
+        /// </summary>
+        /// <param name="userId">Id of converting user.</param>
+        /// <returns>Notification recipient data <see cref="IRecipient"/>.</returns>
         IRecipient Convert(Guid userId);
     }
 }

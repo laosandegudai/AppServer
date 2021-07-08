@@ -27,6 +27,8 @@
 
 #endregion License agreement statement
 
+using ASC.Projects.Core.DataAccess.Domain.Enums;
+
 namespace ASC.Projects.Core.BusinessLogic.Data
 {
     public class TaskData
@@ -36,5 +38,7 @@ namespace ASC.Projects.Core.BusinessLogic.Data
         public string Title { get; set; }
 
         public int ProjectId { get; set; }
+
+        public TaskStatus Status { get; set; }
     }
 }

@@ -28,53 +28,73 @@
 #endregion License agreement statement
 
 using System;
-using System.Runtime.Serialization;
-
 using ASC.Projects.Core.DataAccess.Domain.Enums;
 
-namespace ASC.Projects.ViewModels
+namespace ASC.Projects.Core.BusinessLogic.Data
 {
-    public class MilestoneViewModel
+    /// <summary>
+    /// Represents a subtask data.
+    /// </summary>
+    public class SubtaskData
     {
+        /// <summary>
+        /// Id of subtask.
+        /// </summary>
         public int Id { get; set; }
 
+        /// <summary>
+        /// Title of subtask.
+        /// </summary>
         public string Title { get; set; }
 
-        public string Description { get; set; }
+        /// <summary>
+        /// Id of tenant.
+        /// </summary>
+        public int TenantId { get; set; }
 
-        public MilestoneStatus Status { get; set; }
+        /// <summary>
+        /// Id of user who is responsible for subtask.
+        /// </summary>
+        public Guid ResponsibleId { get; set; }
 
-        [DataMember(EmitDefaultValue = false)]
-        public EmployeeViewModel Responsible { get; set; }
+        /// <summary>
+        /// Id of root task.
+        /// </summary>
+        public int RootTaskId { get; set; }
 
-        public DateTime CreationDate { get; set; }
-        
-        public Guid CreatorId { get; set; }
-        
-        public EmployeeViewModel Creator { get; set; }
+        /// <summary>
+        /// Status of task.
+        /// </summary>
+        public TaskStatus Status { get; set; }
 
-        public DateTime LastModificationDate { get; set; }
+        /// <summary>
+        /// Date when status of subtask was changed.
+        /// </summary>
+        public DateTime StatusChangeDate { get; set; }
 
-        public Guid LastEditorId { get; set; }
+        /// <summary>
+        /// Id of user who created subtask.
+        /// </summary>
+        public Guid? CreatorId { get; set; }
 
-        public EmployeeViewModel LastEditor { get; set; }
+        /// <summary>
+        /// Date when subtask was created.
+        /// </summary>
+        public DateTime? CreationDate { get; set; }
 
-        public DateTime Deadline { get; set; }
+        /// <summary>
+        /// Id of user who edited subtask lastly.
+        /// </summary>
+        public Guid? LastEditorId { get; set; }
 
-        public int ProjectId { get; set; }
+        /// <summary>
+        /// Date when subtask was edited lastly.
+        /// </summary>
+        public DateTime? LastModificationDate { get; set; }
 
-        public ProjectSimpleViewModel ProjectOwner { get; set; }
-
-        public bool IsKey { get; set; }
-
-        public bool IsNotify { get; set; }
-
-        public bool CanEdit { get; set; }
-
-        public bool CanDelete { get; set; }
-
-        public int ActiveTaskCount { get; set; }
-
-        public int ClosedTaskCount { get; set; }
+        /// <summary>
+        /// Task which is a parent for subtask.
+        /// </summary>
+        public TaskData RootTaskData { get; set; }
     }
 }

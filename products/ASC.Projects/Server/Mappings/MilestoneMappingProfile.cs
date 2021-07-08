@@ -70,7 +70,7 @@ namespace ASC.Projects.Mappings
                 .ForMember(m => m.IsKey, opt => opt.MapFrom(src => src.IsKey))
                 .ForMember(m => m.IsNotify, opt => opt.MapFrom(src => src.IsNotify))
                 .ForMember(m => m.ProjectId, opt => opt.MapFrom(src => src.ProjectId))
-                .ForMember(m => m.Project, opt => opt.MapFrom(src => src.Project))
+                .ForMember(m => m.ProjectOwner, opt => opt.MapFrom(src => src.Project))
                 .ReverseMap();
         }
     }

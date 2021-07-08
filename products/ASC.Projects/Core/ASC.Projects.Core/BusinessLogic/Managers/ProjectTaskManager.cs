@@ -38,11 +38,11 @@ namespace ASC.Projects.Core.BusinessLogic.Managers
         /// <summary>
         /// An instance of repository working with Project Tasks.
         /// </summary>
-        private readonly IProjectTaskRepository _projectTaskRepository;
+        private readonly ITaskRepository _taskRepository;
 
-        public ProjectTaskManager(IProjectTaskRepository projectTaskDao)
+        public ProjectTaskManager(ITaskRepository taskRepository)
         {
-            _projectTaskRepository = projectTaskDao.NotNull(nameof(projectTaskDao));
+            _taskRepository = taskRepository.NotNull(nameof(taskRepository));
         }
 
         /// Makes a check about task with specified id existence.
@@ -53,7 +53,7 @@ namespace ASC.Projects.Core.BusinessLogic.Managers
         {
             taskId.IsPositive(nameof(taskId));
 
-            var doesTaskExists = _projectTaskRepository.Exists(taskId);
+            var doesTaskExists = _taskRepository.Exists(taskId);
 
             return doesTaskExists;
         }

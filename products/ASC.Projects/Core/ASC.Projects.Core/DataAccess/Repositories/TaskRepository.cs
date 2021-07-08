@@ -52,21 +52,18 @@ namespace ASC.Projects.Core.DataAccess.Repositories
             TaskStatus? status = null,
             Guid? participantId = null)
         {
-            var predicate = GetAll()
+            var result = GetAll()
                 .Include(t => t.Milestone)
-                .Where(t => t.ProjectId == projectId);
+                .OrderByDescending(t => t.SortOrder)
+                .ThenBy(t => t.Milestone.Status)
+                .ThenBy(t => t.Milestone.Deadline)
+                .ThenBy(t => t.Milestone.Id)
+                .ThenBy(t => t.Status)
+                .ThenBy(t => t.Priority)
+                .ThenBy(t => t.CreationDate)
+                .ToList();
 
-            if (status.HasValue)
-            {
-                predicate = predicate
-                    .Where(t => t.Status == status.Value);
-            }
-
-            if (participantId.HasValue)
-            {
-                predicate = predicate
-                    .Where(t => t.Par)
-            }
+            return result;
         }
 
         public List<DbProjectTask> GetMilestoneTasks(int milestoneId)

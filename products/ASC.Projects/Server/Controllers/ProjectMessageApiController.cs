@@ -80,24 +80,5 @@ namespace ASC.Projects.Controllers
 
             return messages;
         }
-
-        [Create(@"{projectid:[0-9]+}/message")]
-        public IActionResult AddProjectMessage(CreateMessageViewModel newMessage)
-        {
-            var validator = new CreateMessageItemValidator();
-
-            var validationResult = validator.Validate(newMessage);
-
-            if (!validationResult.IsValid)
-            {
-                var errors = string.Join(", ", validationResult.Errors.Select(_ => _.ErrorMessage));
-
-                return BadRequest($"There is an invalid request for message creation: {errors}");
-            }
-
-            var discussion = _mapper.Map<CreateMessageViewModel, MessageData>(newMessage)
-
-            _messageManager.SaveOrUpdate(discussion)
-        }
     }
 }

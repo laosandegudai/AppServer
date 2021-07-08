@@ -27,46 +27,26 @@
 
 #endregion License agreement statement
 
-using System;
-
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using ASC.Projects.Core.BusinessLogic.Data;
 
-namespace ASC.Projects.Core.Security.Interfaces
+namespace ASC.Projects.Core.BusinessLogic.Managers.Interfaces
 {
-    /// <summary>
-    /// The manager responsible for global project entities security.
-    /// </summary>
-    public interface IProjectSecurityManager
+    public interface ISubtaskManager
     {
-        /// <summary>
-        /// Determines availability of item creation.
-        /// </summary>
-        /// <param name="project">Project to create.</param>
-        /// <returns>true if user could create project, otherwise false.</returns>
-        bool CanCreateEntities(ProjectData project);
+        int GetTaskSubtasksCount(int taskId, params TaskStatus[] statuses);
 
-        /// <summary>
-        /// Determines availability of item reading.
-        /// </summary>
-        /// <param name="project">Project to read.</param>
-        /// <param name="userId">Id of needed user</param>
-        /// <returns>true if user could read project, otherwise false.</returns>
-        bool CanReadEntity(ProjectData project, Guid userId);
+        int GetTaskSubtasksCount(int taskId);
 
-        bool CanUpdateEntity(ProjectData project);
+        SubtaskData GetById(int id);
 
-        bool CanGoToFeed(ProjectData project, Guid userId);
+        SubtaskData ChangeStatus(TaskData task, SubtaskData subtask, TaskStatus newStatus);
 
-        bool CanEditTeam(ProjectData project);
+        SubtaskData SaveOrUpdate(SubtaskData subtask, TaskData task);
 
-        bool CanReadFiles(ProjectData project);
+        SubtaskData Copy(SubtaskData source, TaskData task, List<ParticipantData> team);
 
-        bool CanReadFiles(ProjectData project, Guid userId);
-
-        bool CanEditComment(ProjectData project, CommentData comment);
-
-        bool CanReadContacts(ProjectData project);
-
-        bool CanLinkContact(ProjectData project);
+        void Delete(SubtaskData subtask, TaskData task);
     }
 }

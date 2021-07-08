@@ -36,7 +36,6 @@ using ASC.Core.Tenants;
 using ASC.Notify.Model;
 using ASC.Projects.Core.BusinessLogic.Data;
 using ASC.Projects.Core.BusinessLogic.Managers.Interfaces;
-using ASC.Projects.Core.BusinessLogic.Security.Interfaces;
 using ASC.Projects.Core.DataAccess.Domain.Entities;
 using ASC.Projects.Core.DataAccess.Repositories.Interfaces;
 using AutoMapper;
@@ -50,19 +49,15 @@ namespace ASC.Projects.Core.BusinessLogic.Managers
         
         private readonly IMapper _mapper;
 
-        private readonly IProjectSecurityManager _projectSecurityManager;
-
         public MessageManager(INotifySource notifySource,
             INotifyAction notifyAction,
             IMessageRepository messageRepository,
             IMapper mapper,
-            IProjectSecurityManager projectSecurityManager,
             SecurityContext securityContext,
             bool disableNotifications) : base(notifySource, notifyAction, securityContext, disableNotifications)
         {
             _messageRepository = messageRepository.NotNull(nameof(messageRepository));
             _mapper = mapper;
-            _projectSecurityManager = projectSecurityManager.NotNull(nameof(projectSecurityManager));
         }
 
         public override ProjectEntityData GetEntityByID(int id)
@@ -197,6 +192,10 @@ namespace ASC.Projects.Core.BusinessLogic.Managers
             var entity = _mapper.Map<MessageData, DbMessage>(message);
 
             _messageRepository.Update(entity);
+
+            var result = _mapper.Map<DbMessage, MessageData>(entity);
+
+            return result;
         }
 
         public void Delete(MessageData message)

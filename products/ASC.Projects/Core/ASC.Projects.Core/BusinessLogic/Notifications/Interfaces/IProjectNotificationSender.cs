@@ -88,5 +88,16 @@ namespace ASC.Projects.Core.BusinessLogic.Notifications.Interfaces
         /// <param name="notificationData">Data which is needed for notification sending.</param>
         void SendMilestoneUpdatedNotification(MilestoneNotificationData notificationData);
 
+        /// <summary>
+        /// Sends a letter which contains a notification about subtask creation.
+        /// </summary>
+        /// <param name="notificationData">Data which is needed for notification sending.</param>
+        void SendSubtaskCreatedNotification(SubtaskNotificationData notificationData);
+
+        /// <summary>
+        /// Sends a letter which contains a notification about subtask modification.
+        /// </summary>
+        /// <param name="notificationData">Data which is needed for notification sending.</param>
+        void SendSubtaskModifiedNotification(SubtaskNotificationData notificationData);
     }
 }

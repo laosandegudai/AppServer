@@ -77,7 +77,12 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
         /// <summary>
         /// Id of project.
         /// </summary>
-        public int ProjectId { get; set; } 
+        public int ProjectId { get; set; }
+
+        /// <summary>
+        /// Id of tenant.
+        /// </summary>
+        public int TenantId { get; set; }
 
         /// <summary>
         /// Is notify.

@@ -31,6 +31,7 @@ using System;
 using System.Collections;
 using System.Globalization;
 using System.Linq;
+
 using ASC.Core.Common.Extensions;
 using ASC.Core.Common.Notify;
 using ASC.Core.Common.Notify.Push;
@@ -278,8 +279,8 @@ namespace ASC.Projects.Core.BusinessLogic.Notifications
                 new TagValue(ProjectsNotificationConstants.Tag_AdditionalData, new Hashtable { { "MilestoneDescription", notificationData.Description } }),
                 _replyToTagProvider.Comment("project.milestone", notificationData.MilestoneId.ToString(CultureInfo.InvariantCulture)),
                 new AdditionalSenderTag("push.sender"),
-                new TagValue(PushConstants.PushItemTagName, new PushItem(PushItemType.Milestone, notificationData.MilestoneId.ToString(CultureInfo.InvariantCulture), milestone.Title)),
-                new TagValue(PushConstants.PushParentItemTagName, new PushItem(PushItemType.Project, notificationData.ProjectId.ToString(CultureInfo.InvariantCulture), milestone.Project.Title)),
+                new TagValue(PushConstants.PushItemTagName, new PushItem(PushItemType.Milestone, notificationData.MilestoneId.ToString(CultureInfo.InvariantCulture), notificationData.MilestoneId.ToString())),
+                new TagValue(PushConstants.PushParentItemTagName, new PushItem(PushItemType.Project, notificationData.ProjectId.ToString(CultureInfo.InvariantCulture), notificationData.ProjectTitle)),
                 new TagValue(PushConstants.PushModuleTagName, PushModule.Projects),
                 new TagValue(PushConstants.PushActionTagName, PushAction.Assigned));
         }
@@ -305,6 +306,59 @@ namespace ASC.Projects.Core.BusinessLogic.Notifications
                 new TagValue(ProjectsNotificationConstants.Tag_ProjectTitle, notificationData.ProjectTitle),
                 new TagValue(ProjectsNotificationConstants.Tag_EntityTitle, notificationData.MilestoneTitle),
                 new TagValue(ProjectsNotificationConstants.Tag_EntityID, notificationData.MilestoneId));
+        }
+
+        /// <summary>
+        /// Sends a letter which contains a notification about subtask creation.
+        /// </summary>
+        /// <param name="notificationData">Data which is needed for notification sending.</param>
+        public void SendSubtaskCreatedNotification(SubtaskNotificationData notificationData)
+        {
+            notificationData.NotNull(nameof(notificationData));
+
+            DoWithInterceptor(notificationData, () =>
+                {
+                    _notifyClient.SendNoticeToAsync(ProjectsNotificationConstants.Event_SubTaskCreated,
+                        notificationData.NotificationId,
+                        notificationData.Recipients,
+                        true,
+                        new TagValue(ProjectsNotificationConstants.Tag_ProjectID, notificationData.ProjectId),
+                        new TagValue(ProjectsNotificationConstants.Tag_ProjectTitle, notificationData.ProjectTitle),
+                        new TagValue(ProjectsNotificationConstants.Tag_EntityTitle, notificationData.TaskTitle),
+                        new TagValue(ProjectsNotificationConstants.Tag_SubEntityTitle, notificationData.SubtaskTitle),
+                        new TagValue(ProjectsNotificationConstants.Tag_EntityID, notificationData.TaskId),
+                        new TagValue(ProjectsNotificationConstants.Tag_Responsible, notificationData.ResponsibleId),
+                        _replyToTagProvider.Comment("project.task", notificationData.TaskId.ToString(CultureInfo.InvariantCulture)),
+                        new AdditionalSenderTag("push.sender"),
+                        new TagValue(PushConstants.PushItemTagName, new PushItem(PushItemType.Subtask, notificationData.SubtaskId.ToString(CultureInfo.InvariantCulture), notificationData.SubtaskTitle)),
+                        new TagValue(PushConstants.PushParentItemTagName, new PushItem(PushItemType.Task, notificationData.TaskId.ToString(CultureInfo.InvariantCulture), notificationData.TaskTitle)),
+                        new TagValue(PushConstants.PushModuleTagName, PushModule.Projects),
+                        new TagValue(PushConstants.PushActionTagName, PushAction.Created));
+                });
+        }
+
+        /// <summary>
+        /// Sends a letter which contains a notification about subtask modification.
+        /// </summary>
+        /// <param name="notificationData">Data which is needed for notification sending.</param>
+        public void SendSubtaskModifiedNotification(SubtaskNotificationData notificationData)
+        {
+            notificationData.NotNull(nameof(notificationData));
+
+            DoWithInterceptor(notificationData, () =>
+            {
+                _notifyClient.SendNoticeToAsync(ProjectsNotificationConstants.Event_SubTaskEdited,
+                    notificationData.NotificationId,
+                    notificationData.Recipients,
+                    true,
+                    new TagValue(ProjectsNotificationConstants.Tag_ProjectID, notificationData.ProjectId),
+                    new TagValue(ProjectsNotificationConstants.Tag_ProjectTitle, notificationData.ProjectTitle),
+                    new TagValue(ProjectsNotificationConstants.Tag_EntityTitle, notificationData.TaskTitle),
+                    new TagValue(ProjectsNotificationConstants.Tag_SubEntityTitle, notificationData.SubtaskTitle),
+                    new TagValue(ProjectsNotificationConstants.Tag_EntityID, notificationData.TaskId),
+                    new TagValue(ProjectsNotificationConstants.Tag_Responsible, notificationData.ResponsibleId),
+                    _replyToTagProvider.Comment("project.task", notificationData.TaskId.ToString(CultureInfo.InvariantCulture)));
+            });
         }
 
         private void DoWithInterceptor(BaseNotificationData notificationData,

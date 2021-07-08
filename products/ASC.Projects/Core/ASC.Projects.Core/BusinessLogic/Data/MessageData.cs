@@ -42,5 +42,10 @@ namespace ASC.Projects.Core.BusinessLogic.Data
         public DateTime LastModificationDate { get; set; }
 
         public Guid LastEditorId { get; set; }
+        
+        public override bool CanEdit()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -133,5 +133,9 @@ namespace ASC.Projects.Core.BusinessLogic.Data
         public DateTime StatusChangeDate { get; set; }
 
         public string NotificationId { get; set; }
+
+        public EmployeeData LastEditor { get; set; }
+
+        public EmployeeData Creator { get; set; }
     }
 }

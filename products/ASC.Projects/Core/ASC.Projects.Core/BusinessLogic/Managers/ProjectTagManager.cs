@@ -39,7 +39,7 @@ using AutoMapper;
 namespace ASC.Projects.Core.BusinessLogic.Managers
 {
     /// <summary>
-    /// An manager working with project tags.
+    /// Manager working with project tags.
     /// </summary>
     public class ProjectTagManager : IProjectTagManager
     {
