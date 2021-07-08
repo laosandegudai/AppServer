@@ -19,6 +19,7 @@ const homepage = config.homepage;
 const PROXY_HOMEPAGE_URL = combineUrl(proxyURL, homepage);
 const HOME_URL = combineUrl(PROXY_HOMEPAGE_URL, "/");
 const FILTER_URL = combineUrl(PROXY_HOMEPAGE_URL, "/filter");
+const TASK_FILTER_URL = combineUrl(PROXY_HOMEPAGE_URL, "/task/filter");
 
 const Error404 = React.lazy(() => import("studio/Error404"));
 
@@ -46,6 +47,7 @@ const ProjectsContent = (props) => {
     <Switch>
       <PrivateRoute exact path={HOME_URL} component={Home} />
       <PrivateRoute path={FILTER_URL} component={Home} />
+      <PrivateRoute path={TASK_FILTER_URL} component={Home} />
       <PrivateRoute component={Error404Route} />
     </Switch>
   );
