@@ -28,7 +28,7 @@
 #endregion License agreement statement
 
 using System;
-
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -94,6 +94,11 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
         public DbProject Project { get; set; }
 
         /// <summary>
+        /// Comments for this message.
+        /// </summary>
+        public List<DbComment> Comments { get; set; }
+
+        /// <summary>
         /// Describes a set of entity-to-table mapping rules.
         /// </summary>
         public class MySqlMappingConfig : IEntityTypeConfiguration<DbMessage>
@@ -143,6 +148,10 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
                 builder.HasOne(m => m.Project)
                     .WithMany(p => p.Messages)
                     .HasForeignKey(m => m.ProjectId);
+
+                builder.HasMany(m => m.Comments)
+                    .WithOne()
+                    .HasForeignKey(c => c.TargetUniqueId);
             }
         }
     }

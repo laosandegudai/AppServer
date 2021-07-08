@@ -41,6 +41,10 @@ namespace ASC.Projects.Core.DataAccess.Repositories.Interfaces
         where TKey : struct
         where TEntity : IBaseDbEntity<TKey>
     {
+        /// <summary>
+        /// Receives a full list of items <see cref="TEntity"/>.
+        /// </summary>
+        /// <returns>Full list of items <see cref="TEntity"/>.</returns>
         IQueryable<TEntity> GetAll();
 
         TEntity GetById(TKey id);

@@ -45,7 +45,7 @@ namespace ASC.Projects.Controllers
     [Scope]
     [DefaultRoute]
     [ApiController]
-    public class ProjectTagApiController : ProjectApiControllerBase
+    public class ProjectTagApiController : BaseApiController
     {
         /// <summary>
         /// Project tag processing business logic manager.

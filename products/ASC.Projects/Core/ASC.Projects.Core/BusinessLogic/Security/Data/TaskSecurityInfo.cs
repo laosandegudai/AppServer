@@ -27,52 +27,18 @@
 
 #endregion License agreement statement
 
-using System;
-using System.Net;
-using ASC.Core.Common.Utils;
-using ASC.Api.Core;
-using ASC.Core;
-using ASC.Projects.Configuration;
-using ASC.Web.Api.Routing;
-
-using Microsoft.AspNetCore.Mvc;
-
-namespace ASC.Projects.Controllers
+namespace ASC.Projects.Core.BusinessLogic.Security.Data
 {
-    /// <summary>
-    /// Base API controller of product.
-    /// </summary>
-    public class ProjectApiControllerBase : ControllerBase
+    public class TaskSecurityInfo
     {
-        protected ProductEntryPoint ProductEntryPoint { get; }
+        public bool CanEdit { get; set; }
 
-        protected internal ApiContext ApiContext;
+        public bool CanCreateSubtask { get; set; }
 
-        private readonly SecurityContext _securityContext;
+        public bool CanCreateTimeSpend { get; set; }
 
-        protected Guid CurrentUserId => _securityContext.CurrentAccount.ID;
+        public bool CanDelete { get; set; }
 
-        protected long Count => ApiContext.Count;
-
-        public ProjectApiControllerBase(ProductEntryPoint productEntryPoint,
-            SecurityContext securityContext)
-        {
-            ProductEntryPoint = productEntryPoint.NotNull(nameof(productEntryPoint));
-            _securityContext = securityContext.NotNull(nameof(securityContext));
-        }
-
-        [Read("info")]
-        public Module GetModule()
-        {
-            ProductEntryPoint.Init();
-
-            return new Module(ProductEntryPoint);
-
-        }
-
-        protected ActionResult Forbidden(string message)
-        {
-            return StatusCode((int)HttpStatusCode.Forbidden, message);
-        }
+        public bool CanReadFiles { get; set; }
     }
 }

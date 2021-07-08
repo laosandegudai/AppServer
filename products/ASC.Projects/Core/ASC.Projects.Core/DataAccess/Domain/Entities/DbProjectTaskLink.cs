@@ -27,7 +27,6 @@
 
 #endregion License agreement statement
 
-
 using System.Collections.Generic;
 using ASC.Projects.Core.DataAccess.Domain.Enums;
 using ASC.Projects.Core.DataAccess.EF.Helpers;

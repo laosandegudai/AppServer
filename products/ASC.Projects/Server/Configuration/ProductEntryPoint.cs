@@ -1,3 +1,5 @@
+#region License agreement statement
+
 /*
  *
  * (c) Copyright Ascensio System Limited 2010-2018
@@ -23,15 +25,16 @@
  *
 */
 
+#endregion License agreement statement
 
 using System;
 using System.Linq;
 
 using ASC.Common;
 using ASC.Core;
+using ASC.Projects.Classes;
 using ASC.Projects.Resources;
 using ASC.Web.Core;
-using ASC.Web.Projects.Classes;
 
 namespace ASC.Projects.Configuration
 {
@@ -66,15 +69,9 @@ namespace ASC.Projects.Configuration
             PathProvider = pathProvider;
         }
 
-        public override Guid ProductID
-        {
-            get { return ID; }
-        }
+        public override Guid ProductID => ID;
 
-        public override string Name
-        {
-            get { return ProjectsCommonResource.ProductName; }
-        }
+        public override string Name => ProjectsCommonResource.ProductName;
 
         public override string Description
         {
@@ -92,27 +89,15 @@ namespace ASC.Projects.Configuration
             }
         }
 
-        public override string StartURL
-        {
-            get { return PathProvider.BaseAbsolutePath; }
-        }
+        public override string StartURL => PathProvider.BaseAbsolutePath;
 
-        public override string HelpURL
-        {
-            get { return "https://helpcenter.onlyoffice.com/userguides/projects.aspx"; }
-        }
+        public override string HelpURL => "https://helpcenter.onlyoffice.com/userguides/projects.aspx";
 
-        public override string ProductClassName
-        {
-            get { return "projects"; }
-        }
+        public override string ProductClassName => "projects";
 
-        public override bool Visible { get { return true; } }
+        public override bool Visible => true;
 
-        public override ProductContext Context
-        {
-            get { return context; }
-        }
+        public override ProductContext Context => context;
 
         public override string ApiURL => "api/2.0/projects/info.json";
 

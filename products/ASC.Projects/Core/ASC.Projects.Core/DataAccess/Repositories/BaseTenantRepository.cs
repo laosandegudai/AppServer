@@ -33,6 +33,7 @@ using ASC.Core;
 using ASC.Core.Common.Utils;
 using ASC.Projects.Core.DataAccess.Domain.Entities.Interfaces;
 using ASC.Projects.Core.DataAccess.EF;
+using Microsoft.EntityFrameworkCore;
 
 namespace ASC.Projects.Core.DataAccess.Repositories
 {
@@ -81,9 +82,7 @@ namespace ASC.Projects.Core.DataAccess.Repositories
 
         public override TEntity Update(TEntity updatedItem)
         {
-            DbContext.UpdateRange(DbContext
-                .Set<TEntity>()
-                .Where(e => e.TenantId == updatedItem.TenantId && e.Id.Equals(updatedItem.Id)));
+            DbContext.Entry(updatedItem).State = EntityState.Modified;
 
             DbContext.SaveChanges();
 

@@ -35,7 +35,7 @@ using ASC.Projects.Core.DataAccess.Domain.Enums;
 namespace ASC.Projects.Core.DataAccess.Repositories.Interfaces
 {
     /// <summary>
-    /// An interface of repository working with 'Milestone' entity.
+    /// An interface of repository working with <see cref="DbMilestone"/> entity.
     /// </summary>
     public interface IMilestoneRepository : IRepository<DbMilestone, int>
     {

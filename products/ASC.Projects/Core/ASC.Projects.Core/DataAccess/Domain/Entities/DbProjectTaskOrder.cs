@@ -27,7 +27,6 @@
 
 #endregion License agreement statement
 
-
 using ASC.Projects.Core.DataAccess.EF.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

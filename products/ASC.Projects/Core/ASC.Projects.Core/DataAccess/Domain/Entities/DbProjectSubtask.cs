@@ -28,6 +28,7 @@
 #endregion License agreement statement
 
 using System;
+using ASC.Projects.Core.DataAccess.Domain.Entities.Interfaces;
 using ASC.Projects.Core.DataAccess.Domain.Enums;
 using ASC.Projects.Core.DataAccess.EF.Helpers;
 
@@ -37,14 +38,19 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace ASC.Projects.Core.DataAccess.Domain.Entities
 {
     /// <summary>
-    /// Subtask.
+    /// Represents a subtask.
     /// </summary>
-    public class DbProjectSubtask : BaseDbEntity<int>
+    public class DbProjectSubtask : BaseDbEntity<int>, ITenantEntity<int>
     {
         /// <summary>
         /// Title of subtask.
         /// </summary>
         public string Title { get; set; }
+
+        /// <summary>
+        /// Id of tenant.
+        /// </summary>
+        public int TenantId { get; set; }
 
         /// <summary>
         /// Id of user who is responsible for subtask.
