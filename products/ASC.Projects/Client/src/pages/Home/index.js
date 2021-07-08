@@ -26,8 +26,10 @@ import {
   SectionFilterContent,
   SectionHeaderContent,
 } from "./Section";
-import ProjectsFilter from "@appserver/common/api/projects/filter";
+import api from "@appserver/common/api";
 import config from "../../../package.json";
+
+const { ProjectsFilter, TasksFilter } = api;
 const Home = ({
   homepage,
   setIsLoading,
@@ -36,12 +38,14 @@ const Home = ({
   fetchProjects,
   history,
   selectedTreeNode,
+  fetchTasks,
 }) => {
   const { location } = history;
   const { pathname } = location;
   useEffect(() => {
     const reg = new RegExp(`${homepage}((/?)$|/filter)`, "gm");
     const match = window.location.pathname.match(reg);
+    console.log(reg, match);
     let filterObj = null;
 
     if (match && match.length > 0) {
@@ -57,12 +61,19 @@ const Home = ({
       }
     }
 
-    if (!filterObj) return;
-
     if (pathname.indexOf("/projects/filter") > -1) {
       const newFilter = ProjectsFilter.getFilter(location);
       setIsLoading(true);
       fetchProjects(newFilter).finally(() => {
+        setIsLoading(false);
+        setFirstLoad(false);
+      });
+    }
+
+    if (pathname.indexOf("/task/filter") > -1) {
+      const newFilter = TasksFilter.getFilter(location);
+      setIsLoading(true);
+      fetchTasks(newFilter).finally(() => {
         setIsLoading(false);
         setFirstLoad(false);
       });
@@ -96,9 +107,16 @@ const Home = ({
 };
 
 const HomeWrapper = inject(
-  ({ auth, projectsStore, projectsFilterStore, treeFoldersStore }) => {
+  ({
+    auth,
+    projectsStore,
+    projectsFilterStore,
+    tasksFilterStore,
+    treeFoldersStore,
+  }) => {
     const { isLoading, firstLoad, setIsLoading, setFirstLoad } = projectsStore;
     const { selectedTreeNode } = treeFoldersStore;
+    const { fetchTasks } = tasksFilterStore;
     const {
       fetchAllProjects,
       projects,
@@ -119,6 +137,7 @@ const HomeWrapper = inject(
       fetchAllProjects,
       filter,
       projects,
+      fetchTasks,
     };
   }
 )(withRouter(withTranslation(["Article", "Common"])(Home)));
