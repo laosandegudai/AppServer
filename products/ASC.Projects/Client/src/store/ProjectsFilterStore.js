@@ -14,8 +14,9 @@ class ProjectsFilterStore {
   projects = [];
   projectsStore;
 
-  constructor(projectsStore) {
+  constructor(projectsStore, treeFoldersStore) {
     this.projectsStore = projectsStore;
+    this.treeFoldersStore = treeFoldersStore;
     makeObservable(this, {
       projects: observable,
       setProjects: action,
@@ -32,8 +33,11 @@ class ProjectsFilterStore {
 
   // пока функции повторяются.
   resolveData = async (data, filterData) => {
+    const { setSelectedNode } = this.treeFoldersStore;
     this.setProjects([]);
     this.setProjectFilter(filterData);
+    console.log(filterData.folder);
+    setSelectedNode([filterData.folder]);
     this.setProjects(data);
     this.projectsStore.setItems(this.projectList);
     const items = {
@@ -50,6 +54,8 @@ class ProjectsFilterStore {
     const filterData = newFilter
       ? newFilter.clone()
       : ProjectsFilter.getDefault;
+
+    filterData.folder = folderName ? folderName : filterData.folder;
 
     if (
       filterData.status === "open" ||
@@ -79,11 +85,11 @@ class ProjectsFilterStore {
     }
 
     if (folderName === FolderKey.Projects || !folderName) {
-      console.log("dadadadada");
-      this.filter = ProjectsFilter.getDefault();
+      const newFilter = ProjectsFilter.getDefault();
+      newFilter.folder = "projects";
       return api.projects
         .getAllProjectsList(true)
-        .then(async (data) => this.resolveData(data, filterData));
+        .then(async (data) => this.resolveData(data, newFilter));
     }
   };
 

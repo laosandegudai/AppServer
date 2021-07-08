@@ -43,7 +43,7 @@ class ProjectsStore {
       setIsLoaded: action,
       setItems: action,
       init: action,
-      // setFilterType: action,
+      setFilter: action,
     });
   }
 
