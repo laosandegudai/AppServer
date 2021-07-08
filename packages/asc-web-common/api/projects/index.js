@@ -34,3 +34,15 @@ export function getActiveProjectsList(fake = true) {
     return fakeProjects.getActiveProjects();
   }
 }
+
+export function getAllTaskList(fake = true) {
+  if (fake) {
+    return fakeProjects.getAllTasks();
+  }
+}
+
+export function getMyTaskList(fake = true) {
+  if (fake) {
+    return fakeProjects.getMyTasks();
+  }
+}

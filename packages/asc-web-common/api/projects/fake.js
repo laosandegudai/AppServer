@@ -10,18 +10,21 @@ const folderTree = [
       {
         title: "My Projects",
         rootFolderType: 9,
+        parentId: "folder-projects",
         key: "my-projects",
         rootFolderName: "@my-projects",
       },
       {
         title: "Followed",
         rootFolderType: 9,
+        parentId: "folder-projects",
         key: "projects-followed",
         rootFolderName: "@projects-followed",
       },
       {
         title: "Active",
         rootFolderType: 9,
+        parentId: "folder-projects",
         key: "projects-active",
         rootFolderName: "@projects-active",
       },
@@ -49,8 +52,8 @@ const folderTree = [
     rootFolderName: "@tasks",
     rootFolderType: 2,
     folders: [
-      { title: "My Tasks", rootFolderType: 9, key: "tasks1" },
-      { title: "Upcoming", rootFolderType: 9, key: "tasks2" },
+      { title: "My Tasks", rootFolderType: 9, key: "my-tasks" },
+      { title: "Upcoming", rootFolderType: 9, key: "tasks-upcoming" },
     ],
   },
   {
@@ -106,12 +109,12 @@ const folderTree = [
   },
 ];
 
-const generateProjects = () => {
-  function randomNum(min, max) {
-    let rand = min - 0.5 + Math.random() * (max - min + 1);
-    return Math.round(rand);
-  }
+function randomNum(min, max) {
+  let rand = min - 0.5 + Math.random() * (max - min + 1);
+  return Math.round(rand);
+}
 
+const generateProjects = () => {
   const generate = (id) => {
     const project = {
       title: faker.commerce.productName(),
@@ -138,6 +141,22 @@ const generateProjects = () => {
   return [...allProjects, ...myProjects];
 };
 
+const generateTasks = (creatorId) => {
+  const task = {
+    title: faker.internet.userName(),
+    status: randomNum(0, 1),
+    id: faker.datatype.number(),
+    creator: creatorId || faker.datatype.uuid(),
+  };
+
+  return task;
+};
+
+const allTasks = Array.from({ length: 4 }, generateTasks);
+const myTasks = Array.from({ length: 2 }, () =>
+  generateTasks("00000000-0000-0000-0000-000000000000")
+);
+
 const projects = generateProjects();
 
 export function getFolders() {
@@ -159,4 +178,12 @@ export function getFollowedProjects() {
 
 export function getActiveProjects() {
   return Promise.resolve(projects.filter((i) => i.status === 0));
+}
+
+export function getAllTasks() {
+  return Promise.resolve(allTasks);
+}
+
+export function getMyTasks() {
+  return Promise.resolve(myTasks);
 }
