@@ -1,0 +1,14 @@
+{
+    "CreateFileTest": {
+        "IterationCount": 100
+    },
+    "DeleteFileTest": {
+        "IterationCount": 50
+    },
+    "GetFileInfoTest": {
+        "IterationCount": 25
+    },
+    "UpdateFileStreamTest": {
+        "IterationCount": 10
+    }
+}
