@@ -129,6 +129,8 @@ class CrmFilter {
       search,
       fromDate,
       toDate,
+      contactStage,
+      contactType,
     } = this;
 
     let dtoFilter = {
@@ -142,6 +144,8 @@ class CrmFilter {
       filtervalue: (search ?? "").trim(),
       fromDate: fromDate,
       toDate: toDate,
+      contactStage: contactStage,
+      contactType: contactType,
     };
 
     const str = toUrlParams(dtoFilter, true);
@@ -161,6 +165,8 @@ class CrmFilter {
       search,
       fromDate,
       toDate,
+      contactStage,
+      contactType,
     } = this;
 
     const dtoFilter = {};
@@ -190,6 +196,8 @@ class CrmFilter {
     dtoFilter[SORT_ORDER] = sortOrder;
     dtoFilter[START_INDEX] = startIndex;
     dtoFilter[PAGE_COUNT] = count;
+    dtoFilter[CONTACT_STAGE] = contactStage;
+    dtoFilter[CONTACT_TYPE] = contactType;
 
     const str = toUrlParams(dtoFilter, true);
 
@@ -214,6 +222,7 @@ class CrmFilter {
       fromDate: this.fromDate,
       toDate: this.toDate,
       selectedItem: this.selectedItem,
+      contactStage: this.contactStage,
     });
   }
 }

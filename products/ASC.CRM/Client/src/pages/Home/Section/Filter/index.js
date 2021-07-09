@@ -10,179 +10,137 @@ import { withLayoutSize } from "@appserver/common/utils";
 import { withRouter } from "react-router";
 import moment from "moment";
 
-const SectionFilterContent = ({
-  sectionWidth,
-  isLoaded,
-  tReady,
-  t,
-  filter,
-  getContactsList,
-  customNames,
-  user,
-}) => {
-  const getManagerType = (filterValues) => {
-    const responsibleid = result(
-      find(filterValues, (value) => {
-        return value.group === "filter-manager";
-      }),
-      "key"
-    );
+const getManagerType = (filterValues) => {
+  const responsibleid = result(
+    find(filterValues, (value) => {
+      return value.group === "filter-manager";
+    }),
+    "key"
+  );
 
-    return responsibleid
-      ? responsibleid.includes("user")
-        ? responsibleid.slice(5)
-        : responsibleid === "filter-my-manager"
-        ? ""
-        : "00000000-0000-0000-0000-000000000000"
-      : null;
-  };
+  return responsibleid
+    ? responsibleid.includes("user")
+      ? responsibleid.slice(5)
+      : responsibleid === "filter-my-manager"
+      ? ""
+      : "00000000-0000-0000-0000-000000000000"
+    : null;
+};
 
-  const getAccessibilityType = (filterValues) => {
-    const isShared = result(
-      find(filterValues, (value) => {
-        return value.group === "filter-access";
-      }),
-      "key"
-    );
+const getAccessibilityType = (filterValues) => {
+  const isShared = result(
+    find(filterValues, (value) => {
+      return value.group === "filter-access";
+    }),
+    "key"
+  );
 
-    return isShared
-      ? isShared === "filter-access-public"
-        ? "true"
-        : "false"
-      : null;
-  };
+  return isShared
+    ? isShared === "filter-access-public"
+      ? "true"
+      : "false"
+    : null;
+};
 
-  const getOtherType = (filterValues) => {};
+const getTemperatureType = (filterValues) => {
+  const contactStage = result(
+    find(filterValues, (value) => {
+      return value.group === "filter-other-temperature";
+    }),
+    "key"
+  );
 
-  const getDateType = (filterValues) => {
-    const lastMonthStart = moment()
-      .subtract(1, "months")
-      .date(1)
-      .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
-      .format();
+  return contactStage
+    ? contactStage === "not-specified"
+      ? "0"
+      : contactStage === "cold-temperature"
+      ? "1837515"
+      : contactStage === "warm-temperature"
+      ? "1837516"
+      : "1837517"
+    : null;
+};
 
-    const lastMonthEnd = moment()
-      .subtract(1, "months")
-      .endOf("month")
-      .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
-      .format();
+const getOtherType = (filterValues) => {};
 
-    const yesterday = moment()
-      .subtract(1, "days")
-      .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
-      .format();
+const getDateType = (filterValues) => {
+  const lastMonthStart = moment()
+    .subtract(1, "months")
+    .date(1)
+    .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+    .format();
 
-    const today = moment()
-      .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
-      .format();
-    const thisMonth = moment()
-      .startOf("month")
-      .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
-      .format();
+  const lastMonthEnd = moment()
+    .subtract(1, "months")
+    .endOf("month")
+    .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+    .format();
 
-    const date = result(
-      find(filterValues, (value) => {
-        return value.group === "filter-creation-date";
-      }),
-      "key"
-    );
+  const yesterday = moment()
+    .subtract(1, "days")
+    .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+    .format();
 
-    return date
-      ? date === "filter-last-month"
-        ? {
-            fromDate: lastMonthStart,
-            toDate: lastMonthEnd,
-          }
-        : date === "filter-yesterday"
-        ? {
-            fromDate: yesterday,
-            toDate: yesterday,
-          }
-        : date === "filter-today"
-        ? {
-            fromDate: today,
-            toDate: today,
-          }
-        : { fromDate: thisMonth, toDate: today }
-      : { fromDate: null, toDate: null };
-  };
+  const today = moment()
+    .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+    .format();
+  const thisMonth = moment()
+    .startOf("month")
+    .set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+    .format();
 
-  const getContactListViewType = (filterValues) => {
-    const contactListView = result(
-      find(filterValues, (value) => {
-        return value.group === "filter-show";
-      }),
-      "key"
-    );
+  const date = result(
+    find(filterValues, (value) => {
+      return value.group === "filter-creation-date";
+    }),
+    "key"
+  );
 
-    return contactListView
-      ? contactListView === "filter-show-company"
-        ? "company"
-        : contactListView === "filter-show-person"
-        ? "person"
-        : "withopportunity"
-      : null;
-  };
+  return date
+    ? date === "filter-last-month"
+      ? {
+          fromDate: lastMonthStart,
+          toDate: lastMonthEnd,
+        }
+      : date === "filter-yesterday"
+      ? {
+          fromDate: yesterday,
+          toDate: yesterday,
+        }
+      : date === "filter-today"
+      ? {
+          fromDate: today,
+          toDate: today,
+        }
+      : { fromDate: thisMonth, toDate: today }
+    : { fromDate: null, toDate: null };
+};
 
-  const getSelectedFilterData = () => {
-    const selectedFilterData = {
-      filterValues: [],
-      sortDirection: filter.sortOrder === "ascending" ? "asc" : "desc",
-      sortId: filter.sortBy,
-    };
+const getContactListViewType = (filterValues) => {
+  const contactListView = result(
+    find(filterValues, (value) => {
+      return value.group === "filter-show";
+    }),
+    "key"
+  );
 
-    selectedFilterData.inputValue = filter.search;
+  return contactListView
+    ? contactListView === "filter-show-company"
+      ? "company"
+      : contactListView === "filter-show-person"
+      ? "person"
+      : "withopportunity"
+    : null;
+};
 
-    if (filter.responsibleid) {
-      selectedFilterData.filterValues.push({
-        key: `${filter.responsibleid}`,
-        group: "filter-manager",
-      });
-    }
+class SectionFilterContent extends React.Component {
+  state = { isLoading: false };
+  onFilter = (data) => {
+    const { filter, getContactsList } = this.props;
 
-    if (filter.isShared) {
-      selectedFilterData.filterValues.push({
-        key: `${filter.isShared}`,
-        group: "filter-access",
-      });
-    }
-
-    // if (filter.other) {
-    //   selectedFilterData.filterValues.push({
-    //     key: `${filter.other}`,
-    //     group: "filter-other",
-    //   });
-    // }
-
-    if (filter.fromDate) {
-      selectedFilterData.filterValues.push({
-        key: `${filter.fromDate}`,
-        group: "filter-creation-date",
-      });
-    }
-
-    if (filter.toDate) {
-      selectedFilterData.filterValues.push({
-        key: `${filter.fromDate}`,
-        group: "filter-creation-date",
-      });
-    }
-
-    if (filter.contactListView) {
-      selectedFilterData.filterValues.push({
-        key: `${filter.contactListView}`,
-        group: "filter-show",
-      });
-    }
-
-    return selectedFilterData;
-  };
-
-  const selectedFilterData = getSelectedFilterData();
-
-  const onFilter = (data) => {
     const responsibleid = getManagerType(data.filterValues);
     const isShared = getAccessibilityType(data.filterValues);
+    const contactStage = getTemperatureType(data.filterValues);
     const contactListView = getContactListViewType(data.filterValues);
     const { fromDate, toDate } = getDateType(data.filterValues);
     const sortBy = data.sortId;
@@ -199,11 +157,17 @@ const SectionFilterContent = ({
     newFilter.search = search;
     newFilter.fromDate = fromDate;
     newFilter.toDate = toDate;
+    newFilter.contactStage = contactStage;
 
+    // this.setState({ isLoading: true });
     getContactsList(newFilter);
+    // .finally(() =>
+    //   this.setState({ isLoading: false })
+    // );
   };
 
-  const getData = () => {
+  getData = () => {
+    const { t, customNames, filter, user } = this.props;
     const { groupsCaption } = customNames;
     const { selectedItem } = filter;
 
@@ -212,55 +176,55 @@ const SectionFilterContent = ({
         key: "not-specified",
         inSubgroup: true,
         group: "filter-other-temperature",
-        label: "NotSpecified",
+        label: t("NotSpecified"),
       },
       {
         key: "cold-temperature",
         inSubgroup: true,
         group: "filter-other-temperature",
-        label: "ColdTemperature",
+        label: t("ColdTemperature"),
       },
       {
         key: "warm-temperature",
         inSubgroup: true,
         group: "filter-other-temperature",
-        label: "WarmTemperature",
+        label: t("WarmTemperature"),
       },
       {
         key: "hot-temperature",
         inSubgroup: true,
         group: "filter-other-temperature",
-        label: "HotTemperature",
+        label: t("HotTemperature"),
       },
       {
         key: "no-category",
         inSubgroup: true,
         group: "filter-other-contact-type",
-        label: "NoCategorySpecified",
+        label: t("NoCategorySpecified"),
       },
       {
         key: "client-type",
         inSubgroup: true,
         group: "filter-other-contact-type",
-        label: "Client",
+        label: t("Client"),
       },
       {
         key: "provider-type",
         inSubgroup: true,
         group: "filter-other-contact-type",
-        label: "Provider",
+        label: t("Provider"),
       },
       {
         key: "partner-type",
         inSubgroup: true,
         group: "filter-other-contact-type",
-        label: "Partner",
+        label: t("Partner"),
       },
       {
         key: "competitor-type",
         inSubgroup: true,
         group: "filter-other-contact-type",
-        label: "Competitor",
+        label: t("Competitor"),
       },
     ];
 
@@ -388,7 +352,9 @@ const SectionFilterContent = ({
     return filterOptions;
   };
 
-  const getSortData = () => {
+  getSortData = () => {
+    const { t } = this.props;
+
     const commonOptions = [
       { key: "created", label: t("ByCreationDate"), default: true },
       { key: "displayname", label: t("ByTitle"), default: true },
@@ -410,32 +376,90 @@ const SectionFilterContent = ({
       : commonOptions;
   };
 
-  const filterColumnCount =
-    window.innerWidth < 500 ? {} : { filterColumnCount: 2 };
+  getSelectedFilterData = () => {
+    const { filter } = this.props;
 
-  return isLoaded && tReady ? (
-    <FilterInput
-      sectionWidth={sectionWidth}
-      getFilterData={getData}
-      getSortData={getSortData}
-      selectedFilterData={selectedFilterData}
-      onFilter={onFilter}
-      directionAscLabel={t("Common:DirectionAscLabel")}
-      directionDescLabel={t("Common:DirectionDescLabel")}
-      placeholder={t("Common:Search")}
-      {...filterColumnCount}
-      contextMenuHeader={t("Common:AddFilter")}
-      isMobile={isMobileOnly}
-    />
-  ) : (
-    <Loaders.Filter />
-  );
-};
+    const selectedFilterData = {
+      filterValues: [],
+      sortDirection: filter.sortOrder === "ascending" ? "asc" : "desc",
+      sortId: filter.sortBy,
+    };
+
+    selectedFilterData.inputValue = filter.search;
+
+    if (filter.responsibleid) {
+      selectedFilterData.filterValues.push({
+        key: `${filter.responsibleid}`,
+        group: "filter-manager",
+      });
+    }
+
+    if (filter.isShared) {
+      selectedFilterData.filterValues.push({
+        key: `${filter.isShared}`,
+        group: "filter-access",
+      });
+    }
+
+    selectedFilterData.filterValues.push({
+      key: `${filter.contactStage}`,
+      group: "filter-other-temperature",
+    });
+
+    if (filter.fromDate) {
+      selectedFilterData.filterValues.push({
+        key: `${filter.fromDate}`,
+        group: "filter-creation-date",
+      });
+    }
+
+    if (filter.toDate) {
+      selectedFilterData.filterValues.push({
+        key: `${filter.fromDate}`,
+        group: "filter-creation-date",
+      });
+    }
+
+    if (filter.contactListView) {
+      selectedFilterData.filterValues.push({
+        key: `${filter.contactListView}`,
+        group: "filter-show",
+      });
+    }
+
+    return selectedFilterData;
+  };
+
+  render() {
+    const selectedFilterData = this.getSelectedFilterData();
+    const { t, isLoaded, sectionWidth, tReady } = this.props;
+    const filterColumnCount =
+      window.innerWidth < 500 ? {} : { filterColumnCount: 2 };
+
+    return isLoaded && tReady ? (
+      <FilterInput
+        sectionWidth={sectionWidth}
+        getFilterData={this.getData}
+        getSortData={this.getSortData}
+        selectedFilterData={selectedFilterData}
+        onFilter={this.onFilter}
+        directionAscLabel={t("Common:DirectionAscLabel")}
+        directionDescLabel={t("Common:DirectionDescLabel")}
+        placeholder={t("Common:Search")}
+        {...filterColumnCount}
+        contextMenuHeader={t("Common:AddFilter")}
+        isMobile={isMobileOnly}
+      />
+    ) : (
+      <Loaders.Filter />
+    );
+  }
+}
 
 export default withRouter(
-  inject(({ auth, crmStore, filterStore, contactsStore }) => {
-    const { isLoaded } = crmStore;
-    const { filter } = filterStore;
+  inject(({ auth, contactsStore }) => {
+    const { isLoaded } = auth;
+    const { filter } = contactsStore.filterStore;
     const { getContactsList } = contactsStore;
     const { customNames } = auth.settingsStore;
     const { user } = auth.userStore;
@@ -449,8 +473,8 @@ export default withRouter(
       selectedItem: filter.selectedItem,
     };
   })(
-    observer(
-      withLayoutSize(withTranslation(["Home", "Common"])(SectionFilterContent))
+    withLayoutSize(
+      withTranslation(["Home", "Common"])(observer(SectionFilterContent))
     )
   )
 );

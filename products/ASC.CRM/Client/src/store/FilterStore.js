@@ -1,10 +1,8 @@
 import { action, makeObservable, observable } from "mobx";
-import api from "@appserver/common/api";
+import CrmFilter from "@appserver/common/api/crm/filter";
 import config from "../../package.json";
 import { combineUrl } from "@appserver/common/utils";
 import { AppServerConfig } from "@appserver/common/constants";
-
-const { CrmFilter } = api;
 
 class FilterStore {
   filter = CrmFilter.getDefault();

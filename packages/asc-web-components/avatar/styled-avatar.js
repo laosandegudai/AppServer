@@ -5,7 +5,6 @@ import NoUserSelect from "../utils/commonStyles";
 import { CameraIcon } from "./svg";
 import commonIconsStyles from "../utils/common-icons-style";
 
-
 const EditLink = styled.div`
   padding-left: ${(props) => props.theme.avatar.editLink.paddingLeft};
   padding-right: ${(props) => props.theme.avatar.editLink.paddingRight};
@@ -48,7 +47,8 @@ const EditContainer = styled.div`
 EditContainer.defaultProps = { theme: Base };
 
 const AvatarWrapper = styled.div`
-  border-radius: ${(props) => props.theme.avatar.imageContainer.borderRadius};
+  border-radius: ${(props) =>
+    !props.isCompany && props.theme.avatar.imageContainer.borderRadius};
   height: ${(props) => props.theme.avatar.imageContainer.height};
   background-color: ${(props) =>
     (props.source === "" &&

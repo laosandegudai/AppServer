@@ -65,6 +65,7 @@ const Avatar = (props) => {
     editing,
     editLabel,
     editAction,
+    isCompany,
   } = props;
 
   const avatarContent = source ? (
@@ -79,7 +80,7 @@ const Avatar = (props) => {
 
   return (
     <StyledAvatar {...props}>
-      <AvatarWrapper source={source} userName={userName}>
+      <AvatarWrapper source={source} userName={userName} isCompany={isCompany}>
         {avatarContent}
       </AvatarWrapper>
       {editing && size === "max" && (
@@ -124,6 +125,8 @@ Avatar.propTypes = {
   id: PropTypes.string,
   /** Accepts css style  */
   style: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+  /** Contact is Company */
+  isCompany: PropTypes.bool,
 };
 
 Avatar.defaultProps = {

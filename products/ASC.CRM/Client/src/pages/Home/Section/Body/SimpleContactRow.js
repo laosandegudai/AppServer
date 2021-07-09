@@ -36,7 +36,13 @@ const SimpleContactRow = ({ contact, sectionWidth, isMobile }) => {
   const phone = commonData.length > 1 ? commonData[1].data : "";
 
   const element = (
-    <Avatar size="min" userName={displayName} source="" role="user" />
+    <Avatar
+      size="min"
+      userName={displayName}
+      source=""
+      role="user"
+      isCompany={isCompany}
+    />
   );
 
   return (
