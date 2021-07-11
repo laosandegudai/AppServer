@@ -37,7 +37,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace ASC.Projects.Core.DataAccess.Domain.Entities
 {
     /// <summary>
-    /// Represents a report.
+    /// Represents a Project Report.
     /// </summary>
     public class DbReport : BaseDbEntity<int>, ITenantEntity<int>
     {
@@ -101,6 +101,7 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
                     .ValueGeneratedOnAdd();
 
                 builder.Property(r => r.CreatorId)
+                    .IsRequired(false)
                     .HasColumnName("create_by")
                     .HasColumnType(MySqlMappingConfigurationConstants.GuidDbType);
             }

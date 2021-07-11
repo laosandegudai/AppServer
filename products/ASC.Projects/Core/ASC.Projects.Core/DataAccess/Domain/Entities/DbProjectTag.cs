@@ -37,7 +37,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace ASC.Projects.Core.DataAccess.Domain.Entities
 {
     /// <summary>
-    /// Represents the tag.
+    /// Represents a Tag.
     /// </summary>
     public class DbProjectTag : BaseDbEntity<int>, ITenantEntity<int>
     {
@@ -52,19 +52,14 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
         public int TenantId { get; set; }
 
         /// <summary>
-        /// Date when this tag was created.
-        /// </summary>
-        public DateTime? CreationDate { get; set; }
-
-        /// <summary>
         /// Id of user who created this tag.
         /// </summary>
         public Guid? CreatorId { get; set; }
 
         /// <summary>
-        /// Date when this tag was edited lastly.
+        /// Date when this tag was created.
         /// </summary>
-        public DateTime? LastModificationDate { get; set; }
+        public DateTime? CreationDate { get; set; }
 
         /// <summary>
         /// Id of user who edited this tag lastly.
@@ -72,9 +67,9 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
         public Guid? LastEditorId { get; set; }
 
         /// <summary>
-        /// Project which this tag associated with.
+        /// Date when this tag was edited lastly.
         /// </summary>
-        public int ProjectId { get; set; }
+        public DateTime? LastModificationDate { get; set; }
 
         /// <summary>
         /// Projects which were been tagged by this tag.
@@ -99,17 +94,21 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
                     .HasMaxLength(255);
 
                 builder.Property(t => t.CreationDate)
+                    .IsRequired(false)
                     .HasColumnName("create_on")
                     .HasColumnType("datetime");
 
                 builder.Property(t => t.CreatorId)
+                    .IsRequired(false)
                     .HasColumnName("create_by")
                     .HasColumnType(MySqlMappingConfigurationConstants.GuidDbType);
 
                 builder.Property(t => t.LastModificationDate)
+                    .IsRequired(false)
                     .HasColumnName("last_modified_on");
 
                 builder.Property(t => t.LastEditorId)
+                    .IsRequired(false)
                     .HasColumnName("last_modified_by")
                     .HasColumnType(MySqlMappingConfigurationConstants.GuidDbType);
 

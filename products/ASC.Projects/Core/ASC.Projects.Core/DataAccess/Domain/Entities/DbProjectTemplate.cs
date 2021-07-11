@@ -36,7 +36,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace ASC.Projects.Core.DataAccess.Domain.Entities
 {
     /// <summary>
-    /// Represents a project template.
+    /// Represents a Project Template.
     /// </summary>
     public class DbProjectTemplate : BaseDbEntity<int>, ITenantEntity<int>
     {
@@ -56,9 +56,9 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
         public Guid CreatorId { get; set; }
 
         /// <summary>
-        /// Date when this project template was modified lastly.
+        /// Date when this project was created.
         /// </summary>
-        public DateTime? LastModificationDate { get; set; }
+        public DateTime? CreationDate { get; set; }
 
         /// <summary>
         /// Id of user who edited this project template lastly.
@@ -66,9 +66,9 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
         public Guid? LastEditorId { get; set; }
 
         /// <summary>
-        /// Date when this project was created.
+        /// Date when this project template was modified lastly.
         /// </summary>
-        public DateTime? CreationDate { get; set; }
+        public DateTime? LastModificationDate { get; set; }
 
         /// <summary>
         /// Id of tenant.
@@ -97,7 +97,6 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
                     .HasColumnType("text");
 
                 builder.Property(p => p.CreatorId)
-                    .IsRequired(false)
                     .HasColumnName("create_by")
                     .HasColumnType(MySqlMappingConfigurationConstants.GuidDbType)
                     .HasMaxLength(MySqlMappingConfigurationConstants.GuidFieldMaxLength);

@@ -36,7 +36,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace ASC.Projects.Core.DataAccess.Domain.Entities
 {
     /// <summary>
-    /// Represents a recurrence item.
+    /// Represents a Recurrence Item.
     /// </summary>
     public class DbProjectTaskRecurrenceItem : BaseDbEntity<int>, ITenantEntity<int>
     {
@@ -86,6 +86,7 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
                     .ValueGeneratedOnAdd();
 
                 builder.Property(tr => tr.Cron)
+                    .IsRequired(false)
                     .HasColumnType("varchar(255)");
 
                 builder.HasOne(tr => tr.Task)

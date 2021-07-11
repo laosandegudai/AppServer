@@ -38,7 +38,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace ASC.Projects.Core.DataAccess.Domain.Entities
 {
     /// <summary>
-    /// Represents a time tracking log item.
+    /// Represents a Time Tracking Item.
     /// </summary>
     public class DbTimeTrackingItem : BaseDbEntity<int>, ITenantEntity<int>
     {
@@ -68,7 +68,7 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
         public int? RelativeTaskId { get; set; }
 
         /// <summary>
-        /// Id of person.
+        /// Id of person who spent this time.
         /// </summary>
         public Guid PersonId { get; set; }
         
@@ -88,19 +88,24 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
         public DateTime StatusChangeDate { get; set; }
 
         /// <summary>
+        /// Id of person who logged this time.
+        /// </summary>
+        public Guid? CreatorId { get; set; }
+
+        /// <summary>
         /// Creation date of logged item.
         /// </summary>
         public DateTime? CreationDate { get; set; }
 
         /// <summary>
-        /// Author of logged item.
-        /// </summary>
-        public Guid? CreatorId { get; set; }
-
-        /// <summary>
-        /// The task for which the time is logged.
+        /// The task which time is logged for.
         /// </summary>
         public DbProjectTask RelativeTask { get; set; }
+
+        /// <summary>
+        /// The Project which time is logged for.
+        /// </summary>
+        public DbProject Project { get; set; }
 
         /// <summary>
         /// Describes a set of entity-to-table mapping rules.

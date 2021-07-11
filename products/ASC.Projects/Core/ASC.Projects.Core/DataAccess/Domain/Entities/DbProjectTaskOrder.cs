@@ -34,7 +34,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace ASC.Projects.Core.DataAccess.Domain.Entities
 {
     /// <summary>
-    /// Represents project task order.
+    /// Represents a Project Task Order.
     /// </summary>
     public class DbProjectTaskOrder
     {
@@ -74,6 +74,7 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
                 }).HasName(MySqlMappingConfigurationConstants.PrimaryKeyDefaultName);
 
                 builder.Property(to => to.Order)
+                    .IsRequired(false)
                     .HasColumnName("task_order")
                     .HasColumnType("text");
             }

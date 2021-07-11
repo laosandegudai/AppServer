@@ -28,6 +28,7 @@
 #endregion License agreement statement
 
 using System.Collections.Generic;
+using ASC.Projects.Core.DataAccess.Domain.Entities.Interfaces;
 using ASC.Projects.Core.DataAccess.Domain.Enums;
 using ASC.Projects.Core.DataAccess.EF.Helpers;
 using Microsoft.EntityFrameworkCore;
@@ -36,9 +37,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace ASC.Projects.Core.DataAccess.Domain.Entities
 {
     /// <summary>
-    /// Represents a link to the project task.
+    /// Represents a Link to the Project Task.
     /// </summary>
-    public class DbProjectTaskLink
+    public class DbProjectTaskLink : BaseDbEntity<int>, ITenantEntity<int>
     {
         /// <summary>
         /// Id of tenant.

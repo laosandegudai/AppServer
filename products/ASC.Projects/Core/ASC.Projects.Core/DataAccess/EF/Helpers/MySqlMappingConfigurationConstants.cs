@@ -29,16 +29,35 @@
 
 namespace ASC.Projects.Core.DataAccess.EF.Helpers
 {
+    /// <summary>
+    /// Constants, helping for entity-to-table mapping configuration.
+    /// </summary>
     public static class MySqlMappingConfigurationConstants
     {
+        /// <summary>
+        /// Primary Key default name (PRIMARY).
+        /// </summary>
         public const string PrimaryKeyDefaultName = "PRIMARY";
         
+        /// <summary>
+        /// Guid field length.
+        /// </summary>
         public const int GuidFieldMaxLength = 38;
         
+        /// <summary>
+        /// Name of guid field type represented in database.
+        /// </summary>
         public const string GuidDbType = "char(38)";
+
+        /// <summary>
+        /// Name of bool field type represented in database.
+        /// </summary>
         
         public const string BoolDbType = "tinyint(1)";
         
+        /// <summary>
+        /// Name of UTF8_general_ci collation name represented in database.
+        /// </summary>
         public const string Utf8GeneralCiCollation = "utf8_general_ci";
     }
 }

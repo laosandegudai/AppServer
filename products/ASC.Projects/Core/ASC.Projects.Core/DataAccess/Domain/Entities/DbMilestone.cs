@@ -39,7 +39,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace ASC.Projects.Core.DataAccess.Domain.Entities
 {
     /// <summary>
-    /// Milestone.
+    /// Represents a Milestone.
     /// </summary>
     [DebuggerDisplay("Milestone: ID = {Id}, Title = {Title}, Deadline = {Deadline}")]
     public class DbMilestone : BaseDbEntity<int>, ITenantEntity<int>
@@ -122,7 +122,7 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
         /// <summary>
         /// List of tasks related to this milestone.
         /// </summary>
-        public List<DbProjectTask> Tasks{ get; set; }
+        public List<DbProjectTask> Tasks { get; set; }
 
         /// <summary>
         /// Describes a set of entity-to-table mapping rules.
@@ -140,39 +140,46 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
                     .ValueGeneratedOnAdd();
 
                 builder.Property(p => p.Title)
+                    .IsRequired(false)
                     .HasColumnType("varchar(255)")
                     .HasMaxLength(255);
 
                 builder.Property(p => p.Description)
+                    .IsRequired(false)
                     .HasColumnType("text");
 
                 builder.Property(p => p.CreatorId)
+                    .IsRequired(false)
                     .HasColumnName("create_by")
                     .HasColumnType(MySqlMappingConfigurationConstants.GuidDbType)
                     .HasMaxLength(MySqlMappingConfigurationConstants.GuidFieldMaxLength);
 
                 builder.Property(p => p.CreationDate)
+                    .IsRequired(false)
                     .HasColumnName("create_on")
                     .HasColumnType("datetime");
 
                 builder.Property(p => p.LastEditorId)
+                    .IsRequired(false)
                     .HasColumnName("last_modified_by")
                     .HasColumnType(MySqlMappingConfigurationConstants.GuidDbType)
                     .HasMaxLength(MySqlMappingConfigurationConstants.GuidFieldMaxLength);
 
                 builder.Property(p => p.LastModificationDate)
+                    .IsRequired(false)
                     .HasColumnName("last_modified_on")
                     .HasColumnType("datetime");
 
                 builder.Property(m => m.Deadline)
-                    .IsRequired()
                     .HasColumnType("datetime");
 
                 builder.Property(m => m.ResponsibleId)
+                    .IsRequired(false)
                     .HasColumnType(MySqlMappingConfigurationConstants.GuidDbType)
                     .HasMaxLength(MySqlMappingConfigurationConstants.GuidFieldMaxLength);
 
                 builder.Property(m => m.IsKey)
+                    .IsRequired(false)
                     .HasColumnType(MySqlMappingConfigurationConstants.BoolDbType)
                     .HasDefaultValue();
 

@@ -27,6 +27,8 @@
 
 #endregion License agreement statement
 
+using System.Collections.Generic;
+
 using ASC.Projects.Core.DataAccess.Domain.Entities.Interfaces;
 using ASC.Projects.Core.DataAccess.EF.Helpers;
 using Microsoft.EntityFrameworkCore;
@@ -35,7 +37,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace ASC.Projects.Core.DataAccess.Domain.Entities
 {
     /// <summary>
-    /// Represents status.
+    /// Represents Status.
     /// </summary>
     public class DbStatus : BaseDbEntity<int>, ITenantEntity<int>
     {
@@ -90,6 +92,11 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
         public int TenantId { get; set; }
 
         /// <summary>
+        /// List of tasks in this status.
+        /// </summary>
+        public List<DbProjectTask> Tasks { get; set; }
+
+        /// <summary>
         /// Describes a set of entity-to-table mapping rules.
         /// </summary>
         public class MySqlMappingConfig : IEntityTypeConfiguration<DbStatus>
@@ -132,6 +139,10 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
 
                 builder.Property(s => s.StatusType)
                     .HasColumnName("statusType");
+
+                builder.HasMany(s => s.Tasks)
+                    .WithOne(t => t.TaskStatus)
+                    .HasForeignKey(t => t.TaskStatusId)
             }
         }
     }

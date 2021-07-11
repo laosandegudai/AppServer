@@ -39,7 +39,7 @@ using ASC.Projects.Core.DataAccess.EF.Helpers;
 namespace ASC.Projects.Core.DataAccess.Domain.Entities
 {
     /// <summary>
-    /// Represents a message.
+    /// Represents a Message.
     /// </summary>
     public class DbMessage : BaseDbEntity<int>, ITenantEntity<int>
     {
@@ -133,11 +133,13 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
                     .HasColumnType("datetime");
 
                 builder.Property(p => p.LastEditorId)
+                    .IsRequired(false)
                     .HasColumnName("last_modified_by")
                     .HasColumnType(MySqlMappingConfigurationConstants.GuidDbType)
                     .HasMaxLength(MySqlMappingConfigurationConstants.GuidFieldMaxLength);
 
                 builder.Property(p => p.LastModificationDate)
+                    .IsRequired(false)
                     .HasColumnName("last_modified_on")
                     .HasColumnType("datetime");
 

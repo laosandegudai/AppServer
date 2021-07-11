@@ -38,7 +38,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace ASC.Projects.Core.DataAccess.Domain.Entities
 {
     /// <summary>
-    /// Represents a project participant.
+    /// Represents a Project Participant.
     /// </summary>
     public class DbProjectParticipant : BaseDbEntity<int>, ITenantEntity<int>
     {
@@ -75,7 +75,7 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
         /// <summary>
         /// Date when this participant was edited lastly.
         /// </summary>
-        public DateTime LastUpdateDate { get; set; }
+        public DateTime LastModificationDate { get; set; }
 
         /// <summary>
         /// A projects which participant is following.
@@ -98,6 +98,8 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
                     pp.ProjectId
                 }).HasName(MySqlMappingConfigurationConstants.PrimaryKeyDefaultName);
 
+                builder.Ignore(p => p.Id);
+
                 builder.Property(pp => pp.IsRemoved)
                     .HasColumnName("removed")
                     .HasColumnType("int")
@@ -110,7 +112,7 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
                     .HasColumnName("tenant")
                     .HasDefaultValue();
 
-                builder.Property(pp => pp.LastUpdateDate)
+                builder.Property(pp => pp.LastModificationDate)
                     .HasColumnName("updated")
                     .HasColumnType("timestamp")
                     .HasDefaultValue();

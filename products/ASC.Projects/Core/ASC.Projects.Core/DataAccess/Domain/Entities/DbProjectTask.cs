@@ -39,7 +39,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace ASC.Projects.Core.DataAccess.Domain.Entities
 {
     /// <summary>
-    /// Represents a task of project.
+    /// Represents a Task of Project.
     /// </summary>
     [DebuggerDisplay("Task: ID = {Id}, Title = {Title}, Status = {Status}")]
     public class DbProjectTask : BaseDbEntity<int>, ITenantEntity<int>
@@ -130,6 +130,11 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
         public int Progress { get; set; }
 
         /// <summary>
+        /// Id of status of this task.
+        /// </summary>
+        public int TaskStatusId { get; set; }
+
+        /// <summary>
         /// Logged time for this task.
         /// </summary>
         public List<DbTimeTrackingItem> TimeTrackingItems { get; set; }
@@ -143,6 +148,11 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
         /// Milestone which this task relative for.
         /// </summary>
         public DbMilestone Milestone { get; set; }
+
+        /// <summary>
+        /// Status of this task.
+        /// </summary>
+        public DbStatus TaskStatus { get; set; }
 
         /// <summary>
         /// Subtasks of this task.
@@ -170,10 +180,16 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
                     .IsRequired();
 
                 builder.Property(t => t.Title)
+                    .IsRequired(false)
                     .HasColumnType("varchar(255)")
                     .HasMaxLength(255);
 
+                builder.Property(t => t.Description)
+                    .IsRequired(false)
+                    .HasColumnType("text");
+
                 builder.Property(t => t.CreationDate)
+                    .IsRequired(false)
                     .HasColumnName("create_on");
 
                 builder.Property(t => t.CreatorId)
@@ -181,11 +197,28 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
                     .HasColumnType(MySqlMappingConfigurationConstants.GuidDbType);
 
                 builder.Property(t => t.LastModificationDate)
+                    .IsRequired(false)
                     .HasColumnName("last_modified_on");
 
                 builder.Property(t => t.LastEditorId)
+                    .IsRequired(false)
                     .HasColumnName("last_modified_by")
                     .HasColumnType(MySqlMappingConfigurationConstants.GuidDbType);
+
+                builder.Property(t => t.MilestoneId)
+                    .IsRequired(false);
+
+                builder.Property(t => t.ResponsibleId)
+                    .IsRequired(false)
+                    .HasColumnType(MySqlMappingConfigurationConstants.GuidDbType);
+
+                builder.Property(t => t.TaskStatusId)
+                    .IsRequired(false)
+                    .HasColumnName("status_id")
+                    .HasColumnType("smallint");
+
+                builder.Property(t => t.StartDate)
+                    .IsRequired(false);
 
                 builder.HasMany(pt => pt.Subtasks)
                     .WithOne(st => st.RootTask)

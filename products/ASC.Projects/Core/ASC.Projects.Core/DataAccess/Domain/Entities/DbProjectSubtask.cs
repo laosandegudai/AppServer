@@ -38,7 +38,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace ASC.Projects.Core.DataAccess.Domain.Entities
 {
     /// <summary>
-    /// Represents a subtask.
+    /// Represents a Subtask of Project Task.
     /// </summary>
     public class DbProjectSubtask : BaseDbEntity<int>, ITenantEntity<int>
     {
@@ -114,6 +114,7 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
                     .HasMaxLength(255);
 
                 builder.Property(p => p.CreatorId)
+                    .IsRequired(false)
                     .HasColumnName("create_by")
                     .HasColumnType(MySqlMappingConfigurationConstants.GuidDbType)
                     .HasMaxLength(MySqlMappingConfigurationConstants.GuidFieldMaxLength);
@@ -124,11 +125,13 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
                     .HasColumnType("datetime");
 
                 builder.Property(p => p.LastEditorId)
+                    .IsRequired(false)
                     .HasColumnName("last_modified_by")
                     .HasColumnType(MySqlMappingConfigurationConstants.GuidDbType)
                     .HasMaxLength(MySqlMappingConfigurationConstants.GuidFieldMaxLength);
 
                 builder.Property(p => p.LastModificationDate)
+                    .IsRequired(false)
                     .HasColumnName("last_modified_on")
                     .HasColumnType("datetime");
 

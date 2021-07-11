@@ -149,20 +149,24 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
                     .HasColumnType("text");
 
                 builder.Property(p => p.CreatorId)
+                    .IsRequired(false)
                     .HasColumnName("create_by")
                     .HasColumnType(MySqlMappingConfigurationConstants.GuidDbType)
                     .HasMaxLength(MySqlMappingConfigurationConstants.GuidFieldMaxLength);
 
                 builder.Property(p => p.CreationDate)
+                    .IsRequired(false)
                     .HasColumnName("create_on")
                     .HasColumnType("datetime");
 
                 builder.Property(p => p.LastEditorId)
+                    .IsRequired(false)
                     .HasColumnName("last_modified_by")
                     .HasColumnType(MySqlMappingConfigurationConstants.GuidDbType)
                     .HasMaxLength(MySqlMappingConfigurationConstants.GuidFieldMaxLength);
 
                 builder.Property(p => p.LastModificationDate)
+                    .IsRequired(false)
                     .HasColumnName("last_modified_on")
                     .HasColumnType("datetime");
 

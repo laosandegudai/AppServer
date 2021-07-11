@@ -37,7 +37,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace ASC.Projects.Core.DataAccess.Domain.Entities
 {
     /// <summary>
-    /// Represents a comment.
+    /// Represents a Comment.
     /// </summary>
     public class DbComment : BaseDbEntity<Guid>, ITenantEntity<Guid>
     {
