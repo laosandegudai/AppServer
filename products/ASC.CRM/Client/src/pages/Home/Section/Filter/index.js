@@ -136,7 +136,7 @@ const getContactListViewType = (filterValues) => {
 class SectionFilterContent extends React.Component {
   state = { isLoading: false };
   onFilter = (data) => {
-    const { filter, getContactsList } = this.props;
+    const { filter, getContactsList, setIsLoading } = this.props;
 
     const responsibleid = getManagerType(data.filterValues);
     const isShared = getAccessibilityType(data.filterValues);
@@ -159,11 +159,8 @@ class SectionFilterContent extends React.Component {
     newFilter.toDate = toDate;
     newFilter.contactStage = contactStage;
 
-    // this.setState({ isLoading: true });
-    getContactsList(newFilter);
-    // .finally(() =>
-    //   this.setState({ isLoading: false })
-    // );
+    setIsLoading(true);
+    getContactsList(newFilter).finally(() => setIsLoading(false));
   };
 
   getData = () => {
@@ -457,12 +454,13 @@ class SectionFilterContent extends React.Component {
 }
 
 export default withRouter(
-  inject(({ auth, contactsStore }) => {
+  inject(({ auth, contactsStore, crmStore }) => {
     const { isLoaded } = auth;
     const { filter } = contactsStore.filterStore;
     const { getContactsList } = contactsStore;
     const { customNames } = auth.settingsStore;
     const { user } = auth.userStore;
+    const { setIsLoading } = crmStore;
 
     return {
       isLoaded,
@@ -471,6 +469,7 @@ export default withRouter(
       customNames,
       user,
       selectedItem: filter.selectedItem,
+      setIsLoading,
     };
   })(
     withLayoutSize(
