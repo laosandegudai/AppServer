@@ -34,6 +34,7 @@ using ASC.Core;
 using ASC.Core.Common.Utils;
 using ASC.Core.Tenants;
 using ASC.Notify.Model;
+using ASC.Notify.Recipients;
 using ASC.Projects.Core.BusinessLogic.Data;
 using ASC.Projects.Core.BusinessLogic.Managers.Interfaces;
 using ASC.Projects.Core.DataAccess.Domain.Entities;
@@ -43,8 +44,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ASC.Projects.Core.BusinessLogic.Managers
 {
+    /// <summary>
+    /// Business logic manager responsible for messages processing.
+    /// </summary>
     public class MessageManager : ProjectEntityManager, IMessageManager
     {
+        #region Fields and .ctor
+
         private readonly IMessageRepository _messageRepository;
         
         private readonly IMapper _mapper;
@@ -59,6 +65,8 @@ namespace ASC.Projects.Core.BusinessLogic.Managers
             _messageRepository = messageRepository.NotNull(nameof(messageRepository));
             _mapper = mapper;
         }
+
+        #endregion Fields and .ctor;
 
         public override ProjectEntityData GetEntityByID(int id)
         {
@@ -204,6 +212,13 @@ namespace ASC.Projects.Core.BusinessLogic.Managers
             message.Project.NotNull(nameof(message.Project));
 
             _messageRepository.DeleteById(message.Id);
+        }
+
+        public override List<IRecipient> GetSubscribers(ProjectEntityData projectEntity)
+        {
+            var result = base.GetSubscribers(projectEntity);
+
+            return result;
         }
     }
 }

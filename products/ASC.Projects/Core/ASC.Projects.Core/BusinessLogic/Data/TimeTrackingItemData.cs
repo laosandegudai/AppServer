@@ -28,21 +28,18 @@
 #endregion License agreement statement
 
 using System;
-
+using ASC.Common.Mapping;
+using ASC.Projects.Core.DataAccess.Domain.Entities;
 using ASC.Projects.Core.DataAccess.Domain.Enums;
+using AutoMapper;
 
 namespace ASC.Projects.Core.BusinessLogic.Data
 {
     /// <summary>
-    /// Represents a Time Tracking item.
+    /// Represents a business logic-level time tracking item.
     /// </summary>
-    public class TimeTrackingItemData
+    public class TimeTrackingItemData : BaseData<int>, IMapFrom<DbTimeTrackingItem>
     {
-        /// <summary>
-        /// Id of item.
-        /// </summary>
-        public int Id { get; set; }
-
         /// <summary>
         /// Id of task, which this item logged for.
         /// </summary>
@@ -51,7 +48,7 @@ namespace ASC.Projects.Core.BusinessLogic.Data
         /// <summary>
         /// Task, which this item logged for.
         /// </summary>
-        public TaskData RelatedTask { get; set; }
+        public ProjectTaskData RelatedTask { get; set; }
 
         /// <summary>
         /// Log date.
@@ -107,5 +104,11 @@ namespace ASC.Projects.Core.BusinessLogic.Data
         /// Determines ability of this item payment status edition.
         /// </summary>
         public bool CanEditPaymentStatus { get; set; }
+
+        public void Mapping(Profile profile)
+        {
+            profile.CreateMap<DbTimeTrackingItem, TimeTrackingItemData>()
+                .ReverseMap();
+        }
     }
 }

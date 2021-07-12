@@ -162,7 +162,7 @@ namespace ASC.Projects.Core.BusinessLogic.Managers
             }
         }
 
-        public List<IRecipient> GetSubscribers(ProjectEntityData entity)
+        public virtual List<IRecipient> GetSubscribers(ProjectEntityData entity)
         {
             var result = SubscriptionProvider
                 .GetRecipients(NotifyAction, entity.NotifyId)

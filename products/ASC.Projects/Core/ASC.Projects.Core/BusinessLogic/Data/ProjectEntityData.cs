@@ -31,10 +31,8 @@ using System;
 
 namespace ASC.Projects.Core.BusinessLogic.Data
 {
-    public abstract class ProjectEntityData
+    public abstract class ProjectEntityData : BaseData<int>
     {
-        public int Id { get; set; }
-
         public string Title { get; set; }
 
         public string Description { get; set; }
@@ -67,6 +65,5 @@ namespace ASC.Projects.Core.BusinessLogic.Data
         public string NotifyId { get; set; }
 
         public abstract bool CanEdit();
-
     }
 }

@@ -51,9 +51,14 @@ namespace ASC.Projects.Core.DataAccess.Repositories
 
         #endregion .ctor
 
-        public List<DbProjectTask> GetProjectTasks(int projectId,
-            TaskStatus? status = null,
-            Guid? participantId = null)
+        /// <summary>
+        /// Receives a list of tasks related to project with specified id.
+        /// </summary>
+        /// <param name="projectId">Id of needed project.</param>
+        /// <param name="status">Needed status of tasks.</param>
+        /// <param name="participantId">Id of needed participant.</param>
+        /// <returns></returns>
+        public List<DbProjectTask> GetProjectTasks(int projectId, TaskStatus? status = null, Guid? participantId = null)
         {
             var predicate = GetAll()
                 .Include(t => t.Milestone)
@@ -113,6 +118,11 @@ namespace ASC.Projects.Core.DataAccess.Repositories
             return result;
         }
 
+        /// <summary>
+        /// Receives tasks of milestone with specified id.
+        /// </summary>
+        /// <param name="milestoneId">Id of needed milestone.</param>
+        /// <returns>List of tasks <see cref="DbProjectTask"/> related to milestone with specified id.</returns>
         public List<DbProjectTask> GetMilestoneTasks(int milestoneId)
         {
             var result = GetAll()
@@ -126,6 +136,11 @@ namespace ASC.Projects.Core.DataAccess.Repositories
             return result;
         }
 
+        /// <summary>
+        /// Receives tasks having specified ids.
+        /// </summary>
+        /// <param name="ids">Ids of needed tasks.</param>
+        /// <returns>List of tasks <see cref="DbProjectTask"/> having specified ids.</returns>
         public List<DbProjectTask> GetByIds(List<int> ids)
         {
             var result = GetAll()
@@ -135,16 +150,21 @@ namespace ASC.Projects.Core.DataAccess.Repositories
             return result;
         }
 
+        /// <summary>
+        /// Receives tasks for reminder.
+        /// </summary>
+        /// <param name="deadline">Needed deadline.</param>
+        /// <returns>List of tasks <see cref="DbProjectTask"/> to remind.</returns>
         public List<DbProjectTask> GetTasksForReminder(DateTime deadline)
         {
             var deadlineDate = deadline.Date;
-            var yesterday = deadline.AddDays(-1);
-            var tomorrow = deadline.AddDays(1);
+            var yesterday = deadlineDate.AddDays(-1);
+            var tomorrow = deadlineDate.AddDays(1);
 
             var result = GetAll()
                 .Include(t => t.Project)
                 .Where(t => t.Deadline >= yesterday
-                    && t.Deadline <= yesterday
+                    && t.Deadline <= tomorrow
                     && t.Status != TaskStatus.Closed
                     && t.Project.Status == ProjectStatus.Open)
                 .ToList();
@@ -152,6 +172,11 @@ namespace ASC.Projects.Core.DataAccess.Repositories
             return result;
         }
 
+        /// <summary>
+        /// Updates an existing task.
+        /// </summary>
+        /// <param name="updatingItem">Updating task data.</param>
+        /// <returns>Just updated task <see cref="DbProjectTask"/>.</returns>
         public override DbProjectTask Update(DbProjectTask updatingItem)
         {
             var existingItem = GetById(updatingItem.Id);

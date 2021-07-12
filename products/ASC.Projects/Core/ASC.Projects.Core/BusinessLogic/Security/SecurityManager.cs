@@ -116,7 +116,7 @@ namespace ASC.Projects.Core.BusinessLogic.Security
 
         public bool CanEditComment(BaseData<int> entity, CommentData comment)
         {
-            if (entity is TaskData task)
+            if (entity is ProjectTaskData task)
             {
                 return _taskSecurityManager.CanEditComment(task, comment);
             }
@@ -137,7 +137,7 @@ namespace ASC.Projects.Core.BusinessLogic.Security
 
         public bool CanCreateComment(BaseData<int> entity)
         {
-            if (entity is TaskData task)
+            if (entity is ProjectTaskData task)
             {
                 return _taskSecurityManager.CanCreateComment(task);
             }
@@ -156,7 +156,7 @@ namespace ASC.Projects.Core.BusinessLogic.Security
             return result;
         }
 
-        public bool CanEdit(TaskData task, SubtaskData subtask)
+        public bool CanEdit(ProjectTaskData task, ProjectSubtaskData subtask)
         {
             var result = _taskSecurityManager.CanEdit(task, subtask);
 
@@ -210,14 +210,14 @@ namespace ASC.Projects.Core.BusinessLogic.Security
             return result;
         }
 
-        public bool CanCreateSubtask(TaskData task)
+        public bool CanCreateSubtask(ProjectTaskData task)
         {
             var result = _taskSecurityManager.CanCreateSubtask(task);
 
             return result;
         }
 
-        public bool CanCreateTimeSpend(TaskData task)
+        public bool CanCreateTimeSpend(ProjectTaskData task)
         {
             var result = _taskSecurityManager.CanCreateTimeSpend(task);
 
@@ -267,7 +267,7 @@ namespace ASC.Projects.Core.BusinessLogic.Security
             }
         }
 
-        public void DemandEdit(TaskData task, SubtaskData subtask)
+        public void DemandEdit(ProjectTaskData task, ProjectSubtaskData subtask)
         {
             if (!CanEdit(task, subtask))
             {
@@ -392,12 +392,12 @@ namespace ASC.Projects.Core.BusinessLogic.Security
             }
         }
 
-        public void GetTaskSecurityInfo(TaskData task)
+        public void GetTaskSecurityInfo(ProjectTaskData task)
         {
             task.Security = GetTaskSecurityInfoWithSecurity(task);
         }
 
-        public void GetTaskSecurityInfo(List<TaskData> tasks)
+        public void GetTaskSecurityInfo(List<ProjectTaskData> tasks)
         {
             foreach (var task in tasks)
             {
@@ -428,7 +428,7 @@ namespace ASC.Projects.Core.BusinessLogic.Security
             };
         }
 
-        private TaskSecurityInfo GetTaskSecurityInfoWithSecurity(TaskData task)
+        private TaskSecurityInfo GetTaskSecurityInfoWithSecurity(ProjectTaskData task)
         {
             return new TaskSecurityInfo
             {

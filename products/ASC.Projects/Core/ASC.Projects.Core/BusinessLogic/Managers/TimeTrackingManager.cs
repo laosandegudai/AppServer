@@ -44,10 +44,12 @@ using AutoMapper;
 namespace ASC.Projects.Core.BusinessLogic.Managers
 {
     /// <summary>
-    /// Manager working with Time Tracking items.
+    /// Business logic manager responsible for time tracking items processing.
     /// </summary>
     public class TimeTrackingManager : ITimeTrackingManager
     {
+        #region Fields and .ctor
+
         private readonly ITimeTrackingItemRepository _timeTrackingItemRepository;
 
         private readonly IMapper _mapper;
@@ -67,13 +69,15 @@ namespace ASC.Projects.Core.BusinessLogic.Managers
             _securityContext = securityContext.NotNull(nameof(securityContext));
         }
 
+        #endregion Fields and .ctor
+
         /// <summary>
         /// Returns a fully-filled Time Tracking items that satisfied a provided filter.
         /// </summary>
         /// <param name="filter">Filter data.</param>
         /// <returns>A list of items <see cref="List{TimeTrackingItemData}"/> that satisfied a provided filter.</returns>
         /// ToDo: implement this later.
-        public List<TimeTrackingItemData> GetLoggedTimeByFilter(TimeTrackingItemFilterData filter)
+        public List<TimeTrackingItemData> GetLoggedTimeByFilter(TimeTrackingItemData filter)
         {
             throw new NotImplementedException();
         }
@@ -84,7 +88,7 @@ namespace ASC.Projects.Core.BusinessLogic.Managers
         /// <param name="filter">Filter data.</param>
         /// <returns>Amount of items what satisfied a provided filter.</returns>
         /// ToDo: implement this later.
-        public decimal GetTotalCountByFilter(TimeTrackingItemFilterData filter)
+        public decimal GetTotalCountByFilter(TimeTrackingItemData filter)
         {
             throw new NotImplementedException();
         }
@@ -190,7 +194,6 @@ namespace ASC.Projects.Core.BusinessLogic.Managers
         /// </summary>
         /// <param name="itemIds">Removal items Ids.</param>
         /// <returns>List of just removed Time Tracking items <see cref="List{TimeTrackingItemData}"/>.</returns>
-
         public List<TimeTrackingItemData> RemoveLoggedTimes(List<int> itemIds)
         {
             var result = new List<TimeTrackingItemData>();

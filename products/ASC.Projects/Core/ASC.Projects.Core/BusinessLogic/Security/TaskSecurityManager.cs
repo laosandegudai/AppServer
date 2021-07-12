@@ -38,7 +38,7 @@ using ASC.Projects.Core.DataAccess.Domain.Enums;
 
 namespace ASC.Projects.Core.BusinessLogic.Security
 {
-    public class TaskSecurityManager : SecurityTemplateManager<TaskData>
+    public class TaskSecurityManager : SecurityTemplateManager<ProjectTaskData>
     {
         #region Fields and .ctor
 
@@ -89,7 +89,7 @@ namespace ASC.Projects.Core.BusinessLogic.Security
             return result;
         }
 
-        public override bool CanReadEntity(TaskData task, Guid userId)
+        public override bool CanReadEntity(ProjectTaskData task, Guid userId)
         {
             if (task == null || !_projectSecurityManager.CanReadEntity(task.Project, userId))
             {
@@ -118,7 +118,7 @@ namespace ASC.Projects.Core.BusinessLogic.Security
             return result;
         }
 
-        public override bool CanUpdateEntity(TaskData task)
+        public override bool CanUpdateEntity(ProjectTaskData task)
         {
             if (!base.CanUpdateEntity(task) || task.Project.Status == ProjectStatus.Closed)
             {
@@ -138,7 +138,7 @@ namespace ASC.Projects.Core.BusinessLogic.Security
             return result;
         }
 
-        public override bool CanDeleteEntity(TaskData task)
+        public override bool CanDeleteEntity(ProjectTaskData task)
         {
             if (!base.CanDeleteEntity(task))
             {
@@ -155,7 +155,7 @@ namespace ASC.Projects.Core.BusinessLogic.Security
             return result;
         }
 
-        public override bool CanCreateComment(TaskData entity)
+        public override bool CanCreateComment(ProjectTaskData entity)
         {
             var result = CanReadEntity(entity)
                 && CommonSecurityManager.IsProjectsEnabled()
@@ -165,7 +165,7 @@ namespace ASC.Projects.Core.BusinessLogic.Security
             return result;
         }
 
-        public bool CanEdit(TaskData task, SubtaskData subtask)
+        public bool CanEdit(ProjectTaskData task, ProjectSubtaskData subtask)
         {
             if (subtask == null || !CommonSecurityManager.Can())
             {
@@ -184,7 +184,7 @@ namespace ASC.Projects.Core.BusinessLogic.Security
             return result;
         }
 
-        public override bool CanGoToFeed(TaskData task, Guid userId)
+        public override bool CanGoToFeed(ProjectTaskData task, Guid userId)
         {
             if (task == null || !CommonSecurityManager.IsProjectsEnabled(userId))
             {
@@ -221,7 +221,7 @@ namespace ASC.Projects.Core.BusinessLogic.Security
             return result;
         }
 
-        public override bool CanEditFiles(TaskData entity)
+        public override bool CanEditFiles(ProjectTaskData entity)
         {
             if (!CommonSecurityManager.IsProjectsEnabled()
                 || entity.Project.Status == ProjectStatus.Closed)
@@ -234,14 +234,14 @@ namespace ASC.Projects.Core.BusinessLogic.Security
             return result;
         }
 
-        public override bool CanEditComment(TaskData entity, CommentData comment)
+        public override bool CanEditComment(ProjectTaskData entity, CommentData comment)
         {
             var result = entity != null && _projectSecurityManager.CanEditComment(entity.Project, comment);
 
             return result;
         }
 
-        public bool CanCreateSubtask(TaskData task)
+        public bool CanCreateSubtask(ProjectTaskData task)
         {
             if (task == null || !CommonSecurityManager.Can())
             {
@@ -261,7 +261,7 @@ namespace ASC.Projects.Core.BusinessLogic.Security
             return result;
         }
 
-        public bool CanCreateTimeSpend(TaskData task)
+        public bool CanCreateTimeSpend(ProjectTaskData task)
         {
             if (task == null
                 || !CommonSecurityManager.Can()

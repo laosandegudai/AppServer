@@ -27,62 +27,46 @@
 
 #endregion License agreement statement
 
-using System;
-using ASC.Common.Mapping;
-using ASC.Projects.Core.DataAccess.Domain.Entities;
-using AutoMapper;
+using System.Collections.Generic;
+using ASC.Projects.Core.BusinessLogic.Data;
 
-namespace ASC.Projects.Core.BusinessLogic.Data
+namespace ASC.Projects.Core.BusinessLogic.Managers.Interfaces
 {
     /// <summary>
-    /// Represents a business logic-level participant.
+    /// An interface of business logic manager responsible for custom task statuses processing.
     /// </summary>
-    public class ParticipantData : BaseData<Guid>, IMapFrom<DbProjectParticipant>
+    public interface ICustomStatusManager
     {
         /// <summary>
-        /// Id of tenant.
+        /// Receives a full list of statuses.
         /// </summary>
-        public int TenantId { get; set; }
+        /// <returns>Full list of statuses <see cref="CustomTaskStatusData"/>.</returns>
+        List<CustomTaskStatusData> GetAll();
 
         /// <summary>
-        /// Id of participant.
+        /// Receives a list of default statuses.
         /// </summary>
-        public Guid ParticipantId { get; set; }
+        /// <returns>List of statuses <see cref="CustomTaskStatusData"/>.</returns>
+        List<CustomTaskStatusData> GetWithDefaults();
+        
+        /// <summary>
+        /// Creates a new status.
+        /// </summary>
+        /// <param name="status">Status to create.</param>
+        /// <returns>Just created status <see cref="CustomTaskStatusData"/>.</returns>
+        CustomTaskStatusData Create(CustomTaskStatusData status);
 
         /// <summary>
-        /// Id of the project which participant is following.
+        /// Updates an existing status.
         /// </summary>
-        public int ProjectId { get; set; }
+        /// <param name="status">Status to update.</param>
+        /// <returns>Just updated status <see cref="CustomStatusData"/>.</returns>
+        CustomTaskStatusData Update(CustomTaskStatusData status);
 
         /// <summary>
-        /// Determines project as removed/active.
+        /// Removes a status having specified id.
         /// </summary>
-        public bool IsRemoved { get; set; }
-
-        /// <summary>
-        /// Security?
-        /// </summary>
-        public int Security { get; set; }
-
-        /// <summary>
-        /// Date when this participant was created.
-        /// </summary>
-        public DateTime CreationDate { get; set; }
-
-        /// <summary>
-        /// Date when this participant was edited lastly.
-        /// </summary>
-        public DateTime LastModificationDate { get; set; }
-
-        /// <summary>
-        /// Project, which this participant is assigned for.
-        /// </summary>
-        public ProjectData Project { get; set; }
-
-        public void Mapping(Profile profile)
-        {
-            profile.CreateMap<DbProjectParticipant, ParticipantData>()
-                .ReverseMap();
-        }
+        /// <param name="id">Id of status to remove.</param>
+        void DeleteById(int id);
     }
 }

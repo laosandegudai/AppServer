@@ -27,61 +27,65 @@
 
 #endregion License agreement statement
 
-using System;
-using ASC.Common.Mapping;
+using System.Collections.Generic;
 using ASC.Projects.Core.DataAccess.Domain.Entities;
+using ASC.Projects.Core.DataAccess.Domain.Enums;
 using AutoMapper;
 
 namespace ASC.Projects.Core.BusinessLogic.Data
 {
     /// <summary>
-    /// Represents a business logic-level participant.
+    /// Represents a business logic-level custom status of task.
     /// </summary>
-    public class ParticipantData : BaseData<Guid>, IMapFrom<DbProjectParticipant>
+    public class CustomTaskStatusData : CustomStatusData
     {
         /// <summary>
-        /// Id of tenant.
+        /// Type of status.
         /// </summary>
-        public int TenantId { get; set; }
+        public new TaskStatus StatusType { get; set; }
 
         /// <summary>
-        /// Id of participant.
+        /// Determines availability of changes.
         /// </summary>
-        public Guid ParticipantId { get; set; }
+        public bool CanChangeAvailability => StatusType != TaskStatus.Open;
 
-        /// <summary>
-        /// Id of the project which participant is following.
-        /// </summary>
-        public int ProjectId { get; set; }
-
-        /// <summary>
-        /// Determines project as removed/active.
-        /// </summary>
-        public bool IsRemoved { get; set; }
-
-        /// <summary>
-        /// Security?
-        /// </summary>
-        public int Security { get; set; }
-
-        /// <summary>
-        /// Date when this participant was created.
-        /// </summary>
-        public DateTime CreationDate { get; set; }
-
-        /// <summary>
-        /// Date when this participant was edited lastly.
-        /// </summary>
-        public DateTime LastModificationDate { get; set; }
-
-        /// <summary>
-        /// Project, which this participant is assigned for.
-        /// </summary>
-        public ProjectData Project { get; set; }
-
-        public void Mapping(Profile profile)
+        public static List<CustomTaskStatusData> GetDefaults()
         {
-            profile.CreateMap<DbProjectParticipant, ParticipantData>()
+            return new List<CustomTaskStatusData>
+            {
+                GetDefault(TaskStatus.Open),
+                GetDefault(TaskStatus.Closed)
+            };
+        }
+
+        public static CustomTaskStatusData GetDefault(TaskStatus status)
+        {
+            return status switch
+            {
+                TaskStatus.Open => GetDefault(status, "Open", "inbox.svg"),
+                TaskStatus.Closed => GetDefault(status, "Closed", "check_tick.svg"),
+                _ => null
+            };
+        }
+
+        private static CustomTaskStatusData GetDefault(TaskStatus status, string title, string svg, bool available = true)
+        {
+            return new CustomTaskStatusData
+            {
+                StatusType = status,
+                Id = -(int)status,
+                Title = title,
+                Image = GetImageBase64Content("/skins/default/images/svg/projects/" + svg),
+                ImageType = "image/svg+xml",
+                Color = "#83888d",
+                IsDefault = true,
+                IsAvailable = available
+            };
+        }
+
+        public override void Mapping(Profile profile)
+        {
+            profile.CreateMap<DbCustomTaskStatus, CustomTaskStatusData>()
                 .ReverseMap();
         }
     }

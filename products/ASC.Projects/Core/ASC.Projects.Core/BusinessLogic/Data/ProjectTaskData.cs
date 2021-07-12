@@ -28,32 +28,42 @@
 #endregion License agreement statement
 
 using System;
+using System.Collections.Generic;
+using ASC.Common.Mapping;
+using ASC.Projects.Core.BusinessLogic.Security.Data;
+using ASC.Projects.Core.DataAccess.Domain.Entities;
 using ASC.Projects.Core.DataAccess.Domain.Enums;
+using AutoMapper;
 
 namespace ASC.Projects.Core.BusinessLogic.Data
 {
-    public class TimeTrackingItemFilterData
+    /// <summary>
+    /// Represents a business logic-level project task.
+    /// </summary>
+    public class ProjectTaskData : BaseData<int>, IMapFrom<DbProjectTask>
     {
-        public int? ProjectId { get; set; }
+        public string Title { get; set; }
 
-        public int? TagId { get; set; }
+        public int ProjectId { get; set; }
 
-        public Guid? DepartmentId { get; set; }
+        public TaskStatus Status { get; set; }
 
-        public Guid? ParticipantId { get; set; }
+        public Guid CreatorId { get; set; }
 
-        public DateTime? CreationIntervalFrom { get; set; }
-
-        public DateTime? CreationIntervalTo { get; set; }
-
-        public int? LastId { get; set; }
-
-        public bool AreMyProjectsNeeded { get; set; }
-
-        public bool AreMyMilestonesNeeded { get; set; }
+        public ProjectData Project { get; set; }
 
         public int? MilestoneId { get; set; }
 
-        public PaymentStatus? PaymentStatus { get; set; }
+        public List<Guid> ResponsibleIds { get; set; }
+
+        public List<ProjectTaskData> Subtasks { get; set; }
+
+        public TaskSecurityInfo Security { get; set; }
+
+        public void Mapping(Profile profile)
+        {
+            profile.CreateMap<DbProjectTask, ProjectTaskData>()
+                .ReverseMap();
+        }
     }
 }

@@ -28,17 +28,22 @@
 #endregion License agreement statement
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ASC.Projects.Core.DataAccess.Domain.Enums;
 
 namespace ASC.Projects.Core.BusinessLogic.Managers.Interfaces
 {
+    /// <summary>
+    /// An interface of business logic manager responsible for projects processing.
+    /// </summary>
     public interface IProjectManager
     {
         bool Exists(int projectId);
 
         bool IsInTeam(int projectId, Guid participantId);
+
+
+        bool IsFollowing(int projectId, Guid participantId);
+
+        ProjectTeamSecurity GetTeamSecurity(int projectId, Guid participantId);
     }
 }

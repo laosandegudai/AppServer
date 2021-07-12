@@ -27,22 +27,121 @@
 
 #endregion License agreement statement
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using ASC.Core.Common.Utils;
+using ASC.Projects.Core.BusinessLogic.Data;
 using ASC.Projects.Core.BusinessLogic.Managers.Interfaces;
+using ASC.Projects.Core.BusinessLogic.Security;
+using ASC.Projects.Core.DataAccess.Domain.Entities;
+using ASC.Projects.Core.DataAccess.Domain.Enums;
 using ASC.Projects.Core.DataAccess.Repositories.Interfaces;
+using AutoMapper;
 
 namespace ASC.Projects.Core.BusinessLogic.Managers
 {
+    /// <summary>
+    /// Business logic manager responsible for project tasks processing.
+    /// </summary>
     public class ProjectTaskManager : IProjectTaskManager
     {
-        /// <summary>
-        /// An instance of repository working with Project Tasks.
-        /// </summary>
+        #region Fields and .ctor
+
         private readonly ITaskRepository _taskRepository;
 
-        public ProjectTaskManager(ITaskRepository taskRepository)
+        private readonly IMapper _mapper;
+
+        private readonly SecurityManager _securityManager;
+
+        public ProjectTaskManager(ITaskRepository taskRepository,
+            IMapper mapper,
+            SecurityManager securityManager)
         {
             _taskRepository = taskRepository.NotNull(nameof(taskRepository));
+            _mapper = mapper.NotNull(nameof(mapper));
+            _securityManager = securityManager.NotNull(nameof(securityManager));
+        }
+
+        #endregion Fields and .ctor
+
+        /// <summary>
+        /// Receives a full list of existing tasks.
+        /// </summary>
+        /// <returns>List of tasks <see cref="ProjectTaskData"/> including all existing tasks.</returns>
+        public List<ProjectTaskData> GetAll()
+        {
+            var result = _taskRepository.GetAll()
+                .Select(t => _mapper.Map<DbProjectTask, ProjectTaskData>(t))
+                .ToList();
+
+            return result;
+        }
+
+        /// <summary>
+        /// Receives tasks related to specific project.
+        /// </summary>
+        /// <param name="projectId">Id of project</param>
+        /// <param name="status">Status of tasks.</param>
+        /// <param name="participant">Id of participant.</param>
+        /// <returns></returns>
+        public List<ProjectTaskData> GetProjectTasks(int projectId, TaskStatus? status = null, Guid? participant = null)
+        {
+            var result = _taskRepository
+                .GetProjectTasks(projectId, status, participant)
+                .Select(t => _mapper.Map<DbProjectTask, ProjectTaskData>(t))
+                .ToList();
+
+            return result;
+        }
+
+        /// <summary>
+        /// Receives tasks, related to milestone with specified id.
+        /// </summary>
+        /// <param name="milestoneId">Id of needed milestone.</param>
+        /// <returns>List of milestone tasks <see cref="ProjectTaskData"/>.</returns>
+        public List<ProjectTaskData> GetMilestoneTasks(int milestoneId)
+        {
+            var result = _taskRepository
+                .GetMilestoneTasks(milestoneId)
+                .Select(mt => _mapper.Map<DbProjectTask, ProjectTaskData>(mt))
+                .ToList();
+
+            return result;
+        }
+
+        /// <summary>
+        /// Receives task with specified id.
+        /// </summary>
+        /// <param name="id">Id of needed task.</param>
+        /// <returns>Task <see cref="ProjectTaskData"/> having specified id./returns>
+        public ProjectTaskData GetById(int id)
+        {
+            var task = _taskRepository.GetById(id);
+
+            var result = _mapper.Map<DbProjectTask, ProjectTaskData>(task);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Receives a list of tasks, having specified ids.
+        /// </summary>
+        /// <param name="ids">Ids of needed tasks.</param>
+        /// <returns>List of tasks <see cref="ProjectTaskData"/> having specified ids.</returns>
+        public List<ProjectTaskData> GetByIds(List<int> ids)
+        {
+            if (ids?.Any() == false)
+            {
+                return new List<ProjectTaskData>();
+            }
+            
+            var result = _taskRepository
+                .GetByIds(ids)
+                .Select(t => _mapper.Map<DbProjectTask, ProjectTaskData>(t))
+                .ToList();
+
+            return result;
         }
 
         /// Makes a check about task with specified id existence.
@@ -56,6 +155,18 @@ namespace ASC.Projects.Core.BusinessLogic.Managers
             var doesTaskExists = _taskRepository.Exists(taskId);
 
             return doesTaskExists;
+        }
+
+        /// <summary>
+        /// Determines availability of task data reading.
+        /// </summary>
+        /// <param name="task">Task to read.</param>
+        /// <returns>true - if user can read task data, otherwise - false.</returns>
+        private bool CanRead(ProjectTaskData task)
+        {
+            var result = _securityManager.CanRead(task);
+
+            return result;
         }
     }
 }

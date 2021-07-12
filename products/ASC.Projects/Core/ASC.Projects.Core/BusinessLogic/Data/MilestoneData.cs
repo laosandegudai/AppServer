@@ -28,20 +28,18 @@
 #endregion License agreement statement
 
 using System;
+using ASC.Common.Mapping;
+using ASC.Projects.Core.DataAccess.Domain.Entities;
 using ASC.Projects.Core.DataAccess.Domain.Enums;
+using AutoMapper;
 
 namespace ASC.Projects.Core.BusinessLogic.Data
 {
     /// <summary>
-    /// Represents a milestone.
+    /// Represents a business logic-level milestone.
     /// </summary>
-    public class MilestoneData
+    public class MilestoneData : BaseData<int>, IMapFrom<DbMilestone>
     {
-        /// <summary>
-        /// Id of milestone.
-        /// </summary>
-        public int Id { get; set; }
-
         /// <summary>
         /// Title of milestone.
         /// </summary>
@@ -132,10 +130,25 @@ namespace ASC.Projects.Core.BusinessLogic.Data
         /// </summary>
         public DateTime StatusChangeDate { get; set; }
 
+        /// <summary>
+        /// Id of notification.
+        /// </summary>
         public string NotificationId { get; set; }
 
+        /// <summary>
+        /// The person, who edited this milestone lastly.
+        /// </summary>
         public EmployeeData LastEditor { get; set; }
 
+        /// <summary>
+        /// The person who created this milestone.
+        /// </summary>
         public EmployeeData Creator { get; set; }
+
+        public void Mapping(Profile profile)
+        {
+            profile.CreateMap<DbMilestone, MilestoneData>()
+                .ReverseMap();
+        }
     }
 }

@@ -35,7 +35,7 @@ using ASC.Projects.Core.DataAccess.Domain.Enums;
 namespace ASC.Projects.Core.BusinessLogic.Managers.Interfaces
 {
     /// <summary>
-    /// An interface of business logic manager working with milestones.
+    /// An interface of business logic manager responsible for milestones processing.
     /// </summary>
     public interface IMilestoneManager
     {
@@ -111,8 +111,8 @@ namespace ASC.Projects.Core.BusinessLogic.Managers.Interfaces
         /// Receives tasks assigned to milestone with specified Id.
         /// </summary>
         /// <param name="milestoneId">Id of needed milestone.</param>
-        /// <returns>List of tasks <see cref="TaskData"/> assigned to milestone with specified Id.</returns>
-        List<TaskData> GetMilestoneTasks(int milestoneId);
+        /// <returns>List of tasks <see cref="ProjectTaskData"/> assigned to milestone with specified Id.</returns>
+        List<ProjectTaskData> GetMilestoneTasks(int milestoneId);
 
         /// <summary>
         /// Creates new milestone or updates an existing milestone.

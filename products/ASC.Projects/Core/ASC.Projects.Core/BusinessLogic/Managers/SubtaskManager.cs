@@ -45,8 +45,13 @@ using AutoMapper;
 
 namespace ASC.Projects.Core.BusinessLogic.Managers
 {
+    /// <summary>
+    /// Business logic manager responsible for project subtasks processing.
+    /// </summary>
     public class SubtaskManager : ProjectEntityManager, ISubtaskManager
     {
+        #region Fields and .ctor
+
         private readonly ISubtaskRepository _subtaskRepository;
 
         private readonly IMapper _mapper;
@@ -54,7 +59,6 @@ namespace ASC.Projects.Core.BusinessLogic.Managers
         private readonly IProjectNotificationSender _projectNotificationSender;
 
         private readonly SecurityContext _securityContext;
-
 
         public SubtaskManager(INotifySource notifySource,
             INotifyAction notifyAction,
@@ -67,9 +71,17 @@ namespace ASC.Projects.Core.BusinessLogic.Managers
             _subtaskRepository = subtaskRepository.NotNull(nameof(subtaskRepository));
             _mapper = mapper.NotNull(nameof(mapper));
             _projectNotificationSender = projectNotificationSender.NotNull(nameof(projectNotificationSender));
+            _securityContext = securityContext.NotNull(nameof(securityContext));
         }
 
+        #endregion Fields and .ctor
 
+        /// <summary>
+        /// Receives amount of subtask of task with specified Id and having one of specified statuses.
+        /// </summary>
+        /// <param name="taskId">Id of the task.</param>
+        /// <param name="statuses">Needed statuses.</param>
+        /// <returns>Amount of subtasks related to task with specified Id and having one of specified statuses.</returns>
         public int GetTaskSubtasksCount(int taskId, params TaskStatus[] statuses)
         {
             var result = _subtaskRepository.GetTaskSubtasksCountInStatuses(taskId, statuses);
@@ -77,11 +89,11 @@ namespace ASC.Projects.Core.BusinessLogic.Managers
             return result;
         }
 
-        public int GetTaskSubtasksCount(int taskId, params System.Threading.Tasks.TaskStatus[] statuses)
-        {
-            throw new NotImplementedException();
-        }
-
+        /// <summary>
+        /// Receives amount of subtasks, related to task with specified Id.
+        /// </summary>
+        /// <param name="taskId">Id of the task.</param>
+        /// <returns>Amount of subtasks related to task with specified Id.</returns>
         public int GetTaskSubtasksCount(int taskId)
         {
             var result = _subtaskRepository.GetTaskSubtasksCountInStatuses(taskId);
@@ -89,21 +101,39 @@ namespace ASC.Projects.Core.BusinessLogic.Managers
             return result;
         }
 
-        public SubtaskData GetById(int id)
+        /// <summary>
+        /// Receives subtask having specified Id.
+        /// </summary>
+        /// <param name="id">Id of subtask.</param>
+        /// <returns>Subtask <see cref="ProjectSubtaskData"/> with specified Id.</returns>
+        public ProjectSubtaskData GetById(int id)
         {
             var subtask = _subtaskRepository.GetById(id);
 
-            var result = _mapper.Map<DbProjectSubtask, SubtaskData>(subtask);
+            var result = _mapper.Map<DbProjectSubtask, ProjectSubtaskData>(subtask);
 
             return result;
         }
 
-        public SubtaskData ChangeStatus(TaskData task, SubtaskData subtask, System.Threading.Tasks.TaskStatus newStatus)
+        /// <summary>
+        /// Changes status of subtask.
+        /// </summary>
+        /// <param name="task">Task for status change</param>
+        /// <param name="subtask">Subtask.</param>
+        /// <param name="newStatus">New status for task.</param>
+        /// <returns></returns>
+        public ProjectSubtaskData ChangeStatus(ProjectTaskData task, ProjectSubtaskData subtask, TaskStatus newStatus)
         {
             throw new NotImplementedException();
         }
 
-        public SubtaskData SaveOrUpdate(SubtaskData subtask, TaskData task)
+        /// <summary>
+        /// Creates or updates subtask.
+        /// </summary>
+        /// <param name="subtask">Subtask data for creation or update.</param>
+        /// <param name="task">Parent task data.</param>
+        /// <returns>Just updated subtask <see cref="ProjectSubtaskData"/>.</returns>
+        public ProjectSubtaskData SaveOrUpdate(ProjectSubtaskData subtask, ProjectTaskData task)
         {
             subtask.NotNull(nameof(subtask));
             subtask.NotNull(nameof(task));
@@ -125,7 +155,7 @@ namespace ASC.Projects.Core.BusinessLogic.Managers
                 subtask.CreatorId ??= _securityContext.CurrentAccount.ID;
                 subtask.CreationDate ??= TenantUtil.DateTimeNow(TimeZoneInfo.Local);
 
-                var entity = _mapper.Map<SubtaskData, DbProjectSubtask>(subtask);
+                var entity = _mapper.Map<ProjectSubtaskData, DbProjectSubtask>(subtask);
 
                 item = _subtaskRepository.Update(entity);
 
@@ -154,7 +184,7 @@ namespace ASC.Projects.Core.BusinessLogic.Managers
 
                 oldResponsible = existingSubtask.ResponsibleId;
 
-                var entity = _mapper.Map<SubtaskData, DbProjectSubtask>(subtask);
+                var entity = _mapper.Map<ProjectSubtaskData, DbProjectSubtask>(subtask);
 
                 item = _subtaskRepository.Update(entity);
 
@@ -173,14 +203,21 @@ namespace ASC.Projects.Core.BusinessLogic.Managers
                 _projectNotificationSender.SendSubtaskModifiedNotification(notificationData);
             }
 
-            var result = _mapper.Map<DbProjectSubtask, SubtaskData>(item);
+            var result = _mapper.Map<DbProjectSubtask, ProjectSubtaskData>(item);
 
             return result;
         }
 
-        public SubtaskData Copy(SubtaskData source, TaskData task, List<ParticipantData> team)
+        /// <summary>
+        /// Creates a copy of subtask.
+        /// </summary>
+        /// <param name="source">Donor subtask.</param>
+        /// <param name="task">Task data.</param>
+        /// <param name="team">Team data.</param>
+        /// <returns>A copy of provided donor subtask <see cref="ProjectSubtaskData"/>.</returns>
+        public ProjectSubtaskData Copy(ProjectSubtaskData source, ProjectTaskData task, List<ParticipantData> team)
         {
-            var subtask = new SubtaskData
+            var subtask = new ProjectSubtaskData
             {
                 CreatorId = _securityContext.CurrentAccount.ID,
                 CreationDate = TenantUtil.DateTimeNow(TimeZoneInfo.Local),
@@ -199,7 +236,12 @@ namespace ASC.Projects.Core.BusinessLogic.Managers
             return result;
         }
 
-        public void Delete(SubtaskData subtask, TaskData task)
+        /// <summary>
+        /// Deletes subtask.
+        /// </summary>
+        /// <param name="subtask">Subtask data.</param>
+        /// <param name="task">Related task data.</param>
+        public void Delete(ProjectSubtaskData subtask, ProjectTaskData task)
         {
             throw new NotImplementedException();
         }

@@ -31,10 +31,11 @@ using System;
 
 namespace ASC.Projects.Core.BusinessLogic.Data
 {
-    public class EmployeeData
+    /// <summary>
+    /// Represents a business logic-level employee.
+    /// </summary>
+    public class EmployeeData : BaseData<Guid>
     {
-        public Guid Id { get; set; }
-
         public string DisplayName { get; set; }
 
         public string Title { get; set; }

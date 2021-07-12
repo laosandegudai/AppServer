@@ -39,10 +39,12 @@ using AutoMapper;
 namespace ASC.Projects.Core.BusinessLogic.Managers
 {
     /// <summary>
-    /// Manager working with project tags.
+    /// Business logic manager responsible for project tags processing.
     /// </summary>
     public class ProjectTagManager : IProjectTagManager
     {
+        #region Fields and .ctor
+
         private readonly IProjectTagRepository _projectTagRepository;
 
         private readonly IProjectRepository _projectRepository;
@@ -57,6 +59,8 @@ namespace ASC.Projects.Core.BusinessLogic.Managers
             _projectRepository = projectRepository.NotNull(nameof(projectRepository));
             _mapper = mapper.NotNull(nameof(mapper));
         }
+
+        #endregion Fields and .ctor
 
         /// <summary>
         /// Creates new tag.

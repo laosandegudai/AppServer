@@ -27,10 +27,54 @@
 
 #endregion License agreement statement
 
+using System;
+using System.Collections.Generic;
+using ASC.Projects.Core.BusinessLogic.Data;
+using ASC.Projects.Core.DataAccess.Domain.Enums;
+
 namespace ASC.Projects.Core.BusinessLogic.Managers.Interfaces
 {
+    /// <summary>
+    /// An interface of business logic manager responsible for project tasks processing.
+    /// </summary>
     public interface IProjectTaskManager
     {
+        /// <summary>
+        /// Receives a full list of existing tasks.
+        /// </summary>
+        /// <returns>List of tasks <see cref="ProjectTaskData"/> including all existing tasks.</returns>
+        List<ProjectTaskData> GetAll();
+
+        /// <summary>
+        /// Receives tasks related to specific project.
+        /// </summary>
+        /// <param name="projectId">Id of project</param>
+        /// <param name="status">Status of tasks.</param>
+        /// <param name="participant">Id of participant.</param>
+        /// <returns></returns>
+        List<ProjectTaskData> GetProjectTasks(int projectId, TaskStatus? status = null, Guid? participant = null);
+
+        /// <summary>
+        /// Receives tasks, related to milestone with specified id.
+        /// </summary>
+        /// <param name="milestoneId">Id of needed milestone.</param>
+        /// <returns>List of milestone tasks <see cref="ProjectTaskData"/>.</returns>
+        List<ProjectTaskData> GetMilestoneTasks(int milestoneId);
+
+        /// <summary>
+        /// Receives task with specified id.
+        /// </summary>
+        /// <param name="id">Id of needed task.</param>
+        /// <returns>Task <see cref="ProjectTaskData"/> having specified id./returns>
+        ProjectTaskData GetById(int id);
+
+        /// <summary>
+        /// Receives a list of tasks, having specified ids.
+        /// </summary>
+        /// <param name="ids">Ids of needed tasks.</param>
+        /// <returns>List of tasks <see cref="ProjectTaskData"/> having specified ids.</returns>
+        List<ProjectTaskData> GetByIds(List<int> ids);
+
         /// <summary>
         /// Makes a check about task with specified id existence.
         /// </summary>

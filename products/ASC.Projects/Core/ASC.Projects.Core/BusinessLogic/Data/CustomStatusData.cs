@@ -28,24 +28,64 @@
 #endregion License agreement statement
 
 using System;
-using ASC.Projects.Core.DataAccess.Domain.Enums;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using ASC.Common.Mapping;
+using ASC.Projects.Core.DataAccess.Domain.Entities;
+using AutoMapper;
 
 namespace ASC.Projects.Core.BusinessLogic.Data
 {
     /// <summary>
-    /// Represents a subtask data.
+    /// Represents a business logic-level custom status.
     /// </summary>
-    public class SubtaskData
+    public class CustomStatusData : BaseData<int>, IMapFrom<DbCustomTaskStatus>
     {
         /// <summary>
-        /// Id of subtask.
-        /// </summary>
-        public int Id { get; set; }
-
-        /// <summary>
-        /// Title of subtask.
+        /// Title of status.
         /// </summary>
         public string Title { get; set; }
+
+        /// <summary>
+        /// Description of status.
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Determines status availability.
+        /// </summary>
+        public bool IsAvailable { get; set; }
+
+        /// <summary>
+        /// Color of status.
+        /// </summary>
+        public string Color { get; set; }
+
+        /// <summary>
+        /// Image of status.
+        /// </summary>
+        public string Image { get; set; }
+
+        /// <summary>
+        /// Type of image of status.
+        /// </summary>
+        public string ImageType { get; set; }
+
+        /// <summary>
+        /// Determines this status as default.
+        /// </summary>
+        public bool IsDefault { get; set; }
+
+        /// <summary>
+        /// Order of status.
+        /// </summary>
+        public uint Order { get; set; }
+
+        /// <summary>
+        /// Type of status.
+        /// </summary>
+        public int StatusType { get; set; }
 
         /// <summary>
         /// Id of tenant.
@@ -53,48 +93,26 @@ namespace ASC.Projects.Core.BusinessLogic.Data
         public int TenantId { get; set; }
 
         /// <summary>
-        /// Id of user who is responsible for subtask.
+        /// List of tasks in this status.
         /// </summary>
-        public Guid ResponsibleId { get; set; }
+        public List<ProjectTaskData> Tasks { get; set; }
 
-        /// <summary>
-        /// Id of root task.
-        /// </summary>
-        public int RootTaskId { get; set; }
+        protected static string GetImageBase64Content(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return string.Empty;
+            }
 
-        /// <summary>
-        /// Status of task.
-        /// </summary>
-        public TaskStatus Status { get; set; }
+            var result =  Convert.ToBase64String(Encoding.UTF8.GetBytes(File.ReadAllText(path)));
 
-        /// <summary>
-        /// Date when status of subtask was changed.
-        /// </summary>
-        public DateTime StatusChangeDate { get; set; }
+            return result;
+        }
 
-        /// <summary>
-        /// Id of user who created subtask.
-        /// </summary>
-        public Guid? CreatorId { get; set; }
-
-        /// <summary>
-        /// Date when subtask was created.
-        /// </summary>
-        public DateTime? CreationDate { get; set; }
-
-        /// <summary>
-        /// Id of user who edited subtask lastly.
-        /// </summary>
-        public Guid? LastEditorId { get; set; }
-
-        /// <summary>
-        /// Date when subtask was edited lastly.
-        /// </summary>
-        public DateTime? LastModificationDate { get; set; }
-
-        /// <summary>
-        /// Task which is a parent for subtask.
-        /// </summary>
-        public TaskData RootTaskData { get; set; }
+        public virtual void Mapping(Profile profile)
+        {
+            profile.CreateMap<DbProjectTag, ProjectTagData>()
+                .ReverseMap();
+        }
     }
 }

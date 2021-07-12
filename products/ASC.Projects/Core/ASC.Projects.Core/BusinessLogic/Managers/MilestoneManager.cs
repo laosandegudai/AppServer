@@ -51,13 +51,13 @@ using Microsoft.EntityFrameworkCore;
 namespace ASC.Projects.Core.BusinessLogic.Managers
 {
     /// <summary>
-    /// Business logic manager working with milestones.
+    /// Business logic manager responsible for milestones processing.
     /// </summary>
     public class MilestoneManager : IMilestoneManager
     {
-        private readonly IMilestoneRepository _milestoneRepository;
+        #region Fields and .ctor
 
-        private readonly IFactoryIndexer _factoryIndexer;
+        private readonly IMilestoneRepository _milestoneRepository;
 
         private readonly IProjectNotificationSender _projectNotificationSender;
 
@@ -65,26 +65,22 @@ namespace ASC.Projects.Core.BusinessLogic.Managers
         
         private readonly IMapper _mapper;
 
-        private readonly MessageService _messageService;
-
         private readonly SecurityContext _securityContext;
 
         public MilestoneManager(IMilestoneRepository milestoneRepository,
-            IFactoryIndexer factoryIndexer,
             IProjectNotificationSender projectNotificationSender,
             IRecipientConverter recipientConverter,
             IMapper mapper,
-            MessageService messageService,
             SecurityContext securityContext)
         {
             _milestoneRepository = milestoneRepository.NotNull(nameof(milestoneRepository));
-            _factoryIndexer = factoryIndexer.NotNull(nameof(factoryIndexer));
             _projectNotificationSender = projectNotificationSender.NotNull(nameof(projectNotificationSender));
             _recipientConverter = recipientConverter.NotNull(nameof(recipientConverter));
             _mapper = mapper.NotNull(nameof(mapper));
-            _messageService = messageService.NotNull(nameof(messageService));
             _securityContext = securityContext.NotNull(nameof(securityContext));
         }
+
+        #endregion Fields and .ctor
 
         /// <summary>
         /// Receives a milestone with specified Id.
@@ -276,8 +272,8 @@ namespace ASC.Projects.Core.BusinessLogic.Managers
         /// Receives tasks assigned to milestone with specified Id.
         /// </summary>
         /// <param name="milestoneId">Id of needed milestone.</param>
-        /// <returns>List of tasks <see cref="TaskData"/> assigned to milestone with specified Id.</returns>
-        public List<TaskData> GetMilestoneTasks(int milestoneId)
+        /// <returns>List of tasks <see cref="ProjectTaskData"/> assigned to milestone with specified Id.</returns>
+        public List<ProjectTaskData> GetMilestoneTasks(int milestoneId)
         {
             milestoneId.IsPositive(nameof(milestoneId));
 
@@ -285,7 +281,7 @@ namespace ASC.Projects.Core.BusinessLogic.Managers
                 .GetMilestoneTasks(milestoneId);
 
             var result = tasks
-                ?.Select(t => _mapper.Map<DbProjectTask, TaskData>(t))
+                ?.Select(t => _mapper.Map<DbProjectTask, ProjectTaskData>(t))
                 .ToList();
 
             return result;

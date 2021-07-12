@@ -34,7 +34,7 @@ using ASC.Projects.Core.DataAccess.Domain.Enums;
 namespace ASC.Projects.Core.BusinessLogic.Managers.Interfaces
 {
     /// <summary>
-    /// An interface of manager working with Time Tracking items.
+    /// An interface of business logic manager responsible for time tracking items processing.
     /// </summary>
     public interface ITimeTrackingManager
     {
@@ -43,14 +43,14 @@ namespace ASC.Projects.Core.BusinessLogic.Managers.Interfaces
         /// </summary>
         /// <param name="filter">Filter data.</param>
         /// <returns>A list of items <see cref="List{TimeTrackingItemData}"/> that satisfied a provided filter.</returns>
-        List<TimeTrackingItemData> GetLoggedTimeByFilter(TimeTrackingItemFilterData filter);
+        List<TimeTrackingItemData> GetLoggedTimeByFilter(TimeTrackingItemData filter);
 
         /// <summary>
         /// Returns amount of items that satisfied a provided filter.
         /// </summary>
         /// <param name="filter">Filter data.</param>
         /// <returns>Amount of items what satisfied a provided filter.</returns>
-        decimal GetTotalCountByFilter(TimeTrackingItemFilterData filter);
+        decimal GetTotalCountByFilter(TimeTrackingItemData filter);
 
         /// <summary>
         /// Receives a list of Time Tracking items related to task.

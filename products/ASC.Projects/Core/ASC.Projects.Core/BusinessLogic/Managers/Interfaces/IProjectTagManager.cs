@@ -33,7 +33,7 @@ using ASC.Projects.Core.BusinessLogic.Data;
 namespace ASC.Projects.Core.BusinessLogic.Managers.Interfaces
 {
     /// <summary>
-    /// An interface of manager working with project tags.
+    /// An interface of business logic manager responsible for project tags processing.
     /// </summary>
     public interface IProjectTagManager
     {

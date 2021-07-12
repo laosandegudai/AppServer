@@ -28,24 +28,31 @@
 #endregion License agreement statement
 
 using System;
+using ASC.Common.Mapping;
+using ASC.Projects.Core.DataAccess.Domain.Entities;
+using ASC.Projects.Core.DataAccess.Domain.Enums;
+using AutoMapper;
 
 namespace ASC.Projects.Core.BusinessLogic.Data
 {
-    public class MessageData : ProjectEntityData
+    /// <summary>
+    /// Represents a business logic-level message.
+    /// </summary>
+    public class MessageData : ProjectEntityData, IMapFrom<DbMessage>
     {
         public int CommentsCount { get; set; }
 
-        public Guid CreatorId { get; set; }
+        public MessageStatus Status { get; set; }
 
-        public DateTime CreationDate { get; set; }
-
-        public DateTime LastModificationDate { get; set; }
-
-        public Guid LastEditorId { get; set; }
-        
         public override bool CanEdit()
         {
             throw new NotImplementedException();
+        }
+
+        public void Mapping(Profile profile)
+        {
+            profile.CreateMap<DbMessage, MessageData>()
+                .ReverseMap();
         }
     }
 }

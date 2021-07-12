@@ -28,51 +28,114 @@
 #endregion License agreement statement
 
 using System;
+using ASC.Common.Mapping;
+using ASC.Projects.Core.BusinessLogic.Security.Data;
+using ASC.Projects.Core.DataAccess.Domain.Entities;
 using ASC.Projects.Core.DataAccess.Domain.Enums;
+using AutoMapper;
 
 namespace ASC.Projects.Core.BusinessLogic.Data
 {
     /// <summary>
-    /// Project data.
+    /// Represents a business logic-level project.
     /// </summary>
-    public class ProjectData
+    public class ProjectData : BaseData<int>, IMapFrom<DbProject>
     {
-        public int Id { get; set; }
-
+        /// <summary>
+        /// Title of project.
+        /// </summary>
         public string Title { get; set; }
 
+        /// <summary>
+        /// Id of person who has created project.
+        /// </summary>
         public Guid? CreatorId { get; set; }
 
+        /// <summary>
+        /// Date when project has been created.
+        /// </summary>
         public DateTime? CreationDate { get; set; }
 
+        /// <summary>
+        /// Id of person who modified project lastly.
+        /// </summary>
         public Guid? LastEditorId { get; set; }
 
+        /// <summary>
+        /// Date when project was been modified lastly.
+        /// </summary>
         public DateTime? LastModificationDate { get; set; }
 
+        /// <summary>
+        /// Description of project.
+        /// </summary>
         public string Description { get; set; }
 
+        /// <summary>
+        /// Status of project.
+        /// </summary>
         public ProjectStatus Status { get; set; }
 
+        /// <summary>
+        /// Date when status of project has been changed lastly.
+        /// </summary>
         public DateTime StatusChangedDate { get; set; }
 
+        /// <summary>
+        /// Id of person, who is responsible fo this project.
+        /// </summary>
         public Guid ResponsibleId { get; set; }
 
+        /// <summary>
+        /// Id of tenant.
+        /// </summary>
         public int TenantId { get; set; }
 
+        /// <summary>
+        /// Determines project as private.
+        /// </summary>
         public bool IsPrivate { get; set; }
 
+        /// <summary>
+        /// Amount of milestones in project.
+        /// </summary>
         public int MilestoneCount { get; set; }
 
+        /// <summary>
+        /// Amount of project tasks.
+        /// </summary>
         public int TaskCount { get; set; }
 
-        public int TaskCountTotal { get; set; }
+        /// <summary>
+        /// Amount of project discussions.
+        /// </summary>
 
         public int DiscussionCount { get; set; }
 
+        /// <summary>
+        /// Amount of project documents.
+        /// </summary>
         public int DocumentsCount { get; set; }
 
+        /// <summary>
+        /// Amount of project participants.
+        /// </summary>
         public int ParticipantCount { get; set; }
 
+        /// <summary>
+        /// Unique Id of project.
+        /// </summary>
         public string UniqueId { get; set; }
+
+        /// <summary>
+        /// Security info.
+        /// </summary>
+        public ProjectSecurityInfo Security { get; set; }
+
+        public void Mapping(Profile profile)
+        {
+            profile.CreateMap<DbProject, ProjectData>()
+                .ReverseMap();
+        }
     }
 }

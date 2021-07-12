@@ -29,15 +29,71 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ASC.Common.Mapping;
+using ASC.Projects.Core.DataAccess.Domain.Entities;
+using AutoMapper;
 
 namespace ASC.Projects.Core.BusinessLogic.Data
 {
-
-    public class CommentData
+    /// <summary>
+    /// Represents a business logic-level comment.
+    /// </summary>
+    public class CommentData : BaseData<int>, IMapFrom<DbComment>
     {
+        /// <summary>
+        /// Id of comment.
+        /// </summary>
+        public int CommentId { get; set; }
 
+        /// <summary>
+        /// Content of comment.
+        /// </summary>
+        public string Content { get; set; }
+
+        /// <summary>
+        /// Determines activity of comment.
+        /// </summary>
+        public bool IsInactive { get; set; }
+
+        /// <summary>
+        /// Id of user, who left this comment.
+        /// </summary>
+        public Guid CreatorId { get; set; }
+
+        /// <summary>
+        /// Date when this comment was left.
+        /// </summary>
+        public DateTime CreationDate { get; set; }
+
+        /// <summary>
+        /// Id of parent comment.
+        /// </summary>
+        public Guid? ParentId { get; set; }
+
+        /// <summary>
+        /// Id of tenant.
+        /// </summary>
+        public int TenantId { get; set; }
+
+        /// <summary>
+        /// Unique Id of target of this comment.
+        /// </summary>
+        public string TargetUniqueId { get; set; }
+
+        /// <summary>
+        /// Parent comment.
+        /// </summary>
+        public CommentData Parent { get; set; }
+
+        /// <summary>
+        /// Child comments.
+        /// </summary>
+        public List<CommentData> ChildComments { get; set; }
+
+        public void Mapping(Profile profile)
+        {
+            profile.CreateMap<DbComment, CommentData>()
+                .ReverseMap();
+        }
     }
 }

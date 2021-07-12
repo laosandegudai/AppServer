@@ -27,18 +27,16 @@
 
 #endregion License agreement statement
 
-using ASC.Projects.Core.DataAccess.Domain.Enums;
-
 namespace ASC.Projects.Core.BusinessLogic.Data
 {
-    public class TaskData
+    /// <summary>
+    /// Represents a business logic-level basic data item.
+    /// </summary>
+    public class BaseData<TKey>
     {
-        public int Id { get; set; }
-
-        public string Title { get; set; }
-
-        public int ProjectId { get; set; }
-
-        public TaskStatus Status { get; set; }
+        /// <summary>
+        /// Id of item.
+        /// </summary>
+        public TKey Id { get; set; }
     }
 }

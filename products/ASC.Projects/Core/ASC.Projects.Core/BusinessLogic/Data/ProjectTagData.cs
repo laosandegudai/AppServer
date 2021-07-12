@@ -27,21 +27,57 @@
 
 #endregion License agreement statement
 
+using System;
+using System.Collections.Generic;
+using ASC.Common.Mapping;
+using ASC.Projects.Core.DataAccess.Domain.Entities;
+using AutoMapper;
+
 namespace ASC.Projects.Core.BusinessLogic.Data
 {
     /// <summary>
-    /// Project tag data.
+    /// Represents a business logic-level project tag.
     /// </summary>
-    public class ProjectTagData
+    public class ProjectTagData : BaseData<int>, IMapFrom<DbProjectTag>
     {
-        /// <summary>
-        /// Id of tag.
-        /// </summary>
-        public int Id { get; set; }
-
         /// <summary>
         /// Title of tag.
         /// </summary>
         public string Title { get; set; }
+
+        /// <summary>
+        /// Id of tenant.
+        /// </summary>
+        public int TenantId { get; set; }
+
+        /// <summary>
+        /// Id of user who created this tag.
+        /// </summary>
+        public Guid? CreatorId { get; set; }
+
+        /// <summary>
+        /// Date when this tag was created.
+        /// </summary>
+        public DateTime? CreationDate { get; set; }
+
+        /// <summary>
+        /// Id of user who edited this tag lastly.
+        /// </summary>
+        public Guid? LastEditorId { get; set; }
+
+        /// <summary>
+        /// Date when this tag was edited lastly.
+        /// </summary>
+        public DateTime? LastModificationDate { get; set; }
+
+        /// <summary>
+        /// Projects which were been tagged by this tag.
+        /// </summary>
+        public List<ProjectData> TaggedProjects { get; set; }
+
+        public void Mapping(Profile profile)
+        {
+            profile.CreateMap<DbProjectTag, ProjectTagData>();
+        }
     }
 }

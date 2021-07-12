@@ -27,8 +27,10 @@
 
 #endregion License agreement statement
 
+using System;
 using System.Collections.Generic;
 using ASC.Projects.Core.DataAccess.Domain.Entities;
+using ASC.Projects.Core.DataAccess.Domain.Enums;
 
 namespace ASC.Projects.Core.DataAccess.Repositories.Interfaces
 {
@@ -38,10 +40,39 @@ namespace ASC.Projects.Core.DataAccess.Repositories.Interfaces
     public interface ITaskRepository : IRepository<DbProjectTask, int>
     {
         /// <summary>
+        /// Receives a list of tasks related to project with specified id.
+        /// </summary>
+        /// <param name="projectId">Id of needed project.</param>
+        /// <param name="status">Needed status of tasks.</param>
+        /// <param name="participantId">Id of needed participant.</param>
+        List<DbProjectTask> GetProjectTasks(int projectId, TaskStatus? status = null, Guid? participantId = null);
+
+        /// <summary>
         /// Receives subtasks of tasks having specified ids.
         /// </summary>
         /// <param name="taskIds">Ids of needed tasks.</param>
         /// <returns>List of task with subtasks.</returns>
         List<DbProjectTask> GetSubtasksOfTasks(List<int> taskIds);
+
+        /// <summary>
+        /// Receives tasks of milestone with specified id.
+        /// </summary>
+        /// <param name="milestoneId">Id of needed milestone.</param>
+        /// <returns>List of tasks <see cref="DbProjectTask"/> related to milestone with specified id.</returns>
+        List<DbProjectTask> GetMilestoneTasks(int milestoneId);
+
+        /// <summary>
+        /// Receives tasks having specified ids.
+        /// </summary>
+        /// <param name="ids">Ids of needed tasks.</param>
+        /// <returns>List of tasks <see cref="DbProjectTask"/> having specified ids.</returns>
+        List<DbProjectTask> GetByIds(List<int> ids);
+
+        /// <summary>
+        /// Receives tasks for reminder.
+        /// </summary>
+        /// <param name="deadline">Needed deadline.</param>
+        /// <returns>List of tasks <see cref="DbProjectTask"/> to remind.</returns>
+        List<DbProjectTask> GetTasksForReminder(DateTime deadline);
     }
 }

@@ -29,12 +29,13 @@
 
 using System;
 using System.Collections.Generic;
+using ASC.Notify.Recipients;
 using ASC.Projects.Core.BusinessLogic.Data;
 
 namespace ASC.Projects.Core.BusinessLogic.Managers.Interfaces
 {
     /// <summary>
-    /// An interface of manager, responsible for message processing business logic.
+    /// An interface of business logic manager responsible for messages processing.
     /// </summary>
     public interface IMessageManager
     {
@@ -64,5 +65,7 @@ namespace ASC.Projects.Core.BusinessLogic.Managers.Interfaces
         MessageData ChangeStatus(MessageData message);
 
         void Delete(MessageData message);
+
+        List<IRecipient> GetSubscribers(ProjectEntityData projectEntity);
     }
 }

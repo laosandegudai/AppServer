@@ -30,58 +30,74 @@
 using System;
 using ASC.Common.Mapping;
 using ASC.Projects.Core.DataAccess.Domain.Entities;
+using ASC.Projects.Core.DataAccess.Domain.Enums;
 using AutoMapper;
 
 namespace ASC.Projects.Core.BusinessLogic.Data
 {
     /// <summary>
-    /// Represents a business logic-level participant.
+    /// Represents a business logic-level subtask.
     /// </summary>
-    public class ParticipantData : BaseData<Guid>, IMapFrom<DbProjectParticipant>
+    public class ProjectSubtaskData : BaseData<int>, IMapFrom<DbProjectSubtask>
     {
+        /// <summary>
+        /// Title of subtask.
+        /// </summary>
+        public string Title { get; set; }
+
         /// <summary>
         /// Id of tenant.
         /// </summary>
         public int TenantId { get; set; }
 
         /// <summary>
-        /// Id of participant.
+        /// Id of user who is responsible for subtask.
         /// </summary>
-        public Guid ParticipantId { get; set; }
+        public Guid ResponsibleId { get; set; }
 
         /// <summary>
-        /// Id of the project which participant is following.
+        /// Id of root task.
         /// </summary>
-        public int ProjectId { get; set; }
+        public int RootTaskId { get; set; }
 
         /// <summary>
-        /// Determines project as removed/active.
+        /// Status of task.
         /// </summary>
-        public bool IsRemoved { get; set; }
+        public TaskStatus Status { get; set; }
 
         /// <summary>
-        /// Security?
+        /// Date when status of subtask was changed.
         /// </summary>
-        public int Security { get; set; }
+        public DateTime StatusChangeDate { get; set; }
 
         /// <summary>
-        /// Date when this participant was created.
+        /// Id of user who created subtask.
         /// </summary>
-        public DateTime CreationDate { get; set; }
+        public Guid? CreatorId { get; set; }
 
         /// <summary>
-        /// Date when this participant was edited lastly.
+        /// Date when subtask was created.
         /// </summary>
-        public DateTime LastModificationDate { get; set; }
+        public DateTime? CreationDate { get; set; }
 
         /// <summary>
-        /// Project, which this participant is assigned for.
+        /// Id of user who edited subtask lastly.
         /// </summary>
-        public ProjectData Project { get; set; }
+        public Guid? LastEditorId { get; set; }
+
+        /// <summary>
+        /// Date when subtask was edited lastly.
+        /// </summary>
+        public DateTime? LastModificationDate { get; set; }
+
+        /// <summary>
+        /// Task which is a parent for subtask.
+        /// </summary>
+        public ProjectTaskData RootTaskData { get; set; }
 
         public void Mapping(Profile profile)
         {
-            profile.CreateMap<DbProjectParticipant, ParticipantData>()
+            profile.CreateMap<DbProjectSubtask, ProjectSubtaskData>()
                 .ReverseMap();
         }
     }
