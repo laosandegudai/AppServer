@@ -1,279 +1,284 @@
-﻿//#region License agreement statement
+﻿#region License agreement statement
 
-///*
-// *
-// * (c) Copyright Ascensio System Limited 2010-2018
-// *
-// * This program is freeware. You can redistribute it and/or modify it under the terms of the GNU 
-// * General Public License (GPL) version 3 as published by the Free Software Foundation (https://www.gnu.org/copyleft/gpl.html). 
-// * In accordance with Section 7(a) of the GNU GPL its Section 15 shall be amended to the effect that 
-// * Ascensio System SIA expressly excludes the warranty of non-infringement of any third-party rights.
-// *
-// * THIS PROGRAM IS DISTRIBUTED WITHOUT ANY WARRANTY; WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR
-// * FITNESS FOR A PARTICULAR PURPOSE. For more details, see GNU GPL at https://www.gnu.org/copyleft/gpl.html
-// *
-// * You can contact Ascensio System SIA by email at sales@onlyoffice.com
-// *
-// * The interactive user interfaces in modified source and object code versions of ONLYOFFICE must display 
-// * Appropriate Legal Notices, as required under Section 5 of the GNU GPL version 3.
-// *
-// * Pursuant to Section 7 § 3(b) of the GNU GPL you must retain the original ONLYOFFICE logo which contains 
-// * relevant author attributions when distributing the software. If the display of the logo in its graphic 
-// * form is not reasonably feasible for technical reasons, you must include the words "Powered by ONLYOFFICE" 
-// * in every copy of the program you distribute. 
-// * Pursuant to Section 7 § 3(e) we decline to grant you any rights under trademark law for use of our trademarks.
-// *
-//*/
+/*
+ *
+ * (c) Copyright Ascensio System Limited 2010-2018
+ *
+ * This program is freeware. You can redistribute it and/or modify it under the terms of the GNU 
+ * General Public License (GPL) version 3 as published by the Free Software Foundation (https://www.gnu.org/copyleft/gpl.html). 
+ * In accordance with Section 7(a) of the GNU GPL its Section 15 shall be amended to the effect that 
+ * Ascensio System SIA expressly excludes the warranty of non-infringement of any third-party rights.
+ *
+ * THIS PROGRAM IS DISTRIBUTED WITHOUT ANY WARRANTY; WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR
+ * FITNESS FOR A PARTICULAR PURPOSE. For more details, see GNU GPL at https://www.gnu.org/copyleft/gpl.html
+ *
+ * You can contact Ascensio System SIA by email at sales@onlyoffice.com
+ *
+ * The interactive user interfaces in modified source and object code versions of ONLYOFFICE must display 
+ * Appropriate Legal Notices, as required under Section 5 of the GNU GPL version 3.
+ *
+ * Pursuant to Section 7 § 3(b) of the GNU GPL you must retain the original ONLYOFFICE logo which contains 
+ * relevant author attributions when distributing the software. If the display of the logo in its graphic 
+ * form is not reasonably feasible for technical reasons, you must include the words "Powered by ONLYOFFICE" 
+ * in every copy of the program you distribute. 
+ * Pursuant to Section 7 § 3(e) we decline to grant you any rights under trademark law for use of our trademarks.
+ *
+*/
 
-//#endregion License agreement statement
+#endregion License agreement statement
 
-//using System;
-//using System.Linq;
-//using ASC.Core;
-//using ASC.Core.Common.Utils;
-//using ASC.Projects.Core.Data.Dao.Interfaces;
-//using ASC.Projects.Core.Data.Domain.Entities;
-//using ASC.Projects.Core.Data.Domain.Enums;
+using System;
+using System.Linq;
 
-//namespace ASC.Projects.Core.BusinessLogic.Security
-//{
-//    public class TaskSecurityManager : SecurityTemplateManager<DbProjectTask>
-//    {
-//        private readonly ProjectSecurityManager _projectSecurityManager;
+using ASC.Core;
+using ASC.Core.Common.Utils;
+using ASC.Projects.Core.BusinessLogic.Data;
+using ASC.Projects.Core.BusinessLogic.Managers.Interfaces;
+using ASC.Projects.Core.DataAccess.Domain.Enums;
 
-//        private readonly MilestoneSecurityManager _milestoneSecurityManager;
+namespace ASC.Projects.Core.BusinessLogic.Security
+{
+    public class TaskSecurityManager : SecurityTemplateManager<TaskData>
+    {
+        #region Fields and .ctor
 
-//        private readonly SecurityContext _securityContext;
+        private readonly ProjectSecurityManager _projectSecurityManager;
 
-//        private readonly IMilestoneDao _milestoneDao;
+        private readonly MilestoneSecurityManager _milestoneSecurityManager;
 
-//        public TaskSecurityManager(CommonSecurityManager securityCommonManager,
-//            ProjectSecurityManager projectSecurityManager,
-//            MilestoneSecurityManager milestoneSecurityManager,
-//            SecurityContext  securityContext,
-//            IMilestoneDao milestoneDao) : base(securityCommonManager)
-//        {
-//            _milestoneSecurityManager = milestoneSecurityManager.NotNull(nameof(milestoneSecurityManager));
-//            _projectSecurityManager = projectSecurityManager.NotNull(nameof(projectSecurityManager));
-//            _securityContext = securityContext.NotNull(nameof(securityContext));
-//            _milestoneDao = milestoneDao.NotNull(nameof(milestoneDao));
-//        }
+        private readonly SecurityContext _securityContext;
 
-//        public override bool CanCreateEntities(DbProject project)
-//        {
-//            if (!base.CanCreateEntities(project))
-//            {
-//                return false;
-//            }
+        private readonly IMilestoneManager _milestoneManager;
 
-//            if (CommonSecurityManager.IsProjectManager(project))
-//            {
-//                return true;
-//            }
+        public TaskSecurityManager(CommonSecurityManager securityCommonManager,
+            ProjectSecurityManager projectSecurityManager,
+            MilestoneSecurityManager milestoneSecurityManager,
+            SecurityContext securityContext,
+            IMilestoneManager milestoneManager) : base(securityCommonManager)
+        {
+            _milestoneSecurityManager = milestoneSecurityManager.NotNull(nameof(milestoneSecurityManager));
+            _projectSecurityManager = projectSecurityManager.NotNull(nameof(projectSecurityManager));
+            _securityContext = securityContext.NotNull(nameof(securityContext));
+            _milestoneManager = milestoneManager.NotNull(nameof(milestoneManager));
+        }
 
-//            var result = CommonSecurityManager.IsInTeam(project) && CanReadEntities(project);
+        #endregion Fields and .ctor
 
-//            return result;
-//        }
+        public override bool CanCreateEntities(ProjectData project)
+        {
+            if (!base.CanCreateEntities(project))
+            {
+                return false;
+            }
 
-//        public override bool CanReadEntities(DbProject project, Guid userId)
-//        {
-//            var result = base.CanReadEntities(project, userId)
-//                && CommonSecurityManager.GetTeamSecurity(project, userId, ProjectTeamSecurity.Tasks);
+            if (CommonSecurityManager.IsProjectManager(project))
+            {
+                return true;
+            }
 
-//            return result;
-//        }
+            var result = CommonSecurityManager.IsInTeam(project) && CanReadEntities(project);
 
-//        public override bool CanReadEntity(DbProjectTask task, Guid userId)
-//        {
-//            if (task == null || !_projectSecurityManager.CanReadEntity(task.Project, userId))
-//            {
-//                return false;
-//            }
+            return result;
+        }
 
-//            if (task.ResponsibleIds.Contains(userId))
-//            {
-//                return true;
-//            }
+        public override bool CanReadEntities(ProjectData project, Guid userId)
+        {
+            var result = base.CanReadEntities(project, userId)
+                && CommonSecurityManager.GetTeamSecurity(project, userId, ProjectTeamSecurity.Tasks);
 
-//            if (!CanReadEntities(task.Project, userId))
-//            {
-//                return false;
-//            }
+            return result;
+        }
 
-//            if (task.MilestoneId == default || _milestoneSecurityManager.CanReadEntities(task.Project, userId))
-//            {
-//                return true;
-//            }
+        public override bool CanReadEntity(TaskData task, Guid userId)
+        {
+            if (task == null || !_projectSecurityManager.CanReadEntity(task.Project, userId))
+            {
+                return false;
+            }
 
-//            var milestone = _milestoneDao.GetById(task.MilestoneId.GetValueOrDefault());
+            if (task.ResponsibleIds.Contains(userId))
+            {
+                return true;
+            }
 
-//            var result = _milestoneSecurityManager.CanReadEntity(milestone, userId);
+            if (!CanReadEntities(task.Project, userId))
+            {
+                return false;
+            }
 
-//            return result;
-//        }
+            if (task.MilestoneId == default || _milestoneSecurityManager.CanReadEntities(task.Project, userId))
+            {
+                return true;
+            }
 
-//        public override bool CanUpdateEntity(DbProjectTask task)
-//        {
-//            if (!base.CanUpdateEntity(task) || task.Project.Status == ProjectStatus.Closed)
-//            {
-//                return false;
-//            }
+            var milestone = _milestoneManager.GetById(task.MilestoneId.GetValueOrDefault());
 
-//            if (CommonSecurityManager.IsProjectManager(task.Project))
-//            {
-//                return true;
-//            }
+            var result = _milestoneSecurityManager.CanReadEntity(milestone, userId);
 
-//            var result = CommonSecurityManager.IsInTeam(task.Project)
-//                && (task.CreatorId == CommonSecurityManager.CurrentUserId
-//                    || !task.ResponsibleIds.Any()
-//                    || task.ResponsibleIds.Contains(CommonSecurityManager.CurrentUserId));
+            return result;
+        }
 
-//            return result;
-//        }
+        public override bool CanUpdateEntity(TaskData task)
+        {
+            if (!base.CanUpdateEntity(task) || task.Project.Status == ProjectStatus.Closed)
+            {
+                return false;
+            }
 
-//        public override bool CanDeleteEntity(DbProjectTask task)
-//        {
-//            if (!base.CanDeleteEntity(task))
-//            {
-//                return false;
-//            }
+            if (CommonSecurityManager.IsProjectManager(task.Project))
+            {
+                return true;
+            }
 
-//            if (CommonSecurityManager.IsProjectManager(task.Project))
-//            {
-//                return true;
-//            }
+            var result = CommonSecurityManager.IsInTeam(task.Project)
+                && (task.CreatorId == CommonSecurityManager.CurrentUserId
+                    || !task.ResponsibleIds.Any()
+                    || task.ResponsibleIds.Contains(CommonSecurityManager.CurrentUserId));
 
-//            var result = CommonSecurityManager.IsInTeam(task.Project) && task.CreatorId== CommonSecurityManager.CurrentUserId;
+            return result;
+        }
 
-//            return result;
-//        }
+        public override bool CanDeleteEntity(TaskData task)
+        {
+            if (!base.CanDeleteEntity(task))
+            {
+                return false;
+            }
 
-//        public override bool CanCreateComment(DbProjectTask entity)
-//        {
-//            var result = CanReadEntity(entity)
-//                && CommonSecurityManager.IsProjectsEnabled()
-//                && _securityContext.IsAuthenticated
-//                && !CommonSecurityManager.CurrentUserIsOutsider;
+            if (CommonSecurityManager.IsProjectManager(task.Project))
+            {
+                return true;
+            }
 
-//            return result;
-//        }
+            var result = CommonSecurityManager.IsInTeam(task.Project) && task.CreatorId == CommonSecurityManager.CurrentUserId;
 
-//        public bool CanEdit(DbProjectTask task, DbProjectSubtask subtask)
-//        {
-//            if (subtask == null || !CommonSecurityManager.Can())
-//            {
-//                return false;
-//            }
+            return result;
+        }
 
-//            if (CanUpdateEntity(task))
-//            {
-//                return true;
-//            }
+        public override bool CanCreateComment(TaskData entity)
+        {
+            var result = CanReadEntity(entity)
+                && CommonSecurityManager.IsProjectsEnabled()
+                && _securityContext.IsAuthenticated
+                && !CommonSecurityManager.CurrentUserIsOutsider;
 
-//            var result = CommonSecurityManager.IsInTeam(task.Project)
-//                && (subtask.CreatorId == CommonSecurityManager.CurrentUserId
-//                    || subtask.ResponsibleId == CommonSecurityManager.CurrentUserId);
+            return result;
+        }
 
-//            return result;
-//        }
+        public bool CanEdit(TaskData task, SubtaskData subtask)
+        {
+            if (subtask == null || !CommonSecurityManager.Can())
+            {
+                return false;
+            }
 
-//        public override bool CanGoToFeed(DbProjectTask task, Guid userId)
-//        {
-//            if (task == null || !CommonSecurityManager.IsProjectsEnabled(userId))
-//            {
-//                return false;
-//            }
+            if (CanUpdateEntity(task))
+            {
+                return true;
+            }
 
-//            if (task.CreatorId == userId)
-//            {
-//                return true;
-//            }
+            var result = CommonSecurityManager.IsInTeam(task.Project)
+                && (subtask.CreatorId == CommonSecurityManager.CurrentUserId
+                    || subtask.ResponsibleId == CommonSecurityManager.CurrentUserId);
 
-//            if (!CommonSecurityManager.IsInTeam(task.Project, userId, false)
-//                && !CommonSecurityManager.IsFollow(task.Project, userId))
-//            {
-//                return false;
-//            }
+            return result;
+        }
 
-//            if (task.ResponsibleIds.Contains(userId))
-//            {
-//                return true;
-//            }
+        public override bool CanGoToFeed(TaskData task, Guid userId)
+        {
+            if (task == null || !CommonSecurityManager.IsProjectsEnabled(userId))
+            {
+                return false;
+            }
 
-//            if (task.MilestoneId == default || _milestoneSecurityManager.CanReadEntities(task.Project, userId))
-//            {
-//                return CommonSecurityManager.GetTeamSecurityForParticipants(task.Project, userId,
-//                    ProjectTeamSecurity.Tasks);
-//            }
+            if (task.CreatorId == userId)
+            {
+                return true;
+            }
 
-//            var milestone = _milestoneDao.GetById(task.MilestoneId.GetValueOrDefault());
+            if (!CommonSecurityManager.IsInTeam(task.Project, userId, false)
+                && !CommonSecurityManager.IsFollow(task.Project, userId))
+            {
+                return false;
+            }
 
-//            var result = milestone.ResponsibleId == userId
-//                || CommonSecurityManager.GetTeamSecurityForParticipants(task.Project, userId, ProjectTeamSecurity.Tasks);
+            if (task.ResponsibleIds.Contains(userId))
+            {
+                return true;
+            }
 
-//            return result;
-//        }
+            if (task.MilestoneId == default || _milestoneSecurityManager.CanReadEntities(task.Project, userId))
+            {
+                return CommonSecurityManager.GetTeamSecurityForParticipants(task.Project, userId,
+                    ProjectTeamSecurity.Tasks);
+            }
 
-//        public override bool CanEditFiles(DbProjectTask entity)
-//        {
-//            if (!CommonSecurityManager.IsProjectsEnabled()
-//                || entity.Project.Status == ProjectStatus.Closed)
-//            {
-//                return false;
-//            }
+            var milestone = _milestoneManager.GetById(task.MilestoneId.GetValueOrDefault());
 
-//            var result = CommonSecurityManager.IsProjectManager(entity.Project) || CanUpdateEntity(entity);
+            var result = milestone.ResponsibleId == userId
+                || CommonSecurityManager.GetTeamSecurityForParticipants(task.Project, userId, ProjectTeamSecurity.Tasks);
 
-//            return result;
-//        }
+            return result;
+        }
 
-//        public override bool CanEditComment(DbProjectTask entity, DbComment comment)
-//        {
-//            var result = entity != null && _projectSecurityManager.CanEditComment(entity.Project, comment);
+        public override bool CanEditFiles(TaskData entity)
+        {
+            if (!CommonSecurityManager.IsProjectsEnabled()
+                || entity.Project.Status == ProjectStatus.Closed)
+            {
+                return false;
+            }
 
-//            return result;
-//        }
+            var result = CommonSecurityManager.IsProjectManager(entity.Project) || CanUpdateEntity(entity);
 
-//        public bool CanCreateSubtask(DbProjectTask task)
-//        {
-//            if (task == null || !CommonSecurityManager.Can())
-//            {
-//                return false;
-//            }
+            return result;
+        }
 
-//            if (CommonSecurityManager.IsProjectManager(task.Project))
-//            {
-//                return true;
-//            }
+        public override bool CanEditComment(TaskData entity, CommentData comment)
+        {
+            var result = entity != null && _projectSecurityManager.CanEditComment(entity.Project, comment);
 
-//            var result = CommonSecurityManager.IsInTeam(task.Project)
-//                && ((task.CreatorId == CommonSecurityManager.CurrentUserId)
-//                    || !task.ResponsibleIds.Any()
-//                    || task.ResponsibleIds.Contains(CommonSecurityManager.CurrentUserId));
+            return result;
+        }
 
-//            return result;
-//        }
+        public bool CanCreateSubtask(TaskData task)
+        {
+            if (task == null || !CommonSecurityManager.Can())
+            {
+                return false;
+            }
 
-//        public bool CanCreateTimeSpend(DbProjectTask task)
-//        {
-//            if (task == null
-//                || !CommonSecurityManager.Can()
-//                || (task.Project.Status != ProjectStatus.Open))
-//            {
-//                return false;
-//            }
+            if (CommonSecurityManager.IsProjectManager(task.Project))
+            {
+                return true;
+            }
 
-//            if (CommonSecurityManager.IsInTeam(task.Project))
-//            {
-//                return true;
-//            }
+            var result = CommonSecurityManager.IsInTeam(task.Project)
+                && ((task.CreatorId == CommonSecurityManager.CurrentUserId)
+                    || !task.ResponsibleIds.Any()
+                    || task.ResponsibleIds.Contains(CommonSecurityManager.CurrentUserId));
 
-//            var result = task.ResponsibleIds.Contains(CommonSecurityManager.CurrentUserId)
-//                || task.Subtasks.Select(r => r.ResponsibleId).Contains(CommonSecurityManager.CurrentUserId);
+            return result;
+        }
 
-//            return result;
-//        }
-//    }
-//}
+        public bool CanCreateTimeSpend(TaskData task)
+        {
+            if (task == null
+                || !CommonSecurityManager.Can()
+                || (task.Project.Status != ProjectStatus.Open))
+            {
+                return false;
+            }
+
+            if (CommonSecurityManager.IsInTeam(task.Project))
+            {
+                return true;
+            }
+
+            var result = task.ResponsibleIds.Contains(CommonSecurityManager.CurrentUserId)
+                || task.Subtasks.SelectMany(r => r.ResponsibleIds).Contains(CommonSecurityManager.CurrentUserId);
+
+            return result;
+        }
+    }
+}

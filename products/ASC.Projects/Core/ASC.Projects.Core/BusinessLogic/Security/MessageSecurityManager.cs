@@ -1,175 +1,179 @@
-﻿//#region License agreement statement
+﻿#region License agreement statement
 
-///*
-// *
-// * (c) Copyright Ascensio System Limited 2010-2018
-// *
-// * This program is freeware. You can redistribute it and/or modify it under the terms of the GNU 
-// * General Public License (GPL) version 3 as published by the Free Software Foundation (https://www.gnu.org/copyleft/gpl.html). 
-// * In accordance with Section 7(a) of the GNU GPL its Section 15 shall be amended to the effect that 
-// * Ascensio System SIA expressly excludes the warranty of non-infringement of any third-party rights.
-// *
-// * THIS PROGRAM IS DISTRIBUTED WITHOUT ANY WARRANTY; WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR
-// * FITNESS FOR A PARTICULAR PURPOSE. For more details, see GNU GPL at https://www.gnu.org/copyleft/gpl.html
-// *
-// * You can contact Ascensio System SIA by email at sales@onlyoffice.com
-// *
-// * The interactive user interfaces in modified source and object code versions of ONLYOFFICE must display 
-// * Appropriate Legal Notices, as required under Section 5 of the GNU GPL version 3.
-// *
-// * Pursuant to Section 7 § 3(b) of the GNU GPL you must retain the original ONLYOFFICE logo which contains 
-// * relevant author attributions when distributing the software. If the display of the logo in its graphic 
-// * form is not reasonably feasible for technical reasons, you must include the words "Powered by ONLYOFFICE" 
-// * in every copy of the program you distribute. 
-// * Pursuant to Section 7 § 3(e) we decline to grant you any rights under trademark law for use of our trademarks.
-// *
-//*/
+/*
+ *
+ * (c) Copyright Ascensio System Limited 2010-2018
+ *
+ * This program is freeware. You can redistribute it and/or modify it under the terms of the GNU 
+ * General Public License (GPL) version 3 as published by the Free Software Foundation (https://www.gnu.org/copyleft/gpl.html). 
+ * In accordance with Section 7(a) of the GNU GPL its Section 15 shall be amended to the effect that 
+ * Ascensio System SIA expressly excludes the warranty of non-infringement of any third-party rights.
+ *
+ * THIS PROGRAM IS DISTRIBUTED WITHOUT ANY WARRANTY; WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR
+ * FITNESS FOR A PARTICULAR PURPOSE. For more details, see GNU GPL at https://www.gnu.org/copyleft/gpl.html
+ *
+ * You can contact Ascensio System SIA by email at sales@onlyoffice.com
+ *
+ * The interactive user interfaces in modified source and object code versions of ONLYOFFICE must display 
+ * Appropriate Legal Notices, as required under Section 5 of the GNU GPL version 3.
+ *
+ * Pursuant to Section 7 § 3(b) of the GNU GPL you must retain the original ONLYOFFICE logo which contains 
+ * relevant author attributions when distributing the software. If the display of the logo in its graphic 
+ * form is not reasonably feasible for technical reasons, you must include the words "Powered by ONLYOFFICE" 
+ * in every copy of the program you distribute. 
+ * Pursuant to Section 7 § 3(e) we decline to grant you any rights under trademark law for use of our trademarks.
+ *
+*/
 
-//#endregion License agreement statement
+#endregion License agreement statement
 
-//using System;
-//using ASC.Core;
-//using ASC.Core.Common.Utils;
-//using ASC.Projects.Core.BusinessLogic.Data;
-//using ASC.Projects.Core.BusinessLogic.Managers.Interfaces;
-//using ASC.Projects.Core.DataAccess.Domain.Entities;
-//using ASC.Projects.Core.DataAccess.Domain.Enums;
+using System;
 
-//namespace ASC.Projects.Core.BusinessLogic.Security
-//{
-//    public class MessageSecurityManager : SecurityTemplateManager<MessageData>
-//    {
-//        private readonly ProjectSecurityManager _projectSecurityManager;
+using ASC.Core;
+using ASC.Core.Common.Utils;
+using ASC.Projects.Core.BusinessLogic.Data;
+using ASC.Projects.Core.BusinessLogic.Managers.Interfaces;
+using ASC.Projects.Core.DataAccess.Domain.Enums;
 
-//        private readonly SecurityContext _securityContext;
+namespace ASC.Projects.Core.BusinessLogic.Security
+{
+    public class MessageSecurityManager : SecurityTemplateManager<MessageData>
+    {
+        #region Fields and .ctor
 
-//        private readonly IMessageManager _messageManager;
+        private readonly ProjectSecurityManager _projectSecurityManager;
 
-//        public MessageSecurityManager(CommonSecurityManager commonSecurityManager,
-//            ProjectSecurityManager projectSecurityManager,
-//            SecurityContext securityContext,
-//            IMessageManager messageEngine) : base(commonSecurityManager)
-//        {
-//            _projectSecurityManager = projectSecurityManager.NotNull(nameof(projectSecurityManager));
-//            _securityContext = securityContext.NotNull(nameof(securityContext));
-//            _messageManager = messageEngine.NotNull(nameof(messageEngine));
-//        }
+        private readonly SecurityContext _securityContext;
 
-//        public override bool CanCreateEntities(DbProject project)
-//        {
-//            if (!base.CanCreateEntities(project))
-//            {
-//                return false;
-//            }
+        private readonly IMessageManager _messageManager;
 
-//            if (CommonSecurityManager.IsProjectManager(project))
-//            {
-//                return true;
-//            }
+        public MessageSecurityManager(CommonSecurityManager commonSecurityManager,
+            ProjectSecurityManager projectSecurityManager,
+            SecurityContext securityContext,
+            IMessageManager messageEngine) : base(commonSecurityManager)
+        {
+            _projectSecurityManager = projectSecurityManager.NotNull(nameof(projectSecurityManager));
+            _securityContext = securityContext.NotNull(nameof(securityContext));
+            _messageManager = messageEngine.NotNull(nameof(messageEngine));
+        }
 
-//            var result = CommonSecurityManager.IsInTeam(project) && CanReadEntities(project);
+        #endregion Fields and .ctor
 
-//            return result;
-//        }
+        public override bool CanCreateEntities(ProjectData project)
+        {
+            if (!base.CanCreateEntities(project))
+            {
+                return false;
+            }
 
-//        public override bool CanReadEntities(DbProject project, Guid userId)
-//        {
-//            var result = base.CanReadEntities(project, userId) 
-//                && CommonSecurityManager.GetTeamSecurity(project, userId, ProjectTeamSecurity.Messages);
+            if (CommonSecurityManager.IsProjectManager(project))
+            {
+                return true;
+            }
 
-//            return result;
-//        }
+            var result = CommonSecurityManager.IsInTeam(project) && CanReadEntities(project);
 
-//        public override bool CanReadEntity(DbMessage entity, Guid userId)
-//        {
-//            if (entity == null || !_projectSecurityManager.CanReadEntity(entity.Project, userId))
-//            {
-//                return false;
-//            }
+            return result;
+        }
 
-//            var result = CanReadEntities(entity.Project, userId);
+        public override bool CanReadEntities(ProjectData project, Guid userId)
+        {
+            var result = base.CanReadEntities(project, userId)
+                && CommonSecurityManager.GetTeamSecurity(project, userId, ProjectTeamSecurity.Messages);
 
-//            return result;
-//        }
+            return result;
+        }
 
-//        public override bool CanUpdateEntity(DbMessage message)
-//        {
-//            if (!base.CanUpdateEntity(message) || !CanReadEntity(message))
-//            {
-//                return false;
-//            }
+        public override bool CanReadEntity(MessageData entity, Guid userId)
+        {
+            if (entity == null || !_projectSecurityManager.CanReadEntity(entity.Project, userId))
+            {
+                return false;
+            }
 
-//            if (CommonSecurityManager.IsProjectManager(message.Project))
-//            {
-//                return true;
-//            }
+            var result = CanReadEntities(entity.Project, userId);
 
-//            var result = CommonSecurityManager.IsInTeam(message.Project) && message.CreatorId == CommonSecurityManager.CurrentUserId;
+            return result;
+        }
 
-//            return result;
-//        }
+        public override bool CanUpdateEntity(MessageData message)
+        {
+            if (!base.CanUpdateEntity(message) || !CanReadEntity(message))
+            {
+                return false;
+            }
 
-//        public override bool CanDeleteEntity(DbMessage message)
-//        {
-//            var result = CanUpdateEntity(message);
+            if (CommonSecurityManager.IsProjectManager(message.Project))
+            {
+                return true;
+            }
 
-//            return result;
-//        }
+            var result = CommonSecurityManager.IsInTeam(message.Project) && message.CreatorId == CommonSecurityManager.CurrentUserId;
 
-//        public override bool CanCreateComment(DbMessage message)
-//        {
-//            var result = CanReadEntity(message)
-//                   && (message == null || message.Status == MessageStatus.Open)
-//                   && CommonSecurityManager.IsProjectsEnabled()
-//                   && _securityContext.IsAuthenticated
-//                   && !CommonSecurityManager.CurrentUserIsOutsider;
+            return result;
+        }
 
-//            return result;
-//        }
+        public override bool CanDeleteEntity(MessageData message)
+        {
+            var result = CanUpdateEntity(message);
 
-//        public override bool CanGoToFeed(DbMessage message, Guid userId)
-//        {
-//            if (message == null || !CommonSecurityManager.IsProjectsEnabled(userId))
-//            {
-//                return false;
-//            }
+            return result;
+        }
 
-//            if (message.CreatorId == userId)
-//            {
-//                return true;
-//            }
+        public override bool CanCreateComment(MessageData message)
+        {
+            var result = CanReadEntity(message)
+                   && (message == null || message.Status == MessageStatus.Open)
+                   && CommonSecurityManager.IsProjectsEnabled()
+                   && _securityContext.IsAuthenticated
+                   && !CommonSecurityManager.CurrentUserIsOutsider;
 
-//            if (!CommonSecurityManager.IsInTeam(message.Project, userId, false)
-//                && !CommonSecurityManager.IsFollow(message.Project, userId))
-//            {
-//                return false;
-//            }
+            return result;
+        }
 
-//            var isSubscriber = _messageManager.GetSubscribers(message).Any(r => new Guid(r.ID).Equals(userId));
-//            var result = isSubscriber && CommonSecurityManager.GetTeamSecurityForParticipants(message.Project, userId, ProjectTeamSecurity.Messages);
+        public override bool CanGoToFeed(MessageData message, Guid userId)
+        {
+            if (message == null || !CommonSecurityManager.IsProjectsEnabled(userId))
+            {
+                return false;
+            }
 
-//            return result;
-//        }
+            if (message.CreatorId == userId)
+            {
+                return true;
+            }
 
-//        public override bool CanEditComment(DbMessage message, DbComment comment)
-//        {
-//            var result = message.Status == MessageStatus.Open && _projectSecurityManager.CanEditComment(message.Project, comment);
+            if (!CommonSecurityManager.IsInTeam(message.Project, userId, false)
+                && !CommonSecurityManager.IsFollow(message.Project, userId))
+            {
+                return false;
+            }
 
-//            return result;
-//        }
+            var isSubscriber = _messageManager.GetSubscribers(message).Any(r => new Guid(r.ID).Equals(userId));
+            var result = isSubscriber && CommonSecurityManager.GetTeamSecurityForParticipants(message.Project, userId, ProjectTeamSecurity.Messages);
 
-//        public override bool CanEditFiles(DbMessage entity)
-//        {
-//            if (!CommonSecurityManager.IsProjectsEnabled()
-//                || entity.Status == MessageStatus.Archived
-//                || entity.Project.Status == ProjectStatus.Closed)
-//            {
-//                return false;
-//            }
+            return result;
+        }
 
-//            var result = CommonSecurityManager.IsProjectManager(entity.Project) || CommonSecurityManager.IsInTeam(entity.Project);
+        public override bool CanEditComment(MessageData message, CommentData comment)
+        {
+            var result = message.Status == MessageStatus.Open && _projectSecurityManager.CanEditComment(message.Project, comment);
 
-//            return result;
-//        }
-//    }
-//}
+            return result;
+        }
+
+        public override bool CanEditFiles(MessageData entity)
+        {
+            if (!CommonSecurityManager.IsProjectsEnabled()
+                || entity.Status == MessageStatus.Archived
+                || entity.Project.Status == ProjectStatus.Closed)
+            {
+                return false;
+            }
+
+            var result = CommonSecurityManager.IsProjectManager(entity.Project) || CommonSecurityManager.IsInTeam(entity.Project);
+
+            return result;
+        }
+    }
+}
