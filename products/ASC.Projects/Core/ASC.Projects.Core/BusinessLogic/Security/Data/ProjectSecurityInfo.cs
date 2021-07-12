@@ -27,8 +27,6 @@
 
 #endregion License agreement statement
 
-using System.Runtime.Serialization;
-
 namespace ASC.Projects.Core.BusinessLogic.Security.Data
 {
     public class ProjectSecurityInfo

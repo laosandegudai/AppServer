@@ -28,7 +28,7 @@
 #endregion License agreement statement
 
 using System;
-
+using System.Linq;
 using ASC.Core;
 using ASC.Core.Common.Utils;
 using ASC.Projects.Core.BusinessLogic.Data;
@@ -149,7 +149,10 @@ namespace ASC.Projects.Core.BusinessLogic.Security
                 return false;
             }
 
-            var isSubscriber = _messageManager.GetSubscribers(message).Any(r => new Guid(r.ID).Equals(userId));
+            var isSubscriber = _messageManager.GetSubscribers(message)
+                .Any(r => new Guid(r.ID)
+                    .Equals(userId));
+            
             var result = isSubscriber && CommonSecurityManager.GetTeamSecurityForParticipants(message.Project, userId, ProjectTeamSecurity.Messages);
 
             return result;
