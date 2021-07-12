@@ -33,6 +33,9 @@ using ASC.Api.Core;
 
 namespace ASC.Projects.ViewModels
 {
+    /// <summary>
+    /// Represents a Time Tracking item.
+    /// </summary>
     [DataContract(Name = "time", Namespace = "")]
     public class TimeTrackingItemViewModel
     {

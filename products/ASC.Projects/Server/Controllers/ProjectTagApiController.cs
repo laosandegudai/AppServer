@@ -27,8 +27,8 @@
 
 #endregion License agreement statement
 
+using System.Collections.Generic;
 using System.Linq;
-using ASC.Common;
 using ASC.Core;
 using ASC.Core.Common.Extensions;
 using ASC.Core.Common.Utils;
@@ -38,43 +38,37 @@ using ASC.Projects.Core.BusinessLogic.Managers.Interfaces;
 using ASC.Projects.ViewModels;
 using ASC.Web.Api.Routing;
 using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ASC.Projects.Controllers
 {
-    [Scope]
-    [DefaultRoute]
-    [ApiController]
     public class ProjectTagApiController : BaseApiController
     {
-        /// <summary>
-        /// Project tag processing business logic manager.
-        /// </summary>
+        #region Fields and .ctor
+
         private readonly IProjectTagManager _projectTagManager;
 
-        /// <summary>
-        /// ViewModel-to-Data mapper.
-        /// </summary>
-        private readonly IMapper _mapper;
-
         public ProjectTagApiController(IProjectTagManager projectTagManager,
-            IMapper mapper,
             ProductEntryPoint productEntryPoint,
-            SecurityContext securityContext) : base(productEntryPoint, securityContext)
+            SecurityContext securityContext,
+            IMapper mapper) : base(productEntryPoint, securityContext, mapper)
         {
             _projectTagManager = projectTagManager.NotNull(nameof(projectTagManager));
-            _mapper = mapper.NotNull(nameof(mapper));
         }
+
+        #endregion Fields and .ctor
 
         ///<summary>
         /// Returns the list of all available project tags.
         ///</summary>
         ///<returns>List of existing tags.</returns>
         [Read(@"tag")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ProjectTagViewModel>))]
         public IActionResult GetAllTags()
         {
             var result = _projectTagManager.GetTags()
-                .Select(pt => _mapper.Map<ProjectTagData, ProjectTagViewModel>(pt))
+                .Select(pt => Mapper.Map<ProjectTagData, ProjectTagViewModel>(pt))
                 .ToList();
 
             return Ok(result);
@@ -86,6 +80,8 @@ namespace ASC.Projects.Controllers
         /// <param name="title">Title of new tag.</param>
         /// <returns>Just created tag.</returns>
         [Create(@"tag")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProjectTagViewModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult CreateNewTag(string title)
         {
             if (title.IsNullOrWhiteSpace())
@@ -100,7 +96,7 @@ namespace ASC.Projects.Controllers
 
             var createdTag = _projectTagManager.CreateTag(newTag);
 
-            var result = _mapper.Map<ProjectTagData, ProjectTagViewModel>(createdTag);
+            var result = Mapper.Map<ProjectTagData, ProjectTagViewModel>(createdTag);
 
             return Ok(result);
         }
@@ -111,6 +107,8 @@ namespace ASC.Projects.Controllers
         ///<param name="tag">Tag name</param>
         ///<returns>List of projects tagged with specified tag.</returns>
         [Read(@"tag/{tag}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ProjectViewModel>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult GetTaggedProjects(string tag)
         {
             if (tag.IsNullOrWhiteSpace())
@@ -120,7 +118,7 @@ namespace ASC.Projects.Controllers
 
             var taggedProjects = _projectTagManager
                 .GetTaggedProjects(tag)
-                .Select(tp => _mapper.Map<ProjectData, ProjectViewModel>(tp))
+                .Select(tp => Mapper.Map<ProjectData, ProjectViewModel>(tp))
                 .ToList();
 
             return Ok(taggedProjects);
@@ -132,6 +130,8 @@ namespace ASC.Projects.Controllers
         ///<param name="prefix">Prefix of needed tags</param>
         ///<returns>List of tags with specified prefix.</returns>
         [Read(@"tag/search")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ProjectTagViewModel>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult GetTagsByTitle(string prefix)
         {
             if (prefix.IsNullOrWhiteSpace())
@@ -140,7 +140,7 @@ namespace ASC.Projects.Controllers
             }
 
             var result = _projectTagManager.GetTagsWithPrefix(prefix)
-                .Select(pt => _mapper.Map<ProjectTagData, ProjectTagViewModel>(pt));
+                .Select(pt => Mapper.Map<ProjectTagData, ProjectTagViewModel>(pt));
 
             return Ok(result);
         }

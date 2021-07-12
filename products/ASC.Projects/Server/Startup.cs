@@ -31,7 +31,6 @@ using System.Text;
 
 using ASC.Api.Core;
 using ASC.Projects.Controllers;
-using ASC.Projects.Mappings;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -54,16 +53,23 @@ namespace ASC.Projects
         public override void ConfigureServices(IServiceCollection services)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            
+            base.ConfigureServices(services);
 
             ConfigureAutoMapper(services);
 
+            DIHelper.TryAdd<MilestoneApiController>();
+            DIHelper.TryAdd<ProjectApiController>();
+            DIHelper.TryAdd<ProjectMessageApiController>();
+            DIHelper.TryAdd<ProjectTagApiController>();
+            DIHelper.TryAdd<ProjectTaskApiController>();
             DIHelper.TryAdd<TimeTrackingApiController>();
-
-            base.ConfigureServices(services);
         }
 
         public override void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            base.Configure(app, env);
+
             app.UseCors(builder =>
                 builder
                     .AllowAnyOrigin()
@@ -75,12 +81,7 @@ namespace ASC.Projects
 
         private static void ConfigureAutoMapper(IServiceCollection services)
         {
-            var mapperConfig = new MapperConfiguration(cfg =>
-            {
-                cfg.AddProfile(new ProjectMappingProfile());
-                cfg.AddProfile(new ProjectTagMappingProfile());
-                cfg.AddProfile(new TimeTrackingItemMappingProfile());
-            });
+            var mapperConfig = new MapperConfiguration(cfg => { });
 
             var mapper = mapperConfig.CreateMapper();
 

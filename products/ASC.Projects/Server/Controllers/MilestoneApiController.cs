@@ -30,7 +30,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ASC.Common;
 using ASC.Core;
 using ASC.Core.Common.Utils;
 using ASC.Projects.Configuration;
@@ -45,24 +44,22 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ASC.Projects.Controllers
 {
-    [Scope]
-    [DefaultRoute]
-    [ApiController]
     public class MilestoneApiController : BaseApiController
     {
-        private readonly IMilestoneManager _milestoneManager;
+        #region Fields and .ctor
 
-        private readonly IMapper _mapper;
+        private readonly IMilestoneManager _milestoneManager;
 
         public MilestoneApiController(ProductEntryPoint productEntryPoint,
             SecurityContext securityContext,
             IMilestoneManager milestoneManager,
-            IMapper mapper) : base(productEntryPoint, securityContext)
+            IMapper mapper) : base(productEntryPoint, securityContext, mapper)
         {
             _milestoneManager = milestoneManager.NotNull(nameof(milestoneManager));
-            _mapper = mapper.NotNull(nameof(mapper));
         }
 
+        #endregion Fields and .ctor
+        
         ///<summary>
         /// Receives the list of all upcoming milestones within all portal projects.
         ///</summary>
@@ -73,7 +70,7 @@ namespace ASC.Projects.Controllers
         {
             var result = _milestoneManager
                 .GetProjectUpcomingMilestones((int)Count)
-                .Select(m => _mapper.Map<MilestoneData, MilestoneViewModel>(m))
+                .Select(m => Mapper.Map<MilestoneData, MilestoneViewModel>(m))
                 .ToList();
 
             return Ok(result);
@@ -119,7 +116,7 @@ namespace ASC.Projects.Controllers
         {
             var result = _milestoneManager
                 .GetLateMilestones((int)Count)
-                .Select(m => _mapper.Map<MilestoneData, MilestoneViewModel>(m))
+                .Select(m => Mapper.Map<MilestoneData, MilestoneViewModel>(m))
                 .ToList();
 
 
@@ -143,7 +140,7 @@ namespace ASC.Projects.Controllers
 
             var milestonesWithDeadline = _milestoneManager
                 .GetMilestonesWithDeadline(deadline)
-                .Select(m => _mapper.Map<MilestoneData, MilestoneViewModel>(m))
+                .Select(m => Mapper.Map<MilestoneData, MilestoneViewModel>(m))
                 .ToList();
 
             return Ok(milestonesWithDeadline);
@@ -163,7 +160,7 @@ namespace ASC.Projects.Controllers
 
             var result = _milestoneManager
                 .GetMilestonesWithDeadline(date)
-                .Select(m => _mapper.Map<MilestoneData, MilestoneViewModel>(m))
+                .Select(m => Mapper.Map<MilestoneData, MilestoneViewModel>(m))
                 .ToList();
 
             return Ok(result);
@@ -192,7 +189,7 @@ namespace ASC.Projects.Controllers
                 return NotFound($"A milestone with ID = {id} does not exists.");
             }
 
-            var result = _mapper.Map<MilestoneData, MilestoneViewModel>(milestone);
+            var result = Mapper.Map<MilestoneData, MilestoneViewModel>(milestone);
 
             return Ok(result);
         }
@@ -214,7 +211,7 @@ namespace ASC.Projects.Controllers
 
             var result = _milestoneManager
                 .GetMilestoneTasks(milestoneId)
-                .Select(m => _mapper.Map<TaskData, TaskViewModel>(m))
+                .Select(m => Mapper.Map<ProjectTaskData, TaskViewModel>(m))
                 .ToList();
 
             return Ok(result);
@@ -234,11 +231,11 @@ namespace ASC.Projects.Controllers
                 return BadRequest("Milestone data must be provided.");
             }
 
-            var milestoneData = _mapper.Map<MilestoneViewModel, MilestoneData>(milestone);
+            var milestoneData = Mapper.Map<MilestoneViewModel, MilestoneData>(milestone);
 
             var updatedMilestone = _milestoneManager.SaveOrUpdate(milestoneData, notifyResponsible);
 
-            var result = _mapper.Map<MilestoneData, MilestoneViewModel>(updatedMilestone);
+            var result = Mapper.Map<MilestoneData, MilestoneViewModel>(updatedMilestone);
 
             return Ok(result);
         }
@@ -303,7 +300,7 @@ namespace ASC.Projects.Controllers
                     return BadRequest($"A milestone with ID = {id} does not exists");
                 }
 
-                result.Add(_mapper.Map<MilestoneData, MilestoneViewModel>(removalMilestone));
+                result.Add(Mapper.Map<MilestoneData, MilestoneViewModel>(removalMilestone));
 
                 _milestoneManager.Delete(removalMilestone);
 

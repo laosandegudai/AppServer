@@ -31,10 +31,12 @@ using System;
 using System.Net;
 using ASC.Core.Common.Utils;
 using ASC.Api.Core;
+using ASC.Api.Core.Convention;
+using ASC.Common;
 using ASC.Core;
 using ASC.Projects.Configuration;
 using ASC.Web.Api.Routing;
-
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ASC.Projects.Controllers
@@ -42,24 +44,36 @@ namespace ASC.Projects.Controllers
     /// <summary>
     /// Base API controller of product.
     /// </summary>
+    [Scope]
+    [DefaultRoute]
+    [ApiController]
+    [ControllerName("projects")]
     public class BaseApiController : ControllerBase
     {
+        #region Fields and .ctor
+
         protected ProductEntryPoint ProductEntryPoint { get; }
 
         protected internal ApiContext ApiContext;
 
         private readonly SecurityContext _securityContext;
 
+        protected readonly IMapper Mapper;
+
         protected Guid CurrentUserId => _securityContext.CurrentAccount.ID;
 
         protected long Count => ApiContext.Count;
 
         public BaseApiController(ProductEntryPoint productEntryPoint,
-            SecurityContext securityContext)
+            SecurityContext securityContext,
+            IMapper mapper)
         {
             ProductEntryPoint = productEntryPoint.NotNull(nameof(productEntryPoint));
             _securityContext = securityContext.NotNull(nameof(securityContext));
+            Mapper = mapper.NotNull(nameof(mapper));
         }
+
+        #endregion Fields and .ctor
 
         [Read("info")]
         public Module GetModule()

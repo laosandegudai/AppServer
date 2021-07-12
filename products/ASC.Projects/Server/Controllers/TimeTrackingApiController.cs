@@ -31,7 +31,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security;
-using ASC.Common;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using ASC.Core.Common.Utils;
@@ -47,18 +46,15 @@ using SecurityContext = ASC.Core.SecurityContext;
 
 namespace ASC.Projects.Controllers
 {
-    [Scope]
-    [DefaultRoute]
-    [ApiController]
     public class TimeTrackingApiController : BaseApiController
     {
+        #region Fields and .ctor
+        
         private readonly IProjectManager _projectManager;
 
         private readonly IProjectTaskManager _projectTaskManager;
 
         private readonly ITimeTrackingManager _timeTrackingManager;
-
-        private readonly IMapper _mapper;
 
         public TimeTrackingApiController(
             IProjectManager projectManager,
@@ -66,13 +62,14 @@ namespace ASC.Projects.Controllers
             ITimeTrackingManager timeTrackingManager,
             IMapper mapper,
             ProductEntryPoint productEntryPoint,
-            SecurityContext securityContext) : base(productEntryPoint, securityContext)
+            SecurityContext securityContext) : base(productEntryPoint, securityContext, mapper)
         {
             _projectManager = projectManager.NotNull(nameof(projectManager));
             _projectTaskManager = projectTaskManager.NotNull(nameof(projectTaskManager));
             _timeTrackingManager = timeTrackingManager.NotNull(nameof(timeTrackingManager));
-            _mapper = mapper.NotNull(nameof(mapper));
         }
+
+        #endregion Fields and .ctor
 
         ///<summary>
         /// Returns the list with the detailed information about all Time tracking items
@@ -163,7 +160,7 @@ namespace ASC.Projects.Controllers
 
             var loggedItems = _timeTrackingManager
                 .GetTaskTimeTrackingItems(taskId)
-                .Select(li => _mapper.Map<TimeTrackingItemData, TimeTrackingItemViewModel>(li))
+                .Select(li => Mapper.Map<TimeTrackingItemData, TimeTrackingItemViewModel>(li))
                 .ToList();
 
             return Ok(loggedItems);
@@ -175,7 +172,7 @@ namespace ASC.Projects.Controllers
         /// <param name="data">Logged item data.</param>
         /// <returns>Just created Time tracking item.</returns>
         [Create(@"task/{taskId}/time")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<TimeTrackingItemData>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult LogTime(TimeTrackingItemViewModel data)
         {
@@ -201,11 +198,11 @@ namespace ASC.Projects.Controllers
                 return BadRequest($"A project with Id = {data.RelatedProjectId} does not exists");
             }
 
-            var loggedTimeData = _mapper.Map<TimeTrackingItemViewModel, TimeTrackingItemData>(data);
+            var loggedTimeData = Mapper.Map<TimeTrackingItemViewModel, TimeTrackingItemData>(data);
 
             _timeTrackingManager.LogTime(loggedTimeData);
 
-            var result = _mapper.Map<TimeTrackingItemData, TimeTrackingItemViewModel>(loggedTimeData);
+            var result = Mapper.Map<TimeTrackingItemData, TimeTrackingItemViewModel>(loggedTimeData);
 
             return Ok(result);
         }
@@ -239,11 +236,11 @@ namespace ASC.Projects.Controllers
                 return BadRequest($"A Time Tracking item with ID = {data.Id} does not exists");
             }
 
-            var timeTrackingData = _mapper.Map<TimeTrackingItemViewModel, TimeTrackingItemData>(data);
+            var timeTrackingData = Mapper.Map<TimeTrackingItemViewModel, TimeTrackingItemData>(data);
 
             var updatedItem = _timeTrackingManager.UpdateLoggedTime(timeTrackingData);
 
-            var result = _mapper.Map<TimeTrackingItemData, TimeTrackingItemViewModel>(updatedItem);
+            var result = Mapper.Map<TimeTrackingItemData, TimeTrackingItemViewModel>(updatedItem);
 
             return Ok(result);
         }
@@ -280,7 +277,7 @@ namespace ASC.Projects.Controllers
                     return Forbidden("Access is denied.");
                 }
 
-                result.Add(_mapper.Map<TimeTrackingItemData, TimeTrackingItemViewModel>(updatingResult));
+                result.Add(Mapper.Map<TimeTrackingItemData, TimeTrackingItemViewModel>(updatingResult));
             }
 
             return Ok(result);
@@ -302,7 +299,7 @@ namespace ASC.Projects.Controllers
             }
 
             var result = _timeTrackingManager.RemoveLoggedTimes(itemIds)
-                .Select(ttd => _mapper.Map<TimeTrackingItemData, TimeTrackingItemViewModel>(ttd))
+                .Select(ttd => Mapper.Map<TimeTrackingItemData, TimeTrackingItemViewModel>(ttd))
                 .ToList();
 
             return Ok(result);

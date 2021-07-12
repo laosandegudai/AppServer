@@ -27,17 +27,13 @@
 
 #endregion License agreement statement
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using ASC.Common;
 using ASC.Core;
 using ASC.Core.Common.Utils;
 using ASC.Projects.Configuration;
 using ASC.Projects.Core.BusinessLogic.Data;
 using ASC.Projects.Core.BusinessLogic.Managers.Interfaces;
-using ASC.Projects.Validators;
 using ASC.Projects.ViewModels;
 using ASC.Web.Api.Routing;
 using AutoMapper;
@@ -46,24 +42,21 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ASC.Projects.Controllers
 {
-    [Scope]
-    [DefaultRoute]
-    [ApiController]
     public class ProjectMessageApiController : BaseApiController
     {
-        private readonly IMessageManager _messageManager;
+        #region Fields and .ctor
 
-        private readonly IMapper _mapper;
+        private readonly IMessageManager _messageManager;
 
         public ProjectMessageApiController(ProductEntryPoint productEntryPoint,
             SecurityContext securityContext,
             IMessageManager messageManager,
-            IMapper mapper) : base(productEntryPoint, securityContext)
+            IMapper mapper) : base(productEntryPoint, securityContext, mapper)
         {
             _messageManager = messageManager.NotNull(nameof(messageManager));
-            _mapper = mapper.NotNull(nameof(mapper));
         }
 
+        #endregion Fields and .ctor
 
         /// <summary>
         /// Receives all messages of project.
@@ -71,14 +64,16 @@ namespace ASC.Projects.Controllers
         /// <param name="projectId">Id of project.</param>
         /// <returns>List of messages <see cref="MessageViewModel"/> related to project with specified id.</returns>
         [Read(@"{projectId:[0-9]+}/message")]
-        public List<MessageViewModel> GetProjectMessages(int projectId)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<MessageViewModel>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult GetProjectMessages(int projectId)
         {
             var messages = _messageManager
                 .GetProjectMessages(projectId)
-                .Select(m => _mapper.Map<MessageData, MessageViewModel>(m))
+                .Select(m => Mapper.Map<MessageData, MessageViewModel>(m))
                 .ToList();
 
-            return messages;
+            return Ok(messages);
         }
     }
 }

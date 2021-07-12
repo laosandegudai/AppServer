@@ -27,30 +27,36 @@
 
 #endregion License agreement statement
 
-using ASC.Projects.Core.BusinessLogic.Data;
-using ASC.Projects.Core.DataAccess.Domain.Entities;
-using ASC.Projects.ViewModels;
+using ASC.Api.Core;
+using ASC.Core;
+using ASC.Core.Common.Utils;
+using ASC.Projects.Configuration;
+using ASC.Web.Api.Routing;
 using AutoMapper;
 
-namespace ASC.Projects.Mappings
+namespace ASC.Projects.Controllers
 {
-    /// <summary>
-    /// Set of AutoMapper rules for
-    /// <see cref="ProjectTagViewModel"/>, <see cref="ProjectTagData"/> and <see cref="DbProjectTag"/>.
-    /// </summary>
-    public class ProjectTagMappingProfile : Profile
+    public class ProjectApiController : BaseApiController
     {
-        public ProjectTagMappingProfile()
-        {
-            CreateMap<ProjectTagData, ProjectTagViewModel>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
-                .ReverseMap();
+        #region Fields and .ctor
 
-            CreateMap<DbProject, ProjectTagData>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
-                .ReverseMap();
+        private readonly ProductEntryPoint _productEntryPoint;
+
+        public ProjectApiController(ProductEntryPoint productEntryPoint,
+            SecurityContext securityContext,
+            IMapper mapper) : base(productEntryPoint, securityContext, mapper)
+        {
+            _productEntryPoint = productEntryPoint.NotNull(nameof(productEntryPoint));
         }
+
+        #endregion Fields and .ctor
+
+        [Read("info")]
+        public Module GetModule()
+        {
+            _productEntryPoint.Init();
+            return new Module(_productEntryPoint);
+        }
+
     }
 }

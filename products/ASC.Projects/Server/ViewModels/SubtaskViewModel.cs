@@ -27,17 +27,40 @@
 
 #endregion License agreement statement
 
+using System;
 using System.Runtime.Serialization;
 
 namespace ASC.Projects.ViewModels
 {
     [DataContract(Name = "subtask", Namespace = "")]
-    public class SubtaskViewModel : BaseFullViewModel
+    public class SubtaskViewModel
     {
-        [DataMember]
-        public bool CanEdit { get; set; }
+        public int Id { get; set; }
 
-        [DataMember]
-        public int TaskId { get; set; }
+        public string Title { get; set; }
+
+        public string Description { get; set; }
+
+        public Guid ResponsibleId { get; set; }
+
+        public EmployeeViewModel Responsible { get; set; }
+
+        public DateTime CreationDate { get; set; }
+
+        public Guid CreatorId { get; set; }
+
+        public EmployeeViewModel Creator { get; set; }
+
+        public Guid EditorId { get; set; }
+
+        [DataMember(Name = "parent", EmitDefaultValue = false)]
+        public EmployeeViewModel Editor { get; set; }
+
+        public DateTime LastModificationDate { get; set; }
+
+        public int? ParentTaskId { get; set; }
+
+        [DataMember(Name="parent", EmitDefaultValue = false)]
+        public TaskViewModel ParentTask { get; set; }
     }
 }

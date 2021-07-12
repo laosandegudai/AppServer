@@ -41,20 +41,42 @@ namespace ASC.Projects.ViewModels
         /// Id of comment.
         /// </summary>
         public string Id { get; set; }
-
+        
+        /// <summary>
+        /// Id of user who left comment.
+        /// </summary>
         public Guid UserId { get; set; }
 
+        /// <summary>
+        /// Contents of comment.
+        /// </summary>
         public string UserPost { get; set; }
 
+        /// <summary>
+        /// Full name of user who left the comment.
+        /// </summary>
         public string UserFullName { get; set; }
 
+        /// <summary>
+        /// A link to profile of user who left the comment.
+        /// </summary>
         public string UserProfileLink { get; set; }
 
+        /// <summary>
+        /// A path to avatar of user who left the comment.
+        /// </summary>
         public string UserAvatarPath { get; set; }
-
+        
+        /// <summary>
+        /// Body of comment.
+        /// </summary>
         public string CommentBody { get; set; }
 
+        /// <summary>
+        /// Determines is comment active.
+        /// </summary>
         public bool Inactive { get; set; }
+
 
         public bool IsRead { get; set; }
 
