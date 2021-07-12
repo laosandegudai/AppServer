@@ -133,7 +133,7 @@ const generateProjects = () => {
     return project;
   };
 
-  const allProjects = Array.from({ length: 12 }, generate);
+  const allProjects = Array.from({ length: 23 }, generate);
 
   const myProjects = Array.from({ length: 5 }, () =>
     generate("00000000-0000-0000-0000-000000000000")
@@ -163,8 +163,12 @@ export function getFolders() {
   return Promise.resolve(folderTree);
 }
 
-export function getAllProjects() {
-  return Promise.resolve(projects);
+export function getAllProjects(page = 0) {
+  console.log(page);
+  return page === 0
+    ? Promise.resolve(projects.slice(0, 25))
+    : Promise.resolve(projects.slice(25));
+  // return Promise.resolve(projects);
 }
 
 export function getMyProjects() {

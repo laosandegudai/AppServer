@@ -8,7 +8,7 @@ export function getFolders(fake = true) {
 
 export function getAllProjectsList(fake = true, filter) {
   if (fake) {
-    return fakeProjects.getAllProjects();
+    return fakeProjects.getAllProjects(filter.page);
   }
   const options = {
     method: "get",
