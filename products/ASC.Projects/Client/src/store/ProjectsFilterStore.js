@@ -36,7 +36,7 @@ class ProjectsFilterStore {
     const { setSelectedNode } = this.treeFoldersStore;
     this.setProjects([]);
     this.setProjectFilter(filterData);
-    console.log(filterData.folder);
+    this.projectsStore.setFilter(filterData);
     setSelectedNode([filterData.folder]);
     this.setProjects(data);
     this.projectsStore.setItems(this.projectList);
@@ -87,8 +87,11 @@ class ProjectsFilterStore {
     if (folderName === FolderKey.Projects || !folderName) {
       const newFilter = ProjectsFilter.getDefault();
       newFilter.folder = "projects";
+      // тест пагинации
+      newFilter.total = 27;
+      newFilter.page = filter.page;
       return api.projects
-        .getAllProjectsList(true)
+        .getAllProjectsList(true, newFilter)
         .then(async (data) => this.resolveData(data, newFilter));
     }
   };

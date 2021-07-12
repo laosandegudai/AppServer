@@ -25,6 +25,7 @@ import {
   SectionBodyContent,
   SectionFilterContent,
   SectionHeaderContent,
+  SectionPagingContent,
 } from "./Section";
 import api from "@appserver/common/api";
 import config from "../../../package.json";
@@ -39,6 +40,7 @@ const Home = ({
   history,
   selectedTreeNode,
   fetchTasks,
+  setExpandedKeys,
 }) => {
   const { location } = history;
   const { pathname } = location;
@@ -68,6 +70,8 @@ const Home = ({
         setIsLoading(false);
         setFirstLoad(false);
       });
+      // тест разворачивания дерева при f5
+      setExpandedKeys(["projects"]);
     }
 
     if (pathname.indexOf("/task/filter") > -1) {
@@ -77,6 +81,7 @@ const Home = ({
         setIsLoading(false);
         setFirstLoad(false);
       });
+      setExpandedKeys(["tasks"]);
     }
   }, []);
 
@@ -102,6 +107,10 @@ const Home = ({
       <PageLayout.SectionBody>
         <SectionBodyContent />
       </PageLayout.SectionBody>
+
+      <PageLayout.SectionPaging>
+        <SectionPagingContent />
+      </PageLayout.SectionPaging>
     </PageLayout>
   );
 };
@@ -115,7 +124,7 @@ const HomeWrapper = inject(
     treeFoldersStore,
   }) => {
     const { isLoading, firstLoad, setIsLoading, setFirstLoad } = projectsStore;
-    const { selectedTreeNode } = treeFoldersStore;
+    const { selectedTreeNode, setExpandedKeys } = treeFoldersStore;
     const { fetchTasks } = tasksFilterStore;
     const {
       fetchAllProjects,
@@ -138,6 +147,7 @@ const HomeWrapper = inject(
       filter,
       projects,
       fetchTasks,
+      setExpandedKeys,
     };
   }
 )(withRouter(withTranslation(["Article", "Common"])(Home)));

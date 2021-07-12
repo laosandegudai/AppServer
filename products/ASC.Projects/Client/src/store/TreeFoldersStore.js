@@ -1,7 +1,6 @@
 import { makeAutoObservable } from "mobx";
 //import { getFolderTree } from "../components/Article/utils";
 import { getFolders } from "@appserver/common/api/projects";
-import { FolderType } from "../constants";
 
 class TreeFoldersStore {
   treeFolders = [];
@@ -38,8 +37,6 @@ class TreeFoldersStore {
   setExpandedPanelKeys = (expandedPanelKeys) => {
     this.expandedPanelKeys = expandedPanelKeys;
   };
-
-  // здесь делаем проверку на root папку. а не на вложенные
   getRootFolder = (rootFolderType) => {
     return this.treeFolders.find((x) => x.rootFolderType === rootFolderType);
   };
