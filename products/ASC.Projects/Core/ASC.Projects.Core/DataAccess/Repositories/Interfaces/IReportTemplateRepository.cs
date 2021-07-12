@@ -27,21 +27,28 @@
 
 #endregion License agreement statement
 
+using System;
 using System.Collections.Generic;
 using ASC.Projects.Core.DataAccess.Domain.Entities;
 
 namespace ASC.Projects.Core.DataAccess.Repositories.Interfaces
 {
     /// <summary>
-    /// An interface of repository working with <see cref="DbProjectTask"/> entity.
+    /// An interface of repository working with <see cref="DbReportTemplate"/> entity.
     /// </summary>
-    public interface ITaskRepository : IRepository<DbProjectTask, int>
+    public interface IReportTemplateRepository : IRepository<DbReportTemplate, int>
     {
         /// <summary>
-        /// Receives subtasks of tasks having specified ids.
+        /// Receives a list of templates of user with specified id.
         /// </summary>
-        /// <param name="taskIds">Ids of needed tasks.</param>
-        /// <returns>List of task with subtasks.</returns>
-        List<DbProjectTask> GetSubtasksOfTasks(List<int> taskIds);
+        /// <param name="userId">Id of needed user.</param>
+        /// <returns>List of user templates <see cref="DbReportTemplate"/>.</returns>
+        List<DbReportTemplate> GetUserTemplates(Guid userId);
+
+        /// <summary>
+        /// Receives a list of auto templates.
+        /// </summary>
+        /// <returns>List of auto templates.</returns>
+        List<DbReportTemplate> GetAutoTemplates();
     }
 }

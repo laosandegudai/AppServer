@@ -125,6 +125,11 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
         public List<DbMessage> Messages { get; set; }
 
         /// <summary>
+        /// All time logged for this project.
+        /// </summary>
+        public List<DbTimeTrackingItem> LoggedTime { get; set; }
+
+        /// <summary>
         /// Describes a set of entity-to-table mapping rules.
         /// </summary>
         public class MySqlMappingConfig : IEntityTypeConfiguration<DbProject>
@@ -200,6 +205,10 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
                 builder.HasMany(p => p.Messages)
                     .WithOne(m => m.Project)
                     .HasForeignKey(m => m.ProjectId);
+
+                builder.HasMany(p => p.LoggedTime)
+                    .WithOne(tt => tt.Project)
+                    .HasForeignKey(tt => tt.ProjectId);
             }
         }
     }

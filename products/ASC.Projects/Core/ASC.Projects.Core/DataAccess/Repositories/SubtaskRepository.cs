@@ -40,12 +40,17 @@ using ASC.Projects.Core.DataAccess.Repositories.Interfaces;
 namespace ASC.Projects.Core.DataAccess.Repositories
 {
     /// <summary>
-    /// Repository working with subtasks.
+    /// Repository working with <see cref="DbProjectSubtask"/> entity.
     /// </summary>
     internal class SubtaskRepository : BaseTenantRepository<DbProjectSubtask, int>, ISubtaskRepository
     {
+        #region .ctor
+
         public SubtaskRepository(ProjectsDbContext dbContext,
             TenantManager tenantManager) : base(dbContext, tenantManager) { }
+
+
+        #endregion .ctor
 
         /// <summary>
         /// Receives subtask of task with specified id.
@@ -141,7 +146,7 @@ namespace ASC.Projects.Core.DataAccess.Repositories
         /// Closes all subtasks of task.
         /// </summary>
         /// <param name="task">Task, which subtasks should be closed.</param>
-        public void CloseAllSubtaskOfTask(DbProjectTask task)
+        public void SetClosedStatusForSubtasks(DbProjectTask task)
         {
             task.Subtasks
                 .Where(st => st.RootTaskId == task.Id && st.Status == TaskStatus.Open)

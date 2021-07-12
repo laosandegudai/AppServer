@@ -30,8 +30,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Amazon.S3.Model;
 using ASC.Core;
 using ASC.Projects.Core.DataAccess.Domain.Entities;
 using ASC.Projects.Core.DataAccess.Domain.Enums;
@@ -41,19 +39,35 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ASC.Projects.Core.DataAccess.Repositories
 {
+    /// <summary>
+    /// A repository working with <see cref="DbProjectTask"/> entity.
+    /// </summary>
     internal class TaskRepository : BaseTenantRepository<DbProjectTask, int>, ITaskRepository
     {
+        #region .ctor
+
         public TaskRepository(ProjectsDbContext dbContext,
-            TenantManager tenantManager) : base(dbContext, tenantManager)
-        {
-        }
+            TenantManager tenantManager) : base(dbContext, tenantManager) { }
+
+        #endregion .ctor
 
         public List<DbProjectTask> GetProjectTasks(int projectId,
             TaskStatus? status = null,
             Guid? participantId = null)
         {
-            var result = GetAll()
+            var predicate = GetAll()
                 .Include(t => t.Milestone)
+                .Include(t => t.Project)
+                .Include(t => t.Subtasks)
+                .Where(t => t.ProjectId == projectId);
+
+            if (status.HasValue)
+            {
+                predicate = predicate
+                    .Where(t => t.Status == status);
+            }
+
+            var result = predicate
                 .OrderByDescending(t => t.SortOrder)
                 .ThenBy(t => t.Milestone.Status)
                 .ThenBy(t => t.Milestone.Deadline)
@@ -61,6 +75,39 @@ namespace ASC.Projects.Core.DataAccess.Repositories
                 .ThenBy(t => t.Status)
                 .ThenBy(t => t.Priority)
                 .ThenBy(t => t.CreationDate)
+                .ToList();
+
+            return result;
+        }
+
+        // ToDo: implement this later.
+        //public List<Task> GetByFilter(TaskFilter filter, bool isAdmin, bool checkAccess)
+
+        // ToDo: implement this later.
+        //public TaskFilterCountOperationResult GetByFilterCount(TaskFilter filter, bool isAdmin, bool checkAccess)
+
+        // ToDo: implement this later.
+        //public IEnumerable<TaskFilterCountOperationResult> GetByFilterCountForStatistic(TaskFilter filter, bool isAdmin, bool checkAccess)
+
+        // ToDo: implement this later.
+        //public List<Tuple<Guid, int, int>> GetByFilterCountForReport(TaskFilter filter, bool isAdmin, bool checkAccess)
+
+        // ToDo: implement this later.
+        public List<DbProjectTask> GetByResponsible(Guid responsibleId, TaskStatus? status)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Receives subtasks of tasks having specified ids.
+        /// </summary>
+        /// <param name="taskIds">Ids of needed tasks.</param>
+        /// <returns>List of task with subtasks.</returns>
+        public List<DbProjectTask> GetSubtasksOfTasks(List<int> taskIds)
+        {
+            var result = GetAll()
+                .Include(t => t.Subtasks)
+                .Where(t => taskIds.Contains(t.Id))
                 .ToList();
 
             return result;
@@ -88,12 +135,50 @@ namespace ASC.Projects.Core.DataAccess.Repositories
             return result;
         }
 
-        public void AddTaskLink(DbProjectTaskLink link)
+        public List<DbProjectTask> GetTasksForReminder(DateTime deadline)
         {
-            DbContext.Set<DbProjectTaskLink>()
-                .Add(link);
+            var deadlineDate = deadline.Date;
+            var yesterday = deadline.AddDays(-1);
+            var tomorrow = deadline.AddDays(1);
 
-            DbContext.SaveChanges();
+            var result = GetAll()
+                .Include(t => t.Project)
+                .Where(t => t.Deadline >= yesterday
+                    && t.Deadline <= yesterday
+                    && t.Status != TaskStatus.Closed
+                    && t.Project.Status == ProjectStatus.Open)
+                .ToList();
+
+            return result;
+        }
+
+        public override DbProjectTask Update(DbProjectTask updatingItem)
+        {
+            var existingItem = GetById(updatingItem.Id);
+
+            if (existingItem == null)
+            {
+                throw new InvalidOperationException($"Task with ID = {updatingItem.Id} does not exists");
+            }
+
+            existingItem.ProjectId = updatingItem.ProjectId;
+            existingItem.Title = updatingItem.Title;
+            existingItem.LastModificationDate = updatingItem.LastModificationDate;
+            existingItem.LastEditorId = updatingItem.LastEditorId;
+            existingItem.Description = updatingItem.Description;
+            existingItem.Priority = updatingItem.Priority;
+            existingItem.Status = updatingItem.Status;
+            existingItem.MilestoneId = updatingItem.MilestoneId;
+            existingItem.SortOrder = updatingItem.SortOrder;
+            existingItem.Deadline = updatingItem.Deadline;
+            existingItem.StatusChangeDate = updatingItem.StatusChangeDate;
+            existingItem.StartDate = updatingItem.StartDate;
+            existingItem.Progress = updatingItem.Progress;
+            existingItem.ResponsibleId = updatingItem.ResponsibleId;
+
+            var result = base.Update(existingItem);
+
+            return result;
         }
     }
 }

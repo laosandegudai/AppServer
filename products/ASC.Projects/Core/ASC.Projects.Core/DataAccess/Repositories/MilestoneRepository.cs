@@ -41,12 +41,16 @@ using Microsoft.EntityFrameworkCore;
 namespace ASC.Projects.Core.DataAccess.Repositories
 {
     /// <summary>
-    /// Repository working with 'Milestone' entity.
+    /// Repository working with <see cref="DbMilestone"/> entity.
     /// </summary>
-    public class MilestoneRepository : BaseTenantRepository<DbMilestone, int>, IMilestoneRepository
+    internal class MilestoneRepository : BaseTenantRepository<DbMilestone, int>, IMilestoneRepository
     {
+        #region .ctor
+
         public MilestoneRepository(ProjectsDbContext dbContext,
             TenantManager tenantManager) : base(dbContext, tenantManager) { }
+
+        #endregion .ctor
 
         /// <summary>
         /// Receives a milestones related to specific project.
@@ -151,8 +155,8 @@ namespace ASC.Projects.Core.DataAccess.Repositories
             var result = GetAll()
                 .Include(m => m.Project)
                 .Where(m => m.Project.Status == ProjectStatus.Open
-                            && m.Status != MilestoneStatus.Closed
-                            && m.Deadline <= yesterday)
+                    && m.Status != MilestoneStatus.Closed
+                    && m.Deadline <= yesterday)
                 .Skip(offset)
                 .Take(max)
                 .OrderBy(m => m.Deadline)
@@ -247,7 +251,7 @@ namespace ASC.Projects.Core.DataAccess.Repositories
         /// Receives maximal date of milestone modification.
         /// </summary>
         /// <returns>Maximal date of milestone modification.</returns>
-        public DateTime? GetLastModificationDate()
+        public DateTime? GetLatestLastModificationDate()
         {
             var result = GetAll()
                 .Max(m => m.LastModificationDate);

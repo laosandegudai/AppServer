@@ -33,15 +33,31 @@ using ASC.Projects.Core.DataAccess.Domain.Entities;
 namespace ASC.Projects.Core.DataAccess.Repositories.Interfaces
 {
     /// <summary>
-    /// An interface of repository working with <see cref="DbProjectTask"/> entity.
+    /// An interface of repository working with <see cref="DbProjectTaskLink"/> entity.
     /// </summary>
-    public interface ITaskRepository : IRepository<DbProjectTask, int>
+    public interface ITaskLinkRepository : IRepository<DbProjectTaskLink, int>
     {
         /// <summary>
-        /// Receives subtasks of tasks having specified ids.
+        /// Receives links of task with specified id.
+        /// </summary>
+        /// <param name="taskId">Id of needed task.</param>
+        /// <returns>Links of task with specified id.</returns>
+        List<DbProjectTaskLink> GetTaskLinks(int taskId);
+
+        /// <summary>
+        /// Receives links of tasks having specified ids.
         /// </summary>
         /// <param name="taskIds">Ids of needed tasks.</param>
-        /// <returns>List of task with subtasks.</returns>
-        List<DbProjectTask> GetSubtasksOfTasks(List<int> taskIds);
+        /// <returns>Links of tasks having specified ids.</returns>
+        List<DbProjectTaskLink> GetByTaskIds(List<int> taskIds);
+
+        /// <summary>
+        /// Determines an existence of task link.
+        /// </summary>
+        /// <param name="parentTaskId">Id of parent task link.</param>
+        /// <param name="dependenceTaskId">Id of dependence task link.</param>
+        /// <returns>true if task link exists, otherwise - false.</returns>
+        bool Exists(int parentTaskId, int dependenceTaskId);
+
     }
 }

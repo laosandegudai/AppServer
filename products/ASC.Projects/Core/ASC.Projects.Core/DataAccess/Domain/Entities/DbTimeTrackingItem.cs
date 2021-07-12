@@ -153,6 +153,10 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
                 builder.HasOne(tt => tt.RelativeTask)
                     .WithMany(pt => pt.TimeTrackingItems)
                     .HasForeignKey(tt => tt.RelativeTaskId);
+
+                builder.HasOne(tt => tt.Project)
+                    .WithMany(p => p.LoggedTime)
+                    .HasForeignKey(tt => tt.ProjectId);
             }
         }
     }

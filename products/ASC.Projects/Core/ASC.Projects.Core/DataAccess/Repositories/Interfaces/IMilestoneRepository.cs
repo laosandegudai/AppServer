@@ -105,6 +105,6 @@ namespace ASC.Projects.Core.DataAccess.Repositories.Interfaces
         /// Receives maximal date of milestone modification.
         /// </summary>
         /// <returns>Maximal date of milestone modification.</returns>
-        DateTime? GetLastModificationDate();
+        DateTime? GetLatestLastModificationDate();
     }
 }

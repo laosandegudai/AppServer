@@ -33,7 +33,7 @@ using ASC.Projects.Core.DataAccess.Domain.Entities;
 namespace ASC.Projects.Core.DataAccess.Repositories.Interfaces
 {
     /// <summary>
-    /// An interface of repository working with 'Time Tracking Item' entity.
+    /// An interface of repository working with <see cref="DbTimeTrackingItem"/> entity.
     /// </summary>
     public interface ITimeTrackingItemRepository : IRepository<DbTimeTrackingItem, int>
     {

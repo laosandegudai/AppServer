@@ -37,70 +37,60 @@ using ASC.Projects.Core.DataAccess.Repositories.Interfaces;
 namespace ASC.Projects.Core.DataAccess.Repositories
 {
     /// <summary>
-    /// Repository working with <see cref="DbTimeTrackingItem"/> entity.
+    /// A repository working with <see cref="DbProjectTaskLink"/> entity.
     /// </summary>
-    internal class TimeTrackingItemRepository : BaseTenantRepository<DbTimeTrackingItem, int>, ITimeTrackingItemRepository
+    internal class TaskLinkRepository: BaseTenantRepository<DbProjectTaskLink, int>, ITaskLinkRepository
     {
         #region .ctor
 
-        public TimeTrackingItemRepository(ProjectsDbContext dbContext,
+        public TaskLinkRepository(ProjectsDbContext dbContext,
             TenantManager tenantManager) : base(dbContext, tenantManager) { }
 
         #endregion .ctor
 
         /// <summary>
-        /// Receives time tracking items of specific project.
-        /// </summary>
-        /// <param name="projectId">Id of needed project.</param>
-        /// <returns>List of time tracking items <see cref="DbTimeTrackingItem"/>.</returns>
-        public List<DbTimeTrackingItem> GetByProject(int projectId)
-        {
-            var loggedItems = GetAll()
-                .Where(tti => tti.ProjectId == projectId)
-                .OrderByDescending(tti => tti.TrackingDate)
-                .ToList();
-
-            return loggedItems;
-        }
-
-        /// <summary>
-        /// Receives time tracking items of specific task.
+        /// Receives links of task with specified id.
         /// </summary>
         /// <param name="taskId">Id of needed task.</param>
-        /// <returns>List of time tracking items <see cref="DbTimeTrackingItem"/>, logged to task with specified Id.</returns>
-        public List<DbTimeTrackingItem> GetTaskTimeTrackingItems(int taskId)
+        /// <returns>Links of task with specified id.</returns>
+        public List<DbProjectTaskLink> GetTaskLinks(int taskId)
         {
             var result = GetAll()
-                .Where(t => t.RelativeTaskId == taskId)
-                .OrderByDescending(t => t.TrackingDate)
+                .Where(tl => tl.TaskId == taskId)
                 .ToList();
 
             return result;
         }
 
         /// <summary>
-        /// Updates an existing item.
+        /// Receives links of tasks having specified ids.
         /// </summary>
-        /// <param name="updatedItem">Updating item.</param>
-        /// <returns>Just updated item.</returns>
-        public override DbTimeTrackingItem Update(DbTimeTrackingItem updatedItem)
+        /// <param name="taskIds">Ids of needed tasks.</param>
+        /// <returns>Links of tasks having specified ids.</returns>
+        public List<DbProjectTaskLink> GetByTaskIds(List<int> taskIds)
         {
-            var entity = GetById(updatedItem.Id);
+            var result = GetAll()
+                .Where(tl => taskIds.Contains(tl.TaskId) || taskIds.Contains(tl.ParentId))
+                .ToList();
 
-            entity.Note = updatedItem.Note;
-            entity.TrackingDate = updatedItem.TrackingDate;
-            entity.Hours = updatedItem.Hours;
-            entity.RelativeTaskId = updatedItem.RelativeTaskId;
-            entity.PersonId = updatedItem.PersonId;
-            entity.ProjectId = updatedItem.ProjectId;
-            entity.CreationDate = updatedItem.CreationDate;
-            entity.CreatorId = updatedItem.CreatorId;
-            entity.PaymentStatus = updatedItem.PaymentStatus;
-            entity.StatusChangeDate = updatedItem.StatusChangeDate;
+            return result;
+        }
 
-            base.Update(updatedItem);
+        /// <summary>
+        /// Determines an existence of task link.
+        /// </summary>
+        /// <param name="parentTaskId">Id of parent task link.</param>
+        /// <param name="dependenceTaskId">Id of dependence task link.</param>
+        /// <returns>true if task link exists, otherwise - false.</returns>
+        public bool Exists(int parentTaskId, int dependenceTaskId)
+        {
+            var count = GetAll()
+                .Count(tl => (tl.TaskId == dependenceTaskId && tl.ParentId == parentTaskId)
+                    || (tl.TaskId == parentTaskId && tl.ParentId == dependenceTaskId));
 
-            return entity;
+            var result = count != default;
+
+            return result;
         }
     }
 }

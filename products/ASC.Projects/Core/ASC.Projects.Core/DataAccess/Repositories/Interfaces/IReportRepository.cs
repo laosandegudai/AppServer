@@ -27,21 +27,30 @@
 
 #endregion License agreement statement
 
+using System;
 using System.Collections.Generic;
 using ASC.Projects.Core.DataAccess.Domain.Entities;
 
 namespace ASC.Projects.Core.DataAccess.Repositories.Interfaces
 {
     /// <summary>
-    /// An interface of repository working with <see cref="DbProjectTask"/> entity.
+    /// An interface of repository working with <see cref="DbReport"/> entity.
     /// </summary>
-    public interface ITaskRepository : IRepository<DbProjectTask, int>
+    public interface IReportRepository : IRepository<DbReport, int>
     {
         /// <summary>
-        /// Receives subtasks of tasks having specified ids.
+        /// Receives reports of user with specified id.
         /// </summary>
-        /// <param name="taskIds">Ids of needed tasks.</param>
-        /// <returns>List of task with subtasks.</returns>
-        List<DbProjectTask> GetSubtasksOfTasks(List<int> taskIds);
+        /// <param name="userId">Id of needed user.</param>
+        /// <returns>List of reports <see cref="List{DbReport}"/> of needed user.</returns>
+        List<DbReport> GetUserReports(Guid userId);
+
+        /// <summary>
+        /// Receives report of user with specified id having specified file id.
+        /// </summary>
+        /// <param name="userId">Id of needed user.</param>
+        /// <param name="fileId">Id of needed file.</param>
+        /// <returns>User report <see cref="DbReport"/> having specified file id.</returns>
+        DbReport GetByFileId(Guid userId, int fileId);
     }
 }

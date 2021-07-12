@@ -35,10 +35,17 @@ using ASC.Projects.Core.DataAccess.Repositories.Interfaces;
 
 namespace ASC.Projects.Core.DataAccess.Repositories
 {
-    public class BaseRepository<TEntity, TKey> : IRepository<TEntity, TKey>
+    /// <summary>
+    /// Base repository with typical CRUD operations.
+    /// </summary>
+    /// <typeparam name="TEntity">Type of entity which repository is working with.</typeparam>
+    /// <typeparam name="TKey">Type of entity key which repository is working with.</typeparam>
+    internal class BaseRepository<TEntity, TKey> : IRepository<TEntity, TKey>
         where TEntity : class, IBaseDbEntity<TKey>
         where TKey : struct
     {
+        #region Fields and .ctor
+
         protected readonly ProjectsDbContext DbContext;
 
         public BaseRepository(ProjectsDbContext dbContext)
@@ -46,64 +53,112 @@ namespace ASC.Projects.Core.DataAccess.Repositories
             DbContext = dbContext.NotNull(nameof(dbContext));
         }
 
+        #endregion Fields and .ctor
+
+        /// <summary>
+        /// Receives a full list of items expression.
+        /// </summary>
+        /// <returns>Full list of items <see cref="IQueryable{TEntity}"/> expression.</returns>
         public virtual IQueryable<TEntity> GetAll()
         {
-            var set = DbContext.Set<TEntity>()
+            var set = DbContext
+                .Set<TEntity>()
                 .AsQueryable();
 
             return set;
         }
 
+        /// <summary>
+        /// Receives an item by id.
+        /// </summary>
+        /// <param name="id">Id of needed item.</param>
+        /// <returns>Item <see cref="TEntity"/> having specified id.</returns>
         public virtual TEntity GetById(TKey id)
         {
-            var result = DbContext.Set<TEntity>()
+            var result = DbContext
+                .Set<TEntity>()
                 .FirstOrDefault(e => e.Id.Equals(id));
 
             return result;
         }
 
+        /// <summary>
+        /// Creates a new item.
+        /// </summary>
+        /// <param name="newItem">New item data.</param>
+        /// <returns>Just created item <see cref="TEntity"/>.</returns>
         public virtual TEntity Create(TEntity newItem)
         {
-            DbContext.Set<TEntity>().Add(newItem);
+            DbContext
+                .Set<TEntity>()
+                .Add(newItem);
 
             DbContext.SaveChanges();
 
             return newItem;
         }
 
+        /// <summary>
+        /// Updates an existing item.
+        /// </summary>
+        /// <param name="updatedItem">Updating item data.</param>
+        /// <returns>Just updated item <see cref="TEntity"/>.</returns>
         public virtual TEntity Update(TEntity updatedItem)
         {
-            DbContext.Set<TEntity>().Update(updatedItem);
+            DbContext
+                .Set<TEntity>()
+                .Update(updatedItem);
 
             DbContext.SaveChanges();
 
             return updatedItem;
         }
 
+        /// <summary>
+        /// Removes a specified item.
+        /// </summary>
+        /// <param name="removalItem">Item to remove.</param>
         public virtual void Delete(TEntity removalItem)
         {
-            DbContext.Set<TEntity>()
+            DbContext
+                .Set<TEntity>()
                 .Remove(removalItem);
 
             DbContext.SaveChanges();
         }
 
+        /// <summary>
+        /// Removes an item having specified id.
+        /// </summary>
+        /// <param name="id">Id of item to remove.</param>
         public virtual void DeleteById(TKey id)
         {
-            DbContext.Set<TEntity>()
+            DbContext
+                .Set<TEntity>()
                 .RemoveRange(DbContext.Set<TEntity>()
                     .Where(e => e.Id.Equals(id)));
 
             DbContext.SaveChanges();
         }
 
-        public bool Exists(TKey itemId)
+        /// <summary>
+        /// Checks an existence of item with specified id.
+        /// </summary>
+        /// <param name="id">Id of item.</param>
+        /// <returns>true if item with specified id exists, otherwise - false.</returns>
+        public virtual bool Exists(TKey itemId)
         {
             var item = GetById(itemId);
 
-            return item != null;
+            var result = item != null;
+
+            return result;
         }
 
+        /// <summary>
+        /// Calculates amount of items.
+        /// </summary>
+        /// <returns>Amount of items <see cref="int"/>.</returns>
         public int Count()
         {
             var result = GetAll().Count();

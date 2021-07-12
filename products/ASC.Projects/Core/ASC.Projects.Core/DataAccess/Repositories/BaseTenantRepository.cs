@@ -33,14 +33,20 @@ using ASC.Core;
 using ASC.Core.Common.Utils;
 using ASC.Projects.Core.DataAccess.Domain.Entities.Interfaces;
 using ASC.Projects.Core.DataAccess.EF;
-using Microsoft.EntityFrameworkCore;
 
 namespace ASC.Projects.Core.DataAccess.Repositories
 {
-    public class BaseTenantRepository<TEntity, TKey> : BaseRepository<TEntity, TKey>
+    /// <summary>
+    /// Base repository with typical CRUD operations considering current tenant.
+    /// </summary>
+    /// <typeparam name="TEntity">Type of entity which repository is working with.</typeparam>
+    /// <typeparam name="TKey">Type of entity key which repository is working with.</typeparam>
+    internal class BaseTenantRepository<TEntity, TKey> : BaseRepository<TEntity, TKey>
         where TEntity : class, ITenantEntity<TKey>
         where TKey : struct
     {
+        #region Fields, properties and .ctor
+
         protected readonly TenantManager TenantManager;
 
         protected int TenantId => TenantManager.GetCurrentTenant()
@@ -53,6 +59,12 @@ namespace ASC.Projects.Core.DataAccess.Repositories
             TenantManager = tenantManager.NotNull(nameof(tenantManager));
         }
 
+        #endregion Fields, properties and .ctor
+
+        /// <summary>
+        /// Receives a full list of items available for current tenant.
+        /// </summary>
+        /// <returns>Full list of items available for current tenant <see cref="IQueryable{TEntity}"/>.</returns>
         public override IQueryable<TEntity> GetAll()
         {
             var predicate = DbContext
@@ -62,6 +74,11 @@ namespace ASC.Projects.Core.DataAccess.Repositories
             return predicate;
         }
 
+        /// <summary>
+        /// Receives an item by id available for current tenant.
+        /// </summary>
+        /// <param name="id">Id of needed item.</param>
+        /// <returns>Item <see cref="TEntity"/> having specified id and current tenantId.</returns>
         public override TEntity GetById(TKey id)
         {
             var result = DbContext
@@ -71,6 +88,11 @@ namespace ASC.Projects.Core.DataAccess.Repositories
             return result;
         }
 
+        /// <summary>
+        /// Creates a new item for current tenant.
+        /// </summary>
+        /// <param name="newItem">New item data.</param>
+        /// <returns>Just created item <see cref="TEntity"/> having current tenantId.</returns>
         public override TEntity Create(TEntity newItem)
         {
             newItem.TenantId = TenantId;
@@ -80,18 +102,28 @@ namespace ASC.Projects.Core.DataAccess.Repositories
             return newItem;
         }
 
+        /// <summary>
+        /// Updates an existing item for current tenant.
+        /// </summary>
+        /// <param name="updatedItem">Updating item data.</param>
+        /// <returns>Just updated item <see cref="TEntity"/> having current tenantId.</returns>
         public override TEntity Update(TEntity updatedItem)
         {
-            DbContext.Entry(updatedItem).State = EntityState.Modified;
+            updatedItem.TenantId = TenantId;
 
-            DbContext.SaveChanges();
+            base.Update(updatedItem);
 
             return updatedItem;
         }
 
+        /// <summary>
+        /// Removes an item having specified id and current tenantId.
+        /// </summary>
+        /// <param name="id">Id of item to remove.</param>
         public override void DeleteById(TKey id)
         {
-            DbContext.Set<TEntity>()
+            DbContext
+                .Set<TEntity>()
                 .RemoveRange(DbContext.Set<TEntity>()
                     .Where(e => e.TenantId == TenantId && e.Id.Equals(id)));
         }

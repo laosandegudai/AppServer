@@ -52,7 +52,7 @@ namespace ASC.Projects.Core.DataAccess.EF
                 .ApplyConfiguration(new DbMilestone.MySqlMappingConfig())
                 .ApplyConfiguration(new DbProjectParticipant.MySqlMappingConfig())
                 .ApplyConfiguration(new DbProject.MySqlMappingConfig())
-                .ApplyConfiguration(new DbStatus.MySqlMappingConfig())
+                .ApplyConfiguration(new DbCustomTaskStatus.MySqlMappingConfig())
                 .ApplyConfiguration(new DbProjectTask.MySqlMappingConfig())
                 .ApplyConfiguration(new DbProjectTaskLink.MySqlMappingConfig())
                 .ApplyConfiguration(new DbProjectTemplate.MySqlMappingConfig())

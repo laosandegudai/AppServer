@@ -27,21 +27,55 @@
 
 #endregion License agreement statement
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using ASC.Core;
 using ASC.Projects.Core.DataAccess.Domain.Entities;
+using ASC.Projects.Core.DataAccess.EF;
+using ASC.Projects.Core.DataAccess.Repositories.Interfaces;
 
-namespace ASC.Projects.Core.DataAccess.Repositories.Interfaces
+namespace ASC.Projects.Core.DataAccess.Repositories
 {
     /// <summary>
-    /// An interface of repository working with <see cref="DbProjectTask"/> entity.
+    /// A repository working with <see cref="DbReport"/> entity.
     /// </summary>
-    public interface ITaskRepository : IRepository<DbProjectTask, int>
+    internal class ReportRepository : BaseTenantRepository<DbReport, int>, IReportRepository
     {
+        #region .ctor
+
+        public ReportRepository(ProjectsDbContext dbContext,
+            TenantManager tenantManager) : base(dbContext, tenantManager) { }
+
+        #endregion .ctor
+
         /// <summary>
-        /// Receives subtasks of tasks having specified ids.
+        /// Receives reports of user with specified id.
         /// </summary>
-        /// <param name="taskIds">Ids of needed tasks.</param>
-        /// <returns>List of task with subtasks.</returns>
-        List<DbProjectTask> GetSubtasksOfTasks(List<int> taskIds);
+        /// <param name="userId">Id of needed user.</param>
+        /// <returns>List of reports <see cref="List{DbReport}"/> of needed user.</returns>
+        public List<DbReport> GetUserReports(Guid userId)
+        {
+            var result = GetAll()
+                .Where(r => r.CreatorId == userId)
+                .OrderByDescending(r => r.CreationDate)
+                .ToList();
+
+            return result;
+        }
+
+        /// <summary>
+        /// Receives report of user with specified id having specified file id.
+        /// </summary>
+        /// <param name="userId">Id of needed user.</param>
+        /// <param name="fileId">Id of needed file.</param>
+        /// <returns>User report <see cref="DbReport"/> having specified file id.</returns>
+        public DbReport GetByFileId(Guid userId, int fileId)
+        {
+            var result = GetAll()
+                .SingleOrDefault(r => r.CreatorId == userId && r.FileId == fileId);
+
+            return result;
+        }
     }
 }

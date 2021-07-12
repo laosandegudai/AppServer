@@ -39,7 +39,7 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
     /// <summary>
     /// Represents Status.
     /// </summary>
-    public class DbStatus : BaseDbEntity<int>, ITenantEntity<int>
+    public class DbCustomTaskStatus : BaseDbEntity<int>, ITenantEntity<int>
     {
         /// <summary>
         /// Title of status.
@@ -99,9 +99,9 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
         /// <summary>
         /// Describes a set of entity-to-table mapping rules.
         /// </summary>
-        public class MySqlMappingConfig : IEntityTypeConfiguration<DbStatus>
+        public class MySqlMappingConfig : IEntityTypeConfiguration<DbCustomTaskStatus>
         {
-            public void Configure(EntityTypeBuilder<DbStatus> builder)
+            public void Configure(EntityTypeBuilder<DbCustomTaskStatus> builder)
             {
                 builder.ToTable("status");
 
@@ -142,7 +142,7 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
 
                 builder.HasMany(s => s.Tasks)
                     .WithOne(t => t.TaskStatus)
-                    .HasForeignKey(t => t.TaskStatusId)
+                    .HasForeignKey(t => t.TaskStatusId);
             }
         }
     }

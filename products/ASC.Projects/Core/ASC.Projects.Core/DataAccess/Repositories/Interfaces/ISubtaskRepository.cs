@@ -35,7 +35,7 @@ using ASC.Projects.Core.DataAccess.Domain.Enums;
 namespace ASC.Projects.Core.DataAccess.Repositories.Interfaces
 {
     /// <summary>
-    /// An interface of repository working with subtasks.
+    /// An interface of repository working with <see cref="DbProjectSubtask"/> entity.
     /// </summary>
     public interface ISubtaskRepository : IRepository<DbProjectSubtask, int>
     {
@@ -81,6 +81,6 @@ namespace ASC.Projects.Core.DataAccess.Repositories.Interfaces
         /// Closes all subtasks of task.
         /// </summary>
         /// <param name="task">Task, which subtasks should be closed.</param>
-        void CloseAllSubtaskOfTask(DbProjectTask task);
+        void SetClosedStatusForSubtasks(DbProjectTask task);
     }
 }

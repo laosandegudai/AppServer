@@ -152,7 +152,7 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
         /// <summary>
         /// Status of this task.
         /// </summary>
-        public DbStatus TaskStatus { get; set; }
+        public DbCustomTaskStatus TaskStatus { get; set; }
 
         /// <summary>
         /// Subtasks of this task.
@@ -163,6 +163,11 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
         /// Links of this task.
         /// </summary>
         public List<DbProjectTaskLink> Links { get; set; }
+
+        /// <summary>
+        /// List of recurrence items of this task.
+        /// </summary>
+        public List<DbProjectTaskRecurrenceItem> Recurrences { get; set; }
 
         /// <summary>
         /// Describes a set of entity-to-table mapping rules.
@@ -235,6 +240,10 @@ namespace ASC.Projects.Core.DataAccess.Domain.Entities
                 builder.HasMany(pt => pt.Links)
                     .WithOne(ptl => ptl.Task)
                     .HasForeignKey(pt => pt.TaskId);
+
+                builder.HasMany(pt => pt.Recurrences)
+                    .WithOne(r => r.Task)
+                    .HasForeignKey(r => r.TaskId);
             }
         }
     }

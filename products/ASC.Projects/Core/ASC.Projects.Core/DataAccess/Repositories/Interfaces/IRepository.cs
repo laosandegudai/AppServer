@@ -35,30 +35,62 @@ namespace ASC.Projects.Core.DataAccess.Repositories.Interfaces
     /// <summary>
     /// An interface of base repository with typical CRUD operations.
     /// </summary>
-    /// <typeparam name="TEntity">Type of entities repository working with.</typeparam>
-    /// <typeparam name="TKey">Type of key of entities repository working with.</typeparam>
+    /// <typeparam name="TEntity">Type of entity which repository is working with.</typeparam>
+    /// <typeparam name="TKey">Type of entity key which repository is working with.</typeparam>
     public interface IRepository<TEntity, in TKey>
         where TKey : struct
         where TEntity : IBaseDbEntity<TKey>
     {
         /// <summary>
-        /// Receives a full list of items <see cref="TEntity"/>.
+        /// Receives a full list of items expression.
         /// </summary>
-        /// <returns>Full list of items <see cref="TEntity"/>.</returns>
+        /// <returns>Full list of items <see cref="IQueryable{TEntity}"/> expression.</returns>
         IQueryable<TEntity> GetAll();
 
+        /// <summary>
+        /// Receives an item by id.
+        /// </summary>
+        /// <param name="id">Id of needed item.</param>
+        /// <returns>Item <see cref="TEntity"/> having specified id.</returns>
         TEntity GetById(TKey id);
 
+        /// <summary>
+        /// Creates a new item.
+        /// </summary>
+        /// <param name="newItem">New item data.</param>
+        /// <returns>Just created item <see cref="TEntity"/>.</returns>
         TEntity Create(TEntity newItem);
 
+        /// <summary>
+        /// Updates an existing item.
+        /// </summary>
+        /// <param name="updatedItem">Updating item data.</param>
+        /// <returns>Just updated item <see cref="TEntity"/>.</returns>
         TEntity Update(TEntity updatedItem);
 
+        /// <summary>
+        /// Removes a specified item.
+        /// </summary>
+        /// <param name="removalItem">Item to remove.</param>
         void Delete(TEntity removalItem);
 
+        /// <summary>
+        /// Removes an item having specified id.
+        /// </summary>
+        /// <param name="id">Id of item to remove.</param>
         void DeleteById(TKey id);
 
-        bool Exists(TKey itemId);
+        /// <summary>
+        /// Checks an existence of item with specified id.
+        /// </summary>
+        /// <param name="id">Id of item.</param>
+        /// <returns>true if item with specified id exists, otherwise - false.</returns>
+        bool Exists(TKey id);
 
+        /// <summary>
+        /// Calculates amount of items.
+        /// </summary>
+        /// <returns>Amount of items <see cref="int"/>.</returns>
         int Count();
     }
 }

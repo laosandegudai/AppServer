@@ -27,21 +27,52 @@
 
 #endregion License agreement statement
 
-using System.Collections.Generic;
+using System;
+using ASC.Core;
 using ASC.Projects.Core.DataAccess.Domain.Entities;
+using ASC.Projects.Core.DataAccess.EF;
+using ASC.Projects.Core.DataAccess.Repositories.Interfaces;
 
-namespace ASC.Projects.Core.DataAccess.Repositories.Interfaces
+namespace ASC.Projects.Core.DataAccess.Repositories
 {
     /// <summary>
-    /// An interface of repository working with <see cref="DbProjectTask"/> entity.
+    /// Repository working with <see cref="DbCustomTaskStatus"/> entity.
     /// </summary>
-    public interface ITaskRepository : IRepository<DbProjectTask, int>
+    internal class CustomTaskStatusRepository : BaseTenantRepository<DbCustomTaskStatus, int>, ICustomTaskStatusRepository
     {
+        #region .ctor
+
+        public CustomTaskStatusRepository(ProjectsDbContext dbContext,
+            TenantManager tenantManager) : base(dbContext, tenantManager) { }
+
+        #endregion .ctor
+
         /// <summary>
-        /// Receives subtasks of tasks having specified ids.
+        /// Updates an existing custom task status.
         /// </summary>
-        /// <param name="taskIds">Ids of needed tasks.</param>
-        /// <returns>List of task with subtasks.</returns>
-        List<DbProjectTask> GetSubtasksOfTasks(List<int> taskIds);
+        /// <param name="updatedItem">Updating item data.</param>
+        /// <returns>Just updated item <see cref="DbCustomTaskStatus"/>.</returns>
+        public override DbCustomTaskStatus Update(DbCustomTaskStatus updatedItem)
+        {
+            var entity = GetById(updatedItem.Id);
+
+            if (entity == null)
+            {
+                throw new InvalidOperationException($"Custom task status with ID = {updatedItem.Id} does not exists.");
+            }
+
+            entity.Title = updatedItem.Title;
+            entity.Description = updatedItem.Description;
+            entity.Image = updatedItem.Image;
+            entity.ImageType = updatedItem.ImageType;
+            entity.Color = updatedItem.Color;
+            entity.Order = updatedItem.Order;
+            entity.StatusType = updatedItem.StatusType;
+            entity.IsAvailable = updatedItem.IsAvailable;
+
+            var result = base.Update(updatedItem);
+
+            return result;
+        }
     }
 }

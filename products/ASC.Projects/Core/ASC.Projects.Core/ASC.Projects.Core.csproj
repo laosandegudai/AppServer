@@ -19,8 +19,4 @@
     <ProjectReference Include="..\..\..\..\web\ASC.Web.Core\ASC.Web.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Resources\" />
-  </ItemGroup>
-
 </Project>

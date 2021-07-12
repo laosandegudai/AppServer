@@ -27,21 +27,12 @@
 
 #endregion License agreement statement
 
-using System.Collections.Generic;
 using ASC.Projects.Core.DataAccess.Domain.Entities;
 
 namespace ASC.Projects.Core.DataAccess.Repositories.Interfaces
 {
     /// <summary>
-    /// An interface of repository working with <see cref="DbProjectTask"/> entity.
+    /// An interface of repository working with <see cref="DbCustomTaskStatus"/> entity.
     /// </summary>
-    public interface ITaskRepository : IRepository<DbProjectTask, int>
-    {
-        /// <summary>
-        /// Receives subtasks of tasks having specified ids.
-        /// </summary>
-        /// <param name="taskIds">Ids of needed tasks.</param>
-        /// <returns>List of task with subtasks.</returns>
-        List<DbProjectTask> GetSubtasksOfTasks(List<int> taskIds);
-    }
+    public interface ICustomTaskStatusRepository : IRepository<DbCustomTaskStatus, int> { }
 }

@@ -27,21 +27,37 @@
 
 #endregion License agreement statement
 
+using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using ASC.Projects.Core.DataAccess.Domain.Entities;
 
 namespace ASC.Projects.Core.DataAccess.Repositories.Interfaces
 {
     /// <summary>
-    /// An interface of repository working with <see cref="DbProjectTask"/> entity.
+    /// An interface of repository working with <see cref="DbComment"/> entity.
     /// </summary>
-    public interface ITaskRepository : IRepository<DbProjectTask, int>
+    public interface ICommentRepository : IRepository<DbComment, Guid>
     {
         /// <summary>
-        /// Receives subtasks of tasks having specified ids.
+        /// Receives a list of comments left for target with specified id.
         /// </summary>
-        /// <param name="taskIds">Ids of needed tasks.</param>
-        /// <returns>List of task with subtasks.</returns>
-        List<DbProjectTask> GetSubtasksOfTasks(List<int> taskIds);
+        /// <param name="targetUniqueId">Id of needed target.</param>
+        /// <returns>List of comments <see cref="DbComment"/> left for target with specified id.</returns>
+        List<DbComment> GetAll(string targetUniqueId);
+
+        /// <summary>
+        /// Receives a list of comments, which are satisfies specified condition expression.
+        /// </summary>
+        /// <param name="where">Condition expression.</param>
+        /// <returns>List of comments <see cref="DbComment"/>, which are satisfies specified condition expression</returns>
+        List<DbComment> Where(Expression<Func<DbComment, bool>> where);
+
+        /// <summary>
+        /// Calculates an amount of comments with specified target id.
+        /// </summary>
+        /// <param name="targetUniqueId">Unique id of needed target.</param>
+        /// <returns>An amount of comments with specified target id</returns>
+        int Count(string targetUniqueId);
     }
 }

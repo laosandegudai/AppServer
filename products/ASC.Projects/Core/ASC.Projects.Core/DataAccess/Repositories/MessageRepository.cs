@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using ASC.Core;
+using ASC.Core.Tenants;
 using ASC.Projects.Core.DataAccess.Domain.Entities;
 using ASC.Projects.Core.DataAccess.EF;
 using ASC.Projects.Core.DataAccess.Repositories.Interfaces;
@@ -39,12 +40,16 @@ using ASC.Projects.Core.DataAccess.Repositories.Interfaces;
 namespace ASC.Projects.Core.DataAccess.Repositories
 {
     /// <summary>
-    /// Repository working with project messages.
+    /// Repository working with <see cref="DbMessage"/> entity.
     /// </summary>
     internal class MessageRepository : BaseTenantRepository<DbMessage, int>, IMessageRepository
     {
+        #region .ctor
+
         public MessageRepository(ProjectsDbContext dbContext,
             TenantManager tenantManager) : base(dbContext, tenantManager) { }
+
+        #endregion .ctor
 
         /// <summary>
         /// Receives all messages related to project.
@@ -150,9 +155,9 @@ namespace ASC.Projects.Core.DataAccess.Repositories
             entity.ProjectId = updatedItem.ProjectId;
             entity.Title = updatedItem.Title;
             entity.Status = updatedItem.Status;
-            entity.CreationDate = updatedItem.CreationDate;
+            entity.CreationDate = TenantUtil.DateTimeToUtc(TimeZoneInfo.Local, updatedItem.CreationDate);
             entity.CreatorId = updatedItem.CreatorId;
-            entity.LastModificationDate = updatedItem.LastModificationDate;
+            entity.LastModificationDate = TenantUtil.DateTimeToUtc(TimeZoneInfo.Local, updatedItem.LastModificationDate ?? DateTime.Now);
             entity.LastEditorId = updatedItem.LastEditorId;
             entity.Content = updatedItem.Content;
 
