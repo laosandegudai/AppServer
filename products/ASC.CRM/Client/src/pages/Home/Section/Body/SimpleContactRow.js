@@ -2,35 +2,11 @@ import React from "react";
 import Row from "@appserver/components/row";
 import Avatar from "@appserver/components/avatar";
 import { inject, observer } from "mobx-react";
-import { Trans, useTranslation } from "react-i18next";
-import { AppServerConfig, EmployeeStatus } from "@appserver/common/constants";
 import RowContent from "@appserver/components/row-content";
 import Link from "@appserver/components/link";
 
 const SimpleContactRow = ({ contact, sectionWidth, isMobile }) => {
-  const {
-    about,
-    accessList,
-    canDelete,
-    canEdit,
-    commonData,
-    createBy,
-    created,
-    currency,
-    displayName,
-    firstName,
-    lastName,
-    haveLateTasks,
-    id,
-    industry,
-    isCompany,
-    isPrivate,
-    isShared,
-    mediumFotoUrl,
-    shareType,
-    smallFotoUrl,
-    title,
-  } = contact;
+  const { commonData, displayName, isCompany } = contact;
 
   const email = commonData.length ? commonData[0].data : "";
   const phone = commonData.length > 1 ? commonData[1].data : "";

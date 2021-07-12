@@ -50,6 +50,17 @@ export const FilterType = Object.freeze({
 });
 
 /**
+ * Enum for contacts filter type.
+ * @readonly
+ */
+export const ContactsFilterType = Object.freeze({
+  NoManager: "00000000-0000-0000-0000-000000000000",
+  ColdTemperature: "1837515",
+  WarmTemperature: "1837516",
+  HotTemperature: "1837517",
+});
+
+/**
  * Enum for file type.
  * @readonly
  */
@@ -94,7 +105,7 @@ export const FolderType = Object.freeze({
   Opportunities: 16,
   Invoices: 17,
   Cases: 18,
-  Reports: 19
+  Reports: 19,
 });
 
 export const ShareAccessRights = Object.freeze({

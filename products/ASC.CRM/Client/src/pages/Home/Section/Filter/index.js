@@ -1,6 +1,7 @@
 import React from "react";
 import find from "lodash/find";
 import result from "lodash/result";
+import { ContactsFilterType } from "@appserver/common/constants";
 import Loaders from "@appserver/common/components/Loaders";
 import { inject, observer } from "mobx-react";
 import { withTranslation } from "react-i18next";
@@ -23,7 +24,7 @@ const getManagerType = (filterValues) => {
       ? responsibleid.slice(5)
       : responsibleid === "filter-my-manager"
       ? ""
-      : "00000000-0000-0000-0000-000000000000"
+      : ContactsFilterType.NoManager
     : null;
 };
 
@@ -54,10 +55,10 @@ const getTemperatureType = (filterValues) => {
     ? contactStage === "not-specified"
       ? "0"
       : contactStage === "cold-temperature"
-      ? "1837515"
+      ? ContactsFilterType.ColdTemperature
       : contactStage === "warm-temperature"
-      ? "1837516"
-      : "1837517"
+      ? ContactsFilterType.WarmTemperature
+      : ContactsFilterType.HotTemperature
     : null;
 };
 
@@ -423,7 +424,8 @@ class SectionFilterContent extends React.Component {
         group: "filter-show",
       });
     }
-
+    console.log("filter", filter);
+    console.log("select", selectedFilterData);
     return selectedFilterData;
   };
 

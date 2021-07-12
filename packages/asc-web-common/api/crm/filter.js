@@ -8,7 +8,7 @@ const DEFAULT_SORT_BY = "created";
 const DEFAULT_SORT_ORDER = "descending";
 const DEFAULT_CONTACT_STAGE = -1;
 const DEFAULT_CONTACT_TYPE = -1;
-const DEFAULT_SEARCH = "";
+const DEFAULT_SEARCH = null;
 const DEFAULT_ACCESSIBILITY_TYPE = null;
 const DEFAULT_CONTACT_LIST_VIEW = null;
 const DEFAULT_MANAGER_TYPE = null;
@@ -141,7 +141,7 @@ class CrmFilter {
       isShared: isShared,
       contactListView: contactListView,
       responsibleid: responsibleid,
-      filtervalue: (search ?? "").trim(),
+      filterValue: (search ?? "").trim(),
       fromDate: fromDate,
       toDate: toDate,
       contactStage: contactStage,
@@ -213,7 +213,6 @@ class CrmFilter {
       sortOrder: this.sortOrder,
       startIndex: this.startIndex,
       contactType: this.contactType,
-      search: this.search,
       total: this.total,
       isShared: this.isShared,
       contactListView: this.contactListView,

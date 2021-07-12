@@ -25,6 +25,10 @@ const StyledTreeMenu = styled(TreeMenu)`
   .rc-tree-title {
     padding-left: 0px !important;
   }
+
+  .node-setting {
+    padding-left: 20px !important;
+  }
 `;
 
 const StyledExpanderDownIcon = styled(ExpanderDownIcon)`
@@ -74,143 +78,146 @@ const PureTreeSettings = ({
       return null;
     }
     if (obj.expanded) {
-      return <StyledExpanderDownIcon size='scale' />;
+      return <StyledExpanderDownIcon size="scale" />;
     } else {
-      return <StyledExpanderRightIcon size='scale' />;
+      return <StyledExpanderRightIcon size="scale" />;
     }
   };
 
   const renderTreeNode = () => {
     return (
       <TreeNode
-        id='settings'
-        key='settings'
+        id="settings"
+        key="settings"
         title={t("Common:Settings")}
         isLeaf={false}
-        icon={<StyledSettingsIcon size='scale' />}
+        icon={<StyledSettingsIcon size="scale" />}
       >
         <TreeNode
-          className='settings-node'
-          id='common-settings'
-          key='common'
+          className="node-setting"
+          id="common-settings"
+          key="common"
           isLeaf={true}
           title={t("TreeSettingsCommonSettings")}
         />
         <TreeNode
-          className='settings-node'
-          id='currency-settings'
-          key='currency'
+          id="currency-settings"
+          key="currency"
           isLeaf={true}
           title={t("TreeSettingsCurrencySettings")}
+          className="node-setting"
         />
 
         <TreeNode
-          id='contact-settings'
-          key='contact'
+          id="contact-settings"
+          key="contact"
           title={t("TreeSettingsContactSettings")}
           isLeaf={false}
+          className="node-setting"
         >
           <TreeNode
-            className='settings-node'
-            id='temp-level-settings'
-            key='contact-levels'
+            className="settings-node"
+            id="temp-level-settings"
+            key="contact-levels"
             isLeaf={true}
             title={t("TreeSettingsContactTemperatureLevels")}
           />
           <TreeNode
-            className='settings-node'
-            id='contact-types-settings'
-            key='contact-types'
+            className="settings-node"
+            id="contact-types-settings"
+            key="contact-types"
             isLeaf={true}
             title={t("TreeSettingsContactTypes")}
           />
         </TreeNode>
 
         <TreeNode
-          id='invoice-settings'
-          key='invoice'
+          id="invoice-settings"
+          key="invoice"
           title={t("TreeSettingsInvoiceSettings")}
           isLeaf={false}
+          className="node-setting"
         >
           <TreeNode
-            className='settings-node'
-            id='products-services-settings'
-            key='products-services'
+            className="settings-node"
+            id="products-services-settings"
+            key="products-services"
             isLeaf={true}
             title={t("TreeSettingsProductsAndServices")}
           />
           <TreeNode
-            className='settings-node'
-            id='taxes-settings'
-            key='taxes'
+            className="settings-node"
+            id="taxes-settings"
+            key="taxes"
             isLeaf={true}
             title={t("TreeSettingsTaxes")}
           />
           <TreeNode
-            className='settings-node'
-            id='organization-profile-settings'
-            key='organization-profile'
+            className="settings-node"
+            id="organization-profile-settings"
+            key="organization-profile"
             isLeaf={true}
             title={t("TreeSettingsOrganizationProfile")}
           />
         </TreeNode>
 
         <TreeNode
-          id='other-settings'
-          key='other'
+          id="other-settings"
+          key="other"
           title={t("TreeSettingsOtherSettings")}
           isLeaf={false}
+          className="node-setting"
         >
           <TreeNode
-            className='settings-node'
-            id='user-fields-settings'
-            key='user-fields'
+            className="settings-node"
+            id="user-fields-settings"
+            key="user-fields"
             isLeaf={true}
             title={t("TreeSettingsUserFields")}
           />
           <TreeNode
-            className='settings-node'
-            id='history-event-settings'
-            key='history-event'
+            className="settings-node"
+            id="history-event-settings"
+            key="history-event"
             isLeaf={true}
             title={t("TreeSettingsHistoryEventCategories")}
           />
           <TreeNode
-            className='settings-node'
-            id='tasks-categories-settings'
-            key='tasks-categories'
+            className="settings-node"
+            id="tasks-categories-settings"
+            key="tasks-categories"
             isLeaf={true}
             title={t("TreeSettingsTasksCategories")}
           />
           <TreeNode
-            className='settings-node'
-            id='opportunity-stages-settings'
-            key='opportunity-stages'
+            className="settings-node"
+            id="opportunity-stages-settings"
+            key="opportunity-stages"
             isLeaf={true}
             title={t("TreeSettingsOpportunityStages")}
           />
           <TreeNode
-            className='settings-node'
-            id='tags-settings'
-            key='tags'
+            className="settings-node"
+            id="tags-settings"
+            key="tags"
             isLeaf={true}
             title={t("TreeSettingsTags")}
           />
         </TreeNode>
 
         <TreeNode
-          className='settings-node'
-          id='website-contact-settings'
-          key='website'
+          id="website-contact-settings"
+          key="website"
           isLeaf={true}
           title={t("TreeSettingsWebsiteContactForm")}
+          className="node-setting"
         />
         <TreeNode
-          className='settings-node'
-          id='access-settings'
-          key='access'
+          id="access-settings"
+          key="access"
           isLeaf={true}
           title={t("TreeSettingsPortalAccessRights")}
+          className="node-setting"
         />
       </TreeNode>
     );
@@ -220,10 +227,10 @@ const PureTreeSettings = ({
 
   return (
     <StyledTreeMenu
-      className='settings-tree-menu'
+      className="settings-tree-menu"
       showIcon={true}
-      gapBetweenNodes='22'
-      gapBetweenNodesTablet='26'
+      gapBetweenNodes="22"
+      gapBetweenNodesTablet="26"
       defaultExpandParent={false}
       switcherIcon={switcherIcon}
       isFullFillSelection={true}
