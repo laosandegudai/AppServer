@@ -4,7 +4,7 @@ using ASC.Files.Benchmark.TestsConfiguration;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Toolchains.InProcess.Emit;
 
-namespace ASC.Files.Benchmark
+namespace ASC.Files.Benchmark.TestsConfiguration
 {
     public class CreateFileTestConfig : ConfigurationBase
     {
