@@ -1,13 +1,14 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 
 using ASC.Core.Common.EF.Context;
 using ASC.Core.Common.EF;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
-using System.Reflection;
 
-namespace ASC.Files.Benchmark
+namespace ASC.Files.Benchmark.BenchmarkEnviroment
 {
     public class BenchmarkDb : IDisposable
     {
