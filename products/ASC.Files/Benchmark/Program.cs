@@ -1,5 +1,4 @@
-﻿
-using ASC.Files.Benchmark;
+﻿using ASC.Files.Benchmark.BenchmarkEnviroment;
 
 using BenchmarkDotNet.Running;
 
@@ -9,8 +8,8 @@ namespace Benchmark
     {
         static void Main(string[] args)
         {
-            using var db = new BenchmarkDb();
-            db.Create();
+            using var enviroment = new BenchmarkTestEnviroment();
+            enviroment.Create();
 
             BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
         }
