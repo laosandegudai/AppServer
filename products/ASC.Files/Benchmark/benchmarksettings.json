@@ -1,14 +1,37 @@
-{
+{   
+    "Global": {
+        "UsersCount": 10
+    },
+
     "CreateFileTest": {
-        "IterationCount": 100
+        "IterationCount": 10
     },
+
     "DeleteFileTest": {
-        "IterationCount": 50
+        "IterationCount": 10
     },
+
     "GetFileInfoTest": {
-        "IterationCount": 25
+        "IterationCount": 10
     },
+    
     "UpdateFileStreamTest": {
+        "IterationCount": 10
+    },
+
+    "CreateFolderTest": {
+        "IterationCount": 10
+    },
+
+    "DeleteFolderTest": {
+        "IterationCount": 10
+    },
+
+    "GetFolderTest": {
+        "IterationCount": 10
+    },
+
+    "RenameFolderTest": {
         "IterationCount": 10
     }
 }
