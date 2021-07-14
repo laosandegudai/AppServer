@@ -11,10 +11,11 @@ const DEFAULT_CONTACT_TYPE = -1;
 const DEFAULT_SEARCH = null;
 const DEFAULT_ACCESSIBILITY_TYPE = null;
 const DEFAULT_CONTACT_LIST_VIEW = null;
-const DEFAULT_MANAGER_TYPE = null;
+const DEFAULT_AUTHOR_TYPE = null;
 const DEFAULT_FROM_DATE_TYPE = null;
 const DEFAULT_TO_DATE_TYPE = null;
 const DEFAULT_SELECTED_ITEM = {};
+// const DEFAULT_TAGS_TYPE = ["Клиент", "Конкурент"];
 
 const CONTACT_TYPE = "contactType";
 const PAGE = "page";
@@ -26,9 +27,10 @@ const SEARCH = "search";
 const CONTACT_STAGE = "contactStage";
 const ACCESSIBILITY_TYPE = "isShared";
 const CONTACT_LIST_VIEW = "contactListView";
-const MANAGER_TYPE = "responsibleid";
+const AUTHOR_TYPE = "authorType";
 const FROM_DATE_TYPE = "fromDate";
 const TO_DATE_TYPE = "toDate";
+const TAGS_TYPE = "tags";
 
 class CrmFilter {
   static getDefault() {
@@ -55,12 +57,16 @@ class CrmFilter {
     const isShared = urlFilter[ACCESSIBILITY_TYPE] || defaultFilter.isShared;
     const contactListView =
       urlFilter[CONTACT_LIST_VIEW] || defaultFilter.contactListView;
-    const responsibleid =
-      urlFilter[MANAGER_TYPE] || defaultFilter.responsibleid;
+    const authorType =
+      (urlFilter[AUTHOR_TYPE] &&
+        urlFilter[AUTHOR_TYPE].includes("_") &&
+        urlFilter[AUTHOR_TYPE]) ||
+      defaultFilter.authorType;
     const search = urlFilter[SEARCH] || defaultFilter.search;
     const fromDate = urlFilter[FROM_DATE_TYPE] || defaultFilter.fromDate;
     const toDate = urlFilter[TO_DATE_TYPE] || defaultFilter.toDate;
     const selectedItem = defaultFilter.selectedItem;
+    // const tags = urlFilter[TAGS_TYPE] || defaultFilter.tags;
 
     const newFilter = new CrmFilter({
       sortBy,
@@ -72,11 +78,12 @@ class CrmFilter {
       total,
       isShared,
       contactListView,
-      responsibleid,
+      authorType,
       search,
       fromDate,
       toDate,
       selectedItem,
+      // tags,
     });
 
     return newFilter;
@@ -94,10 +101,11 @@ class CrmFilter {
     search = DEFAULT_SEARCH,
     isShared = DEFAULT_ACCESSIBILITY_TYPE,
     contactListView = DEFAULT_CONTACT_LIST_VIEW,
-    responsibleid = DEFAULT_MANAGER_TYPE,
+    authorType = DEFAULT_AUTHOR_TYPE,
+    selectedItem = DEFAULT_SELECTED_ITEM,
     fromDate = DEFAULT_FROM_DATE_TYPE,
     toDate = DEFAULT_TO_DATE_TYPE,
-    selectedItem = DEFAULT_SELECTED_ITEM,
+    // tags = DEFAULT_TAGS_TYPE,
   }) {
     this.page = page;
     this.count = count;
@@ -110,10 +118,11 @@ class CrmFilter {
     this.total = total;
     this.isShared = isShared;
     this.contactListView = contactListView;
-    this.responsibleid = responsibleid;
+    this.authorType = authorType;
+    this.selectedItem = selectedItem;
     this.fromDate = fromDate;
     this.toDate = toDate;
-    this.selectedItem = selectedItem;
+    // this.tags = tags;
   }
 
   toApiUrlParams = () => {
@@ -125,27 +134,34 @@ class CrmFilter {
       startIndex,
       isShared,
       contactListView,
-      responsibleid,
+      authorType,
       search,
       fromDate,
       toDate,
       contactStage,
       contactType,
+      // tags,
     } = this;
 
-    let dtoFilter = {
+    const responsibleid =
+      authorType && authorType.includes("_")
+        ? authorType.slice(authorType.indexOf("_") + 1)
+        : null;
+
+    const dtoFilter = {
       StartIndex: startIndex,
       sortBy: sortBy,
       sortOrder: sortOrder,
       Count: count,
       isShared: isShared,
       contactListView: contactListView,
-      responsibleid: responsibleid,
+      responsibleid,
       filterValue: (search ?? "").trim(),
       fromDate: fromDate,
       toDate: toDate,
       contactStage: contactStage,
       contactType: contactType,
+      // tags: tags,
     };
 
     const str = toUrlParams(dtoFilter, true);
@@ -161,12 +177,13 @@ class CrmFilter {
       startIndex,
       isShared,
       contactListView,
-      responsibleid,
+      authorType,
       search,
       fromDate,
       toDate,
       contactStage,
       contactType,
+      // tags,
     } = this;
 
     const dtoFilter = {};
@@ -179,8 +196,8 @@ class CrmFilter {
       dtoFilter[CONTACT_LIST_VIEW] = contactListView;
     }
 
-    if (responsibleid) {
-      dtoFilter[MANAGER_TYPE] = responsibleid;
+    if (authorType) {
+      dtoFilter[AUTHOR_TYPE] = authorType;
     }
 
     if (search) {
@@ -191,6 +208,10 @@ class CrmFilter {
       dtoFilter[FROM_DATE_TYPE] = fromDate;
       dtoFilter[TO_DATE_TYPE] = toDate;
     }
+
+    // if (tags && tags.length) {
+    //   dtoFilter[TAGS_TYPE] = tags;
+    // }
 
     dtoFilter[SORT_BY] = sortBy;
     dtoFilter[SORT_ORDER] = sortOrder;
@@ -216,12 +237,13 @@ class CrmFilter {
       total: this.total,
       isShared: this.isShared,
       contactListView: this.contactListView,
-      responsibleid: this.responsibleid,
+      authorType: this.authorType,
       search: this.search,
       fromDate: this.fromDate,
       toDate: this.toDate,
       selectedItem: this.selectedItem,
       contactStage: this.contactStage,
+      // tags: this.tags,
     });
   }
 }

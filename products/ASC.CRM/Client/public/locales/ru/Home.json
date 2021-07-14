@@ -1,11 +1,12 @@
 {
   "Accessibility": "Доступность",
+  "AddPhone": "Добавить телефон",
   "ByCreationDate": "Дата создания",
   "ByHistory": "История",
   "ByTemperatureLevel": "Уровень теплоты",
   "ByTitle": "Название",
   "Cases": "Мероприятия",
-  "Client": "Client",
+  "Client": "Клиент",
   "ColdTemperature": "Холодный",
   "Companies": "Компании",
   "Competitor": "Конкурент",
@@ -13,6 +14,9 @@
   "ContactType": "Тип контакта",
   "CreationDate": "Дата создания",
   "Custom": "Настройка",
+  "DeleteContact": "Удалить контакт",
+  "EditContact": "Редактировать контакт",
+  "EditEmail": "Редактировать email",
   "ExportContacts": "Экспортировать список в файл CSV",
   "HotTemperature": "Горячий",
   "ImportContacts": "Импорт контактов",
@@ -29,6 +33,7 @@
   "NoCategorySpecified": "Категория не выбрана",
   "NoContactManager": "Без менеджера",
   "NotSpecified": "Не задано",
+  "OpenInTab": "Открыть в новой вкладке",
   "Opportunities": "Возможные сделки",
   "Other": "Другое",
   "Partner": "Партнер",
@@ -64,5 +69,6 @@
   "Yesterday": "Вчера",
   "WarmTemperature": "Теплый",
   "WithOpportunities": "С возможными сделками",
-  "WithTag": "С тегом"
+  "WithTag": "С тегом",
+  "WriteMessage": "Написать сообщение"
 }

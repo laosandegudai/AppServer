@@ -1,5 +1,6 @@
 {
   "Accessibility": "Accessibility",
+  "AddPhone": "Добавить телефон",
   "ByCreationDate": "Creation date",
   "ByHistory": "History",
   "ByTemperatureLevel": "Temperature level",
@@ -13,6 +14,9 @@
   "ContactType": "Contact Type",
   "CreationDate": "Creation date",
   "Custom": "Custom",
+  "DeleteContact": "Delete contact",
+  "EditContact": "Edit contact",
+  "EditEmail": "Edit email",
   "ExportContacts": "Export contacts to CSV",
   "HotTemperature": "Hot",
   "ImportContacts": "Import Contacts",
@@ -29,6 +33,7 @@
   "NoCategorySpecified": "No category specified",
   "NoContactManager": "No contact manager",
   "NotSpecified": "No specified",
+  "OpenInTab": "Open in a new tab",
   "Opportunities": "Opportunities",
   "Other": "Other",
   "Partner": "Partner",
@@ -64,5 +69,6 @@
   "Yesterday": "Yesterday",
   "WarmTemperature": "Warm",
   "WithOpportunities": "With Opportunities",
-  "WithTag": "With tag"
+  "WithTag": "With tag",
+  "WriteMessage": "Write message"
 }

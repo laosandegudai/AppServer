@@ -4,12 +4,27 @@ import Avatar from "@appserver/components/avatar";
 import { inject, observer } from "mobx-react";
 import RowContent from "@appserver/components/row-content";
 import Link from "@appserver/components/link";
+import find from "lodash/find";
+import result from "lodash/result";
+import { Trans, useTranslation } from "react-i18next";
 
-const SimpleContactRow = ({ contact, sectionWidth, isMobile }) => {
+const SimpleContactRow = ({ contact, sectionWidth }) => {
+  const { t } = useTranslation("Home");
   const { commonData, displayName, isCompany } = contact;
 
-  const email = commonData.length ? commonData[0].data : "";
-  const phone = commonData.length > 1 ? commonData[1].data : "";
+  const email = result(
+    find(commonData, (value) => {
+      return value.infoType === "email";
+    }),
+    "data"
+  );
+
+  const phone = result(
+    find(commonData, (value) => {
+      return value.infoType === "phone";
+    }),
+    "data"
+  );
 
   const element = (
     <Avatar
@@ -30,22 +45,22 @@ const SimpleContactRow = ({ contact, sectionWidth, isMobile }) => {
       contextOptions={[
         {
           key: "key1",
-          label: "Open in a new tab",
+          label: t("OpenInTab"),
           onClick: function noRefCheck() {},
         },
         {
           key: "key2",
-          label: "Add phone",
+          label: t("AddPhone"),
           onClick: function noRefCheck() {},
         },
         {
           key: "key3",
-          label: "Edit e-mail",
+          label: t("EditEmail"),
           onClick: function noRefCheck() {},
         },
         {
           key: "key4",
-          label: "Write message",
+          label: t("WriteMessage"),
           onClick: function noRefCheck() {},
         },
         {
@@ -54,12 +69,12 @@ const SimpleContactRow = ({ contact, sectionWidth, isMobile }) => {
         },
         {
           key: "key6",
-          label: "Edit contact",
+          label: t("EditContact"),
           onClick: function noRefCheck() {},
         },
         {
           key: "key6",
-          label: "Delete contact",
+          label: t("DeleteContact"),
           onClick: function noRefCheck() {},
         },
       ]}

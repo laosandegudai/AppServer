@@ -11,21 +11,20 @@ import { withLayoutSize } from "@appserver/common/utils";
 import { withRouter } from "react-router";
 import moment from "moment";
 
-const getManagerType = (filterValues) => {
-  const responsibleid = result(
+const getAuthorType = (filterValues) => {
+  const authorType = result(
     find(filterValues, (value) => {
-      return value.group === "filter-manager";
+      return value.group === "filter-author";
     }),
     "key"
   );
 
-  return responsibleid
-    ? responsibleid.includes("user")
-      ? responsibleid.slice(5)
-      : responsibleid === "filter-my-manager"
-      ? ""
-      : ContactsFilterType.NoManager
-    : null;
+  return authorType ? authorType : null;
+};
+
+const getSelectedItem = (filterValues, type) => {
+  const selectedItem = filterValues.find((item) => item.key === type);
+  return selectedItem || null;
 };
 
 const getAccessibilityType = (filterValues) => {
@@ -62,7 +61,26 @@ const getTemperatureType = (filterValues) => {
     : null;
 };
 
-const getOtherType = (filterValues) => {};
+const getContactType = (filterValues) => {
+  const contactType = result(
+    find(filterValues, (value) => {
+      return value.group === "filter-other-contact-type";
+    }),
+    "key"
+  );
+
+  return contactType
+    ? contactType === "no-category"
+      ? "0"
+      : contactType === "client-type"
+      ? ContactsFilterType.Client
+      : contactType === "provider-type"
+      ? ContactsFilterType.Provider
+      : contactType === "partner-type"
+      ? ContactsFilterType.Partner
+      : ContactsFilterType.Competitor
+    : null;
+};
 
 const getDateType = (filterValues) => {
   const lastMonthStart = moment()
@@ -96,7 +114,7 @@ const getDateType = (filterValues) => {
     }),
     "key"
   );
-
+  // debugger;
   return date
     ? date === "filter-last-month"
       ? {
@@ -139,9 +157,10 @@ class SectionFilterContent extends React.Component {
   onFilter = (data) => {
     const { filter, getContactsList, setIsLoading } = this.props;
 
-    const responsibleid = getManagerType(data.filterValues);
+    const authorType = getAuthorType(data.filterValues);
     const isShared = getAccessibilityType(data.filterValues);
     const contactStage = getTemperatureType(data.filterValues);
+    const contactType = getContactType(data.filterValues);
     const contactListView = getContactListViewType(data.filterValues);
     const { fromDate, toDate } = getDateType(data.filterValues);
     const sortBy = data.sortId;
@@ -149,16 +168,28 @@ class SectionFilterContent extends React.Component {
       data.sortDirection === "desc" ? "descending" : "ascending";
     const search = data.inputValue || "";
 
+    const selectedItem = authorType
+      ? getSelectedItem(data.filterValues, authorType)
+      : null;
+    const selectedFilterItem = {};
+    if (selectedItem) {
+      selectedFilterItem.key = selectedItem.selectedItem.key;
+      selectedFilterItem.label = selectedItem.selectedItem.label;
+      selectedFilterItem.type = selectedItem.typeSelector;
+    }
+
     const newFilter = filter.clone();
     newFilter.sortBy = sortBy;
     newFilter.sortOrder = sortOrder;
-    newFilter.responsibleid = responsibleid;
+    newFilter.authorType = authorType;
     newFilter.isShared = isShared;
     newFilter.contactListView = contactListView;
     newFilter.search = search;
     newFilter.fromDate = fromDate;
     newFilter.toDate = toDate;
     newFilter.contactStage = contactStage;
+    newFilter.contactType = contactType;
+    newFilter.selectedItem = selectedFilterItem;
 
     setIsLoading(true);
     getContactsList(newFilter).finally(() => setIsLoading(false));
@@ -228,29 +259,43 @@ class SectionFilterContent extends React.Component {
 
     const options = [
       {
-        key: "filter-manager",
-        group: "filter-manager",
+        key: "filter-author",
+        group: "filter-author",
         label: t("Manager"),
         isHeader: true,
       },
       {
-        key: "filter-my-manager",
-        group: "filter-manager",
+        key: "user",
+        group: "filter-author",
         label: t("My"),
+        isSelector: true,
+        defaultOptionLabel: t("Common:MeLabel"),
+        defaultSelectLabel: t("Common:Select"),
+        groupsCaption,
+        defaultOption: {
+          key: "2ccf8828-e31c-11eb-915b-28ec95054a52",
+          label: "Я",
+          type: "user",
+        },
+        selectedItem: {
+          key: "2ccf8828-e31c-11eb-915b-28ec95054a52",
+          label: "Я",
+          type: "user",
+        },
       },
       {
-        key: "filter-no-manager",
-        group: "filter-manager",
+        key: "filter-no-author",
+        group: "filter-author",
         label: t("NoContactManager"),
       },
       {
-        key: "user",
+        key: "user1",
         isSelector: true,
         defaultOptionLabel: t("Common:MeLabel"),
         defaultSelectLabel: t("Common:Select"),
         groupsCaption,
         defaultOption: user,
-        group: "filter-manager",
+        group: "filter-author",
         label: t("Custom"),
         selectedItem,
       },
@@ -291,6 +336,7 @@ class SectionFilterContent extends React.Component {
       {
         key: "filter-other-with-tag",
         group: "filter-other",
+        subgroup: "filter-other-contact-type",
         label: t("WithTag"),
       },
       ...groupOptions,
@@ -385,10 +431,10 @@ class SectionFilterContent extends React.Component {
 
     selectedFilterData.inputValue = filter.search;
 
-    if (filter.responsibleid) {
+    if (filter.authorType) {
       selectedFilterData.filterValues.push({
-        key: `${filter.responsibleid}`,
-        group: "filter-manager",
+        key: `${filter.authorType}`,
+        group: "filter-author",
       });
     }
 
@@ -424,8 +470,7 @@ class SectionFilterContent extends React.Component {
         group: "filter-show",
       });
     }
-    console.log("filter", filter);
-    console.log("select", selectedFilterData);
+
     return selectedFilterData;
   };
 
