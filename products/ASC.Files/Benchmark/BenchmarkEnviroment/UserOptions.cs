@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ASC.Files.Benchmark
+namespace ASC.Files.Benchmark.BenchmarkEnviroment
 {
     public class UserOptions
     {
