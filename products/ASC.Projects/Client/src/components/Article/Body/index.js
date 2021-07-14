@@ -42,7 +42,6 @@ const ArticleBodyContent = (props) => {
       : setDocumentTitle();
 
     let filterObj = null;
-
     switch (data[0]) {
       case FolderKey.Projects:
       case FolderKey.ProjectsActive:

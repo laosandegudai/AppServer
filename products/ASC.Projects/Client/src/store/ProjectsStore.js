@@ -16,6 +16,7 @@ class ProjectsStore {
   isLoaded = false;
   isInit = false;
   items = [];
+  // filterCommonOptions = [];
 
   firstLoad = true;
 
@@ -36,6 +37,7 @@ class ProjectsStore {
       isLoading: observable,
       firstLoad: observable,
       items: observable,
+      // filterCommonOptions: observable,
       filter: observable,
       isLoaded: observable,
       setIsLoading: action,
@@ -44,6 +46,7 @@ class ProjectsStore {
       setItems: action,
       init: action,
       setFilter: action,
+      // setFilterCommonOptions: action,
     });
   }
 

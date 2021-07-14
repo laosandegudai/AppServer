@@ -13,6 +13,7 @@ class ProjectsFilterStore {
   folder = [];
   projects = [];
   projectsStore;
+  filterCommonOptions = [];
 
   constructor(projectsStore, treeFoldersStore) {
     this.projectsStore = projectsStore;
@@ -34,6 +35,7 @@ class ProjectsFilterStore {
   // пока функции повторяются.
   resolveData = async (data, filterData) => {
     const { setSelectedNode } = this.treeFoldersStore;
+    console.log(filterData);
     this.setProjects([]);
     this.setProjectFilter(filterData);
     this.projectsStore.setFilter(filterData);
@@ -48,6 +50,7 @@ class ProjectsFilterStore {
 
   fetchProjects = (filter, folderName) => {
     const newFilter = filter.clone();
+    // вот здесь нужно скорее всего убрать
     newFilter.page = 0;
     newFilter.startIndex = 0;
 
@@ -62,13 +65,29 @@ class ProjectsFilterStore {
       folderName === FolderKey.ProjectsActive
     ) {
       filterData.status = "open";
+      // for example
+      filterData.total = 10;
       return api.projects
         .getActiveProjectsList(true)
         .then(async (data) => this.resolveData(data, filterData));
     }
 
+    if (filterData.status === "closed") {
+      filterData.total = 10;
+      return api.projects
+        .getClosedProjectsList(true)
+        .then(async (data) => this.resolveData(data, filterData));
+    }
+
+    if (filterData.status === "paused") {
+      filterData.total = 10;
+      return api.projects
+        .getPausedProjectsList()
+        .then(async (data) => this.resolveData(data, filterData));
+    }
     if (filterData.follow || folderName === FolderKey.ProjectsFollowed) {
       filterData.follow = true;
+      filterData.total = 10;
       return api.projects
         .getFollowedProjectsList(true)
         .then(async (data) => this.resolveData(data, filterData));
@@ -115,32 +134,51 @@ class ProjectsFilterStore {
     this.projects = projects;
   };
 
+  getFilterCommonOptions = () => {
+    const options = [];
+
+    options.push("filter-status");
+    options.push("open");
+    options.push("paused");
+    options.push("filter-author");
+    options.push("user1");
+    options.push("user2");
+    options.push("follow");
+    options.push("tag");
+    options.push("withoutTag");
+    options.push("filter-team");
+    options.push("team-me");
+    options.push("user3");
+    options.push("group");
+
+    return options;
+  };
+
   get projectList() {
     const list = this.projects.map((item) => {
       const {
         status,
         id,
         title,
-        created,
-        description,
-        canEdit,
-        canDelete,
         taskCount,
-        taskCountTotal,
+        follow,
+        createdBy,
         participantCount,
       } = item;
+
+      const openTask = `OpenTask: ${taskCount}`;
+      const secondLinkTitle = `Team: ${participantCount}`;
 
       return {
         status,
         id,
+        follow,
         title,
-        created,
-        description,
-        canEdit,
-        canDelete,
         taskCount,
-        taskCountTotal,
         participantCount,
+        createdBy,
+        openTask,
+        secondLinkTitle,
       };
     });
     return list;

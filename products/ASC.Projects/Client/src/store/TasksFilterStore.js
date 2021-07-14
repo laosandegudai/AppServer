@@ -32,7 +32,7 @@ class TasksFilterStore {
     setSelectedNode([filterData.folder]);
     this.setTasksFilter(filterData);
     this.setTasks(data);
-    this.projectsStore.setItems(this.tasks);
+    this.projectsStore.setItems(this.TaskList);
     const items = {
       items: this.tasks,
     };
@@ -77,6 +77,27 @@ class TasksFilterStore {
       )
     );
   };
+
+  get TaskList() {
+    const list = this.tasks.map((item) => {
+      const { title, status, id, creator } = item;
+
+      const firstLinkTitle = `AddSubtask`;
+      const secondLinkTitle = `due 12.12.2020`;
+
+      const commonFilterOptions = [];
+
+      return {
+        title,
+        status,
+        id,
+        creator,
+        firstLinkTitle,
+        secondLinkTitle,
+      };
+    });
+    return list;
+  }
 }
 
 export default TasksFilterStore;

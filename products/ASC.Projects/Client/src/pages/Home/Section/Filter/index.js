@@ -1,33 +1,110 @@
 import React from "react";
 import { inject, observer } from "mobx-react";
 import { withTranslation } from "react-i18next";
+import result from "lodash/result";
+import find from "lodash/find";
 import { withRouter } from "react-router";
-import { RowProjectOptionStatus } from "../../../../constants";
+import Loaders from "@appserver/common/components/Loaders";
 import FilterInput from "@appserver/common/components/FilterInput";
+import api from "@appserver/common/api";
+const { ProjectsFilter, TasksFilter } = api;
 
+const getStatus = (filterValues) => {
+  const status = result(
+    find(filterValues, (value) => {
+      return value.group === "filter-status";
+    }),
+    "key"
+  );
+  return status ? status : null;
+};
+
+const getManager = (filterValues) => {
+  const manager = result(
+    find(filterValues, (value) => {
+      return value.group === "filter-author";
+    }),
+    "key"
+  );
+  return manager ? manager : null;
+};
+
+const getOtherSettings = (filterValues) => {
+  const settings = result(
+    find(filterValues, (value) => {
+      return value.group === "filter-settings";
+    }),
+    "key"
+  );
+  return settings ? settings : null;
+};
+
+const getSelectedItem = (filterValues, type) => {
+  const selectedItem = filterValues.find((item) => item.key === type);
+  return selectedItem || null;
+};
 const PureSectionFilterContent = (props) => {
-  const { t } = props;
+  const { t, filter, customNames, user, fetchProjects, tReady } = props;
+
+  const onFilter = (data) => {
+    // вообще подумать как это все лучше обрабатывать с несколькими фильтрами
+    const status = getStatus(data.filterValues) || null;
+    const search = data.inputValue || "";
+    const sortBy = data.sortId;
+    const sortOrder =
+      data.sortDirection === "desc" ? "descending" : "ascending";
+    const manager = getManager(data.filterValues) || null;
+    const settings = getOtherSettings(data.filterValues) || null;
+    const selectedItem = manager
+      ? getSelectedItem(data.filterValues, manager)
+      : null;
+    const selectedFilterItem = {};
+    if (selectedItem) {
+      selectedFilterItem.key = selectedItem.selectedItem.key;
+      selectedFilterItem.label = selectedItem.selectedItem.label;
+      selectedFilterItem.type = selectedItem.typeSelector;
+    }
+
+    if (filter instanceof ProjectsFilter) {
+      const newFilter = filter.clone();
+      newFilter.page = 0;
+      newFilter.sortBy = sortBy;
+      newFilter.sortOrder = sortOrder;
+      newFilter.search = search;
+      newFilter.selectedItem = selectedFilterItem;
+      newFilter.status = status;
+      console.log(settings);
+      // сделать здесь обнуление
+      // newFilter.follow = null;
+      if (settings === "follow") {
+        newFilter[settings] = true;
+      }
+      fetchProjects(newFilter);
+    }
+  };
   const getData = () => {
+    const { usersCaption, groupsCaption } = customNames;
+    const { selectedItem } = filter;
     const options = [
       {
-        key: "filter-filterType",
-        group: "filter-filterType",
+        key: "filter-status",
+        group: "filter-status",
         label: t("Status"),
         isHeader: true,
       },
       {
-        key: RowProjectOptionStatus.Active.toString(),
-        group: "filter-filterType",
+        key: "open",
+        group: "filter-status",
         label: t("Active"),
       },
       {
-        key: RowProjectOptionStatus.Paused.toString(),
-        group: "filter-filterType",
+        key: "paused",
+        group: "filter-status",
         label: t("Paused"),
       },
       {
-        key: RowProjectOptionStatus.Closed.toString(),
-        group: "filter-filterType",
+        key: "closed",
+        group: "filter-status",
         label: t("Closed"),
       },
     ];
@@ -41,61 +118,77 @@ const PureSectionFilterContent = (props) => {
         isHeader: true,
       },
       {
-        key: "me",
+        key: "user1",
         group: "filter-author",
         label: t("Me"),
+        isSelector: true,
         defaultOptionLabel: t("Common:MeLabel"),
         defaultSelectLabel: t("Common:Select"),
-        // groupsCaption,
-        // defaultOption: user,
-        // selectedItem,
+        groupsCaption,
+        defaultOption: user,
+        selectedItem,
       },
       {
-        key: "other-users",
+        key: "user2",
         group: "filter-author",
         label: t("OtherUsers"),
+        isSelector: true,
+        defaultOptionLabel: t("Common:MeLabel"),
+        defaultSelectLabel: t("Common:Select"),
+        groupsCaption,
+        defaultOption: user,
+        selectedItem,
       },
       {
-        key: "other",
-        group: "filter-author",
+        key: "filter-settings",
+        group: "filter-settings",
         label: t("Other"),
         isHeader: true,
       },
       {
-        key: "followed",
-        group: "filter-author",
+        key: "follow",
+        group: "filter-settings",
         label: t("Followed"),
       },
       {
-        key: "withTag",
-        group: "filter-author",
+        key: "tag",
+        group: "filter-settings",
         label: t("WithTag"),
       },
       {
         key: "withoutTag",
-        group: "filter-author",
+        group: "filter-settings",
         label: t("WithoutTag"),
       },
       {
-        key: "filter-test",
-        group: "filter-member",
+        key: "filter-team",
+        group: "filter-author",
         label: t("TeamMember"),
         isHeader: true,
       },
       {
         key: "team-me",
-        group: "filter-member",
+        group: "filter-author",
         label: t("Me"),
       },
       {
-        key: "team-otherUsers",
-        group: "filter-member",
+        key: "user3",
+        group: "filter-author",
         label: t("OtherUsers"),
+        isSelector: true,
+        defaultOptionLabel: t("Common:MeLabel"),
+        defaultSelectLabel: t("Common:Select"),
+        groupsCaption,
+        defaultOption: user,
+        selectedItem,
       },
       {
-        key: "team-groups",
-        group: "filter-member",
-        label: t("Groups"),
+        key: "group",
+        group: "filter-author",
+        label: groupsCaption,
+        defaultSelectLabel: t("Common:Select"),
+        isSelector: true,
+        selectedItem,
       },
     ];
 
@@ -119,28 +212,52 @@ const PureSectionFilterContent = (props) => {
   };
   const filterColumnCount =
     window.innerWidth < 500 ? {} : { filterColumnCount: 4 };
+  const getSelectedFilterData = () => {
+    const selectedFilterData = {
+      filterValues: [],
+      sortDirection: filter.sortOrder === "ascending" ? "asc" : "desc",
+      sortId: filter.sortBy,
+    };
 
-  const selectedFilterData = {
-    filterValues: [
-      {
-        key: "null",
+    selectedFilterData.inputValue = filter.search;
+
+    // if (filter.status) {
+    //   selectedFilterData.filterValues.push({
+    //     key: `${filter.status}`,
+    //     group: "filter-status",
+    //   });
+    // }
+
+    // if (filter.follow) {
+    //   selectedFilterData.filterValues.push({
+    //     key: `follow`,
+    //     group: "filter-settings",
+    //   });
+    // }
+
+    if (filter.filterType >= 0) {
+      selectedFilterData.filterValues.push({
+        key: `${filter.filterType}`,
         group: "filter-filterType",
-      },
-    ],
-    inputValue: null,
-    sortDirection: "desc",
-    sortId: "AZ",
+      });
+    }
+    console.log(selectedFilterData);
+
+    return selectedFilterData;
   };
 
-  return (
+  const selectedFilterData = getSelectedFilterData();
+
+  return !tReady ? (
+    <Loaders.Filter />
+  ) : (
     <FilterInput
       getFilterData={getData}
       getSortData={getSortData}
-      onFilter={(result) => {
-        console.log(result);
-      }}
+      onFilter={onFilter}
       selectedFilterData={selectedFilterData}
       viewAs={false}
+      isReady={tReady}
       directionAscLabel={t("Common:DirectionAscLabel")}
       directionDescLabel={t("Common:DirectionDescLabel")}
       placeholder={t("Common:Search")}
@@ -154,9 +271,15 @@ const SectionFilterContent = withTranslation(["Home", "Common"])(
   withRouter(PureSectionFilterContent)
 );
 
-export default inject(({ auth }) => {
+export default inject(({ auth, projectsStore, projectsFilterStore }) => {
   const { customNames } = auth.settingsStore;
+  const { fetchProjects } = projectsFilterStore;
+  const { user } = auth.userStore;
+  const { filter } = projectsStore;
   return {
     customNames,
+    filter,
+    user,
+    fetchProjects,
   };
 })(observer(SectionFilterContent));

@@ -8,11 +8,19 @@ import Box from "@appserver/components/box";
 import { useTranslation } from "react-i18next";
 
 const ListContent = ({ isMobile, list, sectionWidth }) => {
-  const { title, description, participantCount, taskCount } = list;
+  const {
+    title,
+    description,
+    participantCount,
+    taskCount,
+    openTask,
+    firstLinkTitle,
+    secondLinkTitle,
+  } = list;
   const { t } = useTranslation(["Home", "Common"]);
 
-  const taskCountTitle = t("OpenTask") + ": " + taskCount;
-  const participantCountTitle = t("Team") + ": " + participantCount;
+  const firstTitle =
+    (openTask && `${t("OpenTask")}: ${taskCount}`) || t(firstLinkTitle);
   return (
     <RowContent isMobile={isMobile} sectionWidth={sectionWidth} disableSideInfo>
       <Link
@@ -28,29 +36,29 @@ const ListContent = ({ isMobile, list, sectionWidth }) => {
       <Link
         color="#A3A9AE"
         containerMinWidth="60px"
+        containerWidth="8%"
+        type="page"
+        title={firstTitle}
+      >
+        {firstTitle}
+      </Link>
+      <Link
+        color="#A3A9AE"
+        containerMinWidth="60px"
+        containerWidth="8%"
+        type="page"
+        title={secondLinkTitle}
+      >
+        {secondLinkTitle}
+      </Link>
+      <Link
+        color="#A3A9AE"
+        containerMinWidth="60px"
         containerWidth="7%"
         type="page"
-        title={taskCountTitle}
+        title="by Title"
       >
-        {taskCountTitle}
-      </Link>
-      <Link
-        color="#A3A9AE"
-        containerMinWidth="60px"
-        containerWidth="5%"
-        type="page"
-        title={participantCountTitle}
-      >
-        {participantCountTitle}
-      </Link>
-      <Link
-        color="#A3A9AE"
-        containerMinWidth="60px"
-        containerWidth="15%"
-        type="page"
-        title="byTitle"
-      >
-        byTitle
+        by Title
       </Link>
     </RowContent>
   );

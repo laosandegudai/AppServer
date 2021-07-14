@@ -8,5 +8,7 @@
   "NotifyResponsible": "Notify responsible",
   "TrackTime": "Track time",
   "TeamMember": "Team member",
-  "OpenTask": "Open task"
+  "OpenTask": "Open task",
+  "ByTitle": "Title",
+  "ByCreationDate": "Creation date"
 }
