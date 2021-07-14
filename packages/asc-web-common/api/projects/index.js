@@ -35,6 +35,18 @@ export function getActiveProjectsList(fake = true) {
   }
 }
 
+export function getPausedProjectsList(fake = true) {
+  if (fake) {
+    return fakeProjects.getPausedProjects();
+  }
+}
+
+export function getClosedProjectsList(fake = true) {
+  if (fake) {
+    return fakeProjects.getClosedProjects();
+  }
+}
+
 export function getAllTaskList(fake = true) {
   if (fake) {
     return fakeProjects.getAllTasks();

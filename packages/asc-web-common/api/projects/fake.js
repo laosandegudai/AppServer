@@ -184,6 +184,14 @@ export function getActiveProjects() {
   return Promise.resolve(projects.filter((i) => i.status === 0));
 }
 
+export function getPausedProjects() {
+  return Promise.resolve(projects.filter((i) => i.status === 1));
+}
+
+export function getClosedProjects() {
+  return Promise.resolve(projects.filter((i) => i.status === 2));
+}
+
 export function getAllTasks() {
   return Promise.resolve(allTasks);
 }

@@ -16,6 +16,7 @@ const DEFAULT_MANAGER = "00000000-0000-0000-0000-000000000000";
 const DEFAULT_DEPARTAMENT = "00000000-0000-0000-0000-000000000000";
 const DEFAULT_FOLLOW = false;
 const DEFAULT_FOLDER = null;
+const DEFAULT_FILTER_TYPE = null;
 
 const PAGE = "page";
 const PAGE_COUNT = "count";
@@ -30,6 +31,7 @@ const MANAGER = "manager";
 const DEPARTAMENT = "departament";
 const FOLLOW = "follow";
 const FOLDER = "folder";
+const FILTER_TYPE = "filterType";
 
 class ProjectsFilter {
   static getDefault(total = DEFAULT_TOTAL) {
@@ -44,6 +46,10 @@ class ProjectsFilter {
     if (!urlFilter) return null;
 
     const defaultFilter = ProjectsFilter.getDefault();
+
+    const filterType =
+      (urlFilter[FILTER_TYPE] && +urlFilter[FILTER_TYPE]) ||
+      defaultFilter.filterType;
 
     const page =
       (urlFilter[PAGE] && +urlFilter[PAGE] - 1) || defaultFilter.page;
@@ -79,7 +85,8 @@ class ProjectsFilter {
       manager,
       departament,
       follow,
-      folder
+      folder,
+      filterType
     );
     return newFilter;
   }
@@ -99,7 +106,8 @@ class ProjectsFilter {
     manager = DEFAULT_MANAGER,
     departament = DEFAULT_DEPARTAMENT,
     follow = DEFAULT_FOLLOW,
-    folder = DEFAULT_FOLDER
+    folder = DEFAULT_FOLDER,
+    filterType = DEFAULT_FILTER_TYPE
   ) {
     this.page = page;
     this.pageCount = pageCount;
@@ -116,6 +124,7 @@ class ProjectsFilter {
     this.departament = departament;
     this.follow = follow;
     this.folder = folder;
+    this.filterType = filterType;
   }
 
   getStartIndex = () => {
@@ -144,6 +153,7 @@ class ProjectsFilter {
       status,
       departament,
       folder,
+      filterType,
     } = this;
 
     const dtoFilter = {
@@ -160,6 +170,7 @@ class ProjectsFilter {
       status: status,
       departament: departament,
       folder: folder,
+      filterType: filterType,
     };
 
     const str = toUrlParams(dtoFilter, true);
@@ -180,6 +191,7 @@ class ProjectsFilter {
       status,
       departament,
       folder,
+      filterType,
     } = this;
 
     const dtoFilter = {};
@@ -217,6 +229,10 @@ class ProjectsFilter {
       dtoFilter[FOLDER] = folder;
     }
 
+    if (filterType) {
+      dtoFilter[FILTER_TYPE] = filterType;
+    }
+
     if (URLParams.preview) {
       dtoFilter[PREVIEW] = URLParams.preview;
     }
@@ -245,12 +261,14 @@ class ProjectsFilter {
       this.manager,
       this.departament,
       this.follow,
-      this.folder
+      this.folder,
+      this.filterType
     );
   }
 
   equals(filter) {
     const equals =
+      this.filterType === filter.filterType &&
       this.tag === filter.tag &&
       this.manager === filter.manager &&
       this.status === filter.status &&
