@@ -11,7 +11,7 @@ namespace ASC.Files.Benchmark.TestsConfiguration
             AddJob(Job.Default
                 .WithStrategy(BenchmarkDotNet.Engines.RunStrategy.Monitoring)
                 .WithToolchain(InProcessEmitToolchain.Instance)
-                .WithIterationCount(int.Parse(appConfig["DeleteFileTest:IterationCount"])));
+                .WithIterationCount(int.Parse(appConfig["Files:DeleteFileTest:IterationCount"])));
         }
     }
 }
