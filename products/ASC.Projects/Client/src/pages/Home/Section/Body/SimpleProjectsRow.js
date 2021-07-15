@@ -6,8 +6,25 @@ import ComboBox from "@appserver/components/combobox";
 import ListContent from "./ListContent";
 import { useTranslation } from "react-i18next";
 import { RowProjectOptionStatus } from "../../../../constants";
+import styled from "styled-components";
+import { ReactSVG } from "react-svg";
 
-const SimpleProjectsRow = ({ list, sectionWidth, isMobile }) => {
+const StyledComboBox = styled(ComboBox)`
+  .combo-button_selected-icon {
+    path {
+      fill: #a3a9ae;
+    }
+  }
+`;
+
+const SimpleProjectsRow = ({
+  list,
+  sectionWidth,
+  isMobile,
+  selectProject,
+  deselectProject,
+  checked,
+}) => {
   const {
     status,
     id,
@@ -23,6 +40,12 @@ const SimpleProjectsRow = ({ list, sectionWidth, isMobile }) => {
 
   const { t } = useTranslation(["Home", "Common"]);
 
+  const checkedProps = { checked };
+
+  const onContentRowSelect = (checked, list) => {
+    console.log("dadada", checked);
+    return checked ? selectProject(list) : deselectProject(list);
+  };
   const getProjectsContextOptions = (id) => {
     const options = [
       {
@@ -97,7 +120,7 @@ const SimpleProjectsRow = ({ list, sectionWidth, isMobile }) => {
   };
 
   const element = (
-    <ComboBox
+    <StyledComboBox
       options={[
         {
           icon: "images/catalog.status-play.react.svg",
@@ -116,6 +139,8 @@ const SimpleProjectsRow = ({ list, sectionWidth, isMobile }) => {
         },
       ]}
       scaled={false}
+      noBorder={true}
+      style={{ fill: "#A3A9AE" }}
       selectedOption={getSelectedOption()}
       size="content"
     />
@@ -123,10 +148,13 @@ const SimpleProjectsRow = ({ list, sectionWidth, isMobile }) => {
 
   return (
     <Row
+      onSelect={onContentRowSelect}
+      checked={false}
       key={id}
       status={status}
       data={list}
       element={element}
+      {...checkedProps}
       {...contextOptionsProps}
     >
       <ListContent
@@ -139,11 +167,14 @@ const SimpleProjectsRow = ({ list, sectionWidth, isMobile }) => {
 };
 
 export default withRouter(
-  inject(({ auth, projectStore }, { list }) => {
+  inject(({ auth, projectsStore }, { list }) => {
+    const { selectProject, deselectProject } = projectsStore;
     return {
       auth,
-      projectStore,
       list,
+      checked: projectsStore.selection.some((el) => el.id === list.id),
+      selectProject,
+      deselectProject,
     };
   })(observer(SimpleProjectsRow))
 );

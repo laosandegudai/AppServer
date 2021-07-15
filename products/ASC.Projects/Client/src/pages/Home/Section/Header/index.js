@@ -8,6 +8,8 @@ import styled, { css } from "styled-components";
 import { tablet, desktop } from "@appserver/components/utils/device";
 import { isMobile } from "react-device-detect";
 import ContextMenuButton from "@appserver/components/context-menu-button";
+import DropDownItem from "@appserver/components/drop-down-item";
+import GroupButtonsMenu from "@appserver/components/group-buttons-menu";
 
 const StyledContainer = styled.div`
   .header-container {
@@ -135,6 +137,66 @@ const StyledContainer = styled.div`
 `;
 
 const PureSectionHeaderContent = (props) => {
+  const {
+    setSelected,
+    t,
+    isHeaderChecked,
+    isHeaderVisible,
+    isHeaderIndeterminate,
+  } = props;
+
+  const onCheck = (checked) => {
+    setSelected(checked ? "all" : "none");
+  };
+
+  const onSelect = (item) => {
+    setSelected(item.key);
+  };
+
+  const onClose = () => {
+    setSelected("close");
+  };
+
+  const getMenuItems = () => {
+    // меню тоже генерируется у каждого раздела свое
+    // пока что только отображение
+    let menu = [
+      {
+        label: t("Common:Select"),
+        isDropdown: true,
+        isSeparator: true,
+        isSelect: true,
+        fontWeight: "bold",
+        children: [
+          <DropDownItem
+            key="active"
+            label={t("Common:Active")}
+            data-index={0}
+          />,
+          <DropDownItem
+            key="paused"
+            label={t("Common:Paused")}
+            data-index={1}
+          />,
+          <DropDownItem
+            key="closed"
+            label={t("Common:Closed")}
+            data-index={2}
+          />,
+        ],
+        onSelect: onSelect,
+      },
+      {
+        label: t("Delete"),
+        disabled: true,
+      },
+    ];
+
+    return menu;
+  };
+
+  const menuItems = getMenuItems();
+
   const getContextOptionsPlus = () => {
     const { t } = props;
     return [
@@ -161,26 +223,42 @@ const PureSectionHeaderContent = (props) => {
     <Consumer>
       {(context) => (
         <StyledContainer width={context.sectionWidth} title={"test"}>
-          <div className="header-container">
-            <Headline
-              className="headline-header"
-              type="content"
-              truncate={true}
-            >
-              title
-            </Headline>
-            <ContextMenuButton
-              className="add-button"
-              directionX="right"
-              iconName="images/plus.svg"
-              size={17}
-              color="#A3A9AE"
-              hoverColor="#657077"
-              isFill
-              getData={getContextOptionsPlus}
-              isDisabled={false}
-            />
-          </div>
+          {isHeaderVisible ? (
+            <div className="group-button-menu-container">
+              <GroupButtonsMenu
+                checked={isHeaderChecked}
+                isIndeterminate={isHeaderIndeterminate}
+                onChange={onCheck}
+                onClose={onClose}
+                menuItems={menuItems}
+                selected={menuItems[0].label}
+                moreLabel={t("Common:More")}
+                closeTitle={t("Common:CloseButton")}
+                sectionWidth={context.sectionWidth}
+              />
+            </div>
+          ) : (
+            <div className="header-container">
+              <Headline
+                className="headline-header"
+                type="content"
+                truncate={true}
+              >
+                title
+              </Headline>
+              <ContextMenuButton
+                className="add-button"
+                directionX="right"
+                iconName="images/plus.svg"
+                size={17}
+                color="#A3A9AE"
+                hoverColor="#657077"
+                isFill
+                getData={getContextOptionsPlus}
+                isDisabled={false}
+              />
+            </div>
+          )}
         </StyledContainer>
       )}
     </Consumer>
@@ -192,8 +270,18 @@ const SectionHeaderContent = withTranslation(["Article", "Common"])(
 );
 
 export default inject(({ auth, projectsStore }) => {
+  const {
+    setSelected,
+    isHeaderVisible,
+    isHeaderChecked,
+    isHeaderIndeterminate,
+  } = projectsStore;
   return {
     auth,
     projectsStore,
+    setSelected,
+    isHeaderVisible,
+    isHeaderChecked,
+    isHeaderIndeterminate,
   };
 })(observer(SectionHeaderContent));

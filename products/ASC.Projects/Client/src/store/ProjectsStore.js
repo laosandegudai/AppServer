@@ -2,6 +2,7 @@ import { action, makeObservable, observable } from "mobx";
 import config from "../../package.json";
 import { updateTempContent } from "@appserver/common/utils";
 import api from "@appserver/common/api";
+import { getProjectStatus } from "../helpers/projects-helper";
 
 const { ProjectsFilter } = api;
 
@@ -16,6 +17,8 @@ class ProjectsStore {
   isLoaded = false;
   isInit = false;
   items = [];
+  selection = [];
+  selected = "close";
   // filterCommonOptions = [];
 
   firstLoad = true;
@@ -37,10 +40,14 @@ class ProjectsStore {
       isLoading: observable,
       firstLoad: observable,
       items: observable,
+      selection: observable,
+      selected: observable,
       // filterCommonOptions: observable,
       filter: observable,
       isLoaded: observable,
       setIsLoading: action,
+      setSelected: action,
+      setSelection: action,
       setFirstLoad: action,
       setIsLoaded: action,
       setItems: action,
@@ -99,6 +106,71 @@ class ProjectsStore {
     console.log(filter);
     this.filter = filter;
   };
+
+  selectProject = (item) => {
+    console.log(item);
+    return this.selection.push(item);
+  };
+
+  deselectProject = (item) => {
+    const newData = this.selection.filter((el) => el.id !== item.id);
+    return (this.selection = newData);
+  };
+
+  getProjectsChecked = (item, selected) => {
+    const status = getProjectStatus(item);
+    console.log(status);
+    switch (selected) {
+      case "all":
+        return true;
+      case "active":
+        return status === "active";
+      case "paused":
+        return status === "paused";
+      case "closed":
+        return status === "closed";
+      default:
+        return false;
+    }
+  };
+
+  getItemsBySelected = (items, selected) => {
+    let newSelection = [];
+    items.forEach((item) => {
+      const checked = this.getProjectsChecked(item, selected);
+      if (checked) newSelection.push(item);
+    });
+
+    return newSelection;
+  };
+
+  setSelected = (selected) => {
+    this.selected = selected;
+    const items = this.items;
+    this.selection = this.getItemsBySelected(items, selected);
+    console.log(this.selection);
+  };
+
+  setSelection = (selection) => {
+    this.selection = selection;
+  };
+
+  get isHeaderIndeterminate() {
+    return (
+      this.isHeaderVisible &&
+      !!this.selection.length &&
+      this.selection.length < this.items.length
+    );
+  }
+
+  get isHeaderVisible() {
+    return this.selection.length > 0 || this.selected !== "close";
+  }
+
+  get isHeaderChecked() {
+    const items = [...this.items];
+    return this.isHeaderVisible && this.selection.length === items.length;
+  }
 }
 
 export default ProjectsStore;

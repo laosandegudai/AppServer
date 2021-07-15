@@ -143,7 +143,7 @@ const PureSectionFilterContent = (props) => {
         key: "filter-settings",
         group: "filter-settings",
         label: t("Other"),
-        isHeader: true,
+        isRowHeader: true,
       },
       {
         key: "follow",
@@ -211,7 +211,7 @@ const PureSectionFilterContent = (props) => {
       : commonOptions;
   };
   const filterColumnCount =
-    window.innerWidth < 500 ? {} : { filterColumnCount: 4 };
+    window.innerWidth < 500 ? {} : { filterColumnCount: 3 };
   const getSelectedFilterData = () => {
     const selectedFilterData = {
       filterValues: [],
@@ -241,7 +241,6 @@ const PureSectionFilterContent = (props) => {
         group: "filter-filterType",
       });
     }
-    console.log(selectedFilterData);
 
     return selectedFilterData;
   };
