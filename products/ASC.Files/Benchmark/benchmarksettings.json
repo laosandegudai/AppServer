@@ -1,6 +1,6 @@
 {   
     "Global": {
-        "UsersCount": 10
+        "UsersCount": 40
     },
 
     "CreateFileTest": {
@@ -32,6 +32,14 @@
     },
 
     "RenameFolderTest": {
+        "IterationCount": 10
+    },
+
+    "EditFileTest": {
+        "IterationCount": 10
+    },
+
+    "AddToFavorites": {
         "IterationCount": 10
     }
 }
