@@ -179,6 +179,7 @@ class SectionFilterContent extends React.Component {
     }
 
     const newFilter = filter.clone();
+    newFilter.page = 0;
     newFilter.sortBy = sortBy;
     newFilter.sortOrder = sortOrder;
     newFilter.authorType = authorType;
@@ -253,6 +254,30 @@ class SectionFilterContent extends React.Component {
         key: "competitor-type",
         inSubgroup: true,
         group: "filter-other-contact-type",
+        label: t("Competitor"),
+      },
+      {
+        key: "client-tag-type",
+        inSubgroup: true,
+        group: "filter-other-tag-type",
+        label: t("Client"),
+      },
+      {
+        key: "provider-tag-type",
+        inSubgroup: true,
+        group: "filter-other-tag-type",
+        label: t("Provider"),
+      },
+      {
+        key: "partner-tag-type",
+        inSubgroup: true,
+        group: "filter-other-tag-type",
+        label: t("Partner"),
+      },
+      {
+        key: "competitor-tag-type",
+        inSubgroup: true,
+        group: "filter-other-tag-type",
         label: t("Competitor"),
       },
     ];
@@ -336,7 +361,7 @@ class SectionFilterContent extends React.Component {
       {
         key: "filter-other-with-tag",
         group: "filter-other",
-        subgroup: "filter-other-contact-type",
+        subgroup: "filter-other-tag-type",
         label: t("WithTag"),
       },
       ...groupOptions,

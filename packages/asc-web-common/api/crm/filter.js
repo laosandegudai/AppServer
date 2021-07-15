@@ -3,7 +3,6 @@ import { getObjectByLocation, toUrlParams } from "../../utils";
 const DEFAULT_PAGE = 0;
 const DEFAULT_PAGE_COUNT = 25;
 const DEFAULT_TOTAL = 0;
-const DEFAULT_START_INDEX = 0;
 const DEFAULT_SORT_BY = "created";
 const DEFAULT_SORT_ORDER = "descending";
 const DEFAULT_CONTACT_STAGE = -1;
@@ -22,7 +21,6 @@ const PAGE = "page";
 const PAGE_COUNT = "Сount";
 const SORT_BY = "sortBy";
 const SORT_ORDER = "sortOrder";
-const START_INDEX = "StartIndex";
 const SEARCH = "search";
 const CONTACT_STAGE = "contactStage";
 const ACCESSIBILITY_TYPE = "isShared";
@@ -33,8 +31,8 @@ const TO_DATE_TYPE = "toDate";
 const TAGS_TYPE = "tags";
 
 class CrmFilter {
-  static getDefault() {
-    return new CrmFilter({});
+  static getDefault(total = DEFAULT_TOTAL) {
+    return new CrmFilter(DEFAULT_PAGE, DEFAULT_PAGE_COUNT, total);
   }
 
   static getFilter(location) {
@@ -48,9 +46,10 @@ class CrmFilter {
 
     const sortBy = urlFilter[SORT_BY] || defaultFilter.sortBy;
     const sortOrder = urlFilter[SORT_ORDER] || defaultFilter.sortOrder;
+    const page =
+      (urlFilter[PAGE] && +urlFilter[PAGE] - 1) || defaultFilter.page;
     const count =
       (urlFilter[PAGE_COUNT] && +urlFilter[PAGE_COUNT]) || defaultFilter.count;
-    const startIndex = urlFilter[START_INDEX] || defaultFilter.startIndex;
     const total = defaultFilter.total;
     const contactType = urlFilter[CONTACT_TYPE] || defaultFilter.contactType;
     const contactStage = urlFilter[CONTACT_STAGE] || defaultFilter.contactStage;
@@ -71,10 +70,10 @@ class CrmFilter {
     const newFilter = new CrmFilter({
       sortBy,
       sortOrder,
-      startIndex,
       contactType,
       contactStage,
       count,
+      page,
       total,
       isShared,
       contactListView,
@@ -92,7 +91,6 @@ class CrmFilter {
   constructor({
     sortBy = DEFAULT_SORT_BY,
     sortOrder = DEFAULT_SORT_ORDER,
-    startIndex = DEFAULT_START_INDEX,
     count = DEFAULT_PAGE_COUNT,
     total = DEFAULT_TOTAL,
     page = DEFAULT_PAGE,
@@ -111,7 +109,6 @@ class CrmFilter {
     this.count = count;
     this.sortBy = sortBy;
     this.sortOrder = sortOrder;
-    this.startIndex = startIndex;
     this.contactType = contactType;
     this.contactStage = contactStage;
     this.search = search;
@@ -125,13 +122,23 @@ class CrmFilter {
     // this.tags = tags;
   }
 
+  getStartIndex = () => {
+    return this.page * this.pageCount;
+  };
+
+  hasNext = () => {
+    return this.total - this.getStartIndex() > this.pageCount;
+  };
+
+  hasPrev = () => {
+    return this.page > 0;
+  };
+
   toApiUrlParams = () => {
     const {
-      page,
       count,
       sortBy,
       sortOrder,
-      startIndex,
       isShared,
       contactListView,
       authorType,
@@ -149,7 +156,7 @@ class CrmFilter {
         : null;
 
     const dtoFilter = {
-      StartIndex: startIndex,
+      startIndex: this.getStartIndex(),
       sortBy: sortBy,
       sortOrder: sortOrder,
       Count: count,
@@ -174,7 +181,7 @@ class CrmFilter {
       sortBy,
       sortOrder,
       count,
-      startIndex,
+      page,
       isShared,
       contactListView,
       authorType,
@@ -209,14 +216,17 @@ class CrmFilter {
       dtoFilter[TO_DATE_TYPE] = toDate;
     }
 
+    if (count !== DEFAULT_PAGE_COUNT) {
+      dtoFilter[PAGE_COUNT] = count;
+    }
+
     // if (tags && tags.length) {
     //   dtoFilter[TAGS_TYPE] = tags;
     // }
 
     dtoFilter[SORT_BY] = sortBy;
     dtoFilter[SORT_ORDER] = sortOrder;
-    dtoFilter[START_INDEX] = startIndex;
-    dtoFilter[PAGE_COUNT] = count;
+    dtoFilter[PAGE] = page + 1;
     dtoFilter[CONTACT_STAGE] = contactStage;
     dtoFilter[CONTACT_TYPE] = contactType;
 
@@ -232,7 +242,6 @@ class CrmFilter {
       total: this.total,
       sortBy: this.sortBy,
       sortOrder: this.sortOrder,
-      startIndex: this.startIndex,
       contactType: this.contactType,
       total: this.total,
       isShared: this.isShared,

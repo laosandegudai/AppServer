@@ -12,6 +12,7 @@ import {
   SectionHeaderContent,
   SectionFilterContent,
   SectionBodyContent,
+  SectionPagingContent,
 } from "./Section";
 import { withTranslation } from "react-i18next";
 import { observer, inject } from "mobx-react";
@@ -53,6 +54,10 @@ const PureHome = ({ history, getContactsList }) => {
       <PageLayout.SectionBody>
         <SectionBodyContent />
       </PageLayout.SectionBody>
+
+      <PageLayout.SectionPaging>
+        <SectionPagingContent />
+      </PageLayout.SectionPaging>
     </PageLayout>
   );
 };
