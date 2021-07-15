@@ -1,45 +1,57 @@
 {   
     "Global": {
-        "UsersCount": 40
+        "UsersCount": 100
     },
 
-    "CreateFileTest": {
-        "IterationCount": 10
+    "Files": {
+        "CreateFileTest": {
+            "IterationCount": 10
+        },
+
+        "DeleteFileTest": {
+            "IterationCount": 10
+        },
+
+        "GetFileInfoTest": {
+            "IterationCount": 10
+        },
+
+        "UpdateFileStreamTest": {
+            "IterationCount": 10
+        },
+
+        "EditFileTest": {
+            "IterationCount": 10
+        }
     },
 
-    "DeleteFileTest": {
-        "IterationCount": 10
+    "Folders": {
+        "CreateFolderTest": {
+            "IterationCount": 10
+        },
+
+        "DeleteFolderTest": {
+            "IterationCount": 10
+        },
+
+        "GetFolderTest": {
+            "IterationCount": 10
+        },
+
+        "RenameFolderTest": {
+            "IterationCount": 10
+        },
+
+        "EditFileTest": {
+            "IterationCount": 10
+        }
     },
 
-    "GetFileInfoTest": {
-        "IterationCount": 10
-    },
-    
-    "UpdateFileStreamTest": {
-        "IterationCount": 10
-    },
-
-    "CreateFolderTest": {
-        "IterationCount": 10
-    },
-
-    "DeleteFolderTest": {
-        "IterationCount": 10
-    },
-
-    "GetFolderTest": {
-        "IterationCount": 10
-    },
-
-    "RenameFolderTest": {
-        "IterationCount": 10
-    },
-
-    "EditFileTest": {
-        "IterationCount": 10
-    },
-
-    "AddToFavorites": {
-        "IterationCount": 10
+    "Common": {
+        "AddToFavoritesTest": {
+            "IterationCount": 10,
+            "FoldersFavoriteCountPerUser": 10,
+            "FilesFavoriteCountPerUser": 10
+        }
     }
 }
