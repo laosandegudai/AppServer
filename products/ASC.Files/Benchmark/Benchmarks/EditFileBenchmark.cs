@@ -8,48 +8,47 @@ using BenchmarkDotNet.Attributes;
 
 namespace ASC.Files.Benchmark.Benchmarks
 {
-    [Config(typeof(StartEditTestConfig))]
-    public class EditFileBenchmark
+    [Config(typeof(EditFileTestConfig))]
+    public class EditFileBenchmark : BenchmarkBase
     {
-        private TestDataStorage _usersStorage = TestDataStorage.GetStorage();
         private int _fileId;
         private List<int> _filesId = new List<int>();
         private Task[] _tasks;
 
         #region EditTest
-        [GlobalSetup(Target = nameof(EditTest))]
-        public void GlobalSetupEditTest()
+        [GlobalSetup(Target = nameof(EditFileTest))]
+        public void GlobalSetupEditFileTest()
         {
-            _fileId = _usersStorage.Users[0].CreateFileInMy();
+            _fileId = _dataStorage.Users[0].CreateFileInMy();
         }
 
         [Benchmark]
-        public void EditTest()
+        public void EditFileTest()
         {
-            _usersStorage.Users[0].OpenEdit(_fileId);
-            _usersStorage.Users[0].StartEdit(_fileId);
-            _usersStorage.Users[0].SaveEditing(_fileId);
+            _dataStorage.Users[0].OpenEdit(_fileId);
+            _dataStorage.Users[0].StartEdit(_fileId);
+            _dataStorage.Users[0].SaveEditing(_fileId);
         }
         #endregion EditTest
 
-        #region EditUsersTest
-        [GlobalSetup(Target =nameof(EditUsersTest))]
-        public void GlobalSetupEditUsersTest()
+        #region EditManyUsersTest
+        [GlobalSetup(Target =nameof(EditFileManyUsersTest))]
+        public void GlobalSetupEditFileManyUsersTest()
         {
-            foreach (var user in _usersStorage.Users)
+            foreach (var user in _dataStorage.Users)
             {
                 _filesId.Add(user.CreateFileInMy());
             }
         }
 
-        [IterationSetup(Target =nameof(EditUsersTest))]
-        public void IterSetupEditUsersTest()
+        [IterationSetup(Target =nameof(EditFileManyUsersTest))]
+        public void IterSetupEditFileManyUsersTest()
         {
-            _tasks = new Task[_usersStorage.Users.Count];
+            _tasks = new Task[_dataStorage.Users.Count];
 
-            for (int i = 0; i < _usersStorage.Users.Count; i++)
+            for (int i = 0; i < _dataStorage.Users.Count; i++)
             {
-                var user = _usersStorage.Users[i];
+                var user = _dataStorage.Users[i];
                 var fileId = _filesId[i];
 
                 _tasks[i] = new Task(() =>
@@ -62,7 +61,7 @@ namespace ASC.Files.Benchmark.Benchmarks
         }
 
         [Benchmark]
-        public void EditUsersTest()
+        public void EditFileManyUsersTest()
         {
             foreach (var task in _tasks)
             {

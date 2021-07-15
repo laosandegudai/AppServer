@@ -2,7 +2,6 @@
 using System.IO;
 using System.Threading.Tasks;
 
-using ASC.Files.Benchmark.BenchmarkEnviroment;
 using ASC.Files.Benchmark.TestsConfiguration;
 using ASC.Files.Benchmark.Utils;
 
@@ -11,9 +10,8 @@ using BenchmarkDotNet.Attributes;
 namespace ASC.Files.Benchmark.Benchmarks
 {
     [Config(typeof(UpdateFileStreamTestConfig))]
-    public class UpdateFileStreamBenchmark
+    public class UpdateFileStreamBenchmark : BenchmarkBase
     {
-        private TestDataStorage _usersStorage = TestDataStorage.GetStorage();
         private int _fileId;
         private List<int> _filesId = new List<int>();
         private Task[] _tasks;
@@ -26,10 +24,11 @@ namespace ASC.Files.Benchmark.Benchmarks
             yield return StreamGenerator.Generate(4096);
         }
 
+        #region UpdateFileStreamTest
         [GlobalSetup(Target = nameof(UpdateFileStreamTest))]
         public void IterSetupUpdateFileStreamTest()
         {
-            _fileId = _usersStorage.Users[0].CreateFileInMy();
+            _fileId = _dataStorage.Users[0].CreateFileInMy();
         }
 
         [Benchmark]
@@ -37,20 +36,22 @@ namespace ASC.Files.Benchmark.Benchmarks
         public void UpdateFileStreamTest(TestStream testStream)
         {
             testStream.Stream.Position = 0;
-            _usersStorage.Users[0].UpdateFileStream(_fileId, testStream.Stream);
+            _dataStorage.Users[0].UpdateFileStream(_fileId, testStream.Stream);
         }
+        #endregion
 
-        [GlobalSetup(Target = nameof(UpdateFileStreamUsersTest))]
-        public void GlobalSetupUpdateFileStreamUsersTest()
+        #region UpdateFileStreamManyUsersTest
+        [GlobalSetup(Target = nameof(UpdateFileStreamManyUsersTest))]
+        public void GlobalSetupUpdateFileStreamManyUsersTest()
         {
-            foreach (var user in _usersStorage.Users)
+            foreach (var user in _dataStorage.Users)
             {
                 _filesId.Add(user.CreateFileInMy());
             }
 
             var testStream = StreamGenerator.Generate(10240);
 
-            for (int i = 0; i < _usersStorage.Users.Count; i++)
+            for (int i = 0; i < _dataStorage.Users.Count; i++)
             {
                 testStream.Stream.Position = 0;
                 var memoryStream = new MemoryStream();
@@ -60,14 +61,14 @@ namespace ASC.Files.Benchmark.Benchmarks
             }
         }
 
-        [IterationSetup(Target = nameof(UpdateFileStreamUsersTest))]
-        public void IterSetupUpdateFileStreamUsersTest()
+        [IterationSetup(Target = nameof(UpdateFileStreamManyUsersTest))]
+        public void IterSetupUpdateFileStreamManyUsersTest()
         {
-            _tasks = new Task[_usersStorage.Users.Count];
+            _tasks = new Task[_dataStorage.Users.Count];
 
-            for (int i = 0; i < _usersStorage.Users.Count; i++)
+            for (int i = 0; i < _dataStorage.Users.Count; i++)
             {
-                var user = _usersStorage.Users[i];
+                var user = _dataStorage.Users[i];
                 var fileId = _filesId[i];
                 var testStream = _testStreams[i];
 
@@ -81,7 +82,7 @@ namespace ASC.Files.Benchmark.Benchmarks
         }
 
         [Benchmark]
-        public void UpdateFileStreamUsersTest()
+        public void UpdateFileStreamManyUsersTest()
         {
             foreach (var task in _tasks)
             {
@@ -90,5 +91,6 @@ namespace ASC.Files.Benchmark.Benchmarks
 
             Task.WaitAll(_tasks);
         }
+        #endregion
     }
 }

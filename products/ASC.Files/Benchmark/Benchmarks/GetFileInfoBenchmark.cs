@@ -9,9 +9,8 @@ using BenchmarkDotNet.Attributes;
 namespace ASC.Files.Benchmark.Benchmarks
 {
     [Config(typeof(GetFileInfoTestConfig))]
-    public class GetFileInfoBenchmark
+    public class GetFileInfoBenchmark : BenchmarkBase
     {
-        private TestDataStorage _usersStorage = TestDataStorage.GetStorage();
         private int _fileId;
         private List<int> _filesId = new List<int>();
         private Task[] _tasks;
@@ -20,34 +19,34 @@ namespace ASC.Files.Benchmark.Benchmarks
         [GlobalSetup(Target = nameof(GetFileInfoTest))]
         public void GlobalSetupGetFileInfoTest()
         {
-            _fileId = _usersStorage.Users[0].CreateFileInMy();
+            _fileId = _dataStorage.Users[0].CreateFileInMy();
         }
 
         [Benchmark]
         public void GetFileInfoTest()
         {
-            _usersStorage.Users[0].GetFileInfo(_fileId);
+            _dataStorage.Users[0].GetFileInfo(_fileId);
         }
         #endregion
 
-        #region GetFileInfoUsersTest
-        [GlobalSetup(Target = nameof(GetFileInfoUsersTest))]
-        public void GlobalSetupGetFileInfoUsersTest()
+        #region GetFileInfoManyUsersTest
+        [GlobalSetup(Target = nameof(GetFileInfoManyUsersTest))]
+        public void GlobalSetupGetFileInfoManyUsersTest()
         {
-            foreach (var user in _usersStorage.Users)
+            foreach (var user in _dataStorage.Users)
             {
                 _filesId.Add(user.CreateFileInMy());
             }
         }
 
-        [IterationSetup(Target = nameof(GetFileInfoUsersTest))]
-        public void IterSetupGetFileInfoUsersTest()
+        [IterationSetup(Target = nameof(GetFileInfoManyUsersTest))]
+        public void IterSetupGetFileInfoManyUsersTest()
         {
-            _tasks = new Task[_usersStorage.Users.Count];
+            _tasks = new Task[_dataStorage.Users.Count];
 
-            for (int i = 0; i < _usersStorage.Users.Count; i++)
+            for (int i = 0; i < _dataStorage.Users.Count; i++)
             {
-                var user = _usersStorage.Users[i];
+                var user = _dataStorage.Users[i];
                 var fileId = _filesId[i];
 
                 _tasks[i] = new Task(() =>
@@ -58,7 +57,7 @@ namespace ASC.Files.Benchmark.Benchmarks
         }
 
         [Benchmark]
-        public void GetFileInfoUsersTest()
+        public void GetFileInfoManyUsersTest()
         {
             foreach (var task in _tasks)
             {

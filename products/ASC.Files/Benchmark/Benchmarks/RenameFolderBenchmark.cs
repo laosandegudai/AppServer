@@ -29,9 +29,9 @@ namespace ASC.Files.Benchmark.Benchmarks
         }
         #endregion
 
-        #region RenameFolderUsersTest
-        [GlobalSetup(Target = nameof(RenameFolderUsersTest))]
-        public void GlobalSetupRenameFolderUsersTest()
+        #region RenameFolderManyUsersTest
+        [GlobalSetup(Target = nameof(RenameFolderManyUsersTest))]
+        public void GlobalSetupRenameFolderManyUsersTest()
         {
             foreach (var user in _usersStorage.Users)
             {
@@ -39,8 +39,8 @@ namespace ASC.Files.Benchmark.Benchmarks
             }
         }
 
-        [IterationSetup(Target = nameof(RenameFolderUsersTest))]
-        public void IterSetupRenameFolderUsersTest()
+        [IterationSetup(Target = nameof(RenameFolderManyUsersTest))]
+        public void IterSetupRenameFolderManyUsersTest()
         {
             _tasks = new Task[_usersStorage.Users.Count];
 
@@ -57,7 +57,7 @@ namespace ASC.Files.Benchmark.Benchmarks
         }
 
         [Benchmark]
-        public void RenameFolderUsersTest()
+        public void RenameFolderManyUsersTest()
         {
             foreach (var task in _tasks)
             {

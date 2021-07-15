@@ -1,7 +1,5 @@
-﻿
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-using ASC.Files.Benchmark.BenchmarkEnviroment;
 using ASC.Files.Benchmark.TestsConfiguration;
 
 using BenchmarkDotNet.Attributes;
@@ -9,29 +7,28 @@ using BenchmarkDotNet.Attributes;
 namespace ASC.Files.Benchmark.Benchmarks
 {
     [Config(typeof(CreateFolderTestConfig))]
-    public class CreateFolderBenchmark
+    public class CreateFolderBenchmark : BenchmarkBase
     {
-        private TestDataStorage _usersStorage = TestDataStorage.GetStorage();
         private Task[] _tasks;
 
         #region CreateFolderTest
         [Benchmark]
         public void CreateFolderTest()
         {
-            _usersStorage.Users[0].CreateFolderInMy();
+            _dataStorage.Users[0].CreateFolderInMy();
         }
         #endregion
 
-        #region CreateFolderUsersTest
-        [IterationSetup(Target = nameof(CreateFolderUsersTest))]
-        public void IterSetupCreateFolderUsersTest()
+        #region CreateFolderManyUsersTest
+        [IterationSetup(Target = nameof(CreateFolderManyUsersTest))]
+        public void IterSetupCreateFolderManyUsersTest()
         {
 
-            _tasks = new Task[_usersStorage.Users.Count];
+            _tasks = new Task[_dataStorage.Users.Count];
 
-            for (int i = 0; i < _usersStorage.Users.Count; i++)
+            for (int i = 0; i < _dataStorage.Users.Count; i++)
             {
-                var user = _usersStorage.Users[i];
+                var user = _dataStorage.Users[i];
 
                 _tasks[i] = new Task(() =>
                 {
@@ -41,7 +38,7 @@ namespace ASC.Files.Benchmark.Benchmarks
         }
 
         [Benchmark]
-        public void CreateFolderUsersTest()
+        public void CreateFolderManyUsersTest()
         {
             foreach (var task in _tasks)
             {

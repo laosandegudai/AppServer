@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 
-using ASC.Files.Benchmark.BenchmarkEnviroment;
 using ASC.Files.Benchmark.TestsConfiguration;
 
 using BenchmarkDotNet.Attributes;
@@ -8,29 +7,28 @@ using BenchmarkDotNet.Attributes;
 namespace ASC.Files.Benchmark.Benchmarks
 {
     [Config(typeof(CreateFileTestConfig))]
-    public class CreateFileBenchmark
+    public class CreateFileBenchmark : BenchmarkBase
     {
-        private TestDataStorage _usersStorage = TestDataStorage.GetStorage();
         private Task[] _tasks;
 
         #region CreateFileTest
         [Benchmark]
         public void CreateFileTest()
         {
-            _usersStorage.Users[0].CreateFileInMy();
+            _dataStorage.Users[0].CreateFileInMy();
         }
         #endregion
 
-        #region CreateFileUsersTest
-        [IterationSetup(Target = nameof(CreateFileUsersTest))]
-        public void IterSetupCreateFileUsersTest()
+        #region CreateFileManyUsersTest
+        [IterationSetup(Target = nameof(CreateFileManyUsersTest))]
+        public void IterSetupCreateFileManyUsersTest()
         {
 
-            _tasks = new Task[_usersStorage.Users.Count];
+            _tasks = new Task[_dataStorage.Users.Count];
 
-            for (int i = 0; i < _usersStorage.Users.Count; i++)
+            for (int i = 0; i < _dataStorage.Users.Count; i++)
             {
-                var user = _usersStorage.Users[i];
+                var user = _dataStorage.Users[i];
 
                 _tasks[i] = new Task(() =>
                 {
@@ -40,7 +38,7 @@ namespace ASC.Files.Benchmark.Benchmarks
         }
 
         [Benchmark]
-        public void CreateFileUsersTest()
+        public void CreateFileManyUsersTest()
         {
             foreach (var task in _tasks)
             {
