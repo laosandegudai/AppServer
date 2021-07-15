@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 using ASC.Api.Documents;
 using ASC.Common.Logging;
 using ASC.Core;
+using ASC.Files.Benchmark.Utils;
 using ASC.Files.Helpers;
 using ASC.Web.Files.Classes;
 using ASC.Web.Files.Services.WCFService;
@@ -97,6 +99,24 @@ namespace ASC.Files.Benchmark.BenchmarkEnviroment
         {
             UpdateScope();
             filesControllerHelper.OpenEdit(fileId, 1, null);
+        }
+
+        public void SaveEditing(int fileId)
+        {
+            UpdateScope();
+            filesControllerHelper.SaveEditing(fileId, "docx", string.Empty, StreamGenerator.Generate(1024).Stream, null, false);
+        }
+
+        public void StartEdit(int fileId)
+        {
+            UpdateScope();
+            filesControllerHelper.StartEdit(fileId, true, null);
+        }
+
+        public void AddToFavorites(IEnumerable<int> foldersId, IEnumerable<int> filesId)
+        {
+            UpdateScope();
+            fileStorageService.AddToFavorites(foldersId, filesId);
         }
 
         public int CreateFolderInMy()
