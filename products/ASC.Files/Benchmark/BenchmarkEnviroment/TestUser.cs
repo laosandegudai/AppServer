@@ -119,6 +119,12 @@ namespace ASC.Files.Benchmark.BenchmarkEnviroment
             fileStorageService.AddToFavorites(foldersId, filesId);
         }
 
+        public void DeleteFavorites(IEnumerable<int> foldersId, IEnumerable<int> filesId)
+        {
+            UpdateScope();
+            fileStorageService.DeleteFavorites(foldersId, filesId);
+        }
+
         public int CreateFolderInMy()
         {
             UpdateScope();
