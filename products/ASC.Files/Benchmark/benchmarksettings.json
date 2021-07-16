@@ -40,15 +40,17 @@
 
         "RenameFolderTest": {
             "IterationCount": 10
-        },
-
-        "EditFileTest": {
-            "IterationCount": 10
         }
     },
 
     "Common": {
         "AddToFavoritesTest": {
+            "IterationCount": 10,
+            "FoldersFavoriteCountPerUser": 10,
+            "FilesFavoriteCountPerUser": 10
+        },
+
+        "DeleteFavoritesTest": {
             "IterationCount": 10,
             "FoldersFavoriteCountPerUser": 10,
             "FilesFavoriteCountPerUser": 10
