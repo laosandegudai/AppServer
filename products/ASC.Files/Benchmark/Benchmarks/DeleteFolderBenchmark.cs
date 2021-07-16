@@ -49,7 +49,8 @@ namespace ASC.Files.Benchmark.Benchmarks
                 _tasks[i] = new Task(() =>
                 {
                     user.DeleteFolder(folderId);
-                });
+                }, TaskCreationOptions.LongRunning);
+                _tasks[i].ConfigureAwait(false);
             }
         }
 

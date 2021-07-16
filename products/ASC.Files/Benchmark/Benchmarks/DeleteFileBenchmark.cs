@@ -50,7 +50,8 @@ namespace ASC.Files.Benchmark.Benchmarks
                 _tasks[i] = new Task(() =>
                 {
                     user.DeleteFile(fileId);
-                });
+                }, TaskCreationOptions.LongRunning);
+                _tasks[i].ConfigureAwait(false);
             }
         }
 

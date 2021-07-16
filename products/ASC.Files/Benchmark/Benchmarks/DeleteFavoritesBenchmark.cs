@@ -128,7 +128,8 @@ namespace ASC.Files.Benchmark.Benchmarks
                 _tasks[i] = new Task(() =>
                 {
                     user.DeleteFavorites(new List<int>(), filesId);
-                });
+                }, TaskCreationOptions.LongRunning);
+                _tasks[i].ConfigureAwait(false);
             }
         }
 
@@ -176,7 +177,8 @@ namespace ASC.Files.Benchmark.Benchmarks
                 _tasks[i] = new Task(() =>
                 {
                     user.DeleteFavorites(foldersId, new List<int>());
-                });
+                }, TaskCreationOptions.LongRunning);
+                _tasks[i].ConfigureAwait(false);
             }
         }
 
@@ -214,7 +216,8 @@ namespace ASC.Files.Benchmark.Benchmarks
                 _tasks[i] = new Task(() =>
                 {
                     user.DeleteFavorites(foldersId, filesId);
-                });
+                }, TaskCreationOptions.LongRunning);
+                _tasks[i].ConfigureAwait(false);
             }
         }
 

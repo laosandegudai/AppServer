@@ -109,7 +109,8 @@ namespace ASC.Files.Benchmark.Benchmarks
                 _tasks[i] = new Task(() =>
                 {
                     user.AddToFavorites(new List<int>(), filesId);
-                });
+                }, TaskCreationOptions.LongRunning);
+                _tasks[i].ConfigureAwait(false);
             }
         }
 
@@ -157,7 +158,8 @@ namespace ASC.Files.Benchmark.Benchmarks
                 _tasks[i] = new Task(() =>
                 {
                     user.AddToFavorites(foldersId, new List<int>());
-                });
+                }, TaskCreationOptions.LongRunning);
+                _tasks[i].ConfigureAwait(false);
             }
         }
 
@@ -195,7 +197,8 @@ namespace ASC.Files.Benchmark.Benchmarks
                 _tasks[i] = new Task(() =>
                 {
                     user.AddToFavorites(foldersId, filesId);
-                });
+                }, TaskCreationOptions.LongRunning);
+                _tasks[i].ConfigureAwait(false);
             }
         }
 

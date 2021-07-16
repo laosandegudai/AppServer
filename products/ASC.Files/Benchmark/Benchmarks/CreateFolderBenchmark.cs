@@ -33,7 +33,8 @@ namespace ASC.Files.Benchmark.Benchmarks
                 _tasks[i] = new Task(() =>
                 {
                     user.CreateFolderInMy();
-                });
+                }, TaskCreationOptions.LongRunning);
+                _tasks[i].ConfigureAwait(false);
             }
         }
 

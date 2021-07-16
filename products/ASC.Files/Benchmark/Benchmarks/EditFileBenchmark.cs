@@ -14,7 +14,7 @@ namespace ASC.Files.Benchmark.Benchmarks
         private List<int> _filesId = new List<int>();
         private Task[] _tasks;
 
-        #region EditTest
+        #region EditFileTest
         [GlobalSetup(Target = nameof(EditFileTest))]
         public void GlobalSetupEditFileTest()
         {
@@ -28,9 +28,9 @@ namespace ASC.Files.Benchmark.Benchmarks
             _dataStorage.Users[0].StartEdit(_fileId);
             _dataStorage.Users[0].SaveEditing(_fileId);
         }
-        #endregion EditTest
+        #endregion
 
-        #region EditManyUsersTest
+        #region EditFileManyUsersTest
         [GlobalSetup(Target =nameof(EditFileManyUsersTest))]
         public void GlobalSetupEditFileManyUsersTest()
         {
@@ -55,7 +55,8 @@ namespace ASC.Files.Benchmark.Benchmarks
                     user.OpenEdit(fileId);
                     user.StartEdit(fileId);
                     user.SaveEditing(fileId);
-                });
+                }, TaskCreationOptions.LongRunning);
+                _tasks[i].ConfigureAwait(false);
             }
         }
 
