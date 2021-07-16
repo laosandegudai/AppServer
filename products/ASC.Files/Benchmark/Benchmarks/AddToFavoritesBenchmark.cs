@@ -24,21 +24,15 @@ namespace ASC.Files.Benchmark.Benchmarks
             _foldersCount = int.Parse(_config["Common:AddToFavoritesTest:FoldersFavoriteCountPerUser"]);
         }
 
-        [GlobalSetup(Targets = new string[] { nameof(AddToFavoritesOnlyFilesTest),
-            nameof(AddToFavoritesOnlyFoldersTest), nameof(AddToFavoritesFullTest) })]
-        public void GlobaSetupAddToFavoritesTest()
+        #region AddToFavoritesOnlyFilesTest
+        [GlobalSetup(Target = nameof(AddToFavoritesOnlyFilesTest))]
+        public void GlobalSetupAddToFavoritesOnlyFilesTest()
         {
             _filesId = new List<int>();
-            _foldersId = new List<int>();
 
             for (int i = 0; i < _filesCount; i++)
             {
-                _filesId.Add(_dataStorage.Users[0].CreateFileInMy());  
-            }
-
-            for (int i = 0; i < _foldersCount; i++)
-            {
-                _foldersId.Add(_dataStorage.Users[0].CreateFolderInMy());
+                _filesId.Add(_dataStorage.Users[0].CreateFileInMy());
             }
         }
 
@@ -47,11 +41,33 @@ namespace ASC.Files.Benchmark.Benchmarks
         {
             _dataStorage.Users[0].AddToFavorites(new List<int>(), _filesId);
         }
+        #endregion
+
+        #region AddToFavoritesOnlyFoldersTest
+        [GlobalSetup(Target = nameof(AddToFavoritesOnlyFoldersTest))]
+        public void GlobalSetupAddToFavoritesOnlyFoldersTest()
+        {
+            _foldersId = new List<int>();
+
+            for (int i = 0; i < _foldersCount; i++)
+            {
+                _foldersId.Add(_dataStorage.Users[0].CreateFolderInMy());
+            }
+        }
 
         [Benchmark]
         public void AddToFavoritesOnlyFoldersTest()
         {
             _dataStorage.Users[0].AddToFavorites(_foldersId, new List<int>());
+        }
+        #endregion
+
+        #region AddToFavoritesFullTest
+        [GlobalSetup(Target = nameof(AddToFavoritesFullTest))]
+        public void GlobalSetupAddToFavoritesFullTest()
+        {
+            GlobalSetupAddToFavoritesOnlyFilesTest();
+            GlobalSetupAddToFavoritesOnlyFoldersTest();
         }
 
         [Benchmark]
@@ -59,7 +75,9 @@ namespace ASC.Files.Benchmark.Benchmarks
         {
             _dataStorage.Users[0].AddToFavorites(_foldersId, _filesId);
         }
+        #endregion
 
+        #region AddToFavoritesOnlyFilesManyUsersTest
         [GlobalSetup(Target = nameof(AddToFavoritesOnlyFilesManyUsersTest))]
         public void GlobalSetupAddToFavoritesOnlyFilesManyUsersTest()
         {
@@ -105,8 +123,10 @@ namespace ASC.Files.Benchmark.Benchmarks
 
             Task.WaitAll(_tasks);
         }
+        #endregion
 
-        [GlobalSetup(Target = nameof(AddToFavoritesOnlyFoldersUsersTest))]
+        #region AddToFavoritesOnlyFoldersUsersTest
+        [GlobalSetup(Target = nameof(AddToFavoritesOnlyFoldersManyUsersTest))]
         public void GlobalSetupAddToFavoritesOnlyFoldersManyUsersTest()
         {
             _foldersManyUsersId = new List<List<int>>();
@@ -124,7 +144,7 @@ namespace ASC.Files.Benchmark.Benchmarks
             }
         }
 
-        [IterationSetup(Target = nameof(AddToFavoritesOnlyFoldersUsersTest))]
+        [IterationSetup(Target = nameof(AddToFavoritesOnlyFoldersManyUsersTest))]
         public void IterSetupAddToFavoritesOnlyFoldersManyUsersTest()
         {
             _tasks = new Task[_dataStorage.Users.Count];
@@ -142,7 +162,7 @@ namespace ASC.Files.Benchmark.Benchmarks
         }
 
         [Benchmark]
-        public void AddToFavoritesOnlyFoldersUsersTest()
+        public void AddToFavoritesOnlyFoldersManyUsersTest()
         {
             foreach (var task in _tasks)
             {
@@ -151,5 +171,44 @@ namespace ASC.Files.Benchmark.Benchmarks
 
             Task.WaitAll(_tasks);
         }
+        #endregion
+
+        #region AddToFavoritesFullManyUsersTest
+        [GlobalSetup(Target =nameof(AddToFavoritesFullManyUsersTest))]
+        public void GlobalSetupAddToFavoritesFullManyUsersTest()
+        {
+            GlobalSetupAddToFavoritesOnlyFilesManyUsersTest();
+            GlobalSetupAddToFavoritesOnlyFoldersManyUsersTest();
+        }
+
+        [IterationSetup(Target =nameof(AddToFavoritesFullManyUsersTest))]
+        public void IterSetupAddToFavoritesFullManyUsersTest()
+        {
+            _tasks = new Task[_dataStorage.Users.Count];
+
+            for (int i = 0; i < _dataStorage.Users.Count; i++)
+            {
+                var foldersId = _foldersManyUsersId[i];
+                var filesId = _filesManyUsersId[i];
+                var user = _dataStorage.Users[i];
+
+                _tasks[i] = new Task(() =>
+                {
+                    user.AddToFavorites(foldersId, filesId);
+                });
+            }
+        }
+
+        [Benchmark]
+        public void AddToFavoritesFullManyUsersTest()
+        {
+            foreach (var task in _tasks)
+            {
+                task.Start();
+            }
+
+            Task.WaitAll(_tasks);
+        }
+        #endregion
     }
 }
