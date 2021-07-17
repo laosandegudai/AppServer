@@ -37,6 +37,7 @@ const Template = (args) => {
           isHeader={isHeader}
           label={isHeader ? "Category" : ""}
           noHover={noHover}
+          isChecked={true}
         />
         <DropDownItem
           icon={"/static/images/question.react.svg"}
@@ -44,6 +45,7 @@ const Template = (args) => {
           disabled={disabled}
           onClick={() => onClick("Button 1 clicked")}
           noHover={noHover}
+          isChecked={false}
         />
         <DropDownItem
           icon={"/static/images/eye.react.svg"}

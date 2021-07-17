@@ -261,18 +261,21 @@ class SectionFilterContent extends React.Component {
         inSubgroup: true,
         group: "filter-other-tag-type",
         label: t("Client"),
+        isChecked: false,
       },
       {
         key: "provider-tag-type",
         inSubgroup: true,
         group: "filter-other-tag-type",
         label: t("Provider"),
+        isChecked: true,
       },
       {
         key: "partner-tag-type",
         inSubgroup: true,
         group: "filter-other-tag-type",
         label: t("Partner"),
+        isChecked: false,
       },
       {
         key: "competitor-tag-type",
@@ -417,7 +420,7 @@ class SectionFilterContent extends React.Component {
         label: t("WithOpportunities"),
       },
     ];
-
+    console.log("CRM-OPTIONS", filterOptions);
     return filterOptions;
   };
 
