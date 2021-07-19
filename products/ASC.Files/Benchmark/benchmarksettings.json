@@ -22,6 +22,10 @@
 
         "EditFileTest": {
             "IterationCount": 10
+        },
+        
+        "ShareFileTest": {
+            "IterationCount": 10
         }
     },
 
@@ -39,6 +43,10 @@
         },
 
         "RenameFolderTest": {
+            "IterationCount": 10
+        },
+
+        "ShareFolderTest": {
             "IterationCount": 10
         }
     },
