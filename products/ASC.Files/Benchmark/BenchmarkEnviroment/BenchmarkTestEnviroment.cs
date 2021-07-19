@@ -14,7 +14,7 @@ namespace ASC.Files.Benchmark.BenchmarkEnviroment
         {
             _db.Create();
 
-            var admin = new TestUser(new BenchmarkFilesHost(), true);
+            var admin = new TestUser(new BenchmarkFilesHost(true), true);
             admin.CreateFileInMy();
             admin.CreateCommonFolder();
 
@@ -33,7 +33,7 @@ namespace ASC.Files.Benchmark.BenchmarkEnviroment
 
         private void CreateUniqueDocumentSettings()
         {
-            var scope = new BenchmarkFilesHost().Host.Services.CreateScope();
+            var scope = new BenchmarkFilesHost(false).Host.Services.CreateScope();
             var global = scope.ServiceProvider.GetService<Global>();
             global.GetDocDbKey();
         }
