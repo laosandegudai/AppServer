@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
+using ASC.Api.Documents;
 using ASC.Core;
 using ASC.Files.Benchmark.Utils;
 using ASC.Files.Helpers;
@@ -114,6 +115,18 @@ namespace ASC.Files.Benchmark.BenchmarkEnviroment
             });
         }
 
+        public void ShareFile(int fileId, Guid userId)
+        {
+            InitialScope(() =>
+            {
+                filesControllerHelper.SetFileSecurityInfo(fileId,
+                    new List<FileShareParams>()
+                    {
+                        new FileShareParams() { Access = Core.Security.FileShare.ReadWrite, ShareTo = userId }
+                    }, false, "share");
+            });
+        }
+
         public void AddToFavorites(IEnumerable<int> foldersId, IEnumerable<int> filesId)
         {
             InitialScope(() =>
@@ -178,7 +191,8 @@ namespace ASC.Files.Benchmark.BenchmarkEnviroment
 
         public void GetFolder(int folderId)
         {
-            InitialScope(() => { 
+            InitialScope(() => 
+            { 
                 filesControllerHelper.GetFolder(folderId, Id, Core.FilterType.None, false);
             });
         }
@@ -191,11 +205,15 @@ namespace ASC.Files.Benchmark.BenchmarkEnviroment
             });
         }
 
-        public void Share()
+        public void ShareFolder(int folderId, Guid userId)
         {
             InitialScope(() =>
             {
-
+                filesControllerHelper.SetFolderSecurityInfo(folderId,
+                    new List<FileShareParams>()
+                    {
+                        new FileShareParams() { Access = Core.Security.FileShare.ReadWrite, ShareTo = userId }
+                    }, false, "share");
             });
         }
 
