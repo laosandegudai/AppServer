@@ -10,12 +10,12 @@ namespace ASC.Files.Benchmark.BenchmarkEnviroment
 
         private const string TestConnection = "Server=localhost;Database=onlyoffice_benchmark;User ID=root;Password=onlyoffice;Pooling=true;Character Set=utf8;AutoEnlist=false;SSL Mode=none;AllowPublicKeyRetrieval=True;";
 
-        public BenchmarkFilesHost()
+        public BenchmarkFilesHost(bool migrationEnable)
         {
             Host = Program.CreateHostBuilder(new string[] {
                 "--pathToConf" , Path.Combine("..", "..", "..", "..", "..", "config"),
                 "--ConnectionStrings:default:connectionString", TestConnection,
-                 "--migration:enabled", "true"}).Build();
+                 "--migration:enabled", migrationEnable.ToString().ToLower()}).Build();
         }
     }
 }
