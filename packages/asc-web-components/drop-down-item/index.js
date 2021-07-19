@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { ReactSVG } from "react-svg";
-import Checkbox from "../checkbox";
 
 import { StyledDropdownItem, IconWrapper } from "./styled-drop-down-item";
 
@@ -15,7 +14,6 @@ const DropDownItem = (props) => {
     disabled,
     onClick,
     className,
-    isChecked,
   } = props;
 
   const onClickAction = (e) => {
@@ -29,12 +27,6 @@ const DropDownItem = (props) => {
       onClick={onClickAction}
       disabled={disabled}
     >
-      {!isChecked ?? (
-        <Checkbox
-          isChecked={isChecked}
-          onChange={() => console.log("checked")}
-        />
-      )}
       {icon && (
         <IconWrapper>
           <ReactSVG src={icon} className="drop-down-item_icon" />
@@ -50,8 +42,6 @@ DropDownItem.propTypes = {
   isSeparator: PropTypes.bool,
   /** Tells when the dropdown item should display like header */
   isHeader: PropTypes.bool,
-  /** Tells when the dropdown item has checkbox */
-  isChecked: PropTypes.bool,
   /** Accepts tab-index */
   tabIndex: PropTypes.number,
   /** Dropdown item text */
@@ -79,7 +69,6 @@ DropDownItem.propTypes = {
 DropDownItem.defaultProps = {
   isSeparator: false,
   isHeader: false,
-  isChecked: undefined,
   tabIndex: -1,
   label: "",
   disabled: false,

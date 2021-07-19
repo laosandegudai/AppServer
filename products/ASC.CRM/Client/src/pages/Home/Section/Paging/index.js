@@ -11,6 +11,7 @@ const SectionPagingContent = ({
   setIsLoading,
   tReady,
   isLoaded,
+  contacts,
 }) => {
   const { t } = useTranslation("Home");
   const onNextClick = useCallback(
@@ -122,6 +123,11 @@ const SectionPagingContent = ({
   const selectedCountItem =
     countItems.find((x) => x.key === filter.count) || emptyCountSelection;
 
+  const showCountItem = useMemo(() => {
+    if (contacts)
+      return contacts.length === filter.pageCount || filter.total > 25;
+  }, [contacts, filter, pageItems]);
+
   return isLoaded ? (
     !filter || filter.total < filter.count || !tReady ? (
       <></>
@@ -153,12 +159,17 @@ const SectionPagingContent = ({
 export default inject(({ auth, contactsStore, crmStore }) => {
   const { isLoaded } = auth;
   const { setIsLoading } = crmStore;
-  const { filterStore, getContactsList: fetchContacts } = contactsStore;
+  const {
+    filterStore,
+    getContactsList: fetchContacts,
+    contacts,
+  } = contactsStore;
   const { filter } = filterStore;
   return {
     isLoaded,
     fetchContacts,
     filter,
     setIsLoading,
+    contacts,
   };
 })(observer(SectionPagingContent));

@@ -6,7 +6,7 @@ import RowContent from "@appserver/components/row-content";
 import Link from "@appserver/components/link";
 import find from "lodash/find";
 import result from "lodash/result";
-import { Trans, useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 
 const SimpleContactRow = ({ contact, sectionWidth }) => {
   const { t } = useTranslation("Home");
@@ -14,14 +14,14 @@ const SimpleContactRow = ({ contact, sectionWidth }) => {
 
   const email = result(
     find(commonData, (value) => {
-      return value.infoType === "email";
+      return value.infoType == 1;
     }),
     "data"
   );
 
   const phone = result(
     find(commonData, (value) => {
-      return value.infoType === "phone";
+      return value.infoType == 2;
     }),
     "data"
   );
