@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 
-using ASC.Api.Documents;
 using ASC.Core;
 using ASC.Files.Benchmark.Utils;
 using ASC.Files.Helpers;
@@ -37,6 +36,178 @@ namespace ASC.Files.Benchmark.BenchmarkEnviroment
             this.host = host;
         }
 
+        
+
+        public int CreateFileInMy()
+        {
+            int id = 0;
+
+            InitialScope(() =>
+            {
+                id = filesControllerHelper
+               .CreateFile(globalFolderHelper.FolderMy, "TestFile", default).Id;
+            });
+
+            return id;
+        }
+
+        public int CreateFile(int folderId)
+        {
+            int id = 0;
+
+            InitialScope(() =>
+            {
+                id = filesControllerHelper
+                .CreateFile(folderId, "TestFile", default).Id;
+            });
+
+            return id;
+        }
+
+        public void DeleteFile(int fileId)
+        {
+            InitialScope(() =>
+            {
+                filesControllerHelper.DeleteFile(fileId, false, true);
+            });
+        }
+
+        public void GetFileInfo(int fileId)
+        {
+            InitialScope(() =>
+            {
+                filesControllerHelper.GetFileInfo(fileId);
+            });
+        }
+
+        public void UpdateFileStream(int fileId, Stream stream)
+        {
+            InitialScope(() =>
+            {
+                filesControllerHelper.UpdateFileStream(stream, fileId);
+            });
+        }
+
+        public void OpenEdit(int fileId)
+        {
+            InitialScope(() =>
+            {
+                filesControllerHelper.OpenEdit(fileId, 1, null);
+            });
+        }
+
+        public void SaveEditing(int fileId)
+        {
+            InitialScope(() =>
+            {
+                filesControllerHelper
+                .SaveEditing(fileId, "docx",
+                string.Empty, StreamGenerator.Generate(1024).Stream, null, false);
+            });
+        }
+
+        public void StartEdit(int fileId)
+        {
+            InitialScope(() =>
+            {
+                filesControllerHelper.StartEdit(fileId, true, null);
+            });
+        }
+
+        public void AddToFavorites(IEnumerable<int> foldersId, IEnumerable<int> filesId)
+        {
+            InitialScope(() =>
+            {
+                fileStorageService.AddToFavorites(foldersId, filesId);
+            });
+        }
+
+        public void DeleteFavorites(IEnumerable<int> foldersId, IEnumerable<int> filesId)
+        {
+            InitialScope(() =>
+            {
+                fileStorageService.DeleteFavorites(foldersId, filesId);
+            });
+        }
+
+        public int CreateFolderInMy()
+        {
+            int id = 0;
+
+            InitialScope(() =>
+            {
+                id = filesControllerHelper
+                .CreateFolder(globalFolderHelper.FolderMy, "TestFolder").Id;
+            });
+
+            return id;
+        }
+
+        public int CreateCommonFolder()
+        {
+            int id = 0;
+
+            InitialScope(() =>
+            {
+                id = filesControllerHelper
+                .CreateFolder(globalFolderHelper.FolderCommon, "common").Id;
+            });
+
+            return id;
+        }
+
+        public int CreateFolder(int folderId)
+        {
+            int id = 0;
+
+            InitialScope(() =>
+            {
+                id = filesControllerHelper.CreateFolder(folderId, "TestFolder").Id;
+            });
+
+            return id;
+        }
+
+        public void DeleteFolder(int folderId)
+        {
+            InitialScope(() =>
+            {
+                filesControllerHelper.DeleteFolder(folderId, false, true);
+            });
+        }
+
+        public void GetFolder(int folderId)
+        {
+            InitialScope(() => { 
+                filesControllerHelper.GetFolder(folderId, Id, Core.FilterType.None, false);
+            });
+        }
+
+        public void RenameFolder(int folderId, string newTitle)
+        {
+            InitialScope(() =>
+            {
+                filesControllerHelper.RenameFolder(folderId, newTitle);
+            });
+        }
+
+        public void Share()
+        {
+            InitialScope(() =>
+            {
+
+            });
+        }
+
+        private void InitialScope(Action action)
+        {
+            UpdateScope();
+
+            action?.Invoke();
+
+            DeleteScope();
+        }
+
         private void UpdateScope()
         {
             scope = host.Host.Services.CreateScope();
@@ -55,136 +226,8 @@ namespace ASC.Files.Benchmark.BenchmarkEnviroment
             securityContext.AuthenticateMe(Id);
         }
 
-        public int CreateFileInMy()
+        private void DeleteScope()
         {
-            UpdateScope();
-            var result = filesControllerHelper
-               .CreateFile(globalFolderHelper.FolderMy, "TestFile", default).Id;
-            scope.Dispose();
-            scope = null;
-            return result;
-        }
-
-        public int CreateFile(int folderId)
-        {
-            UpdateScope();
-            var result = filesControllerHelper
-                .CreateFile(folderId, "TestFile", default).Id;
-            scope.Dispose();
-            scope = null;
-            return result;
-        }
-
-        public void DeleteFile(int fileId)
-        {
-            UpdateScope();
-            filesControllerHelper.DeleteFile(fileId, false, true);
-            scope.Dispose();
-            scope = null;
-        }
-
-        public void GetFileInfo(int fileId)
-        {
-            UpdateScope();
-            filesControllerHelper.GetFileInfo(fileId);
-            scope.Dispose();
-            scope = null;
-        }
-
-        public void UpdateFileStream(int fileId, Stream stream)
-        {
-            UpdateScope();
-            filesControllerHelper.UpdateFileStream(stream, fileId);
-            scope.Dispose();
-            scope = null;
-        }
-
-        public void OpenEdit(int fileId)
-        {
-            UpdateScope();
-            filesControllerHelper.OpenEdit(fileId, 1, null);
-            scope.Dispose();
-            scope = null;
-        }
-
-        public void SaveEditing(int fileId)
-        {
-            UpdateScope();
-            filesControllerHelper.SaveEditing(fileId, "docx", string.Empty, StreamGenerator.Generate(1024).Stream, null, false);
-            scope.Dispose();
-            scope = null;
-        }
-
-        public void StartEdit(int fileId)
-        {
-            UpdateScope();
-            filesControllerHelper.StartEdit(fileId, true, null);
-            scope.Dispose();
-            scope = null;
-        }
-
-        public void AddToFavorites(IEnumerable<int> foldersId, IEnumerable<int> filesId)
-        {
-            UpdateScope();
-            fileStorageService.AddToFavorites(foldersId, filesId);
-            scope.Dispose();
-            scope = null;
-        }
-
-        public void DeleteFavorites(IEnumerable<int> foldersId, IEnumerable<int> filesId)
-        {
-            UpdateScope();
-            fileStorageService.DeleteFavorites(foldersId, filesId);
-        }
-
-        public int CreateFolderInMy()
-        {
-            UpdateScope();
-            var result = filesControllerHelper.CreateFolder(globalFolderHelper.FolderMy, "TestFolder").Id;
-            scope.Dispose();
-            scope = null;
-            return result;
-        }
-
-        public int CreateCommonFolder()
-        {
-            UpdateScope();
-            var result = filesControllerHelper.CreateFolder(globalFolderHelper.FolderCommon, "common").Id;
-            scope.Dispose();
-            scope = null;
-            return result;
-        }
-
-        public int CreateFolder(int folderId)
-        {
-            UpdateScope();
-            var result = filesControllerHelper.CreateFolder(folderId, "TestFolder").Id;
-            scope.Dispose();
-            scope = null;
-            return result;
-        }
-
-        public void DeleteFolder(int folderId)
-        {
-            UpdateScope();
-            filesControllerHelper.DeleteFolder(folderId, false, true);
-            scope.Dispose();
-            scope = null;
-        }
-
-        public FolderContentWrapper<int> GetFolder(int folderId)
-        {
-            UpdateScope();
-            var result = filesControllerHelper.GetFolder(folderId, Id, Core.FilterType.None, false);
-            scope.Dispose();
-            scope = null;
-            return result;
-        }
-
-        public void RenameFolder(int folderId, string newTitle)
-        {
-            UpdateScope();
-            filesControllerHelper.RenameFolder(folderId, newTitle);
             scope.Dispose();
             scope = null;
         }
