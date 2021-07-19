@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using ASC.Core.Common.EF.Context;
 using ASC.Core.Common.EF;
 using Microsoft.Extensions.DependencyInjection;
-using System.IO;
 
 namespace ASC.Files.Benchmark.BenchmarkEnviroment
 {
@@ -13,14 +12,12 @@ namespace ASC.Files.Benchmark.BenchmarkEnviroment
         public List<TestUser> Users { get; private set; }
 
         private static TestDataStorage instance;
-        private const string TestConnection = "Server=localhost;Database=onlyoffice_benchmark;User ID=root;Password=onlyoffice;Character Set=utf8;AutoEnlist=false;SSL Mode=none;AllowPublicKeyRetrieval=True;";
 
         private TestDataStorage()
         {
-            var scope = Program.CreateHostBuilder(new string[] {
-                "--pathToConf" , Path.Combine("..", "..", "..", "..", "..", "config"),
-                "--ConnectionStrings:default:connectionString", TestConnection,
-                 "--migration:enabled", "true" }).Build().Services.CreateScope();
+            var benchHost = new BenchmarkFilesHost(false);
+
+            var scope = benchHost.Host.Services.CreateScope();
 
             var appConfig = BenchmarkConfiguration.Build().Config;
 
@@ -28,13 +25,11 @@ namespace ASC.Files.Benchmark.BenchmarkEnviroment
 
             using var db = scope.ServiceProvider.GetService<DbContextManager<TenantDbContext>>();
 
-            var host = new BenchmarkFilesHost();
-
             Users = new List<TestUser>();
 
             for (int i = 0; i < usersCount; i++)
             {
-                CreateUser(db.Value, host);
+                CreateUser(db.Value, benchHost);
             }
 
             db.Value.SaveChanges();
