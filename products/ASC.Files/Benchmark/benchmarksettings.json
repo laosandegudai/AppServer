@@ -17,11 +17,13 @@
         },
 
         "UpdateFileStreamTest": {
-            "IterationCount": 10
+            "IterationCount": 10,
+            "StreamSizeKB": 100
         },
 
         "EditFileTest": {
-            "IterationCount": 10
+            "IterationCount": 10,
+            "StreamSizeKB": 100
         },
         
         "ShareFileTest": {
@@ -39,7 +41,8 @@
         },
 
         "GetFolderTest": {
-            "IterationCount": 10
+            "IterationCount": 10,
+            "FilesInFolderCount": 10
         },
 
         "RenameFolderTest": {
