@@ -123,11 +123,11 @@ class CrmFilter {
   }
 
   getStartIndex = () => {
-    return this.page * this.pageCount;
+    return this.page * this.count;
   };
 
   hasNext = () => {
-    return this.total - this.getStartIndex() > this.pageCount;
+    return this.total - this.getStartIndex() > this.count;
   };
 
   hasPrev = () => {

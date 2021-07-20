@@ -17,7 +17,7 @@ import {
 import { withTranslation } from "react-i18next";
 import { observer, inject } from "mobx-react";
 
-const PureHome = ({ history, getContactsList }) => {
+const PureHome = ({ history, getContactsList, tReady }) => {
   const { location } = history;
   const { pathname } = location;
 
@@ -56,7 +56,7 @@ const PureHome = ({ history, getContactsList }) => {
       </PageLayout.SectionBody>
 
       <PageLayout.SectionPaging>
-        <SectionPagingContent />
+        <SectionPagingContent tReady={tReady} />
       </PageLayout.SectionPaging>
     </PageLayout>
   );

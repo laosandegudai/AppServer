@@ -16,6 +16,7 @@ const SectionPagingContent = ({
   const { t } = useTranslation("Home");
   const onNextClick = useCallback(
     (e) => {
+      debugger;
       if (!filter.hasNext()) {
         e.preventDefault();
         return;
@@ -124,8 +125,7 @@ const SectionPagingContent = ({
     countItems.find((x) => x.key === filter.count) || emptyCountSelection;
 
   const showCountItem = useMemo(() => {
-    if (contacts)
-      return contacts.length === filter.pageCount || filter.total > 25;
+    if (contacts) return contacts.length === filter.count || filter.total > 25;
   }, [contacts, filter, pageItems]);
 
   return isLoaded ? (
