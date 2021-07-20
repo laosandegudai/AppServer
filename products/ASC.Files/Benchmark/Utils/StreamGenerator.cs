@@ -5,7 +5,7 @@ namespace ASC.Files.Benchmark.Utils
 {
     public static class StreamGenerator
     {
-        public static TestStream Generate(int bytesCount)
+        public static Stream Generate(int bytesCount)
         {
             var bytes = Encoding.UTF8.GetBytes("test");
             var buffer = new byte[bytesCount];
@@ -19,7 +19,7 @@ namespace ASC.Files.Benchmark.Utils
 
             stream.Position = 0;
 
-            return new TestStream(stream);
+            return stream;
         }
     }
 }
