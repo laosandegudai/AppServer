@@ -1,4 +1,5 @@
 ﻿
+using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Toolchains.InProcess.Emit;
 
@@ -12,6 +13,7 @@ namespace ASC.Files.Benchmark.TestsConfiguration
                 .WithStrategy(BenchmarkDotNet.Engines.RunStrategy.Monitoring)
                 .WithToolchain(InProcessEmitToolchain.Instance)
                 .WithIterationCount(int.Parse(appConfig["Files:EditFileTest:IterationCount"])));
+            AddColumn(new TagColumn("Size", name => $"{appConfig["Files:EditFileTest:StreamSizeKB"]} KB"));
         }
     }
 }
