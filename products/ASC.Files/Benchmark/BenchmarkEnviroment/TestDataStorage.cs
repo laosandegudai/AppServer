@@ -10,6 +10,7 @@ namespace ASC.Files.Benchmark.BenchmarkEnviroment
     public class TestDataStorage
     {
         public List<TestUser> Users { get; private set; }
+        public List<TestUser> UsersForShare { get; private set; }
 
         private static TestDataStorage instance;
 
@@ -26,20 +27,21 @@ namespace ASC.Files.Benchmark.BenchmarkEnviroment
             using var db = scope.ServiceProvider.GetService<DbContextManager<TenantDbContext>>();
 
             Users = new List<TestUser>();
+            UsersForShare = new List<TestUser>();
 
             for (int i = 0; i < usersCount; i++)
             {
-                CreateUser(db.Value, benchHost);
+                Users.Add(CreateUser(db.Value, benchHost));
+                UsersForShare.Add(CreateUser(db.Value, benchHost));
             }
 
             db.Value.SaveChanges();
         }
 
-        private void CreateUser(TenantDbContext context, BenchmarkFilesHost host)
+        private TestUser CreateUser(TenantDbContext context, BenchmarkFilesHost host)
         {
             var id = Guid.NewGuid();
-
-            context.Users.Add(new User
+            var testUser = new User
             {
                 Id = id,
                 Email = "test@gmail.com",
@@ -50,9 +52,11 @@ namespace ASC.Files.Benchmark.BenchmarkEnviroment
                 Status = ASC.Core.Users.EmployeeStatus.Active,
                 LastModified = DateTime.Now,
                 WorkFromDate = DateTime.Now
-            });
+            };
 
-            Users.Add(new TestUser(id, host));
+            context.Users.Add(testUser);
+
+            return new TestUser(id, host);
         }
 
         public static TestDataStorage GetStorage()
