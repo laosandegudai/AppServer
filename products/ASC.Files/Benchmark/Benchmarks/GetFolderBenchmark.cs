@@ -13,12 +13,23 @@ namespace ASC.Files.Benchmark.Benchmarks
         private int _folderId;
         private List<int> _foldersId = new List<int>();
         private Task[] _tasks;
+        private int _filesCount;
+
+        public GetFolderBenchmark()
+        {
+            _filesCount = int.Parse(_config["Folders:GetFolderTest:FilesInFolderCount"]);
+        }
 
         #region GetFolderTest
         [GlobalSetup(Target = nameof(GetFolderTest))]
         public void GlobalSetupGetFolderTest()
         {
             _folderId = _dataStorage.Users[0].CreateFolderInMy();
+            
+            for (int i = 0; i < _filesCount; i++)
+            {
+                _dataStorage.Users[0].CreateFile(_folderId);
+            }
         }
 
         [Benchmark]
@@ -34,7 +45,14 @@ namespace ASC.Files.Benchmark.Benchmarks
         {
             foreach (var user in _dataStorage.Users)
             {
-                _foldersId.Add(user.CreateFolderInMy());
+                var folderId = user.CreateFolderInMy();
+
+                for (int i = 0; i < _filesCount; i++)
+                {
+                    user.CreateFile(folderId);
+                }
+
+                _foldersId.Add(folderId);
             }
         }
 
