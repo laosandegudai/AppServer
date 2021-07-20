@@ -13,7 +13,6 @@ class ProjectsFilterStore {
   folder = [];
   projects = [];
   projectsStore;
-  filterCommonOptions = [];
 
   constructor(projectsStore, treeFoldersStore) {
     this.projectsStore = projectsStore;
@@ -134,23 +133,145 @@ class ProjectsFilterStore {
     this.projects = projects;
   };
 
-  getFilterCommonOptions = () => {
-    const options = [];
+  getProjectFilterSortDataOptions = (translation) => {
+    const options = [
+      {
+        key: "DateAndTimeCreation",
+        label: translation.byCreationDate,
+        default: true,
+      },
+      { key: "AZ", label: translation.byTitle, default: true },
+    ];
 
-    options.push("filter-status");
-    options.push("open");
-    options.push("paused");
-    options.push("filter-author");
-    options.push("user1");
-    options.push("user2");
-    options.push("follow");
-    options.push("tag");
-    options.push("withoutTag");
-    options.push("filter-team");
-    options.push("team-me");
-    options.push("user3");
-    options.push("group");
+    return options;
+  };
 
+  getProjectFilterRowContextOptions = (translation, id) => {
+    const options = [
+      {
+        key: "edit-project",
+        label: translation.editProject,
+        "data-id": id,
+      },
+      {
+        key: "delete-project",
+        label: translation.deleteProject,
+        "data-id": id,
+      },
+    ];
+
+    return options;
+  };
+
+  getProjectFilterCommonOptions = (
+    translation,
+    customNames,
+    selectedItem,
+    user
+  ) => {
+    const { usersCaption, groupsCaption } = customNames;
+    const options = [
+      {
+        key: "filter-status",
+        group: "filter-status",
+        label: translation.status,
+        isHeader: true,
+      },
+      {
+        key: "open",
+        group: "filter-status",
+        label: translation.active,
+      },
+      {
+        key: "paused",
+        group: "filter-status",
+        label: translation.paused,
+      },
+      {
+        key: "closed",
+        group: "filter-status",
+        label: translation.closed,
+      },
+      {
+        key: "filter-author",
+        group: "filter-author",
+        label: translation.byProjectManager,
+        isHeader: true,
+      },
+      {
+        key: "user1",
+        group: "filter-author",
+        label: translation.me,
+        isSelector: true,
+        defaultOptionLabel: translation.meLabel,
+        defaultSelectLabel: translation.select,
+        groupsCaption,
+        defaultOption: user,
+        selectedItem,
+      },
+      {
+        key: "user2",
+        group: "filter-author",
+        label: translation.otherUsers,
+        isSelector: true,
+        defaultOptionLabel: translation.meLabel,
+        defaultSelectLabel: translation.select,
+        groupsCaption,
+        defaultOption: user,
+        selectedItem,
+      },
+      {
+        key: "filter-settings",
+        group: "filter-settings",
+        label: translation.other,
+        isRowHeader: true,
+      },
+      {
+        key: "follow",
+        group: "filter-settings",
+        label: translation.followed,
+      },
+      {
+        key: "tag",
+        group: "filter-settings",
+        label: translation.withTag,
+      },
+      {
+        key: "withoutTag",
+        group: "filter-settings",
+        label: translation.withoutTag,
+      },
+      {
+        key: "filter-team",
+        group: "filter-author",
+        label: translation.teamMember,
+        isHeader: true,
+      },
+      {
+        key: "team-me",
+        group: "filter-author",
+        label: translation.me,
+      },
+      {
+        key: "user3",
+        group: "filter-author",
+        label: translation.otherUsers,
+        isSelector: true,
+        defaultOptionLabel: translation.meLabel,
+        defaultSelectLabel: translation.select,
+        groupsCaption,
+        defaultOption: user,
+        selectedItem,
+      },
+      {
+        key: "group",
+        group: "filter-author",
+        label: translation.groups,
+        defaultSelectLabel: translation.select,
+        isSelector: true,
+        selectedItem,
+      },
+    ];
     return options;
   };
 

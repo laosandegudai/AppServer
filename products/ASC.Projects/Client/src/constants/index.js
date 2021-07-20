@@ -25,6 +25,6 @@ export const FolderKey = Object.freeze({
 
 export const RowProjectOptionStatus = Object.freeze({
   Active: 0,
-  Paused: 1,
-  Closed: 2,
+  Closed: 1,
+  Paused: 2,
 });

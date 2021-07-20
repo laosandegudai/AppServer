@@ -19,7 +19,7 @@ class ProjectsStore {
   items = [];
   selection = [];
   selected = "close";
-  // filterCommonOptions = [];
+  filterCommonOptions = [];
 
   firstLoad = true;
 
@@ -42,7 +42,7 @@ class ProjectsStore {
       items: observable,
       selection: observable,
       selected: observable,
-      // filterCommonOptions: observable,
+      filterCommonOptions: observable,
       filter: observable,
       isLoaded: observable,
       setIsLoading: action,
@@ -53,7 +53,7 @@ class ProjectsStore {
       setItems: action,
       init: action,
       setFilter: action,
-      // setFilterCommonOptions: action,
+      setFilterCommonOptions: action,
     });
   }
 
@@ -84,6 +84,10 @@ class ProjectsStore {
       this.setIsLoaded(true);
       this.isInit = true;
     });
+  };
+
+  setFilterCommonOptions = (options) => {
+    this.filterCommonOptions = options;
   };
 
   setIsLoading = (loading) => {

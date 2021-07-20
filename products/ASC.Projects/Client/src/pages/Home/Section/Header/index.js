@@ -10,6 +10,8 @@ import { isMobile } from "react-device-detect";
 import ContextMenuButton from "@appserver/components/context-menu-button";
 import DropDownItem from "@appserver/components/drop-down-item";
 import GroupButtonsMenu from "@appserver/components/group-buttons-menu";
+import api from "@appserver/common/api";
+const { ProjectsFilter, TasksFilter } = api;
 
 const StyledContainer = styled.div`
   .header-container {
@@ -143,6 +145,7 @@ const PureSectionHeaderContent = (props) => {
     isHeaderChecked,
     isHeaderVisible,
     isHeaderIndeterminate,
+    filter,
   } = props;
 
   const onCheck = (checked) => {
@@ -157,6 +160,52 @@ const PureSectionHeaderContent = (props) => {
     setSelected("close");
   };
 
+  const getChildren = () => {
+    // если что, потом поменять генерацию, сделав switch case
+    if (filter instanceof ProjectsFilter) {
+      return [
+        <DropDownItem key="active" label={t("Active")} data-index={0} />,
+        <DropDownItem key="paused" label={t("Paused")} data-index={1} />,
+        <DropDownItem key="closed" label={t("Closed")} data-index={2} />,
+      ];
+    }
+
+    if (filter instanceof TasksFilter) {
+      return [
+        <DropDownItem key="active" label={t("TaskOpen")} data-index={0} />,
+        <DropDownItem key="closed" label={t("TaskClosed")} data-index={1} />,
+      ];
+    }
+  };
+
+  const getItems = () => {
+    if (filter instanceof ProjectsFilter) {
+      return [
+        {
+          label: t("Common:Delete"),
+          disabled: true,
+        },
+      ];
+    }
+
+    if (filter instanceof TasksFilter) {
+      return [
+        {
+          label: t("Close"),
+          disabled: true,
+        },
+        {
+          label: t("Move"),
+          disabled: true,
+        },
+        {
+          label: t("Common:Delete"),
+          disabled: true,
+        },
+      ];
+    }
+  };
+
   const getMenuItems = () => {
     // меню тоже генерируется у каждого раздела свое
     // пока что только отображение
@@ -167,29 +216,10 @@ const PureSectionHeaderContent = (props) => {
         isSeparator: true,
         isSelect: true,
         fontWeight: "bold",
-        children: [
-          <DropDownItem
-            key="active"
-            label={t("Common:Active")}
-            data-index={0}
-          />,
-          <DropDownItem
-            key="paused"
-            label={t("Common:Paused")}
-            data-index={1}
-          />,
-          <DropDownItem
-            key="closed"
-            label={t("Common:Closed")}
-            data-index={2}
-          />,
-        ],
+        children: getChildren(),
         onSelect: onSelect,
       },
-      {
-        label: t("Delete"),
-        disabled: true,
-      },
+      ...getItems(),
     ];
 
     return menu;
@@ -202,19 +232,19 @@ const PureSectionHeaderContent = (props) => {
     return [
       {
         key: "new-project",
-        label: t("NewProject"),
+        label: t("Article:NewProject"),
       },
       {
         key: "new-milestone",
-        label: t("NewMilestone"),
+        label: t("Article:NewMilestone"),
       },
       {
         key: "new-task",
-        label: t("NewTask"),
+        label: t("Article:NewTask"),
       },
       {
         key: "new-discussion",
-        label: t("NewDiscussion"),
+        label: t("Article:NewDiscussion"),
       },
     ];
   };
@@ -265,7 +295,7 @@ const PureSectionHeaderContent = (props) => {
   );
 };
 
-const SectionHeaderContent = withTranslation(["Article", "Common"])(
+const SectionHeaderContent = withTranslation(["Home", "Article", "Common"])(
   withRouter(PureSectionHeaderContent)
 );
 
@@ -275,6 +305,7 @@ export default inject(({ auth, projectsStore }) => {
     isHeaderVisible,
     isHeaderChecked,
     isHeaderIndeterminate,
+    filter,
   } = projectsStore;
   return {
     auth,
@@ -283,5 +314,6 @@ export default inject(({ auth, projectsStore }) => {
     isHeaderVisible,
     isHeaderChecked,
     isHeaderIndeterminate,
+    filter,
   };
 })(observer(SectionHeaderContent));

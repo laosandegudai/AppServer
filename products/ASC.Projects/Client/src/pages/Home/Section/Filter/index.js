@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { inject, observer } from "mobx-react";
 import { withTranslation } from "react-i18next";
 import result from "lodash/result";
@@ -7,6 +7,7 @@ import { withRouter } from "react-router";
 import Loaders from "@appserver/common/components/Loaders";
 import FilterInput from "@appserver/common/components/FilterInput";
 import api from "@appserver/common/api";
+import { isMobileOnly } from "react-device-detect";
 const { ProjectsFilter, TasksFilter } = api;
 
 const getStatus = (filterValues) => {
@@ -44,10 +45,63 @@ const getSelectedItem = (filterValues, type) => {
   return selectedItem || null;
 };
 const PureSectionFilterContent = (props) => {
-  const { t, filter, customNames, user, fetchProjects, tReady } = props;
+  const {
+    t,
+    filter,
+    customNames,
+    fetchProjects,
+    tReady,
+    getProjectFilterCommonOptions,
+    getTaskFilterCommonOptions,
+    getProjectFilterSortDataOptions,
+    getTaskFilterSortDataOptions,
+    sectionWidth,
+  } = props;
+
+  const translations = {
+    status: t("Status"),
+    active: t("Active"),
+    paused: t("Paused"),
+    closed: t("Closed"),
+    byProjectManager: t("ByProjectManager"),
+    me: t("Me"),
+    meLabel: t("Common:MeLabel"),
+    select: t("Common:Select"),
+    otherUsers: t("OtherUsers"),
+    other: t("Other"),
+    followed: t("Followed"),
+    withTag: t("WithTag"),
+    withoutTag: t("WithoutTag"),
+    teamMember: t("TeamMember"),
+    groups: t("Groups"),
+
+    responsible: t("Responsible"),
+    noResponsible: t("noResponsible"),
+    milestone: t("Milestone"),
+    milestonesWithMyTasks: t("MilestonesWithMyTasks"),
+    noMilestone: t("NoMilestone"),
+    otherMilestones: t("otherMilestones"),
+    allClosed: t("AllClosed"),
+    creator: t("Creator"),
+    open: t("Open"),
+    project: t("Project"),
+    myProject: t("MyProject"),
+    otherProjects: t("OtherProjects"),
+    dueDate: t("DueDate"),
+    overdue: t("Overdue"),
+    today: t("Today"),
+    upcoming: t("Upcoming"),
+    customPeriod: t("CustomPeriod"),
+
+    byCreationDate: t("ByCreationDate"),
+    byTitle: t("ByTitle"),
+    priority: t("Priority"),
+    startDate: t("StartDate"),
+    order: t("Order"),
+  };
 
   const onFilter = (data) => {
-    // вообще подумать как это все лучше обрабатывать с несколькими фильтрами
+    // // вообще подумать как это все лучше обрабатывать с несколькими фильтрами
     const status = getStatus(data.filterValues) || null;
     const search = data.inputValue || "";
     const sortBy = data.sortId;
@@ -65,141 +119,55 @@ const PureSectionFilterContent = (props) => {
       selectedFilterItem.type = selectedItem.typeSelector;
     }
 
+    // if (filter instanceof ProjectsFilter) {
+    //   const newFilter = filter.clone();
+    //   newFilter.page = 0;
+    //   newFilter.sortBy = sortBy;
+    //   newFilter.sortOrder = sortOrder;
+    //   newFilter.search = search;
+    //   newFilter.selectedItem = selectedFilterItem;
+    //   newFilter.status = status;
+    //   console.log(settings);
+    //   // сделать здесь обнуление
+    //   // newFilter.follow = null;
+    //   if (settings === "follow") {
+    //     newFilter[settings] = true;
+    //   }
+    //   fetchProjects(newFilter);
+    // }
+  };
+
+  const getData = () => {
+    const { user } = props;
+    const { selectedItem } = filter;
     if (filter instanceof ProjectsFilter) {
-      const newFilter = filter.clone();
-      newFilter.page = 0;
-      newFilter.sortBy = sortBy;
-      newFilter.sortOrder = sortOrder;
-      newFilter.search = search;
-      newFilter.selectedItem = selectedFilterItem;
-      newFilter.status = status;
-      console.log(settings);
-      // сделать здесь обнуление
-      // newFilter.follow = null;
-      if (settings === "follow") {
-        newFilter[settings] = true;
-      }
-      fetchProjects(newFilter);
+      return getProjectFilterCommonOptions(
+        translations,
+        customNames,
+        selectedItem,
+        user
+      );
+    } else if (filter instanceof TasksFilter) {
+      return getTaskFilterCommonOptions(
+        translations,
+        customNames,
+        selectedItem,
+        user
+      );
     }
   };
-  const getData = () => {
-    const { usersCaption, groupsCaption } = customNames;
-    const { selectedItem } = filter;
-    const options = [
-      {
-        key: "filter-status",
-        group: "filter-status",
-        label: t("Status"),
-        isHeader: true,
-      },
-      {
-        key: "open",
-        group: "filter-status",
-        label: t("Active"),
-      },
-      {
-        key: "paused",
-        group: "filter-status",
-        label: t("Paused"),
-      },
-      {
-        key: "closed",
-        group: "filter-status",
-        label: t("Closed"),
-      },
-    ];
 
-    const filterOptions = [
-      ...options,
-      {
-        key: "filter-author",
-        group: "filter-author",
-        label: t("ByProjectManager"),
-        isHeader: true,
-      },
-      {
-        key: "user1",
-        group: "filter-author",
-        label: t("Me"),
-        isSelector: true,
-        defaultOptionLabel: t("Common:MeLabel"),
-        defaultSelectLabel: t("Common:Select"),
-        groupsCaption,
-        defaultOption: user,
-        selectedItem,
-      },
-      {
-        key: "user2",
-        group: "filter-author",
-        label: t("OtherUsers"),
-        isSelector: true,
-        defaultOptionLabel: t("Common:MeLabel"),
-        defaultSelectLabel: t("Common:Select"),
-        groupsCaption,
-        defaultOption: user,
-        selectedItem,
-      },
-      {
-        key: "filter-settings",
-        group: "filter-settings",
-        label: t("Other"),
-        isRowHeader: true,
-      },
-      {
-        key: "follow",
-        group: "filter-settings",
-        label: t("Followed"),
-      },
-      {
-        key: "tag",
-        group: "filter-settings",
-        label: t("WithTag"),
-      },
-      {
-        key: "withoutTag",
-        group: "filter-settings",
-        label: t("WithoutTag"),
-      },
-      {
-        key: "filter-team",
-        group: "filter-author",
-        label: t("TeamMember"),
-        isHeader: true,
-      },
-      {
-        key: "team-me",
-        group: "filter-author",
-        label: t("Me"),
-      },
-      {
-        key: "user3",
-        group: "filter-author",
-        label: t("OtherUsers"),
-        isSelector: true,
-        defaultOptionLabel: t("Common:MeLabel"),
-        defaultSelectLabel: t("Common:Select"),
-        groupsCaption,
-        defaultOption: user,
-        selectedItem,
-      },
-      {
-        key: "group",
-        group: "filter-author",
-        label: groupsCaption,
-        defaultSelectLabel: t("Common:Select"),
-        isSelector: true,
-        selectedItem,
-      },
-    ];
+  const getFilterSortData = () => {
+    if (filter instanceof ProjectsFilter) {
+      return getProjectFilterSortDataOptions(translations);
+    }
 
-    return filterOptions;
+    if (filter instanceof TasksFilter) {
+      return getTaskFilterSortDataOptions(translations);
+    }
   };
-
   const getSortData = () => {
-    const commonOptions = [
-      { key: "DateAndTimeCreation", label: t("ByCreationDate"), default: true },
-      { key: "AZ", label: t("ByTitle"), default: true },
-    ];
+    const commonOptions = getFilterSortData();
 
     const viewSettings = [
       { key: "row", label: t("ViewList"), isSetting: true, default: true },
@@ -251,14 +219,15 @@ const PureSectionFilterContent = (props) => {
     <Loaders.Filter />
   ) : (
     <FilterInput
+      sectionWidth={sectionWidth}
       getFilterData={getData}
       getSortData={getSortData}
       onFilter={onFilter}
       selectedFilterData={selectedFilterData}
-      viewAs={false}
       isReady={tReady}
       directionAscLabel={t("Common:DirectionAscLabel")}
       directionDescLabel={t("Common:DirectionDescLabel")}
+      isMobile={isMobileOnly}
       placeholder={t("Common:Search")}
       {...filterColumnCount}
       contextMenuHeader={t("Common:AddFilter")}
@@ -270,15 +239,30 @@ const SectionFilterContent = withTranslation(["Home", "Common"])(
   withRouter(PureSectionFilterContent)
 );
 
-export default inject(({ auth, projectsStore, projectsFilterStore }) => {
-  const { customNames } = auth.settingsStore;
-  const { fetchProjects } = projectsFilterStore;
-  const { user } = auth.userStore;
-  const { filter } = projectsStore;
-  return {
-    customNames,
-    filter,
-    user,
-    fetchProjects,
-  };
-})(observer(SectionFilterContent));
+export default inject(
+  ({ auth, projectsStore, projectsFilterStore, tasksFilterStore }) => {
+    const { customNames } = auth.settingsStore;
+    const {
+      fetchProjects,
+      getProjectFilterCommonOptions,
+      getProjectFilterSortDataOptions,
+    } = projectsFilterStore;
+    const { user } = auth.userStore;
+    const { filter } = projectsStore;
+
+    const {
+      getTaskFilterCommonOptions,
+      getTaskFilterSortDataOptions,
+    } = tasksFilterStore;
+    return {
+      customNames,
+      filter,
+      user,
+      fetchProjects,
+      getProjectFilterCommonOptions,
+      getTaskFilterCommonOptions,
+      getProjectFilterSortDataOptions,
+      getTaskFilterSortDataOptions,
+    };
+  }
+)(observer(SectionFilterContent));

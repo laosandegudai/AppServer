@@ -11,7 +11,7 @@ import ExternalLinkIcon from "../../../../../../public/images/external.link.reac
 import Loaders from "@appserver/common/components/Loaders";
 import toastr from "studio/toastr";
 import PageLayout from "@appserver/common/components/PageLayout";
-import { withTranslation } from "react-i18next";
+import { useTranslation, withTranslation } from "react-i18next";
 
 import { inject } from "mobx-react";
 import i18n from "../../i18n";
@@ -41,13 +41,17 @@ const Home = ({
   selectedTreeNode,
   fetchTasks,
   setExpandedKeys,
+  filter,
+  getProjectFilterCommonOptions,
+  setFilterCommonOptions,
+  tReady,
+  getTaskFilterCommonOptions,
 }) => {
   const { location } = history;
   const { pathname } = location;
   useEffect(() => {
     const reg = new RegExp(`${homepage}((/?)$|/filter)`, "gm");
     const match = window.location.pathname.match(reg);
-    console.log(reg, match);
     let filterObj = null;
 
     if (match && match.length > 0) {
@@ -123,14 +127,22 @@ const HomeWrapper = inject(
     tasksFilterStore,
     treeFoldersStore,
   }) => {
-    const { isLoading, firstLoad, setIsLoading, setFirstLoad } = projectsStore;
+    const {
+      isLoading,
+      firstLoad,
+      setIsLoading,
+      setFirstLoad,
+      setFilterCommonOptions,
+      setFilter,
+      filter,
+    } = projectsStore;
     const { selectedTreeNode, setExpandedKeys } = treeFoldersStore;
-    const { fetchTasks } = tasksFilterStore;
+    const { fetchTasks, getTaskFilterCommonOptions } = tasksFilterStore;
     const {
       fetchAllProjects,
       projects,
-      filter,
       fetchProjects,
+      getProjectFilterCommonOptions,
     } = projectsFilterStore;
     return {
       modules: auth.moduleStore.modules,
@@ -148,9 +160,12 @@ const HomeWrapper = inject(
       projects,
       fetchTasks,
       setExpandedKeys,
+      getProjectFilterCommonOptions,
+      setFilterCommonOptions,
+      getTaskFilterCommonOptions,
     };
   }
-)(withRouter(withTranslation(["Article", "Common"])(Home)));
+)(withRouter(withTranslation(["Home", "Common", "Article"])(Home)));
 
 export default (props) => (
   <I18nextProvider i18n={i18n}>

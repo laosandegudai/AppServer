@@ -10,5 +10,22 @@
   "TeamMember": "Team member",
   "OpenTask": "Open task",
   "ByTitle": "Title",
-  "ByCreationDate": "Creation date"
+  "ByCreationDate": "Creation date",
+  "EditProject": "Edit project",
+  "DeleteProject": "Delete project",
+  "noResponsible": "No responsible",
+  "MilestonesWithMyTasks": "Milestones with My Tasks",
+  "NoMilestone": "No milestone",
+  "otherMilestones": "Other milestones",
+  "AllClosed": "All closed",
+  "MyProject": "My project",
+  "OtherProjects": "Other projects",
+  "DueDate": "Due date",
+  "CustomPeriod": "Custom period",
+  "ComboOpen": "Open",
+  "ComboPaused": "Paused",
+  "ComboClosed": "Closed",
+  "StartDate": "Start date",
+  "TaskOpen": "Open",
+  "TaskClosed": "Closed"
 }

@@ -7,7 +7,8 @@ import ListContent from "./ListContent";
 import { useTranslation } from "react-i18next";
 import { RowProjectOptionStatus } from "../../../../constants";
 import styled from "styled-components";
-import { ReactSVG } from "react-svg";
+import api from "@appserver/common/api";
+const { ProjectsFilter, TasksFilter } = api;
 
 const StyledComboBox = styled(ComboBox)`
   .combo-button_selected-icon {
@@ -24,6 +25,9 @@ const SimpleProjectsRow = ({
   selectProject,
   deselectProject,
   checked,
+  filter,
+  getProjectFilterRowContextOptions,
+  getTaskFilterRowContextOptions,
 }) => {
   const {
     status,
@@ -40,56 +44,32 @@ const SimpleProjectsRow = ({
 
   const { t } = useTranslation(["Home", "Common"]);
 
+  const translations = {
+    accept: t("Accept"),
+    addSubtask: t("AddSubtask"),
+    moveToMilestone: t("MoveToMilestone"),
+    notifyResponsible: t("NotifyResponsible"),
+    trackTime: t("TrackTime"),
+    edit: t("Edit"),
+    copy: t("Copy"),
+    delete: t("Common:Delete"),
+    editProject: t("EditProject"),
+    deleteProject: t("DeleteProject"),
+  };
+
   const checkedProps = { checked };
 
-  const onContentRowSelect = (checked, list) => {
-    console.log("dadada", checked);
-    return checked ? selectProject(list) : deselectProject(list);
-  };
+  const onContentRowSelect = (checked, list) =>
+    checked ? selectProject(list) : deselectProject(list);
+
   const getProjectsContextOptions = (id) => {
-    const options = [
-      {
-        key: "accept",
-        label: t("Accept"),
-        "data-id": id,
-      },
-      {
-        key: "add-subtask",
-        label: t("AddSubtask"),
-        "data-id": id,
-      },
-      {
-        key: "moveto-milestone",
-        label: t("MoveToMilestone"),
-        "data-id": id,
-      },
-      {
-        key: "notify",
-        label: t("NotifyResponsible"),
-        "data-id": id,
-      },
-      {
-        key: "track-time",
-        label: t("TrackTime"),
-        "data-id": id,
-      },
-      {
-        key: "edit",
-        label: t("Edit"),
-        "data-id": id,
-      },
-      {
-        key: "copy",
-        label: t("Copy"),
-        "data-id": id,
-      },
-      {
-        key: "delete",
-        label: t("Delete"),
-        "data-id": id,
-      },
-    ];
-    return options;
+    if (filter instanceof ProjectsFilter) {
+      return getProjectFilterRowContextOptions(translations, id);
+    }
+
+    if (filter instanceof TasksFilter) {
+      return getTaskFilterRowContextOptions(translations, id);
+    }
   };
 
   const contextOptionsProps = {
@@ -107,40 +87,50 @@ const SimpleProjectsRow = ({
       case RowProjectOptionStatus.Closed:
         return {
           icon: "images/catalog.status-closed.react.svg",
-          key: 2,
+          key: 1,
           //label: "Closed",
         };
       case RowProjectOptionStatus.Paused:
         return {
           icon: "images/catalog.status-pause.react.svg",
-          key: 1,
+          key: 2,
           //label: "Paused",
         };
     }
   };
 
+  const getComboBoxOptions = () => {
+    // пока что под 2 категории
+    const options = [
+      {
+        icon: "images/catalog.status-play.react.svg",
+        key: 1,
+        label: t("ComboOpen"),
+      },
+      {
+        icon: "images/catalog.status-closed.react.svg",
+        key: 2,
+        label: t("ComboClosed"),
+      },
+    ];
+
+    return filter instanceof ProjectsFilter
+      ? [
+          ...options,
+          {
+            icon: "images/catalog.status-pause.react.svg",
+            key: 3,
+            label: t("ComboPaused"),
+          },
+        ]
+      : options;
+  };
+
   const element = (
     <StyledComboBox
-      options={[
-        {
-          icon: "images/catalog.status-play.react.svg",
-          key: 1,
-          label: "Open",
-        },
-        {
-          icon: "images/catalog.status-pause.react.svg",
-          key: 2,
-          label: "Paused",
-        },
-        {
-          icon: "images/catalog.status-closed.react.svg",
-          key: 3,
-          label: "Closed",
-        },
-      ]}
+      options={getComboBoxOptions()}
       scaled={false}
       noBorder={true}
-      style={{ fill: "#A3A9AE" }}
       selectedOption={getSelectedOption()}
       size="content"
     />
@@ -167,14 +157,24 @@ const SimpleProjectsRow = ({
 };
 
 export default withRouter(
-  inject(({ auth, projectsStore }, { list }) => {
-    const { selectProject, deselectProject } = projectsStore;
-    return {
-      auth,
-      list,
-      checked: projectsStore.selection.some((el) => el.id === list.id),
-      selectProject,
-      deselectProject,
-    };
-  })(observer(SimpleProjectsRow))
+  inject(
+    (
+      { auth, projectsStore, projectsFilterStore, tasksFilterStore },
+      { list }
+    ) => {
+      const { selectProject, deselectProject, filter } = projectsStore;
+      const { getProjectFilterRowContextOptions } = projectsFilterStore;
+      const { getTaskFilterRowContextOptions } = tasksFilterStore;
+      return {
+        auth,
+        list,
+        checked: projectsStore.selection.some((el) => el.id === list.id),
+        selectProject,
+        deselectProject,
+        filter,
+        getProjectFilterRowContextOptions,
+        getTaskFilterRowContextOptions,
+      };
+    }
+  )(observer(SimpleProjectsRow))
 );

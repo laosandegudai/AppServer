@@ -36,7 +36,7 @@ const ListContent = ({ isMobile, list, sectionWidth }) => {
       <Link
         color="#A3A9AE"
         containerMinWidth="60px"
-        containerWidth="8%"
+        containerWidth="10%"
         type="page"
         title={firstTitle}
       >

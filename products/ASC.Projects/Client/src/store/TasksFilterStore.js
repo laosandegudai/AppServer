@@ -31,7 +31,9 @@ class TasksFilterStore {
     const { setSelectedNode } = this.treeFoldersStore;
     setSelectedNode([filterData.folder]);
     this.setTasksFilter(filterData);
+    this.projectsStore.setFilter(filterData);
     this.setTasks(data);
+
     this.projectsStore.setItems(this.TaskList);
     const items = {
       items: this.tasks,
@@ -98,6 +100,249 @@ class TasksFilterStore {
     });
     return list;
   }
+
+  getTaskFilterSortDataOptions = (translation) => {
+    const options = [
+      {
+        key: "DateAndTimeCreation",
+        label: translation.byCreationDate,
+        default: true,
+      },
+      { key: "DueDate", label: translation.dueDate, default: false },
+
+      { key: "StartDate", label: translation.startDate, default: false },
+      { key: "Priority", label: translation.priority, default: false },
+      { key: "AZ", label: translation.byTitle, default: false },
+      { key: "Order", label: translation.order, default: false },
+    ];
+
+    return options;
+  };
+
+  getTaskFilterRowContextOptions = (translation, id) => {
+    const options = [
+      {
+        key: "accept",
+        label: translation.accept,
+        "data-id": id,
+      },
+      {
+        key: "add-subtask",
+        label: translation.addSubtask,
+        "data-id": id,
+      },
+      {
+        key: "moveto-milestone",
+        label: translation.moveToMilestone,
+        "data-id": id,
+      },
+      {
+        key: "notify",
+        label: translation.notifyResponsible,
+        "data-id": id,
+      },
+      {
+        key: "track-time",
+        label: translation.trackTime,
+        "data-id": id,
+      },
+      {
+        isSeparator: true,
+        key: "task-separator",
+      },
+      {
+        key: "edit",
+        label: translation.edit,
+        "data-id": id,
+      },
+      {
+        key: "copy",
+        label: translation.copy,
+        "data-id": id,
+      },
+      {
+        key: "delete",
+        label: translation.delete,
+        "data-id": id,
+      },
+    ];
+
+    return options;
+  };
+
+  getTaskFilterCommonOptions = (
+    translation,
+    customNames,
+    selectedItem,
+    user
+  ) => {
+    const { usersCaption, groupsCaption } = customNames;
+    const customPeriod = "customPeriod";
+    const options = [
+      {
+        key: "filter-responsible",
+        group: "filter-author",
+        label: translation.responsible,
+        isHeader: true,
+      },
+      {
+        key: "me",
+        group: "filter-author",
+        label: translation.me,
+      },
+      {
+        key: "user-task",
+        group: "filter-author",
+        label: translation.otherUsers,
+        isSelector: true,
+        defaultOptionLabel: translation.meLabel,
+        defaultSelectLabel: translation.select,
+        groupsCaption,
+        defaultOption: user,
+        selectedItem,
+      },
+      {
+        key: "groups-task",
+        group: "filter-author",
+        label: translation.groups,
+        isSelector: true,
+        defaultOptionLabel: translation.meLabel,
+        defaultSelectLabel: translation.select,
+        groupsCaption,
+        defaultOption: user,
+        selectedItem,
+      },
+      {
+        key: "no-responsible",
+        group: "filter-author",
+        label: translation.noResponsible,
+      },
+      {
+        key: "milestone",
+        group: "filter-milestone",
+        label: translation.milestone,
+        isRowHeader: true,
+      },
+      {
+        key: "milestone-with-task",
+        group: "filter-milestone",
+        label: translation.milestonesWithMyTasks,
+      },
+      {
+        key: "no-milestone",
+        group: "filter-milestone",
+        label: translation.noMilestone,
+      },
+      {
+        key: "other-milestones",
+        group: "filter-milestone",
+        label: translation.otherMilestones,
+      },
+      {
+        key: "empty",
+        group: "filter-milestone",
+        label: null,
+        isSelector: true,
+      },
+      {
+        key: "filter-creator",
+        group: "filter-author-creator",
+        label: translation.creator,
+        isHeader: true,
+      },
+      {
+        key: "filter-creator-me",
+        group: "filter-author-creator",
+        label: translation.me,
+      },
+      {
+        key: "filter-creator-users",
+        group: "filter-author-creator",
+        label: translation.otherUsers,
+        isSelector: true,
+        defaultOptionLabel: translation.meLabel,
+        defaultSelectLabel: translation.select,
+        groupsCaption,
+        defaultOption: user,
+        selectedItem,
+      },
+      {
+        key: "filter-task-status",
+        group: "filter-status",
+        label: translation.status,
+        isRowHeader: true,
+      },
+      {
+        key: "filter-task-status-open",
+        group: "filter-status",
+        label: translation.open,
+      },
+      {
+        key: "filter-task-status-allClosed",
+        group: "filter-status",
+        label: translation.allClosed,
+      },
+      {
+        key: "filter-project",
+        group: "filter-project",
+        label: translation.project,
+        isHeader: true,
+      },
+      {
+        key: "filter-my-project",
+        group: "filter-project",
+        label: translation.myProject,
+      },
+      {
+        key: "filter-other-project",
+        group: "filter-project",
+        label: translation.otherProjects,
+      },
+      {
+        key: "filter-project-withTag",
+        group: "filter-project",
+        label: translation.withTag,
+      },
+      {
+        key: "filter-project-withoutTag",
+        group: "filter-project",
+        label: translation.withoutTag,
+      },
+      {
+        key: "filter-duedate",
+        group: "filter-duedate",
+        label: translation.dueDate,
+        isRowHeader: true,
+      },
+      {
+        key: "filter-overdue",
+        group: "filter-duedate",
+        label: translation.overdue,
+      },
+      {
+        key: "filter-today",
+        group: "filter-duedate",
+        label: translation.today,
+      },
+      {
+        key: "filter-upcoming",
+        group: "filter-duedate",
+        label: translation.upcoming,
+      },
+      {
+        key: "filter-custom-period",
+        group: "filter-duedate",
+        label: translation.customPeriod,
+        isSelector: true,
+        defaultOptionLabel: translation.meLabel,
+        defaultSelectLabel: translation.select,
+        customPeriod,
+        defaultOption: customPeriod,
+        selectedItem,
+      },
+    ];
+    return options;
+  };
 }
 
 export default TasksFilterStore;

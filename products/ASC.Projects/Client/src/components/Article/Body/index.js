@@ -28,6 +28,10 @@ const ArticleBodyContent = (props) => {
     fetchProjects,
     fetchTasks,
     isProjectsFolder,
+    translations,
+    getTaskFilterCommonOptions,
+    getProjectFilterCommonOptions,
+    setFilterCommonOptions,
   } = props;
 
   const onSelect = (data, e) => {
@@ -84,7 +88,7 @@ const ArticleBodyContent = (props) => {
 
 export default inject(
   ({ projectsStore, projectsFilterStore, tasksFilterStore }) => {
-    const { fetchTasks } = tasksFilterStore;
+    const { fetchTasks, getTaskFilterCommonOptions } = tasksFilterStore;
     const {
       isLoading,
       treeFoldersStore,
@@ -92,8 +96,12 @@ export default inject(
       filter,
       setFilter,
       setIsLoading,
+      setFilterCommonOptions,
     } = projectsStore;
-    const { fetchProjects } = projectsFilterStore;
+    const {
+      fetchProjects,
+      getProjectFilterCommonOptions,
+    } = projectsFilterStore;
     const {
       treeFolders,
       fetchTreeFolders,
@@ -117,6 +125,9 @@ export default inject(
       setIsLoading,
       fetchTasks,
       isProjectsFolder,
+      setFilterCommonOptions,
+      getTaskFilterCommonOptions,
+      getProjectFilterCommonOptions,
     };
   }
 )(observer(withRouter(ArticleBodyContent)));
