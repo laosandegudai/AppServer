@@ -27,7 +27,8 @@
         },
         
         "ShareFileTest": {
-            "IterationCount": 10
+            "IterationCount": 10,
+            "FilesCount": 100
         }
     },
 
@@ -46,10 +47,6 @@
         },
 
         "RenameFolderTest": {
-            "IterationCount": 10
-        },
-
-        "ShareFolderTest": {
             "IterationCount": 10
         }
     },
