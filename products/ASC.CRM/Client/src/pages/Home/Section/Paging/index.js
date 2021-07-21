@@ -16,7 +16,6 @@ const SectionPagingContent = ({
   const { t } = useTranslation("Home");
   const onNextClick = useCallback(
     (e) => {
-      debugger;
       if (!filter.hasNext()) {
         e.preventDefault();
         return;
@@ -129,7 +128,7 @@ const SectionPagingContent = ({
   }, [contacts, filter, pageItems]);
 
   return isLoaded ? (
-    !filter || filter.total < filter.count || !tReady ? (
+    !tReady || (filter.total < filter.count && filter.total < 26) ? (
       <></>
     ) : (
       <Paging

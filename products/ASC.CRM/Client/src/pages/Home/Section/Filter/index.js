@@ -24,16 +24,12 @@ const SectionFilterContent = ({
   user,
 }) => {
   const [isCheckedTag, setIsCheckedTag] = useState({
-    Partner: false,
-    Client: false,
-    Competitor: false,
-    Provider: false,
+    Партнер: false,
+    Клиент: false,
+    Конкурент: false,
+    Поставщик: false,
   });
-  const [flag, setFlag] = useState(0);
-  const onChangeCheckbox = (name) => {
-    setIsCheckedTag({ ...isCheckedTag, [name]: !isCheckedTag[name] });
-    setFlag(flag + 1);
-  };
+  const [renderId, setRenderId] = useState(0);
 
   const getAuthorType = (filterValues) => {
     const authorType = result(
@@ -106,15 +102,31 @@ const SectionFilterContent = ({
       : null;
   };
 
-  const getTagType = (filterValues) => {
-    const tagType = result(
-      find(filterValues, (value) => {
-        return value.group === "filter-other-tag-type";
-      }),
-      "key"
+  // const getTagType = (filterValues) => {
+  //   const tagType = result(
+  //     find(filterValues, (value) => {
+  //       return value.group === "filter-other-tag-type";
+  //     }),
+  //     "key"
+  //   );
+
+  //   return tagType ? tagType : null;
+  // };
+
+  const onChangeTagCheckbox = (name) => {
+    setIsCheckedTag({ ...isCheckedTag, [name]: !isCheckedTag[name] });
+
+    const checkedTags = Object.keys(isCheckedTag).filter((tag) =>
+      encodeURI(isCheckedTag[tag])
     );
 
-    return tagType ? tagType : null;
+    setRenderId(renderId + 1);
+
+    const newFilter = filter.clone();
+    newFilter.tags = checkedTags;
+
+    setIsLoading(true);
+    getContactsList(newFilter).finally(() => setIsLoading(false));
   };
 
   const getDateType = (filterValues) => {
@@ -252,7 +264,6 @@ const SectionFilterContent = ({
     const sortOrder =
       data.sortDirection === "desc" ? "descending" : "ascending";
     const search = data.inputValue || "";
-    const tagType = getTagType(data.filterValues);
 
     const selectedItem = authorType
       ? getSelectedItem(data.filterValues, authorType)
@@ -349,9 +360,8 @@ const SectionFilterContent = ({
           <Checkbox
             key="client-checkbox"
             label={t("Client")}
-            name={t("Client")}
-            isChecked={isCheckedTag["Client"]}
-            onChange={() => onChangeCheckbox("Client")}
+            isChecked={isCheckedTag["Клиент"]}
+            onChange={() => onChangeTagCheckbox("Клиент")}
           />,
         ],
       },
@@ -363,9 +373,8 @@ const SectionFilterContent = ({
           <Checkbox
             key="provider-checkbox"
             label={t("Provider")}
-            name={t("Provider")}
-            isChecked={isCheckedTag["Provider"]}
-            onChange={() => onChangeCheckbox("Provider")}
+            isChecked={isCheckedTag["Поставщик"]}
+            onChange={() => onChangeTagCheckbox("Поставщик")}
           />,
         ],
       },
@@ -377,9 +386,8 @@ const SectionFilterContent = ({
           <Checkbox
             key="partner-checkbox"
             label={t("Partner")}
-            name={t("Partner")}
-            isChecked={isCheckedTag["Partner"]}
-            onChange={() => onChangeCheckbox("Partner")}
+            isChecked={isCheckedTag["Партнер"]}
+            onChange={() => onChangeTagCheckbox("Партнер")}
           />,
         ],
       },
@@ -391,9 +399,8 @@ const SectionFilterContent = ({
           <Checkbox
             key="competitor-checkbox"
             label={t("Competitor")}
-            name={t("Competitor")}
-            isChecked={isCheckedTag["Competitor"]}
-            onChange={() => onChangeCheckbox("Competitor")}
+            isChecked={isCheckedTag["Конкурент"]}
+            onChange={() => onChangeTagCheckbox("Конкурент")}
           />,
         ],
       },
@@ -414,16 +421,8 @@ const SectionFilterContent = ({
         defaultOptionLabel: t("Common:MeLabel"),
         defaultSelectLabel: t("Common:Select"),
         groupsCaption,
-        defaultOption: {
-          key: "2ccf8828-e31c-11eb-915b-28ec95054a52",
-          label: "Я",
-          type: "user",
-        },
-        selectedItem: {
-          key: "2ccf8828-e31c-11eb-915b-28ec95054a52",
-          label: "Я",
-          type: "user",
-        },
+        defaultOption: user,
+        selectedItem,
       },
       {
         key: "filter-no-author",
@@ -576,7 +575,7 @@ const SectionFilterContent = ({
       {...filterColumnCount}
       contextMenuHeader={t("Common:AddFilter")}
       isMobile={isMobileOnly}
-      id={flag.toString()}
+      id={renderId.toString()}
     />
   ) : (
     <Loaders.Filter />

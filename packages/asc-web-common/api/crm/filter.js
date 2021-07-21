@@ -14,7 +14,7 @@ const DEFAULT_AUTHOR_TYPE = null;
 const DEFAULT_FROM_DATE_TYPE = null;
 const DEFAULT_TO_DATE_TYPE = null;
 const DEFAULT_SELECTED_ITEM = {};
-// const DEFAULT_TAGS_TYPE = ["Клиент", "Конкурент"];
+const DEFAULT_TAGS_TYPE = null;
 
 const CONTACT_TYPE = "contactType";
 const PAGE = "page";
@@ -65,7 +65,7 @@ class CrmFilter {
     const fromDate = urlFilter[FROM_DATE_TYPE] || defaultFilter.fromDate;
     const toDate = urlFilter[TO_DATE_TYPE] || defaultFilter.toDate;
     const selectedItem = defaultFilter.selectedItem;
-    // const tags = urlFilter[TAGS_TYPE] || defaultFilter.tags;
+    const tags = urlFilter[TAGS_TYPE] || defaultFilter.tags;
 
     const newFilter = new CrmFilter({
       sortBy,
@@ -82,7 +82,7 @@ class CrmFilter {
       fromDate,
       toDate,
       selectedItem,
-      // tags,
+      tags,
     });
 
     return newFilter;
@@ -103,7 +103,7 @@ class CrmFilter {
     selectedItem = DEFAULT_SELECTED_ITEM,
     fromDate = DEFAULT_FROM_DATE_TYPE,
     toDate = DEFAULT_TO_DATE_TYPE,
-    // tags = DEFAULT_TAGS_TYPE,
+    tags = DEFAULT_TAGS_TYPE,
   }) {
     this.page = page;
     this.count = count;
@@ -119,7 +119,7 @@ class CrmFilter {
     this.selectedItem = selectedItem;
     this.fromDate = fromDate;
     this.toDate = toDate;
-    // this.tags = tags;
+    this.tags = tags;
   }
 
   getStartIndex = () => {
@@ -147,7 +147,7 @@ class CrmFilter {
       toDate,
       contactStage,
       contactType,
-      // tags,
+      tags,
     } = this;
 
     const responsibleid =
@@ -168,7 +168,7 @@ class CrmFilter {
       toDate: toDate,
       contactStage: contactStage,
       contactType: contactType,
-      // tags: tags,
+      tags: tags,
     };
 
     const str = toUrlParams(dtoFilter, true);
@@ -190,7 +190,7 @@ class CrmFilter {
       toDate,
       contactStage,
       contactType,
-      // tags,
+      tags,
     } = this;
 
     const dtoFilter = {};
@@ -220,9 +220,9 @@ class CrmFilter {
       dtoFilter[PAGE_COUNT] = count;
     }
 
-    // if (tags && tags.length) {
-    //   dtoFilter[TAGS_TYPE] = tags;
-    // }
+    if (tags && tags.length) {
+      dtoFilter[TAGS_TYPE] = tags;
+    }
 
     dtoFilter[SORT_BY] = sortBy;
     dtoFilter[SORT_ORDER] = sortOrder;
@@ -252,7 +252,7 @@ class CrmFilter {
       toDate: this.toDate,
       selectedItem: this.selectedItem,
       contactStage: this.contactStage,
-      // tags: this.tags,
+      tags: this.tags,
     });
   }
 }
