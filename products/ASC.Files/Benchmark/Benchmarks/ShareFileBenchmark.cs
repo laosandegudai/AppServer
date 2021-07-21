@@ -12,7 +12,7 @@ namespace ASC.Files.Benchmark.Benchmarks
     public class ShareFileBenchmark : BenchmarkBase
     {
         private int _fileId;
-        private List<int> _filesId = new List<int>();
+        private List<int> _filesId;
         private int _filesCount;
         private Task[] _tasks;
         
@@ -57,6 +57,8 @@ namespace ASC.Files.Benchmark.Benchmarks
         [GlobalSetup(Target =nameof(ShareFileManyUsersTest))]
         public void GlobalSetupShareFileManyUsersTest()
         {
+            _filesId = new List<int>();
+
             foreach (var user in _dataStorage.Users)
             {
                 _filesId.Add(user.CreateFileInMy());
@@ -95,33 +97,23 @@ namespace ASC.Files.Benchmark.Benchmarks
         #endregion
 
         #region GetShareFolderWithFilesManyUsersTest
-        [GlobalSetup(Target =nameof(GetShareFolderWithFilesManyUsersTest))]
-        public void GlobalSetupGetShareFolderManyUsersTest()
+        [GlobalSetup(Target = nameof(GetShareFolderWithFilesManyUsersTest))]
+        public void GlobalSetupGetShareFolderWithFilesManyUsersTest()
         {
-            var tasks = new Task[_dataStorage.Users.Count];
+            _filesId = new List<int>();
 
-            for (int i = 0; i < _dataStorage.Users.Count; i++)
+            for (int i = 0; i < _filesCount; i++)
             {
-                var user1 = _dataStorage.Users[i];
-                var user2 = _dataStorage.UsersForShare[i];
+                _filesId.Add(_dataStorage.Users[0].CreateFileInMy());
+            }
 
-                tasks[i] = new Task(() =>
+            foreach (var user in _dataStorage.UsersForShare)
+            {
+                foreach (var file in _filesId)
                 {
-                    for (int j = 0; j < _filesCount; j++)
-                    {
-                        var fileId = user1.CreateFileInMy();
-                        user1.ShareFile(fileId, user2.Id);
-                    }
-                }, TaskCreationOptions.LongRunning);
-                tasks[i].ConfigureAwait(false);
+                    _dataStorage.Users[0].ShareFile(file, user.Id);
+                }
             }
-
-            foreach (var task in tasks)
-            {
-                task.Start();
-            }
-
-            Task.WaitAll(tasks);
         }
 
         [IterationSetup(Target =nameof(GetShareFolderWithFilesManyUsersTest))]
