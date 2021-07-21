@@ -234,11 +234,13 @@ class ContextMenuButton extends React.Component {
                       (item.label || item.icon || item.key) && (
                         <Link
                           className={`context-menu-button_link${
-                            item.isHeader ? "-header" : ""
+                            item.isHeader || item.isRowHeader ? "-header" : ""
                           }`}
                           key={item.key || index}
-                          fontSize={item.isHeader ? "15px" : "13px"}
-                          noHover={item.isHeader}
+                          fontSize={
+                            item.isHeader || item.isRowHeader ? "15px" : "13px"
+                          }
+                          noHover={[item.isHeader, item.isRowHeader]}
                           fontWeight={600}
                           onClick={this.onDropDownItemClick.bind(this, item)}
                         >
