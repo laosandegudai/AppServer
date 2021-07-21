@@ -4,7 +4,6 @@ using System.IO;
 
 using ASC.Api.Documents;
 using ASC.Core;
-using ASC.Files.Benchmark.Utils;
 using ASC.Files.Helpers;
 using ASC.Web.Files.Classes;
 using ASC.Web.Files.Services.WCFService;
@@ -36,8 +35,6 @@ namespace ASC.Files.Benchmark.BenchmarkEnviroment
             Id = id;
             this.host = host;
         }
-
-        
 
         public int CreateFileInMy()
         {
@@ -97,13 +94,13 @@ namespace ASC.Files.Benchmark.BenchmarkEnviroment
             });
         }
 
-        public void SaveEditing(int fileId)
+        public void SaveEditing(int fileId, Stream stream)
         {
             InitialScope(() =>
             {
                 filesControllerHelper
                 .SaveEditing(fileId, "docx",
-                string.Empty, StreamGenerator.Generate(1024).Stream, null, false);
+                string.Empty, stream, null, false);
             });
         }
 
@@ -205,15 +202,11 @@ namespace ASC.Files.Benchmark.BenchmarkEnviroment
             });
         }
 
-        public void ShareFolder(int folderId, Guid userId)
+        public void GetShareFolder()
         {
             InitialScope(() =>
             {
-                filesControllerHelper.SetFolderSecurityInfo(folderId,
-                    new List<FileShareParams>()
-                    {
-                        new FileShareParams() { Access = Core.Security.FileShare.ReadWrite, ShareTo = userId }
-                    }, false, "share");
+                filesControllerHelper.GetFolder(globalFolderHelper.FolderShare, Id, Core.FilterType.None, false);
             });
         }
 
