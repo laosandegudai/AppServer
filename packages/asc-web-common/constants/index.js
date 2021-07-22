@@ -54,7 +54,7 @@ export const FilterType = Object.freeze({
  * @readonly
  */
 export const ContactsFilterType = Object.freeze({
-  NoManager: "00000000-0000-0000-0000-000000000000",
+  NoAuthor: "00000000-0000-0000-0000-000000000000",
   ColdTemperature: "1837515",
   WarmTemperature: "1837516",
   HotTemperature: "1837517",

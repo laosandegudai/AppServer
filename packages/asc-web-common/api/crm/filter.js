@@ -28,7 +28,7 @@ const CONTACT_LIST_VIEW = "contactListView";
 const AUTHOR_TYPE = "authorType";
 const FROM_DATE_TYPE = "fromDate";
 const TO_DATE_TYPE = "toDate";
-const TAGS_TYPE = "tags[]";
+const TAGS_TYPE = "tags";
 
 class CrmFilter {
   static getDefault(total = DEFAULT_TOTAL) {

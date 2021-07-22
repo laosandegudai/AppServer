@@ -39,7 +39,11 @@ const SectionFilterContent = ({
       "key"
     );
 
-    return authorType ? authorType : null;
+    return authorType
+      ? authorType === "filter-no-author"
+        ? ContactsFilterType.NoAuthor
+        : authorType
+      : null;
   };
 
   const getSelectedItem = (filterValues, type) => {
