@@ -24,10 +24,10 @@ const SectionFilterContent = ({
   user,
 }) => {
   const [isCheckedTag, setIsCheckedTag] = useState({
-    Партнер: false,
     Клиент: false,
-    Конкурент: false,
+    Персонал: false,
     Поставщик: false,
+    "Потенциальный клиент": false,
   });
   const [renderId, setRenderId] = useState(0);
 
@@ -329,22 +329,22 @@ const SectionFilterContent = ({
         label: t("Client"),
       },
       {
+        key: "staff-type",
+        inSubgroup: true,
+        group: "filter-other-contact-type",
+        label: t("Staff"),
+      },
+      {
         key: "provider-type",
         inSubgroup: true,
         group: "filter-other-contact-type",
         label: t("Provider"),
       },
       {
-        key: "partner-type",
+        key: "potential-client-type",
         inSubgroup: true,
         group: "filter-other-contact-type",
-        label: t("Partner"),
-      },
-      {
-        key: "competitor-type",
-        inSubgroup: true,
-        group: "filter-other-contact-type",
-        label: t("Competitor"),
+        label: t("{PotentialClient}"),
       },
       {
         key: "client-tag-type",
@@ -356,6 +356,19 @@ const SectionFilterContent = ({
             label={t("Client")}
             isChecked={isCheckedTag["Клиент"]}
             onChange={() => onChangeTagCheckbox("Клиент")}
+          />,
+        ],
+      },
+      {
+        key: "staff-tag-type",
+        inSubgroup: true,
+        group: "filter-other-tag-type",
+        children: [
+          <Checkbox
+            key="staff-checkbox"
+            label={t("Staff")}
+            isChecked={isCheckedTag["Персонал"]}
+            onChange={() => onChangeTagCheckbox("Персонал")}
           />,
         ],
       },
@@ -373,28 +386,15 @@ const SectionFilterContent = ({
         ],
       },
       {
-        key: "partner-tag-type",
+        key: "potential-client-tag-type",
         inSubgroup: true,
         group: "filter-other-tag-type",
         children: [
           <Checkbox
-            key="partner-checkbox"
-            label={t("Partner")}
-            isChecked={isCheckedTag["Партнер"]}
-            onChange={() => onChangeTagCheckbox("Партнер")}
-          />,
-        ],
-      },
-      {
-        key: "competitor-tag-type",
-        inSubgroup: true,
-        group: "filter-other-tag-type",
-        children: [
-          <Checkbox
-            key="competitor-checkbox"
-            label={t("Competitor")}
-            isChecked={isCheckedTag["Конкурент"]}
-            onChange={() => onChangeTagCheckbox("Конкурент")}
+            key="potential-client-checkbox"
+            label={t("PotentialClient")}
+            isChecked={isCheckedTag["Потенциальный клиент"]}
+            onChange={() => onChangeTagCheckbox("Потенциальный клиент")}
           />,
         ],
       },
