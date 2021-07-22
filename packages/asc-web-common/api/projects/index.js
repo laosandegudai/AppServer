@@ -1,18 +1,26 @@
 import * as fakeProjects from "./fake";
 import { request } from "../client";
+import ProjectsFilter from "./projectsFilter";
 export function getFolders(fake = true) {
   if (fake) {
     return fakeProjects.getFolders();
   }
 }
 
-export function getAllProjectsList(fake = true, filter) {
-  if (fake) {
+export function getAllProjectsList(fake = false, filter) {
+  /*   if (fake) {
     return fakeProjects.getAllProjects(filter.page);
-  }
+  } */
+
+  const params =
+    filter && filter instanceof ProjectsFilter
+      ? `filter?${filter.toApiUrlParams()}`
+      : "";
+
   const options = {
     method: "get",
-    url: `/project/filter`,
+    url: `/project/${params}.json`,
+    old: true,
   };
   return request(options);
 }

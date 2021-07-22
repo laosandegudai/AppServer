@@ -39,7 +39,7 @@ class ProjectsFilterStore {
     this.setProjectFilter(filterData);
     this.projectsStore.setFilter(filterData);
     setSelectedNode([filterData.folder]);
-    this.setProjects(data);
+    this.setProjects(data.items);
     this.projectsStore.setItems(this.projectList);
     const items = {
       items: this.projectList,

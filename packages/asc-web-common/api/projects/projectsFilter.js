@@ -165,10 +165,10 @@ class ProjectsFilter {
       filterValue: (search ?? "").trim(),
       tag: tag,
       follow: follow,
-      manager: manager,
-      participant: participant,
+      //manager: manager,
+      //participant: participant,
       status: status,
-      departament: departament,
+      //departament: departament,
       folder: folder,
       filterType: filterType,
     };

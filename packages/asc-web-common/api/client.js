@@ -3,7 +3,8 @@ import { AppServerConfig } from "../constants";
 import { combineUrl } from "../utils";
 
 const { proxyURL, apiPrefixURL, apiTimeout } = AppServerConfig;
-const origin = window.location.origin;
+
+const { origin, protocol, hostname } = window.location;
 
 const apiBaseURL = combineUrl(origin, proxyURL, apiPrefixURL);
 const loginURL = combineUrl(proxyURL, "/login");
@@ -28,6 +29,14 @@ const client = axios.create({
   responseType: "json",
   timeout: apiTimeout, // default is `0` (no timeout)
 });
+
+const oldClient = axios.create({
+  baseURL: `${protocol}//${hostname}${apiPrefixURL}`,
+  responseType: "json",
+  timeout: apiTimeout,
+});
+
+oldClient.defaults.withCredentials = true;
 
 client.interceptors.response.use(
   (response) => {
@@ -109,5 +118,9 @@ export const request = function (options) {
     return Promise.reject(errorText || errorResponse);
   };
 
-  return client(options).then(onSuccess).catch(onError);
+  const req = options.old
+    ? oldClient(options).then(onSuccess).catch(onError)
+    : client(options).then(onSuccess).catch(onError);
+
+  return req;
 };
