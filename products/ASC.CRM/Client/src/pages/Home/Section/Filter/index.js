@@ -102,22 +102,12 @@ const SectionFilterContent = ({
       : null;
   };
 
-  // const getTagType = (filterValues) => {
-  //   const tagType = result(
-  //     find(filterValues, (value) => {
-  //       return value.group === "filter-other-tag-type";
-  //     }),
-  //     "key"
-  //   );
-
-  //   return tagType ? tagType : null;
-  // };
-
   const onChangeTagCheckbox = (name) => {
     setIsCheckedTag({ ...isCheckedTag, [name]: !isCheckedTag[name] });
+    const newIsCheckedTag = { ...isCheckedTag, [name]: !isCheckedTag[name] };
 
-    const checkedTags = Object.keys(isCheckedTag).filter((tag) =>
-      encodeURI(isCheckedTag[tag])
+    const checkedTags = Object.keys(newIsCheckedTag).filter(
+      (tag) => newIsCheckedTag[tag]
     );
 
     setRenderId(renderId + 1);
@@ -595,6 +585,7 @@ export default withRouter(
       isLoaded,
       filter,
       getContactsList,
+
       customNames,
       user,
       selectedItem: filter.selectedItem,

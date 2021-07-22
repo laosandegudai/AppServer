@@ -28,7 +28,7 @@ const CONTACT_LIST_VIEW = "contactListView";
 const AUTHOR_TYPE = "authorType";
 const FROM_DATE_TYPE = "fromDate";
 const TO_DATE_TYPE = "toDate";
-const TAGS_TYPE = "tags";
+const TAGS_TYPE = "tags[]";
 
 class CrmFilter {
   static getDefault(total = DEFAULT_TOTAL) {
@@ -171,7 +171,7 @@ class CrmFilter {
       tags: tags,
     };
 
-    const str = toUrlParams(dtoFilter, true);
+    const str = toUrlParams(dtoFilter, true, true);
 
     return str;
   };
@@ -230,7 +230,7 @@ class CrmFilter {
     dtoFilter[CONTACT_STAGE] = contactStage;
     dtoFilter[CONTACT_TYPE] = contactType;
 
-    const str = toUrlParams(dtoFilter, true);
+    const str = toUrlParams(dtoFilter, true, true);
 
     return str;
   };

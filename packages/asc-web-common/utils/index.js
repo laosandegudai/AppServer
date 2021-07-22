@@ -3,7 +3,7 @@ import sjcl from "sjcl";
 import { isMobile } from "react-device-detect";
 import history from "../history";
 import TopLoaderService from "@appserver/components/top-loading-indicator";
-export const toUrlParams = (obj, skipNull) => {
+export const toUrlParams = (obj, skipNull, hasArray) => {
   let str = "";
   for (var key in obj) {
     if (skipNull && !obj[key]) continue;
@@ -12,7 +12,13 @@ export const toUrlParams = (obj, skipNull) => {
       str += "&";
     }
 
-    str += key + "=" + encodeURIComponent(obj[key]);
+    if (Array.isArray(obj[key]) && hasArray) {
+      str += obj[key]
+        .map((el) => `${key}[]=${encodeURIComponent(el)}`)
+        .join("&");
+    } else {
+      str += key + "=" + encodeURIComponent(obj[key]);
+    }
   }
 
   return str;
