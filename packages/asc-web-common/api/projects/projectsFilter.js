@@ -11,9 +11,9 @@ const DEFAULT_SEARCH = null;
 const DEFAULT_SELECTED_ITEM = {};
 const DEFAULT_TAG = 0;
 const DEFAULT_STATUS = null;
-const DEFAULT_PARTICIPANT = "00000000-0000-0000-0000-000000000000";
-const DEFAULT_MANAGER = "00000000-0000-0000-0000-000000000000";
-const DEFAULT_DEPARTAMENT = "00000000-0000-0000-0000-000000000000";
+const DEFAULT_PARTICIPANT = null;
+const DEFAULT_MANAGER = null;
+const DEFAULT_DEPARTAMENT = null;
 const DEFAULT_FOLLOW = false;
 const DEFAULT_FOLDER = null;
 const DEFAULT_FILTER_TYPE = null;
@@ -166,7 +166,7 @@ class ProjectsFilter {
       tag: tag,
       follow: follow,
       //manager: manager,
-      //participant: participant,
+      participant: participant,
       status: status,
       //departament: departament,
       folder: folder,

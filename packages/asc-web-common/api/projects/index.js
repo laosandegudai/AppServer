@@ -11,11 +11,12 @@ export function getAllProjectsList(fake = false, filter) {
   /*   if (fake) {
     return fakeProjects.getAllProjects(filter.page);
   } */
-
   const params =
     filter && filter instanceof ProjectsFilter
       ? `filter?${filter.toApiUrlParams()}`
       : "";
+
+  console.log(params);
 
   const options = {
     method: "get",
@@ -25,10 +26,20 @@ export function getAllProjectsList(fake = false, filter) {
   return request(options);
 }
 
-export function getMyProjectsList(fake = true) {
-  if (fake) {
-    return fakeProjects.getMyProjects();
-  }
+export function getMyProjectsList(fake = false, filter) {
+  const params =
+    filter && filter instanceof ProjectsFilter
+      ? `filter?${filter.toApiUrlParams()}`
+      : "";
+
+  console.log(params);
+
+  const options = {
+    method: "get",
+    url: `/project/${params}.json`,
+    old: true,
+  };
+  return request(options);
 }
 
 export function getFollowedProjectsList(fake = true) {
