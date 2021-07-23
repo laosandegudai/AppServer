@@ -356,6 +356,8 @@ class FilterInput extends React.Component {
             ? "user"
             : item.key.includes("group")
             ? "group"
+            : item.key.includes("custom-period")
+            ? "custom-period"
             : null;
           const underlined = item.key.indexOf("_") !== -1;
           const key = underlined
@@ -647,6 +649,8 @@ class FilterInput extends React.Component {
         ? "user"
         : filterItem.key.includes("group")
         ? "group"
+        : filterItem.key.includes("custom-period")
+        ? "custom-period"
         : null;
       const itemId =
         filterItem.key.indexOf("_") !== filterItem.key.lastIndexOf("_")

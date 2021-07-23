@@ -2,6 +2,7 @@ import React from "react";
 import FilterButton from "./FilterButton";
 import HideFilter from "./HideFilter";
 import ComboBox from "@appserver/components/combobox";
+import DatePicker from "@appserver/components/date-picker";
 import CloseButton from "./CloseButton";
 import equal from "fast-deep-equal/react";
 import PropTypes from "prop-types";
@@ -12,6 +13,7 @@ import {
 } from "../StyledFilterInput";
 import GroupSelector from "people/GroupSelector"; //TODO: Move out GroupSelector  of FilterItem
 import PeopleSelector from "people/PeopleSelector"; //TODO: Move out PeopleSelector  of FilterItem
+import { FilterDate } from "./FilterDate";
 
 class FilterItem extends React.Component {
   constructor(props) {
@@ -161,6 +163,8 @@ class FilterItem extends React.Component {
       defaultOption,
       asideView,
     } = this.props;
+
+    console.log(this.props);
     return (
       <StyledFilterItem key={id} id={id} block={block} opened={opened}>
         <StyledFilterItemContent isDisabled={isDisabled} isOpen={isOpen}>
@@ -218,6 +222,7 @@ class FilterItem extends React.Component {
               />
             </>
           )}
+          {typeSelector === "custom-period" && <FilterDate />}
           {!typeSelector && (
             <>
               {groupLabel}:
@@ -350,6 +355,7 @@ class FilterBlock extends React.Component {
           defaultSelectLabel,
           selectedItem,
         } = item;
+
         return (
           <FilterItem
             block={false}

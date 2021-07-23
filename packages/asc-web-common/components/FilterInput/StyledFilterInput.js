@@ -78,6 +78,20 @@ const StyledFilterInput = styled.div`
     }
   }
 
+  .styled-datepicker {
+    margin-top: -7px;
+    margin-left: 3px;
+
+    input {
+      background-color: transparent;
+    }
+  }
+
+  .styled-datepicker > div:first-child {
+    background-color: transparent;
+    border: none;
+  }
+
   .styled-filter-name {
     line-height: 18px;
     margin-left: 5px;
