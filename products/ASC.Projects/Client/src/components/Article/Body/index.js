@@ -52,14 +52,12 @@ const ArticleBodyContent = (props) => {
       case FolderKey.ProjectsFollowed:
       case FolderKey.MyProjects:
         filterObj = ProjectsFilter.getDefault();
-        setFilter(filterObj);
         fetchProjects(filterObj, data[0]).finally(() => setIsLoading(false));
         break;
 
       case FolderKey.Tasks:
       case FolderKey.MyTasks:
         filterObj = TasksFilter.getDefault();
-        setFilter(filterObj);
         fetchTasks(filterObj, data[0]).finally(() => setIsLoading(false));
         break;
 
@@ -88,6 +86,7 @@ const ArticleBodyContent = (props) => {
 
 export default inject(
   ({ projectsStore, projectsFilterStore, tasksFilterStore }) => {
+    console.log(projectsStore);
     const { fetchTasks, getTaskFilterCommonOptions } = tasksFilterStore;
     const {
       isLoading,
@@ -101,6 +100,7 @@ export default inject(
     const {
       fetchProjects,
       getProjectFilterCommonOptions,
+      fetchMyProjects,
     } = projectsFilterStore;
     const {
       treeFolders,
@@ -128,6 +128,7 @@ export default inject(
       setFilterCommonOptions,
       getTaskFilterCommonOptions,
       getProjectFilterCommonOptions,
+      fetchMyProjects,
     };
   }
 )(observer(withRouter(ArticleBodyContent)));

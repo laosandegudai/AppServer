@@ -70,7 +70,7 @@ const Home = ({
     if (pathname.indexOf("/projects/filter") > -1) {
       const newFilter = ProjectsFilter.getFilter(location);
       setIsLoading(true);
-      fetchProjects(newFilter).finally(() => {
+      fetchProjects(newFilter, newFilter.folder).finally(() => {
         setIsLoading(false);
         setFirstLoad(false);
       });

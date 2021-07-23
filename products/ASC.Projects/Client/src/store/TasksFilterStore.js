@@ -238,6 +238,7 @@ class TasksFilterStore {
         group: "filter-milestone",
         label: translation.otherMilestones,
       },
+
       {
         key: "empty",
         group: "filter-milestone",
@@ -330,14 +331,12 @@ class TasksFilterStore {
         label: translation.upcoming,
       },
       {
-        key: "filter-custom-period",
+        key: "custom-period",
         group: "filter-duedate",
         label: translation.customPeriod,
         isSelector: true,
         defaultOptionLabel: translation.meLabel,
         defaultSelectLabel: translation.select,
-        customPeriod,
-        defaultOption: customPeriod,
         selectedItem,
       },
     ];

@@ -107,7 +107,6 @@ class ProjectsStore {
   };
 
   setFilter = (filter) => {
-    console.log(filter);
     this.filter = filter;
   };
 

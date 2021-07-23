@@ -34,7 +34,6 @@ class ProjectsFilterStore {
   // пока функции повторяются.
   resolveData = async (data, filterData) => {
     const { setSelectedNode } = this.treeFoldersStore;
-    console.log(filterData);
     this.setProjects([]);
     this.setProjectFilter(filterData);
     this.projectsStore.setFilter(filterData);
@@ -48,28 +47,28 @@ class ProjectsFilterStore {
   };
 
   fetchProjects = (filter, folderName) => {
-    const newFilter = filter.clone();
+    //const newFilter = filter.clone();
     // вот здесь нужно скорее всего убрать
-    newFilter.page = 0;
-    newFilter.startIndex = 0;
+    // newFilter.page = 0;
+    // newFilter.startIndex = 0;
 
-    const filterData = newFilter
-      ? newFilter.clone()
-      : ProjectsFilter.getDefault;
+    const filterData = filter ? filter.clone() : ProjectsFilter.getDefault();
 
     filterData.folder = folderName ? folderName : filterData.folder;
 
-    if (
-      filterData.status === "open" ||
-      folderName === FolderKey.ProjectsActive
-    ) {
-      filterData.status = "open";
-      // for example
-      filterData.total = 10;
-      return api.projects
-        .getActiveProjectsList(true)
-        .then(async (data) => this.resolveData(data, filterData));
-    }
+    // if (
+    //   filterData.status === "open" ||
+    //   folderName === FolderKey.ProjectsActive
+    // ) {
+    //   filterData.status = "open";
+    //   // for example
+    //   filterData.total = 10;
+    //   return api.projects
+    //     .getActiveProjectsList(true)
+    //     .then(async (data) => this.resolveData(data, filterData));
+    // }
+
+    console.log(filterData);
 
     if (filterData.status === "closed") {
       filterData.total = 10;
@@ -91,23 +90,18 @@ class ProjectsFilterStore {
         .getFollowedProjectsList(true)
         .then(async (data) => this.resolveData(data, filterData));
     }
-    // for example
-    if (
-      filterData.manager === "10000000-0000-0000-0000-000000000000" ||
-      FolderKey.MyProjects === folderName
-    ) {
-      filterData.manager = "10000000-0000-0000-0000-000000000000";
+    if (FolderKey.MyProjects === filterData.folder) {
+      console.log("dadada");
+      filterData.participant = this.projectsStore.userStore.user.id;
       return api.projects
-        .getMyProjectsList(true)
+        .getMyProjectsList(false, filterData)
         .then(async (data) => this.resolveData(data, filterData));
     }
 
     if (folderName === FolderKey.Projects || !folderName) {
       const newFilter = ProjectsFilter.getDefault();
       newFilter.folder = "projects";
-      // тест пагинации
-      newFilter.total = 27;
-      newFilter.page = filter.page;
+      newFilter.status = "open";
       return api.projects
         .getAllProjectsList(true, newFilter)
         .then(async (data) => this.resolveData(data, newFilter));
@@ -193,14 +187,14 @@ class ProjectsFilterStore {
         label: translation.closed,
       },
       {
-        key: "filter-author",
-        group: "filter-author",
+        key: "filter-author-manager",
+        group: "filter-author-manager",
         label: translation.byProjectManager,
         isHeader: true,
       },
       {
-        key: "user1",
-        group: "filter-author",
+        key: "user-manager-me",
+        group: "filter-author-manager",
         label: translation.me,
         isSelector: true,
         defaultOptionLabel: translation.meLabel,
@@ -210,8 +204,8 @@ class ProjectsFilterStore {
         selectedItem,
       },
       {
-        key: "user2",
-        group: "filter-author",
+        key: "user-manager-other",
+        group: "filter-author-manager",
         label: translation.otherUsers,
         isSelector: true,
         defaultOptionLabel: translation.meLabel,
@@ -243,18 +237,24 @@ class ProjectsFilterStore {
       },
       {
         key: "filter-team",
-        group: "filter-author",
+        group: "filter-author-participant",
         label: translation.teamMember,
         isHeader: true,
       },
       {
-        key: "team-me",
-        group: "filter-author",
+        key: "user-team-member-me",
+        group: "filter-author-participant",
         label: translation.me,
+        isSelector: true,
+        defaultOptionLabel: translation.meLabel,
+        defaultSelectLabel: translation.me,
+        groupsCaption: translation.teamMember,
+        defaultOption: user,
+        selectedItem,
       },
       {
-        key: "user3",
-        group: "filter-author",
+        key: "user-team-member-other",
+        group: "filter-author-participant",
         label: translation.otherUsers,
         isSelector: true,
         defaultOptionLabel: translation.meLabel,
@@ -265,7 +265,7 @@ class ProjectsFilterStore {
       },
       {
         key: "group",
-        group: "filter-author",
+        group: "filter-author-participant",
         label: translation.groups,
         defaultSelectLabel: translation.select,
         isSelector: true,

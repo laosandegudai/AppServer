@@ -17,17 +17,28 @@ const getStatus = (filterValues) => {
     }),
     "key"
   );
+  console.log(status);
   return status ? status : null;
 };
 
 const getManager = (filterValues) => {
   const manager = result(
     find(filterValues, (value) => {
-      return value.group === "filter-author";
+      return value.group === "filter-author-manager";
     }),
     "key"
   );
   return manager ? manager : null;
+};
+
+const getParticipant = (filterValues) => {
+  const participant = result(
+    find(filterValues, (value) => {
+      return value.group === "filter-author-participant";
+    }),
+    "key"
+  );
+  return participant ? participant : null;
 };
 
 const getOtherSettings = (filterValues) => {
@@ -56,6 +67,7 @@ const PureSectionFilterContent = (props) => {
     getProjectFilterSortDataOptions,
     getTaskFilterSortDataOptions,
     sectionWidth,
+    isFiltered,
   } = props;
 
   const translations = {
@@ -100,41 +112,54 @@ const PureSectionFilterContent = (props) => {
     order: t("Order"),
   };
 
-  const onFilter = (data) => {
-    // // вообще подумать как это все лучше обрабатывать с несколькими фильтрами
+  const onProjectFilter = (data) => {
     const status = getStatus(data.filterValues) || null;
     const search = data.inputValue || "";
     const sortBy = data.sortId;
     const sortOrder =
       data.sortDirection === "desc" ? "descending" : "ascending";
     const manager = getManager(data.filterValues) || null;
+    const participant = getParticipant(data.filterValues) || null;
+    console.log(participant);
     const settings = getOtherSettings(data.filterValues) || null;
     const selectedItem = manager
       ? getSelectedItem(data.filterValues, manager)
+      : participant
+      ? getSelectedItem(data.filterValues, participant)
       : null;
     const selectedFilterItem = {};
+
     if (selectedItem) {
       selectedFilterItem.key = selectedItem.selectedItem.key;
       selectedFilterItem.label = selectedItem.selectedItem.label;
       selectedFilterItem.type = selectedItem.typeSelector;
     }
 
-    // if (filter instanceof ProjectsFilter) {
-    //   const newFilter = filter.clone();
-    //   newFilter.page = 0;
-    //   newFilter.sortBy = sortBy;
-    //   newFilter.sortOrder = sortOrder;
-    //   newFilter.search = search;
-    //   newFilter.selectedItem = selectedFilterItem;
-    //   newFilter.status = status;
-    //   console.log(settings);
-    //   // сделать здесь обнуление
-    //   // newFilter.follow = null;
-    //   if (settings === "follow") {
-    //     newFilter[settings] = true;
-    //   }
-    //   fetchProjects(newFilter);
+    const newFilter = filter.clone();
+    newFilter.page = 0;
+    newFilter.sortBy = sortBy;
+    newFilter.sortOrder = sortOrder;
+    newFilter.search = search;
+    newFilter.selectedItem = selectedFilterItem;
+    newFilter.status = status;
+    newFilter.participant = participant;
+    // console.log(settings);
+    // сделать здесь обнуление
+    // newFilter.follow = null;
+    // if (settings === "follow") {
+    //   newFilter[settings] = true;
     // }
+    console.log(newFilter);
+    fetchProjects(newFilter, newFilter.folder);
+  };
+
+  const onFilter = (data) => {
+    // // вообще подумать как это все лучше обрабатывать с несколькими фильтрами
+
+    console.log(filter);
+    if (filter instanceof ProjectsFilter) {
+      onProjectFilter(data);
+    }
   };
 
   const getData = () => {
@@ -180,7 +205,30 @@ const PureSectionFilterContent = (props) => {
   };
   const filterColumnCount =
     window.innerWidth < 500 ? {} : { filterColumnCount: 3 };
+
+  const getProjectFilterSelectedData = (selectedFilterData, filter) => {
+    if (filter.status) {
+      console.log("pfdsfdsf");
+      selectedFilterData.filterValues.push({
+        key: `${filter.status}`,
+        group: "filter-status",
+      });
+    }
+
+    console.log(filter);
+
+    // if (filter.participant) {
+    //   selectedFilterData.filterValues.push({
+    //     key: `user_${filter.participant}`,
+    //     group: "filter-author-participant",
+    //   });
+    // }
+
+    console.log(selectedFilterData);
+    return selectedFilterData;
+  };
   const getSelectedFilterData = () => {
+    debugger;
     const selectedFilterData = {
       filterValues: [],
       sortDirection: filter.sortOrder === "ascending" ? "asc" : "desc",
@@ -188,6 +236,11 @@ const PureSectionFilterContent = (props) => {
     };
 
     selectedFilterData.inputValue = filter.search;
+
+    if (filter instanceof ProjectsFilter) {
+      console.log("llfldsfsdf");
+      return getProjectFilterSelectedData(selectedFilterData, filter);
+    }
 
     // if (filter.status) {
     //   selectedFilterData.filterValues.push({
@@ -203,14 +256,14 @@ const PureSectionFilterContent = (props) => {
     //   });
     // }
 
-    if (filter.filterType >= 0) {
-      selectedFilterData.filterValues.push({
-        key: `${filter.filterType}`,
-        group: "filter-filterType",
-      });
-    }
+    // if (filter.filterType >= 0) {
+    //   selectedFilterData.filterValues.push({
+    //     key: `${filter.filterType}`,
+    //     group: "filter-filterType",
+    //   });
+    // }
 
-    return selectedFilterData;
+    // return selectedFilterData;
   };
 
   const selectedFilterData = getSelectedFilterData();
@@ -250,6 +303,10 @@ export default inject(
     const { user } = auth.userStore;
     const { filter } = projectsStore;
 
+    const { manager, participant, search } = filter;
+
+    const isFiltered = manager || participant || search;
+
     const {
       getTaskFilterCommonOptions,
       getTaskFilterSortDataOptions,
@@ -257,6 +314,7 @@ export default inject(
     return {
       customNames,
       filter,
+      isFiltered,
       user,
       fetchProjects,
       getProjectFilterCommonOptions,
