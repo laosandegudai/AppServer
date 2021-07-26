@@ -145,6 +145,8 @@ const MyProfileRoute = (props) => (
   </React.Suspense>
 );
 
+let index = 0;
+
 const Shell = ({ items = [], page = "home", ...rest }) => {
   const {
     isLoaded,
@@ -355,7 +357,7 @@ const Shell = ({ items = [], page = "home", ...rest }) => {
     const remoteEntryURL = combineUrl(
       window.location.origin,
       appURL,
-      "remoteEntry.js"
+      `remoteEntry.js?__index=${++index}`
     );
 
     const system = {
