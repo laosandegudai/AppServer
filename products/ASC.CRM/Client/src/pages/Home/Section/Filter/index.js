@@ -74,15 +74,18 @@ const SectionFilterContent = ({
       "key"
     );
 
-    return contactStage
-      ? contactStage === "not-specified"
-        ? "0"
-        : contactStage === "cold-temperature"
-        ? ContactsFilterType.ColdTemperature
-        : contactStage === "warm-temperature"
-        ? ContactsFilterType.WarmTemperature
-        : ContactsFilterType.HotTemperature
-      : null;
+    switch (contactStage) {
+      case "not-specified":
+        return "0";
+      case "cold-temperature":
+        return ContactsFilterType.ColdTemperature;
+      case "warm-temperature":
+        return ContactsFilterType.WarmTemperature;
+      case "hot-temperature":
+        return ContactsFilterType.HotTemperature;
+      default:
+        return null;
+    }
   };
 
   const getContactType = (filterValues) => {
@@ -93,17 +96,20 @@ const SectionFilterContent = ({
       "key"
     );
 
-    return contactType
-      ? contactType === "no-category"
-        ? "0"
-        : contactType === "client-type"
-        ? ContactsFilterType.Client
-        : contactType === "provider-type"
-        ? ContactsFilterType.Provider
-        : contactType === "partner-type"
-        ? ContactsFilterType.Partner
-        : ContactsFilterType.Competitor
-      : null;
+    switch (contactType) {
+      case "no-category":
+        return "0";
+      case "client-type":
+        return ContactsFilterType.Client;
+      case "staff-type":
+        return ContactsFilterType.Staff;
+      case "provider-type":
+        return ContactsFilterType.Provider;
+      case "potential-client-type":
+        return ContactsFilterType.PotentialClient;
+      default:
+        return null;
+    }
   };
 
   const onChangeTagCheckbox = (name) => {
@@ -156,24 +162,27 @@ const SectionFilterContent = ({
       "key"
     );
 
-    return date
-      ? date === "filter-last-month"
-        ? {
-            fromDate: lastMonthStart,
-            toDate: lastMonthEnd,
-          }
-        : date === "filter-yesterday"
-        ? {
-            fromDate: yesterday,
-            toDate: yesterday,
-          }
-        : date === "filter-today"
-        ? {
-            fromDate: today,
-            toDate: today,
-          }
-        : { fromDate: thisMonth, toDate: today }
-      : { fromDate: null, toDate: null };
+    switch (date) {
+      case "filter-last-month":
+        return {
+          fromDate: lastMonthStart,
+          toDate: lastMonthEnd,
+        };
+      case "filter-yesterday":
+        return {
+          fromDate: yesterday,
+          toDate: yesterday,
+        };
+      case "filter-today":
+        return {
+          fromDate: today,
+          toDate: today,
+        };
+      case "filter-this-month":
+        return { fromDate: thisMonth, toDate: today };
+      default:
+        return { fromDate: null, toDate: null };
+    }
   };
 
   const getContactListViewType = (filterValues) => {
@@ -344,7 +353,7 @@ const SectionFilterContent = ({
         key: "potential-client-type",
         inSubgroup: true,
         group: "filter-other-contact-type",
-        label: t("{PotentialClient}"),
+        label: t("PotentialClient"),
       },
       {
         key: "client-tag-type",

@@ -58,10 +58,10 @@ export const ContactsFilterType = Object.freeze({
   ColdTemperature: "1837515",
   WarmTemperature: "1837516",
   HotTemperature: "1837517",
-  Client: "1837518",
-  Provider: "1837519",
-  Partner: "1837520",
-  Competitor: "1837521",
+  Client: "1847168",
+  Staff: "1847169",
+  Provider: "1847170",
+  PotentialClient: "1847171",
 });
 
 /**
