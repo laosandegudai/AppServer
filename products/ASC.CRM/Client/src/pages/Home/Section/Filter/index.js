@@ -230,6 +230,11 @@ const SectionFilterContent = ({
       group: "filter-other-temperature",
     });
 
+    selectedFilterData.filterValues.push({
+      key: `${filter.contactType}`,
+      group: "filter-other-contact-type",
+    });
+
     if (filter.fromDate) {
       selectedFilterData.filterValues.push({
         key: `${filter.fromDate}`,
@@ -248,6 +253,13 @@ const SectionFilterContent = ({
       selectedFilterData.filterValues.push({
         key: `${filter.contactListView}`,
         group: "filter-show",
+      });
+    }
+
+    if (filter.tags) {
+      selectedFilterData.filterValues.push({
+        key: `${filter.tags}`,
+        group: "filter-other-tag-type",
       });
     }
 
