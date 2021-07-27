@@ -55,13 +55,6 @@ export const FilterType = Object.freeze({
  */
 export const ContactsFilterType = Object.freeze({
   NoAuthor: "00000000-0000-0000-0000-000000000000",
-  ColdTemperature: "1837515",
-  WarmTemperature: "1837516",
-  HotTemperature: "1837517",
-  Client: "1847168",
-  Staff: "1847169",
-  Provider: "1847170",
-  PotentialClient: "1847171",
 });
 
 /**

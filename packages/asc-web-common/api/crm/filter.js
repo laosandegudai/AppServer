@@ -170,8 +170,8 @@ class CrmFilter {
       contactType: contactType,
       tags: tags,
     };
-
-    const str = toUrlParams(dtoFilter, true, true);
+    console.log("DDD", dtoFilter);
+    const str = toUrlParams(dtoFilter, true);
 
     return str;
   };
@@ -230,7 +230,7 @@ class CrmFilter {
     dtoFilter[CONTACT_STAGE] = contactStage;
     dtoFilter[CONTACT_TYPE] = contactType;
 
-    const str = toUrlParams(dtoFilter, true, true);
+    const str = toUrlParams(dtoFilter, true);
 
     return str;
   };

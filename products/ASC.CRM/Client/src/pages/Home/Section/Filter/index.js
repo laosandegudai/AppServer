@@ -24,10 +24,10 @@ const SectionFilterContent = ({
   user,
 }) => {
   const [isCheckedTag, setIsCheckedTag] = useState({
-    Клиент: false,
-    Персонал: false,
-    Поставщик: false,
-    "Потенциальный клиент": false,
+    Client: false,
+    Staff: false,
+    Provider: false,
+    "Potential client": false,
   });
   const [renderId, setRenderId] = useState(0);
 
@@ -73,19 +73,7 @@ const SectionFilterContent = ({
       }),
       "key"
     );
-
-    switch (contactStage) {
-      case "not-specified":
-        return "0";
-      case "cold-temperature":
-        return ContactsFilterType.ColdTemperature;
-      case "warm-temperature":
-        return ContactsFilterType.WarmTemperature;
-      case "hot-temperature":
-        return ContactsFilterType.HotTemperature;
-      default:
-        return null;
-    }
+    return contactStage ? contactStage === "not-specified" && "0" : null;
   };
 
   const getContactType = (filterValues) => {
@@ -96,20 +84,7 @@ const SectionFilterContent = ({
       "key"
     );
 
-    switch (contactType) {
-      case "no-category":
-        return "0";
-      case "client-type":
-        return ContactsFilterType.Client;
-      case "staff-type":
-        return ContactsFilterType.Staff;
-      case "provider-type":
-        return ContactsFilterType.Provider;
-      case "potential-client-type":
-        return ContactsFilterType.PotentialClient;
-      default:
-        return null;
-    }
+    return contactType ? contactType === "not-specified" && "0" : null;
   };
 
   const onChangeTagCheckbox = (name) => {
@@ -375,8 +350,8 @@ const SectionFilterContent = ({
           <Checkbox
             key="client-checkbox"
             label={t("Client")}
-            isChecked={isCheckedTag["Клиент"]}
-            onChange={() => onChangeTagCheckbox("Клиент")}
+            isChecked={isCheckedTag["Client"]}
+            onChange={() => onChangeTagCheckbox("Client")}
           />,
         ],
       },
@@ -388,8 +363,8 @@ const SectionFilterContent = ({
           <Checkbox
             key="staff-checkbox"
             label={t("Staff")}
-            isChecked={isCheckedTag["Персонал"]}
-            onChange={() => onChangeTagCheckbox("Персонал")}
+            isChecked={isCheckedTag["Staff"]}
+            onChange={() => onChangeTagCheckbox("Staff")}
           />,
         ],
       },
@@ -401,8 +376,8 @@ const SectionFilterContent = ({
           <Checkbox
             key="provider-checkbox"
             label={t("Provider")}
-            isChecked={isCheckedTag["Поставщик"]}
-            onChange={() => onChangeTagCheckbox("Поставщик")}
+            isChecked={isCheckedTag["Provider"]}
+            onChange={() => onChangeTagCheckbox("Provider")}
           />,
         ],
       },
@@ -414,8 +389,8 @@ const SectionFilterContent = ({
           <Checkbox
             key="potential-client-checkbox"
             label={t("PotentialClient")}
-            isChecked={isCheckedTag["Потенциальный клиент"]}
-            onChange={() => onChangeTagCheckbox("Потенциальный клиент")}
+            isChecked={isCheckedTag["Potential client"]}
+            onChange={() => onChangeTagCheckbox("Potential client")}
           />,
         ],
       },
