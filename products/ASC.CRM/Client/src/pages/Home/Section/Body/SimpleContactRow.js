@@ -32,7 +32,7 @@ const SimpleContactRow = ({ contact, sectionWidth }) => {
       userName={displayName}
       source=""
       role="user"
-      isCompany={isCompany}
+      isSquare={isCompany}
     />
   );
 

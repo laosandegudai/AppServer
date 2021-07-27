@@ -48,7 +48,7 @@ EditContainer.defaultProps = { theme: Base };
 
 const AvatarWrapper = styled.div`
   border-radius: ${(props) =>
-    !props.isCompany && props.theme.avatar.imageContainer.borderRadius};
+    !props.isSquare && props.theme.avatar.imageContainer.borderRadius};
   height: ${(props) => props.theme.avatar.imageContainer.height};
   background-color: ${(props) =>
     (props.source === "" &&
