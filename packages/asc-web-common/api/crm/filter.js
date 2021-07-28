@@ -1,4 +1,4 @@
-import { getObjectByLocation, toUrlParams } from "../../utils";
+import { getObjectByLocation, toUrlParamsWithArray } from "../../utils";
 
 const DEFAULT_PAGE = 0;
 const DEFAULT_PAGE_COUNT = 25;
@@ -170,8 +170,8 @@ class CrmFilter {
       contactType: contactType,
       tags: tags,
     };
-    console.log("DDD", dtoFilter);
-    const str = toUrlParams(dtoFilter, true);
+
+    const str = toUrlParamsWithArray(dtoFilter, true);
 
     return str;
   };
@@ -230,7 +230,7 @@ class CrmFilter {
     dtoFilter[CONTACT_STAGE] = contactStage;
     dtoFilter[CONTACT_TYPE] = contactType;
 
-    const str = toUrlParams(dtoFilter, true);
+    const str = toUrlParamsWithArray(dtoFilter, true);
 
     return str;
   };

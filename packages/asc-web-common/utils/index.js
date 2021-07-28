@@ -18,6 +18,27 @@ export const toUrlParams = (obj, skipNull) => {
   return str;
 };
 
+export const toUrlParamsWithArray = (obj, skipNull) => {
+  let str = "";
+  for (var key in obj) {
+    if (skipNull && !obj[key]) continue;
+
+    if (str !== "") {
+      str += "&";
+    }
+
+    if (Array.isArray(obj[key]) && !!obj[key]) {
+      str += obj[key]
+        .map((el) => `${key}[]=${encodeURIComponent(el)}`)
+        .join("&");
+    } else {
+      str += key + "=" + encodeURIComponent(obj[key]);
+    }
+  }
+
+  return str;
+};
+
 export function getObjectByLocation(location) {
   if (!location.search || !location.search.length) return null;
 
