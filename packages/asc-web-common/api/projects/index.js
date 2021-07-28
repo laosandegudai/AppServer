@@ -6,11 +6,7 @@ export function getFolders(fake = true) {
     return fakeProjects.getFolders();
   }
 }
-
-export function getAllProjectsList(fake = false, filter) {
-  /*   if (fake) {
-    return fakeProjects.getAllProjects(filter.page);
-  } */
+export function getProjectsList(filter) {
   const params =
     filter && filter instanceof ProjectsFilter
       ? `filter?${filter.toApiUrlParams()}`
@@ -20,50 +16,10 @@ export function getAllProjectsList(fake = false, filter) {
 
   const options = {
     method: "get",
-    url: `/project/${params}.json`,
+    url: `/project/${params}`,
     old: true,
   };
   return request(options);
-}
-
-export function getMyProjectsList(fake = false, filter) {
-  const params =
-    filter && filter instanceof ProjectsFilter
-      ? `filter?${filter.toApiUrlParams()}`
-      : "";
-
-  console.log(params);
-
-  const options = {
-    method: "get",
-    url: `/project/${params}.json`,
-    old: true,
-  };
-  return request(options);
-}
-
-export function getFollowedProjectsList(fake = true) {
-  if (fake) {
-    return fakeProjects.getFollowedProjects();
-  }
-}
-
-export function getActiveProjectsList(fake = true) {
-  if (fake) {
-    return fakeProjects.getActiveProjects();
-  }
-}
-
-export function getPausedProjectsList(fake = true) {
-  if (fake) {
-    return fakeProjects.getPausedProjects();
-  }
-}
-
-export function getClosedProjectsList(fake = true) {
-  if (fake) {
-    return fakeProjects.getClosedProjects();
-  }
 }
 
 export function getAllTaskList(fake = true) {

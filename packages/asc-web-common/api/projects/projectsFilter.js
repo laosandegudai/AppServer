@@ -4,17 +4,18 @@ import queryString from "query-string";
 const DEFAULT_PAGE = 0;
 const DEFAULT_PAGE_COUNT = 25;
 const DEFAULT_TOTAL = 0;
-const DEFAULT_SORT_BY = "DateAndTime";
+const DEFAULT_SORT_BY = "create_on";
 const DEFAULT_SORT_ORDER = "descending";
 const DEFAULT_VIEW = "row";
 const DEFAULT_SEARCH = null;
 const DEFAULT_SELECTED_ITEM = {};
 const DEFAULT_TAG = 0;
+const DEFAULT_NOTAG = null;
 const DEFAULT_STATUS = null;
 const DEFAULT_PARTICIPANT = null;
 const DEFAULT_MANAGER = null;
 const DEFAULT_DEPARTAMENT = null;
-const DEFAULT_FOLLOW = false;
+const DEFAULT_FOLLOW = null;
 const DEFAULT_FOLDER = null;
 const DEFAULT_FILTER_TYPE = null;
 
@@ -25,6 +26,7 @@ const SORT_ORDER = "sortorder";
 const VIEW_AS = "viewas";
 const SEARCH = "search";
 const TAG = "tag";
+const NOTAG = "notag";
 const STATUS = "status";
 const PARTICIPANT = "participant";
 const MANAGER = "manager";
@@ -63,6 +65,7 @@ class ProjectsFilter {
     const search = urlFilter[SEARCH] || defaultFilter.search;
 
     const tag = urlFilter[TAG] || defaultFilter.tag;
+    const notag = urlFilter[NOTAG] || defaultFilter.notag;
     const status = urlFilter[STATUS] || defaultFilter.status;
     const participant = urlFilter[PARTICIPANT] || defaultFilter.participant;
     const manager = urlFilter[MANAGER] || defaultFilter.manager;
@@ -80,6 +83,7 @@ class ProjectsFilter {
       search,
       defaultFilter.selectedItem,
       tag,
+      notag,
       status,
       participant,
       manager,
@@ -101,6 +105,7 @@ class ProjectsFilter {
     search = DEFAULT_SEARCH,
     selectedItem = DEFAULT_SELECTED_ITEM,
     tag = DEFAULT_TAG,
+    notag = DEFAULT_NOTAG,
     status = DEFAULT_STATUS,
     participant = DEFAULT_PARTICIPANT,
     manager = DEFAULT_MANAGER,
@@ -118,6 +123,7 @@ class ProjectsFilter {
     this.search = search;
     this.selectedItem = selectedItem;
     this.tag = tag;
+    this.notag = notag;
     this.status = status;
     this.participant = participant;
     this.manager = manager;
@@ -147,6 +153,7 @@ class ProjectsFilter {
       sortBy,
       sortOrder,
       tag,
+      notag,
       follow,
       manager,
       participant,
@@ -156,6 +163,8 @@ class ProjectsFilter {
       filterType,
     } = this;
 
+    console.log(tag, notag);
+
     const dtoFilter = {
       count: pageCount,
       startIndex: this.getStartIndex(),
@@ -163,12 +172,13 @@ class ProjectsFilter {
       sortby: sortBy,
       sortOrder: sortOrder,
       filterValue: (search ?? "").trim(),
-      tag: tag,
+      tag: notag ? -1 : tag,
+      // notag: notag,
       follow: follow,
-      //manager: manager,
+      manager: manager,
       participant: participant,
       status: status,
-      //departament: departament,
+      departament: departament,
       folder: folder,
       filterType: filterType,
     };
@@ -185,6 +195,7 @@ class ProjectsFilter {
       sortBy,
       sortOrder,
       tag,
+      notag,
       follow,
       manager,
       participant,
@@ -207,7 +218,7 @@ class ProjectsFilter {
     }
 
     if (tag !== DEFAULT_TAG) {
-      dtoFilter[TAG] = tag;
+      tag === -1 ? (dtoFilter["notag"] = true) : (dtoFilter[tag] = tag);
     }
     if (follow !== DEFAULT_FOLLOW) {
       dtoFilter[FOLLOW] = follow;
@@ -225,6 +236,16 @@ class ProjectsFilter {
       dtoFilter[DEFAULT_DEPARTAMENT] = departament;
     }
 
+    if (notag) {
+      dtoFilter["notag"] = true;
+    }
+
+    console.log(notag, tag);
+
+    // if (notag) {
+    //   dtoFilter[TAG] = -1;
+    // }
+
     if (folder) {
       dtoFilter[FOLDER] = folder;
     }
@@ -241,6 +262,8 @@ class ProjectsFilter {
     dtoFilter[SORT_BY] = sortBy;
     dtoFilter[SORT_ORDER] = sortOrder;
 
+    console.log(dtoFilter);
+
     const str = toUrlParams(dtoFilter, true);
     return str;
   };
@@ -256,6 +279,7 @@ class ProjectsFilter {
       this.search,
       this.selectedItem,
       this.tag,
+      this.notag,
       this.status,
       this.participant,
       this.manager,
@@ -270,6 +294,7 @@ class ProjectsFilter {
     const equals =
       this.filterType === filter.filterType &&
       this.tag === filter.tag &&
+      this.notag === filter.notag &&
       this.manager === filter.manager &&
       this.status === filter.status &&
       this.follow === filter.follow &&
