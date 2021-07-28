@@ -27,5 +27,9 @@
   "ComboClosed": "Closed",
   "StartDate": "Start date",
   "TaskOpen": "Open",
-  "TaskClosed": "Closed"
+  "TaskClosed": "Closed",
+  "EmptyProjectTitle": "There are no projects matching this filter",
+  "EmptyProjectDescription": "No projects matching your filter can be displayed in this section.",
+  "EmptyTaskTitle": "There are no tasks matching this filter",
+  "EmptyTaskDescription": "No tasks matching your filter can be displayed in this section."
 }
