@@ -104,7 +104,7 @@ class TasksFilterStore {
   getTaskFilterSortDataOptions = (translation) => {
     const options = [
       {
-        key: "DateAndTimeCreation",
+        key: "create_on",
         label: translation.byCreationDate,
         default: true,
       },

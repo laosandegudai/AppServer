@@ -16,6 +16,8 @@ const ListContent = ({ isMobile, list, sectionWidth }) => {
     openTask,
     firstLinkTitle,
     secondLinkTitle,
+    createdBy,
+    responsible,
   } = list;
   const { t } = useTranslation(["Home", "Common"]);
 
@@ -54,11 +56,11 @@ const ListContent = ({ isMobile, list, sectionWidth }) => {
       <Link
         color="#A3A9AE"
         containerMinWidth="60px"
-        containerWidth="7%"
+        containerWidth="9%"
         type="page"
         title="by Title"
       >
-        by Title
+        {responsible ? responsible.displayName : "byTitle"}
       </Link>
     </RowContent>
   );

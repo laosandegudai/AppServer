@@ -102,8 +102,7 @@ const SectionPagingContent = ({
       const newFilter = filter.clone();
       newFilter.page++;
       if (pathname.indexOf("/projects/filter") > -1) {
-        console.log("daa");
-        // добавить лоадинг
+        console.log("daa", newFilter);
         fetchProjects(newFilter, selectedTreeNode[0]);
       }
     },

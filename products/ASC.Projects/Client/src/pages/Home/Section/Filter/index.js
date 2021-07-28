@@ -17,7 +17,6 @@ const getStatus = (filterValues) => {
     }),
     "key"
   );
-  console.log(status);
   return status ? status : null;
 };
 
@@ -28,7 +27,10 @@ const getManager = (filterValues) => {
     }),
     "key"
   );
-  return manager ? manager : null;
+  if (manager === "user-manager-me") {
+    return manager;
+  }
+  return manager ? manager.slice(19) : null;
 };
 
 const getParticipant = (filterValues) => {
@@ -38,17 +40,43 @@ const getParticipant = (filterValues) => {
     }),
     "key"
   );
-  return participant ? participant : null;
+  console.log(participant);
+  if (participant === "user-team-member-me") {
+    return participant;
+  }
+  // поменять slice на что-то более адекватное
+  return participant ? participant.slice(23) : null;
 };
 
-const getOtherSettings = (filterValues) => {
-  const settings = result(
+const getFollow = (filterValues) => {
+  const follow = result(
     find(filterValues, (value) => {
-      return value.group === "filter-settings";
+      return value.group === "follow";
     }),
     "key"
   );
-  return settings ? settings : null;
+  return follow ? true : null;
+};
+
+const getDepartament = (filterValues) => {
+  const departament = result(
+    find(filterValues, (value) => {
+      return value.group === "filter-author-departament";
+    }),
+    "key"
+  );
+  // поменять slice на что-то более адекватное
+  return departament ? departament.slice(6) : null;
+};
+
+const getNoTag = (filterValues) => {
+  const notag = result(
+    find(filterValues, (value) => {
+      return value.group === "notag";
+    }),
+    "key"
+  );
+  return notag ? true : null;
 };
 
 const getSelectedItem = (filterValues, type) => {
@@ -68,6 +96,7 @@ const PureSectionFilterContent = (props) => {
     getTaskFilterSortDataOptions,
     sectionWidth,
     isFiltered,
+    user,
   } = props;
 
   const translations = {
@@ -120,13 +149,16 @@ const PureSectionFilterContent = (props) => {
       data.sortDirection === "desc" ? "descending" : "ascending";
     const manager = getManager(data.filterValues) || null;
     const participant = getParticipant(data.filterValues) || null;
-    console.log(participant);
-    const settings = getOtherSettings(data.filterValues) || null;
-    const selectedItem = manager
-      ? getSelectedItem(data.filterValues, manager)
-      : participant
-      ? getSelectedItem(data.filterValues, participant)
-      : null;
+    const departament = getDepartament(data.filterValues || null);
+    const follow = getFollow(data.filterValues) || null;
+    const notag = getNoTag(data.filterValues) || null;
+
+    const selectedItem =
+      manager !== "user-manager-me"
+        ? getSelectedItem(data.filterValues, manager)
+        : participant !== "user-team-member-me"
+        ? getSelectedItem(data.filterValues, participant)
+        : null;
     const selectedFilterItem = {};
 
     if (selectedItem) {
@@ -136,27 +168,27 @@ const PureSectionFilterContent = (props) => {
     }
 
     const newFilter = filter.clone();
+
+    notag ? (newFilter.tag = -1) : (newFilter.tag = 0);
+
     newFilter.page = 0;
     newFilter.sortBy = sortBy;
     newFilter.sortOrder = sortOrder;
     newFilter.search = search;
     newFilter.selectedItem = selectedFilterItem;
     newFilter.status = status;
-    newFilter.participant = participant;
-    // console.log(settings);
-    // сделать здесь обнуление
-    // newFilter.follow = null;
-    // if (settings === "follow") {
-    //   newFilter[settings] = true;
-    // }
-    console.log(newFilter);
+    newFilter.participant =
+      participant === "user-team-member-me" ? user.id : participant;
+    newFilter.manager = manager === "user-manager-me" ? user.id : manager;
+    newFilter.departament = departament;
+    newFilter.follow = follow;
+
+    console.log("RERERENDER RERERENDER RERERENDER!!!");
     fetchProjects(newFilter, newFilter.folder);
   };
 
   const onFilter = (data) => {
-    // // вообще подумать как это все лучше обрабатывать с несколькими фильтрами
-
-    console.log(filter);
+    // debugger;
     if (filter instanceof ProjectsFilter) {
       onProjectFilter(data);
     }
@@ -207,40 +239,7 @@ const PureSectionFilterContent = (props) => {
     window.innerWidth < 500 ? {} : { filterColumnCount: 3 };
 
   const getProjectFilterSelectedData = (selectedFilterData, filter) => {
-    if (filter.status) {
-      console.log("pfdsfdsf");
-      selectedFilterData.filterValues.push({
-        key: `${filter.status}`,
-        group: "filter-status",
-      });
-    }
-
-    console.log(filter);
-
-    // if (filter.participant) {
-    //   selectedFilterData.filterValues.push({
-    //     key: `user_${filter.participant}`,
-    //     group: "filter-author-participant",
-    //   });
-    // }
-
-    console.log(selectedFilterData);
-    return selectedFilterData;
-  };
-  const getSelectedFilterData = () => {
-    debugger;
-    const selectedFilterData = {
-      filterValues: [],
-      sortDirection: filter.sortOrder === "ascending" ? "asc" : "desc",
-      sortId: filter.sortBy,
-    };
-
-    selectedFilterData.inputValue = filter.search;
-
-    if (filter instanceof ProjectsFilter) {
-      console.log("llfldsfsdf");
-      return getProjectFilterSelectedData(selectedFilterData, filter);
-    }
+    // какие-то баги с selectedFilterData, поэтому пока отключил
 
     // if (filter.status) {
     //   selectedFilterData.filterValues.push({
@@ -251,19 +250,40 @@ const PureSectionFilterContent = (props) => {
 
     // if (filter.follow) {
     //   selectedFilterData.filterValues.push({
-    //     key: `follow`,
-    //     group: "filter-settings",
+    //     key: "follow",
+    //     group: "follow",
     //   });
     // }
 
-    // if (filter.filterType >= 0) {
+    // if (filter.notag) {
     //   selectedFilterData.filterValues.push({
-    //     key: `${filter.filterType}`,
-    //     group: "filter-filterType",
+    //     key: "notag",
+    //     group: "notag",
     //   });
     // }
 
-    // return selectedFilterData;
+    // if (filter.participant) {
+    //   selectedFilterData.filterValues.push({
+    //     key: `user_${filter.participant}`,
+    //     group: "filter-author-participant",
+    //   });
+    // }
+
+    // console.log(selectedFilterData);
+    return selectedFilterData;
+  };
+  const getSelectedFilterData = () => {
+    const selectedFilterData = {
+      filterValues: [],
+      sortDirection: filter.sortOrder === "ascending" ? "asc" : "desc",
+      sortId: filter.sortBy,
+    };
+
+    selectedFilterData.inputValue = filter.search;
+
+    if (filter instanceof ProjectsFilter) {
+      return getProjectFilterSelectedData(selectedFilterData, filter);
+    }
   };
 
   const selectedFilterData = getSelectedFilterData();

@@ -35,10 +35,17 @@ class ProjectsFilterStore {
   resolveData = async (data, filterData) => {
     const { setSelectedNode } = this.treeFoldersStore;
     this.setProjects([]);
+
+    filterData.total = data.total;
+
     this.setProjectFilter(filterData);
     this.projectsStore.setFilter(filterData);
     setSelectedNode([filterData.folder]);
-    this.setProjects(data.items);
+
+    if (data.items) {
+      this.setProjects(data.items);
+    }
+
     this.projectsStore.setItems(this.projectList);
     const items = {
       items: this.projectList,
@@ -46,7 +53,7 @@ class ProjectsFilterStore {
     return Promise.resolve(items);
   };
 
-  fetchProjects = (filter, folderName) => {
+  fetchProjects = (filter, folderName, isFolderSelect) => {
     //const newFilter = filter.clone();
     // вот здесь нужно скорее всего убрать
     // newFilter.page = 0;
@@ -56,56 +63,33 @@ class ProjectsFilterStore {
 
     filterData.folder = folderName ? folderName : filterData.folder;
 
-    // if (
-    //   filterData.status === "open" ||
-    //   folderName === FolderKey.ProjectsActive
-    // ) {
-    //   filterData.status = "open";
-    //   // for example
-    //   filterData.total = 10;
-    //   return api.projects
-    //     .getActiveProjectsList(true)
-    //     .then(async (data) => this.resolveData(data, filterData));
-    // }
+    if (isFolderSelect) {
+      switch (filterData.folder) {
+        case FolderKey.ProjectsFollowed:
+          filterData.follow = true;
+          filterData.status = "open";
+          break;
 
-    console.log(filterData);
+        case FolderKey.ProjectsActive:
+          filterData.status = "open";
+          break;
 
-    if (filterData.status === "closed") {
-      filterData.total = 10;
+        case FolderKey.MyProjects:
+          filterData.participant = this.projectsStore.userStore.user.id;
+          filterData.status = "open";
+          break;
+
+        default:
+          break;
+      }
       return api.projects
-        .getClosedProjectsList(true)
+        .getProjectsList(filterData)
         .then(async (data) => this.resolveData(data, filterData));
     }
 
-    if (filterData.status === "paused") {
-      filterData.total = 10;
-      return api.projects
-        .getPausedProjectsList()
-        .then(async (data) => this.resolveData(data, filterData));
-    }
-    if (filterData.follow || folderName === FolderKey.ProjectsFollowed) {
-      filterData.follow = true;
-      filterData.total = 10;
-      return api.projects
-        .getFollowedProjectsList(true)
-        .then(async (data) => this.resolveData(data, filterData));
-    }
-    if (FolderKey.MyProjects === filterData.folder) {
-      console.log("dadada");
-      filterData.participant = this.projectsStore.userStore.user.id;
-      return api.projects
-        .getMyProjectsList(false, filterData)
-        .then(async (data) => this.resolveData(data, filterData));
-    }
-
-    if (folderName === FolderKey.Projects || !folderName) {
-      const newFilter = ProjectsFilter.getDefault();
-      newFilter.folder = "projects";
-      newFilter.status = "open";
-      return api.projects
-        .getAllProjectsList(true, newFilter)
-        .then(async (data) => this.resolveData(data, newFilter));
-    }
+    return api.projects
+      .getProjectsList(filter)
+      .then(async (data) => this.resolveData(data, filterData));
   };
 
   setFilter = (filter) => {
@@ -130,11 +114,11 @@ class ProjectsFilterStore {
   getProjectFilterSortDataOptions = (translation) => {
     const options = [
       {
-        key: "DateAndTimeCreation",
+        key: "create_on",
         label: translation.byCreationDate,
         default: true,
       },
-      { key: "AZ", label: translation.byTitle, default: true },
+      { key: "title", label: translation.byTitle, default: true },
     ];
 
     return options;
@@ -196,12 +180,12 @@ class ProjectsFilterStore {
         key: "user-manager-me",
         group: "filter-author-manager",
         label: translation.me,
-        isSelector: true,
-        defaultOptionLabel: translation.meLabel,
-        defaultSelectLabel: translation.select,
-        groupsCaption,
-        defaultOption: user,
-        selectedItem,
+        // isSelector: true,
+        //defaultOptionLabel: translation.meLabel,
+        //defaultSelectLabel: translation.select,
+        //groupsCaption,
+        //defaultOption: user,
+        //selectedItem,
       },
       {
         key: "user-manager-other",
@@ -222,21 +206,21 @@ class ProjectsFilterStore {
       },
       {
         key: "follow",
-        group: "filter-settings",
+        group: "follow",
         label: translation.followed,
       },
       {
         key: "tag",
-        group: "filter-settings",
+        group: "tag",
         label: translation.withTag,
       },
       {
-        key: "withoutTag",
-        group: "filter-settings",
+        key: "notag",
+        group: "notag",
         label: translation.withoutTag,
       },
       {
-        key: "filter-team",
+        key: "filter-author-participant",
         group: "filter-author-participant",
         label: translation.teamMember,
         isHeader: true,
@@ -245,12 +229,6 @@ class ProjectsFilterStore {
         key: "user-team-member-me",
         group: "filter-author-participant",
         label: translation.me,
-        isSelector: true,
-        defaultOptionLabel: translation.meLabel,
-        defaultSelectLabel: translation.me,
-        groupsCaption: translation.teamMember,
-        defaultOption: user,
-        selectedItem,
       },
       {
         key: "user-team-member-other",
@@ -265,7 +243,7 @@ class ProjectsFilterStore {
       },
       {
         key: "group",
-        group: "filter-author-participant",
+        group: "filter-author-departament",
         label: translation.groups,
         defaultSelectLabel: translation.select,
         isSelector: true,
@@ -285,6 +263,7 @@ class ProjectsFilterStore {
         follow,
         createdBy,
         participantCount,
+        responsible,
       } = item;
 
       const openTask = `OpenTask: ${taskCount}`;
@@ -300,6 +279,7 @@ class ProjectsFilterStore {
         createdBy,
         openTask,
         secondLinkTitle,
+        responsible,
       };
     });
     return list;
