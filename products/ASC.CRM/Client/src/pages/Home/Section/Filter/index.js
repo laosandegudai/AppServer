@@ -87,9 +87,16 @@ const SectionFilterContent = ({
     return contactType ? contactType === "not-specified" && "0" : null;
   };
 
-  const onChangeTagCheckbox = (name) => {
-    setIsCheckedTag({ ...isCheckedTag, [name]: !isCheckedTag[name] });
-    const newIsCheckedTag = { ...isCheckedTag, [name]: !isCheckedTag[name] };
+  const onChangeTagCheckbox = (event) => {
+    const { name } = event.target;
+    setIsCheckedTag({
+      ...isCheckedTag,
+      [name]: !isCheckedTag[name],
+    });
+    const newIsCheckedTag = {
+      ...isCheckedTag,
+      [name]: !isCheckedTag[name],
+    };
 
     const checkedTags = Object.keys(newIsCheckedTag).filter(
       (tag) => newIsCheckedTag[tag]
@@ -350,8 +357,9 @@ const SectionFilterContent = ({
           <Checkbox
             key="client-checkbox"
             label={t("Client")}
+            name="Client"
             isChecked={isCheckedTag["Client"]}
-            onChange={() => onChangeTagCheckbox("Client")}
+            onChange={onChangeTagCheckbox}
           />,
         ],
       },
@@ -362,9 +370,10 @@ const SectionFilterContent = ({
         children: [
           <Checkbox
             key="staff-checkbox"
+            name="Staff"
             label={t("Staff")}
             isChecked={isCheckedTag["Staff"]}
-            onChange={() => onChangeTagCheckbox("Staff")}
+            onChange={onChangeTagCheckbox}
           />,
         ],
       },
@@ -376,8 +385,9 @@ const SectionFilterContent = ({
           <Checkbox
             key="provider-checkbox"
             label={t("Provider")}
+            name="Provider"
             isChecked={isCheckedTag["Provider"]}
-            onChange={() => onChangeTagCheckbox("Provider")}
+            onChange={onChangeTagCheckbox}
           />,
         ],
       },
@@ -389,8 +399,9 @@ const SectionFilterContent = ({
           <Checkbox
             key="potential-client-checkbox"
             label={t("PotentialClient")}
+            name="Potential client"
             isChecked={isCheckedTag["Potential client"]}
-            onChange={() => onChangeTagCheckbox("Potential client")}
+            onChange={onChangeTagCheckbox}
           />,
         ],
       },
