@@ -6,7 +6,6 @@
   "ByAuthor": "Verfasser",
   "ByCreationDate": "Erstellt",
   "ByLastModifiedDate": "Verändert",
-  "ByTitle": "Titel",
   "CommonEmptyContainerDescription": "In gemeinsamen Dokumenten finden Sie Dateien, auf denen alle Benutzer Zugriff haben. Nur Portaladministratoren können dort Dateien erstellen. Benutzern kann den vollständigen Zugriff auf einen bestimmten Ordner innerhalb des Abschnitts bekommen. Dann können sie Dateien in diesem Ordner erstellen / hochladen.",
   "ContainsSpecCharacter": "Der Titel darf diese Symbole nicht beinhalten: *+:\"<>?|/",
   "Convert": "Konvertierung",
@@ -74,7 +73,5 @@
   "TooltipElementsMoveMessage": "{{element}} Element(e) verschieben",
   "TrashEmptyContainerDescription": "Alle gelöschten Dateien werden in den Papierkorb verschoben. Sie können diese später wiederherstellen oder dauerhaft löschen.",
   "UnblockVersion": "Entsperren/Einchecken",
-  "UploadToFolder": "In den Ordner hochladen",
-  "ViewList": "Liste",
-  "ViewTiles": "Kacheln"
+  "UploadToFolder": "In den Ordner hochladen"
 }

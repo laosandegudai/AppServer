@@ -98,7 +98,7 @@ const PureTreeSettings = ({
           id="common-settings"
           key="common"
           isLeaf={true}
-          title={t("TreeSettingsCommonSettings")}
+          title={t("Common:CommonSettings")}
         />
         <TreeNode
           id="currency-settings"

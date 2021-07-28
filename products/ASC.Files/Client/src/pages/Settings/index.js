@@ -31,7 +31,7 @@ const PureSettings = ({
   useEffect(() => {
     switch (setting) {
       case "common":
-        setTitle(t("CommonSettings"));
+        setTitle(t("Common:CommonSettings"));
         break;
       case "admin":
         setTitle(t("Common:AdminSettings"));
@@ -40,7 +40,7 @@ const PureSettings = ({
         setTitle(t("ThirdPartySettings"));
         break;
       default:
-        setTitle(t("CommonSettings"));
+        setTitle(t("Common:CommonSettings"));
         break;
     }
   }, [setting, t, tReady]);

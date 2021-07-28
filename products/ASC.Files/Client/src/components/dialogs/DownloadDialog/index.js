@@ -491,7 +491,7 @@ class DownloadDialogComponent extends React.Component {
                 >
                   <RowContent>
                     <Text truncate type="page" title={"Other"} fontSize="14px">
-                      {t("Other")}
+                      {t("Common:Other")}
                     </Text>
                     <></>
                   </RowContent>

@@ -6,7 +6,6 @@
   "ByAuthor": "Autor",
   "ByCreationDate": "A fost creat la",
   "ByLastModifiedDate": "Modificat",
-  "ByTitle": "Titlu",
   "CommonEmptyContainerDescription": "Secțiunea Comune conține fișiere partajate cu alți utilizatori de către administratorul portalului. Numai administratorii portalului pot crea fișiere acolo. Utilizatorii pot primi acces complet la un anumit dosar din secțiunea. În acest mod, utilizatorii pot crea/încărca fișiere în acest dosar.",
   "ContainsSpecCharacter": "Numele nu poate conține niciun din caractere următoare: *+:\"<>?|/ ",
   "Convert": "Convertește",
@@ -74,7 +73,5 @@
   "TooltipElementsMoveMessage": "Mutare elemente {{element}}",
   "TrashEmptyContainerDescription": "Toate fișierele eliminate sunt deplasate în coșul de gunoi. Puteți restabili sau șterge aceste fișiere permanent prin golirea Coșului de gunoi.",
   "UnblockVersion": "Deblocare/Blocare",
-  "UploadToFolder": "Încarcă în dosarul",
-  "ViewList": "Listă",
-  "ViewTiles": "Cadre"
+  "UploadToFolder": "Încarcă în dosarul"
 }

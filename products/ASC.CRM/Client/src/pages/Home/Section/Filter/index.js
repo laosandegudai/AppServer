@@ -449,7 +449,7 @@ const SectionFilterContent = ({
       {
         key: "filter-other",
         group: "filter-other",
-        label: t("Other"),
+        label: t("Common:Other"),
         isRowHeader: true,
       },
       {
@@ -529,8 +529,8 @@ const SectionFilterContent = ({
 
   const getSortData = () => {
     const commonOptions = [
-      { key: "created", label: t("ByCreationDate"), default: true },
-      { key: "displayname", label: t("ByTitle"), default: true },
+      { key: "created", label: t("CreationDate"), default: true },
+      { key: "displayname", label: t("Common:ByTitle"), default: true },
       {
         key: "contacttype",
         label: t("ByTemperatureLevel"),
@@ -540,8 +540,18 @@ const SectionFilterContent = ({
     ];
 
     const viewSettings = [
-      { key: "row", label: t("ViewList"), isSetting: true, default: true },
-      { key: "tile", label: t("ViewTiles"), isSetting: true, default: true },
+      {
+        key: "row",
+        label: t("Common:ViewList"),
+        isSetting: true,
+        default: true,
+      },
+      {
+        key: "tile",
+        label: t("Common:ViewTiles"),
+        isSetting: true,
+        default: true,
+      },
     ];
 
     return window.innerWidth < 460

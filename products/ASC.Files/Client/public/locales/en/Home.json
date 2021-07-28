@@ -6,7 +6,6 @@
   "ByAuthor": "Author",
   "ByCreationDate": "Created",
   "ByLastModifiedDate": "Modified",
-  "ByTitle": "Title",
   "CommonEmptyContainerDescription": "'Common' section contains files shared to all users by the portal admin. Only portal admins can create files there. Users can be granted Full access to a certain folder within the section. This way they will be able to create/upload files in this very folder.  ",
   "ContainsSpecCharacter": "The title can't contain any of the following characters: *+:\"<>?|/",
   "Convert": "Convert",
@@ -79,7 +78,5 @@
   "TooltipElementsMoveMessage": "Move {{element}} elements",
   "TrashEmptyContainerDescription": "Trash is where all the deleted files are moved. You can restore or delete them permanently by emptying Trash. ",
   "UnblockVersion": "Unblock/Check-in",
-  "UploadToFolder": "Upload to folder",
-  "ViewList": "List",
-  "ViewTiles": "Tiles"
+  "UploadToFolder": "Upload to folder"
 }

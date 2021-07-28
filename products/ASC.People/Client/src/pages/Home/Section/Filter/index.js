@@ -152,7 +152,7 @@ class SectionFilterContent extends React.Component {
       {
         key: "filter-other",
         group: "filter-other",
-        label: t("LblOther"),
+        label: t("Common:Other"),
         isHeader: true,
       },
       {

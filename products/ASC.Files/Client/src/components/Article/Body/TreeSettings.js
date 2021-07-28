@@ -162,7 +162,7 @@ const PureTreeSettings = ({
           id="common-settings"
           key="common"
           isLeaf={true}
-          title={t("CommonSettings")}
+          title={t("Common:CommonSettings")}
         />
         {isAdmin ? (
           <TreeNode

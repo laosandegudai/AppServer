@@ -207,17 +207,17 @@ class SectionFilterContent extends React.Component {
     const commonOptions = [
       { key: "DateAndTime", label: t("ByLastModifiedDate"), default: true },
       { key: "DateAndTimeCreation", label: t("ByCreationDate"), default: true },
-      { key: "AZ", label: t("ByTitle"), default: true },
+      { key: "AZ", label: t("Common:ByTitle"), default: true },
       { key: "Type", label: t("Common:Type"), default: true },
       { key: "Size", label: t("Common:Size"), default: true },
     ];
 
-      if (!personal)
-          commonOptions.push({
-            key: "Author",
-            label: t("ByAuthor"),
-            default: true,
-          });
+    if (!personal)
+      commonOptions.push({
+        key: "Author",
+        label: t("ByAuthor"),
+        default: true,
+      });
 
     return commonOptions;
   };
@@ -228,14 +228,14 @@ class SectionFilterContent extends React.Component {
     const viewSettings = [
       {
         value: "row",
-        label: t("ViewList"),
+        label: t("Common:ViewList"),
         isSetting: isMobileOnly,
         default: true,
         icon: "/static/images/view-rows.react.svg",
       },
       {
         value: "tile",
-        label: t("ViewTiles"),
+        label: t("Common:ViewTiles"),
         isSetting: isMobileOnly,
         default: true,
         icon: "/static/images/view-tiles.react.svg",
@@ -290,7 +290,14 @@ class SectionFilterContent extends React.Component {
   render() {
     //console.log("Filter render");
     const selectedFilterData = this.getSelectedFilterData();
-    const { t, sectionWidth, tReady, isFiltered, viewAs, personal } = this.props;
+    const {
+      t,
+      sectionWidth,
+      tReady,
+      isFiltered,
+      viewAs,
+      personal,
+    } = this.props;
     const filterColumnCount =
       window.innerWidth < 500 ? {} : { filterColumnCount: personal ? 2 : 3 };
 
@@ -320,22 +327,22 @@ class SectionFilterContent extends React.Component {
 
 export default inject(
   ({ auth, filesStore, treeFoldersStore, selectedFolderStore }) => {
-  const {
-    fetchFiles,
-    filter,
-    setIsLoading,
-    setViewAs,
-    viewAs,
-    files,
-    folders,
+    const {
+      fetchFiles,
+      filter,
+      setIsLoading,
+      setViewAs,
+      viewAs,
+      files,
+      folders,
       createThumbnails,
-  } = filesStore;
+    } = filesStore;
 
-  const { user } = auth.userStore;
-  const { customNames, culture, personal } = auth.settingsStore;
+    const { user } = auth.userStore;
+    const { customNames, culture, personal } = auth.settingsStore;
 
-  const { search, filterType, authorType } = filter;
-  const isFiltered =
+    const { search, filterType, authorType } = filter;
+    const isFiltered =
       (!!files.length ||
         !!folders.length ||
         search ||
@@ -343,22 +350,22 @@ export default inject(
         authorType) &&
       !(treeFoldersStore.isPrivacyFolder && isMobile);
 
-  return {
-    customNames,
-    user,
-    selectedFolderId: selectedFolderStore.id,
-    selectedItem: filter.selectedItem,
-    filter,
-    viewAs,
-    isFiltered,
+    return {
+      customNames,
+      user,
+      selectedFolderId: selectedFolderStore.id,
+      selectedItem: filter.selectedItem,
+      filter,
+      viewAs,
+      isFiltered,
 
-    setIsLoading,
-    fetchFiles,
-    setViewAs,
-    createThumbnails,
+      setIsLoading,
+      fetchFiles,
+      setViewAs,
+      createThumbnails,
 
-    personal,
-  };
+      personal,
+    };
   }
 )(
   withRouter(
