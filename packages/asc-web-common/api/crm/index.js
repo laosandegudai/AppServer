@@ -19,3 +19,21 @@ export function getContactsList(filter = Filter.getDefault()) {
 
   return request(options);
 }
+
+export function getFilterContactsTypes() {
+  const options = {
+    method: "get",
+    url: "/crm/contact/type",
+  };
+
+  return request(options);
+}
+
+export function getFilterTempLevels() {
+  const options = {
+    method: "get",
+    url: "/crm/contact/status",
+  };
+
+  return request(options);
+}

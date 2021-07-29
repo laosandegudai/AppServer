@@ -3,9 +3,15 @@ import CrmFilter from "@appserver/common/api/crm/filter";
 import config from "../../package.json";
 import { combineUrl } from "@appserver/common/utils";
 import { AppServerConfig } from "@appserver/common/constants";
+import {
+  getFilterContactsTypes,
+  getFilterTempLevels,
+} from "@appserver/common/api/crm";
 
 class FilterStore {
   filter = CrmFilter.getDefault();
+  filterContactsTypes = [];
+  filterTempLevels = [];
 
   constructor() {
     makeObservable(this, {
@@ -14,6 +20,8 @@ class FilterStore {
       setFilterUrl: action,
       resetFilter: action,
       setFilter: action,
+      filterContactsTypes: observable,
+      filterTempLevels: observable,
     });
   }
 
@@ -41,6 +49,30 @@ class FilterStore {
 
   setFilter = (filter) => {
     this.filter = filter;
+  };
+
+  setFilterContactsTypes = (types) => {
+    this.filterContactsTypes = types;
+  };
+
+  getFilterContactsTypes = async () => {
+    const response = await getFilterContactsTypes();
+    const types = response.map((item) => item.title);
+    this.setFilterContactsTypes(types);
+
+    return types;
+  };
+
+  setFilterTempLevels = (levels) => {
+    this.filterTempLevels = levels;
+  };
+
+  getFilterTempLevels = async () => {
+    const response = await getFilterTempLevels();
+    const levels = response.map((item) => item.title);
+    this.setFilterTempLevels(levels);
+    console.log("levels", levels);
+    return levels;
   };
 }
 
