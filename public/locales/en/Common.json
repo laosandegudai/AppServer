@@ -98,5 +98,7 @@
   "ViewTiles": "Tiles",
   "ViewWeb": "View web version",
   "Warning": "Warning",
-  "ResetApplication": "Reset application"
+  "ResetApplication": "Reset application",
+  "NewVersionAvailable": "A new version of the website available",
+  "Load": "Load"
 }
