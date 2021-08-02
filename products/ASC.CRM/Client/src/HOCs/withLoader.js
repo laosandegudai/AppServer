@@ -4,7 +4,7 @@ import { observer, inject } from "mobx-react";
 let loadTimeout = null;
 const withLoader = (WrappedComponent) => (Loader) => {
   const withLoader = (props) => {
-    const { tReady, isLoaded, isLoading, firstLoad } = props;
+    const { tReady, isLoaded, isLoading } = props;
     const [inLoad, setInLoad] = useState(true);
 
     const cleanTimer = () => {
@@ -16,12 +16,11 @@ const withLoader = (WrappedComponent) => (Loader) => {
       if (isLoading) {
         cleanTimer();
         loadTimeout = setTimeout(() => {
-          //console.log("inLoad", true);
           setInLoad(true);
         }, 500);
       } else {
         cleanTimer();
-        //console.log("inLoad", false);
+
         setInLoad(false);
       }
 
@@ -30,7 +29,7 @@ const withLoader = (WrappedComponent) => (Loader) => {
       };
     }, [isLoading]);
 
-    return firstLoad || !isLoaded || inLoad || !tReady ? (
+    return !isLoaded || inLoad || !tReady ? (
       Loader
     ) : (
       <WrappedComponent {...props} />
@@ -39,11 +38,10 @@ const withLoader = (WrappedComponent) => (Loader) => {
 
   return inject(({ auth, crmStore }) => {
     const { isLoaded } = auth;
-    const { isLoading, firstLoad } = crmStore;
+    const { isLoading } = crmStore;
     return {
       isLoaded,
       isLoading,
-      firstLoad,
     };
   })(observer(withLoader));
 };

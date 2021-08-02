@@ -72,6 +72,7 @@ export default inject(({ crmStore, contactsStore, filterStore }) => {
   const { setIsLoading } = crmStore;
   const { filter } = contactsStore.filterStore;
   const { resetFilter } = filterStore;
+
   return {
     setIsLoading,
     filter,

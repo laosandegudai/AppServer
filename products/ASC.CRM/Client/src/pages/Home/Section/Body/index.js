@@ -6,11 +6,11 @@ import SimpleContactRow from "./SimpleContactRow";
 import { isMobile } from "react-device-detect";
 import Loaders from "@appserver/common/components/Loaders";
 import EmptyScreen from "./EmptyScreen";
+import { withTranslation } from "react-i18next";
+import withLoader from "../../../../HOCs/withLoader";
 
 const SectionBodyContent = ({ isLoaded, contactsList, tReady }) => {
-  return !isLoaded ? (
-    <Loaders.Rows isRectangle={false} />
-  ) : contactsList.length > 0 ? (
+  return contactsList.length > 0 ? (
     <>
       <Consumer>
         {(context) => (
@@ -36,12 +36,12 @@ const SectionBodyContent = ({ isLoaded, contactsList, tReady }) => {
   );
 };
 
-export default inject(({ contactsStore, crmStore }) => {
-  const { contactsList } = contactsStore;
-  const { isLoaded } = crmStore;
-
-  return {
-    contactsList,
-    isLoaded,
-  };
-})(observer(SectionBodyContent));
+export default inject(({ contactsStore, crmStore }) => ({
+  contactsList: contactsStore.contactsList,
+}))(
+  withTranslation("Home")(
+    withLoader(observer(SectionBodyContent))(
+      <Loaders.Rows isRectangle={false} />
+    )
+  )
+);
