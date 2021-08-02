@@ -14,6 +14,7 @@ class ContactsStore {
       contacts: observable,
       getContactsList: action,
       contactsList: computed,
+      setContacts: action,
     });
   }
 
