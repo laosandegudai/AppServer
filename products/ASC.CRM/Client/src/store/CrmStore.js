@@ -14,6 +14,8 @@ class CrmStore {
     makeObservable(this, {
       isLoading: observable,
       isLoaded: observable,
+      firstLoad: observable,
+      setFirstLoad: action,
       setIsLoading: action,
       setIsLoaded: action,
       init: action,
@@ -35,6 +37,10 @@ class CrmStore {
 
   setIsLoaded = (isLoaded) => {
     this.isLoaded = isLoaded;
+  };
+
+  setFirstLoad = (firstLoad) => {
+    this.firstLoad = firstLoad;
   };
 }
 

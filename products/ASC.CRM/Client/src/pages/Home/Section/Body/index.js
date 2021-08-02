@@ -5,11 +5,12 @@ import { Consumer } from "@appserver/components/utils/context";
 import SimpleContactRow from "./SimpleContactRow";
 import { isMobile } from "react-device-detect";
 import Loaders from "@appserver/common/components/Loaders";
+import EmptyScreen from "./EmptyScreen";
 
 const SectionBodyContent = ({ isLoaded, contactsList, tReady }) => {
   return !isLoaded ? (
     <Loaders.Rows isRectangle={false} />
-  ) : (
+  ) : contactsList.length > 0 ? (
     <>
       <Consumer>
         {(context) => (
@@ -30,6 +31,8 @@ const SectionBodyContent = ({ isLoaded, contactsList, tReady }) => {
         )}
       </Consumer>
     </>
+  ) : (
+    <EmptyScreen />
   );
 };
 
