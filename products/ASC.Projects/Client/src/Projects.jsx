@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { Provider as ProjectProvider, inject, observer } from "mobx-react";
 import { Switch } from "react-router-dom";
-import ProjectsStore from "./store/ProjectsStore";
 import ErrorBoundary from "@appserver/common/components/ErrorBoundary";
 import toastr from "studio/toastr";
 import PrivateRoute from "@appserver/common/components/PrivateRoute";
@@ -20,13 +19,25 @@ const PROXY_HOMEPAGE_URL = combineUrl(proxyURL, homepage);
 const HOME_URL = combineUrl(PROXY_HOMEPAGE_URL, "/");
 const FILTER_URL = combineUrl(PROXY_HOMEPAGE_URL, "/filter");
 const TASK_FILTER_URL = combineUrl(PROXY_HOMEPAGE_URL, "/task/filter");
+const COMING_SOON_URLS = combineUrl(PROXY_HOMEPAGE_URL, "/projects-soon");
+
+console.log(COMING_SOON_URLS);
 
 const Error404 = React.lazy(() => import("studio/Error404"));
+const ComingSoon = React.lazy(() => import("./components/ComingSoon/index"));
 
 const Error404Route = (props) => (
   <React.Suspense fallback={<AppLoader />}>
     <ErrorBoundary>
       <Error404 {...props} />
+    </ErrorBoundary>
+  </React.Suspense>
+);
+
+const ComingSoonRoute = (props) => (
+  <React.Suspense fallback={<AppLoader />}>
+    <ErrorBoundary>
+      <ComingSoon {...props} />
     </ErrorBoundary>
   </React.Suspense>
 );
@@ -42,9 +53,9 @@ const ProjectsContent = (props) => {
         updateTempContent();
       });
   }, []);
-
   return (
     <Switch>
+      <PrivateRoute path={COMING_SOON_URLS} component={ComingSoonRoute} />
       <PrivateRoute exact path={HOME_URL} component={Home} />
       <PrivateRoute path={FILTER_URL} component={Home} />
       <PrivateRoute path={TASK_FILTER_URL} component={Home} />

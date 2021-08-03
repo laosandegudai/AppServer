@@ -9,6 +9,10 @@ import TreeSettings from "./TreeSettings";
 import { setDocumentTitle } from "../../../helpers/utils";
 import { FolderKey } from "../../../constants";
 import api from "@appserver/common/api";
+// import history from "@appserver/common/history";
+import combineUrl from "@appserver/common/utils/combineUrl";
+import { AppServerConfig } from "@appserver/common/constants";
+import config from "../../../../package.json";
 const { ProjectsFilter, TasksFilter } = api;
 
 const ArticleBodyContent = (props) => {
@@ -16,27 +20,22 @@ const ArticleBodyContent = (props) => {
   const {
     treeFolders,
     fetchTreeFolders,
-    treeSettings,
-    fetchTreeSettings,
     isLoading,
     selectedNode,
     setSelectedNode,
-    filter,
     setIsLoading,
-    findRootFolder,
-    setFilter,
     fetchProjects,
     fetchTasks,
-    isProjectsFolder,
-    translations,
-    getTaskFilterCommonOptions,
-    getProjectFilterCommonOptions,
-    setFilterCommonOptions,
+    setSelection,
+    history,
   } = props;
 
   const onSelect = (data, e) => {
     setSelectedNode(data);
+    setSelection([]);
     setIsLoading(true);
+
+    console.log(data);
 
     const selectedFolderTitle =
       (e.node && e.node.props && e.node.props.title) || null;
@@ -59,11 +58,21 @@ const ArticleBodyContent = (props) => {
 
       case FolderKey.Tasks:
       case FolderKey.MyTasks:
+      case FolderKey.TasksUpcoming:
         filterObj = TasksFilter.getDefault();
         fetchTasks(filterObj, data[0], true).finally(() => setIsLoading(false));
         break;
 
       default:
+        setIsLoading(false);
+        return history.push(
+          combineUrl(
+            AppServerConfig.proxyURL,
+            config.homepage,
+            "/projects-soon"
+          )
+        );
+
         break;
     }
   };
@@ -97,6 +106,7 @@ export default inject(
       setFilter,
       setIsLoading,
       setFilterCommonOptions,
+      setSelection,
     } = projectsStore;
     const {
       fetchProjects,
@@ -130,6 +140,7 @@ export default inject(
       getTaskFilterCommonOptions,
       getProjectFilterCommonOptions,
       fetchMyProjects,
+      setSelection,
     };
   }
 )(observer(withRouter(ArticleBodyContent)));
