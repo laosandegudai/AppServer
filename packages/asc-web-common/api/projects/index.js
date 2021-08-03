@@ -1,6 +1,7 @@
 import * as fakeProjects from "./fake";
 import { request } from "../client";
 import ProjectsFilter from "./projectsFilter";
+import TasksFilter from "./tasksFilter";
 export function getFolders(fake = true) {
   if (fake) {
     return fakeProjects.getFolders();
@@ -12,11 +13,25 @@ export function getProjectsList(filter) {
       ? `filter?${filter.toApiUrlParams()}`
       : "";
 
+  const options = {
+    method: "get",
+    url: `/project/${params}`,
+    old: true,
+  };
+  return request(options);
+}
+
+export function getTasksList(filter) {
+  const params =
+    filter && filter instanceof TasksFilter
+      ? `filter?${filter.toApiUrlParams()}`
+      : "";
+
   console.log(params);
 
   const options = {
     method: "get",
-    url: `/project/${params}`,
+    url: `/project/task/${params}`,
     old: true,
   };
   return request(options);

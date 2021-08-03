@@ -4,13 +4,14 @@ import queryString from "query-string";
 const DEFAULT_PAGE = 0;
 const DEFAULT_PAGE_COUNT = 25;
 const DEFAULT_TOTAL = 0;
-const DEFAULT_SORT_BY = "DateAndTime";
+const DEFAULT_SORT_BY = "create_on";
 const DEFAULT_SORT_ORDER = "descending";
 const DEFAULT_VIEW = "row";
 const DEFAULT_SEARCH = null;
 const DEFAULT_SELECTED_ITEM = {};
 const DEFAULT_PROJECT_ID = null;
 const DEFAULT_TAG = null;
+const DEFAULT_NOTAG = null;
 const DEFAULT_STATUS = null;
 const DEFAULT_SUBSTATUS = null;
 const DEFAULT_DEPARTAMENT = null;
@@ -34,6 +35,7 @@ const VIEW_AS = "viewas";
 const SEARCH = "search";
 const PROJECT_ID = "projectid";
 const TAG = "tag";
+const NOTAG = "notag";
 const STATUS = "status";
 const SUBSTATUS = "substatus";
 const DEPARTAMENT = "departament";
@@ -74,6 +76,7 @@ class TasksFilter {
     const search = urlFilter[SEARCH] || defaultFilter.search;
     const projectId = urlFilter[PROJECT_ID] || defaultFilter.projectId;
     const tag = urlFilter[TAG] || defaultFilter.tag;
+    const notag = urlFilter[NOTAG] || defaultFilter.notag;
     const status = urlFilter[STATUS] || defaultFilter.status;
     const substatus = urlFilter[SUBSTATUS] || defaultFilter.substatus;
     const departament = urlFilter[DEPARTAMENT] || defaultFilter.departament;
@@ -101,6 +104,7 @@ class TasksFilter {
       defaultFilter.selectedItem,
       projectId,
       tag,
+      notag,
       status,
       substatus,
       departament,
@@ -130,6 +134,7 @@ class TasksFilter {
     selectedItem = DEFAULT_SELECTED_ITEM,
     projectId = DEFAULT_PROJECT_ID,
     tag = DEFAULT_TAG,
+    notag = DEFAULT_NOTAG,
     status = DEFAULT_STATUS,
     substatus = DEFAULT_SUBSTATUS,
     departament = DEFAULT_DEPARTAMENT,
@@ -155,6 +160,7 @@ class TasksFilter {
     this.selectedItem = selectedItem;
     this.projectId = projectId;
     this.tag = tag;
+    this.notag = notag;
     this.status = status;
     this.substatus = substatus;
     this.departament = departament;
@@ -192,6 +198,7 @@ class TasksFilter {
       sortOrder,
       projectId,
       tag,
+      notag,
       status,
       substatus,
       departament,
@@ -216,7 +223,7 @@ class TasksFilter {
       sortOrder: sortOrder,
       filterValue: (search ?? "").trim(),
       projectId: projectId,
-      tag: tag,
+      tag: notag ? -1 : tag,
       status: status,
       substatus: substatus,
       departament: departament,
@@ -245,6 +252,7 @@ class TasksFilter {
       sortOrder,
       projectId,
       tag,
+      notag,
       status,
       substatus,
       departament,
@@ -278,7 +286,11 @@ class TasksFilter {
     }
 
     if (tag) {
-      dtoFilter[TAG] = tag;
+      tag === -1 ? (dtoFilter["notag"] = true) : (dtoFilter[tag] = tag);
+    }
+
+    if (notag) {
+      dtoFilter["notag"] = true;
     }
 
     if (status) {
@@ -360,6 +372,7 @@ class TasksFilter {
       this.selectedItem.key === filter.selectedItem.key &&
       this.projectId === filter.projectId &&
       this.tag === filter.tag &&
+      this.notag === filter.notag &&
       this.status === filter.status &&
       this.substatus === filter.substatus &&
       this.departament === filter.departament &&
@@ -389,6 +402,7 @@ class TasksFilter {
       this.selectedItem,
       this.projectId,
       this.tag,
+      this.notag,
       this.status,
       this.substatus,
       this.departament,
