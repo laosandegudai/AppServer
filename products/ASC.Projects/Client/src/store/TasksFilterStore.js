@@ -5,6 +5,7 @@ import { combineUrl } from "@appserver/common/utils";
 import { AppServerConfig } from "@appserver/common/constants";
 import config from "../../package.json";
 import { FolderKey } from "../constants";
+import moment from "moment";
 
 const { TasksFilter } = api;
 
@@ -30,9 +31,15 @@ class TasksFilterStore {
   resolveData = async (data, filterData) => {
     const { setSelectedNode } = this.treeFoldersStore;
     setSelectedNode([filterData.folder]);
+
+    filterData.total = data.total;
+
     this.setTasksFilter(filterData);
     this.projectsStore.setFilter(filterData);
-    this.setTasks(data);
+
+    if (data.items) {
+      this.setTasks(data.items);
+    }
 
     this.projectsStore.setItems(this.TaskList);
     const items = {
@@ -41,32 +48,36 @@ class TasksFilterStore {
     return Promise.resolve(items);
   };
 
-  fetchTasks = (filter, folderName) => {
-    console.log(filter);
-    const newFilter = filter.clone();
-    newFilter.page = 0;
-    newFilter.startIndex = 0;
-
-    const filterData = newFilter ? newFilter.clone() : TasksFilter.getDefault;
+  fetchTasks = (filter, folderName, isFolderSelect) => {
+    const filterData = filter ? filter.clone() : TasksFilter.getDefault;
 
     filterData.folder = folderName ? folderName : filterData.folder;
 
-    if (
-      folderName === FolderKey.MyTasks ||
-      filterData.creator === "10000000-0000-0000-0000-000000000000"
-    ) {
-      filterData.creator = "10000000-0000-0000-0000-000000000000";
+    if (isFolderSelect) {
+      switch (filterData.folder) {
+        case FolderKey.MyTasks:
+          filterData.status = "open";
+          filterData.participant = this.projectsStore.userStore.user.id;
+          break;
+
+        case FolderKey.TasksUpcoming:
+          const now = moment();
+          filterData.participant = this.projectsStore.userStore.user.id;
+          filterData.deadlineStart = now.format();
+          filterData.deadlineStop = now.add(1, "week").format();
+
+        default:
+          break;
+      }
+
       return api.projects
-        .getMyTaskList()
+        .getTasksList(filterData)
         .then(async (data) => this.resolveData(data, filterData));
     }
-    if (folderName === FolderKey.Tasks || !folderName) {
-      const newFilter = TasksFilter.getDefault();
-      newFilter.folder = "tasks";
-      return api.projects
-        .getAllTaskList(true)
-        .then(async (data) => this.resolveData(data, newFilter));
-    }
+
+    return api.projects
+      .getTasksList(filter)
+      .then(async (data) => this.resolveData(data, filter));
   };
 
   setFilterUrl = (filter) => {
@@ -82,20 +93,15 @@ class TasksFilterStore {
 
   get TaskList() {
     const list = this.tasks.map((item) => {
-      const { title, status, id, creator } = item;
-
-      const firstLinkTitle = `AddSubtask`;
-      const secondLinkTitle = `due 12.12.2020`;
-
-      const commonFilterOptions = [];
+      const { title, status, id, creator, createdBy, deadline } = item;
 
       return {
         title,
         status,
         id,
         creator,
-        firstLinkTitle,
-        secondLinkTitle,
+        createdBy,
+        deadline,
       };
     });
     return list;
@@ -108,12 +114,12 @@ class TasksFilterStore {
         label: translation.byCreationDate,
         default: true,
       },
-      { key: "DueDate", label: translation.dueDate, default: false },
+      { key: "deadline", label: translation.dueDate, default: false },
 
-      { key: "StartDate", label: translation.startDate, default: false },
-      { key: "Priority", label: translation.priority, default: false },
-      { key: "AZ", label: translation.byTitle, default: false },
-      { key: "Order", label: translation.order, default: false },
+      { key: "start_date", label: translation.startDate, default: false },
+      { key: "priority", label: translation.priority, default: false },
+      { key: "title", label: translation.byTitle, default: false },
+      { key: "sort_order", label: translation.order, default: false },
     ];
 
     return options;
@@ -176,23 +182,22 @@ class TasksFilterStore {
     selectedItem,
     user
   ) => {
-    const { usersCaption, groupsCaption } = customNames;
-    const customPeriod = "customPeriod";
+    const { groupsCaption } = customNames;
     const options = [
       {
-        key: "filter-responsible",
-        group: "filter-author",
+        key: "filter-author-participant",
+        group: "filter-author-participant",
         label: translation.responsible,
         isHeader: true,
       },
       {
-        key: "me",
-        group: "filter-author",
+        key: "user-team-member-me",
+        group: "filter-author-participant",
         label: translation.me,
       },
       {
-        key: "user-task",
-        group: "filter-author",
+        key: "user-team-member-other",
+        group: "filter-author-participant",
         label: translation.otherUsers,
         isSelector: true,
         defaultOptionLabel: translation.meLabel,
@@ -202,8 +207,8 @@ class TasksFilterStore {
         selectedItem,
       },
       {
-        key: "groups-task",
-        group: "filter-author",
+        key: "group",
+        group: "filter-author-departament",
         label: translation.groups,
         isSelector: true,
         defaultOptionLabel: translation.meLabel,
@@ -214,7 +219,7 @@ class TasksFilterStore {
       },
       {
         key: "no-responsible",
-        group: "filter-author",
+        group: "filter-author-participant",
         label: translation.noResponsible,
       },
       {
@@ -224,13 +229,13 @@ class TasksFilterStore {
         isRowHeader: true,
       },
       {
-        key: "milestone-with-task",
-        group: "filter-milestone",
+        key: "filter-my-milestones",
+        group: "filter-my-milestones",
         label: translation.milestonesWithMyTasks,
       },
       {
         key: "no-milestone",
-        group: "filter-milestone",
+        group: "no-milestone",
         label: translation.noMilestone,
       },
       {
@@ -238,27 +243,20 @@ class TasksFilterStore {
         group: "filter-milestone",
         label: translation.otherMilestones,
       },
-
       {
-        key: "empty",
-        group: "filter-milestone",
-        label: null,
-        isSelector: true,
-      },
-      {
-        key: "filter-creator",
-        group: "filter-author-creator",
+        key: "filter-author-manager",
+        group: "filter-author-manager",
         label: translation.creator,
         isHeader: true,
       },
       {
-        key: "filter-creator-me",
-        group: "filter-author-creator",
+        key: "user-manager-me",
+        group: "filter-author-manager",
         label: translation.me,
       },
       {
-        key: "filter-creator-users",
-        group: "filter-author-creator",
+        key: "user-manager-other",
+        group: "filter-author-manager",
         label: translation.otherUsers,
         isSelector: true,
         defaultOptionLabel: translation.meLabel,
@@ -268,18 +266,18 @@ class TasksFilterStore {
         selectedItem,
       },
       {
-        key: "filter-task-status",
+        key: "filter-status",
         group: "filter-status",
         label: translation.status,
         isRowHeader: true,
       },
       {
-        key: "filter-task-status-open",
+        key: "open",
         group: "filter-status",
         label: translation.open,
       },
       {
-        key: "filter-task-status-allClosed",
+        key: "closed",
         group: "filter-status",
         label: translation.allClosed,
       },
@@ -291,7 +289,7 @@ class TasksFilterStore {
       },
       {
         key: "filter-my-project",
-        group: "filter-project",
+        group: "filter-my-project",
         label: translation.myProject,
       },
       {
@@ -305,8 +303,8 @@ class TasksFilterStore {
         label: translation.withTag,
       },
       {
-        key: "filter-project-withoutTag",
-        group: "filter-project",
+        key: "notag",
+        group: "notag",
         label: translation.withoutTag,
       },
       {
@@ -317,7 +315,7 @@ class TasksFilterStore {
       },
       {
         key: "filter-overdue",
-        group: "filter-duedate",
+        group: "filter-overdue",
         label: translation.overdue,
       },
       {

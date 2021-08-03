@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { inject, observer } from "mobx-react";
 import { withTranslation } from "react-i18next";
 import result from "lodash/result";
@@ -8,6 +8,7 @@ import Loaders from "@appserver/common/components/Loaders";
 import FilterInput from "@appserver/common/components/FilterInput";
 import api from "@appserver/common/api";
 import { isMobileOnly } from "react-device-detect";
+import moment from "moment";
 const { ProjectsFilter, TasksFilter } = api;
 
 const getStatus = (filterValues) => {
@@ -20,7 +21,27 @@ const getStatus = (filterValues) => {
   return status ? status : null;
 };
 
-const getManager = (filterValues) => {
+const getMyMilestones = (filterValues) => {
+  const myMilestones = result(
+    find(filterValues, (value) => {
+      return value.group === "filter-my-milestones";
+    }),
+    "key"
+  );
+  return myMilestones ? true : null;
+};
+
+const getNoMilestones = (filterValues) => {
+  const noMilestone = result(
+    find(filterValues, (value) => {
+      return value.group === "no-milestone";
+    }),
+    "key"
+  );
+  return noMilestone ? true : null;
+};
+
+const getManager = (filterValues, userId) => {
   const manager = result(
     find(filterValues, (value) => {
       return value.group === "filter-author-manager";
@@ -28,24 +49,39 @@ const getManager = (filterValues) => {
     "key"
   );
   if (manager === "user-manager-me") {
-    return manager;
+    return userId;
   }
-  return manager ? manager.slice(19) : null;
+
+  return manager ? manager.slice(manager.indexOf("_") + 1) : null;
 };
 
-const getParticipant = (filterValues) => {
+const getCreator = (filterValues) => {
+  const creator = result(
+    find(filterValues, (value) => {
+      return value.group === "filter-my-milestones";
+    }),
+    "key"
+  );
+  return creator ? creator : null;
+};
+
+const getParticipant = (filterValues, userId) => {
   const participant = result(
     find(filterValues, (value) => {
       return value.group === "filter-author-participant";
     }),
     "key"
   );
+
   console.log(participant);
   if (participant === "user-team-member-me") {
-    return participant;
+    return userId;
   }
-  // поменять slice на что-то более адекватное
-  return participant ? participant.slice(23) : null;
+
+  if (participant === "no-responsible") {
+    return "00000000-0000-0000-0000-000000000000";
+  }
+  return participant ? participant.slice(participant.indexOf("_") + 1) : null;
 };
 
 const getFollow = (filterValues) => {
@@ -58,6 +94,27 @@ const getFollow = (filterValues) => {
   return follow ? true : null;
 };
 
+const getOverdue = (filterValues) => {
+  const overdue = result(
+    find(filterValues, (value) => {
+      return value.group === "filter-overdue";
+    }),
+    "key"
+  );
+  const now = moment();
+  return overdue ? now.format() : null;
+};
+
+const getMyProject = (filterValues) => {
+  const myProject = result(
+    find(filterValues, (value) => {
+      return value.group === "filter-my-project";
+    }),
+    "key"
+  );
+  return myProject ? true : null;
+};
+
 const getDepartament = (filterValues) => {
   const departament = result(
     find(filterValues, (value) => {
@@ -65,8 +122,7 @@ const getDepartament = (filterValues) => {
     }),
     "key"
   );
-  // поменять slice на что-то более адекватное
-  return departament ? departament.slice(6) : null;
+  return departament ? departament.slice(departament.indexOf("_") + 1) : null;
 };
 
 const getNoTag = (filterValues) => {
@@ -89,13 +145,13 @@ const PureSectionFilterContent = (props) => {
     filter,
     customNames,
     fetchProjects,
+    fetchTasks,
     tReady,
     getProjectFilterCommonOptions,
     getTaskFilterCommonOptions,
     getProjectFilterSortDataOptions,
     getTaskFilterSortDataOptions,
     sectionWidth,
-    isFiltered,
     user,
   } = props;
 
@@ -147,9 +203,9 @@ const PureSectionFilterContent = (props) => {
     const sortBy = data.sortId;
     const sortOrder =
       data.sortDirection === "desc" ? "descending" : "ascending";
-    const manager = getManager(data.filterValues) || null;
-    const participant = getParticipant(data.filterValues) || null;
-    const departament = getDepartament(data.filterValues || null);
+    const manager = getManager(data.filterValues, user.id) || null;
+    const participant = getParticipant(data.filterValues, user.id) || null;
+    const departament = getDepartament(data.filterValues) || null;
     const follow = getFollow(data.filterValues) || null;
     const notag = getNoTag(data.filterValues) || null;
 
@@ -177,20 +233,54 @@ const PureSectionFilterContent = (props) => {
     newFilter.search = search;
     newFilter.selectedItem = selectedFilterItem;
     newFilter.status = status;
-    newFilter.participant =
-      participant === "user-team-member-me" ? user.id : participant;
-    newFilter.manager = manager === "user-manager-me" ? user.id : manager;
+    newFilter.participant = participant;
+    newFilter.manager = manager;
     newFilter.departament = departament;
     newFilter.follow = follow;
 
-    console.log("RERERENDER RERERENDER RERERENDER!!!");
     fetchProjects(newFilter, newFilter.folder);
   };
 
+  const onTaskFilter = (data) => {
+    const participant = getParticipant(data.filterValues, user.id) || null;
+    const departament = getDepartament(data.filterValues) || null;
+    const myMilestones = getMyMilestones(data.filterValues) || null;
+    const noMilestone = getNoMilestones(data.filterValues) || null;
+    const myProjects = getMyProject(data.filterValues) || null;
+    const creator = getManager(data.filterValues, user.id) || null;
+    const notag = getNoTag(data.filterValues) || null;
+    const status = getStatus(data.filterValues) || null;
+    const overdue = getOverdue(data.filterValues) || null;
+    const search = data.inputValue || "";
+    const sortBy = data.sortId;
+    const sortOrder =
+      data.sortDirection === "desc" ? "descending" : "ascending";
+
+    const newFilter = filter.clone();
+    notag ? (newFilter.tag = -1) : (newFilter.tag = 0);
+    newFilter.page = 0;
+    newFilter.sortBy = sortBy;
+    newFilter.sortOrder = sortOrder;
+    newFilter.search = search;
+    newFilter.participant = participant;
+    newFilter.departament = departament;
+    newFilter.myMilestones = myMilestones;
+    newFilter.noMilestone = noMilestone;
+    newFilter.creator = creator;
+    newFilter.status = status;
+    newFilter.myProjects = myProjects;
+    newFilter.deadlineStop = overdue;
+
+    fetchTasks(newFilter, newFilter.folder);
+  };
+
   const onFilter = (data) => {
-    // debugger;
     if (filter instanceof ProjectsFilter) {
       onProjectFilter(data);
+    }
+
+    if (filter instanceof TasksFilter) {
+      onTaskFilter(data);
     }
   };
 
@@ -238,8 +328,14 @@ const PureSectionFilterContent = (props) => {
   const filterColumnCount =
     window.innerWidth < 500 ? {} : { filterColumnCount: 3 };
 
+  const getTaskFilterSelectedData = (selectedFilterData) => {
+    selectedFilterData.sortId = filter.sortBy;
+    return selectedFilterData;
+  };
+
   const getProjectFilterSelectedData = (selectedFilterData, filter) => {
-    // какие-то баги с selectedFilterData, поэтому пока отключил
+    // selectedFilterData.sortId = filter.sortBy ? filter.sortBy : "create_on";
+    // bug with selectedFilterData
 
     // if (filter.status) {
     //   selectedFilterData.filterValues.push({
@@ -269,9 +365,9 @@ const PureSectionFilterContent = (props) => {
     //   });
     // }
 
-    // console.log(selectedFilterData);
     return selectedFilterData;
   };
+
   const getSelectedFilterData = () => {
     const selectedFilterData = {
       filterValues: [],
@@ -284,6 +380,12 @@ const PureSectionFilterContent = (props) => {
     if (filter instanceof ProjectsFilter) {
       return getProjectFilterSelectedData(selectedFilterData, filter);
     }
+
+    // if (filter instanceof TasksFilter) {
+    //   return getTaskFilterSelectedData(selectedFilterData);
+    // }
+    // пока что оставить так
+    // return selectedFilterData;
   };
 
   const selectedFilterData = getSelectedFilterData();
@@ -330,6 +432,7 @@ export default inject(
     const {
       getTaskFilterCommonOptions,
       getTaskFilterSortDataOptions,
+      fetchTasks,
     } = tasksFilterStore;
     return {
       customNames,
@@ -337,6 +440,7 @@ export default inject(
       isFiltered,
       user,
       fetchProjects,
+      fetchTasks,
       getProjectFilterCommonOptions,
       getTaskFilterCommonOptions,
       getProjectFilterSortDataOptions,

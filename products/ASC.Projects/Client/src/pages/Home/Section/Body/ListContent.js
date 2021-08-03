@@ -2,27 +2,41 @@ import React from "react";
 import { withRouter } from "react-router";
 import RowContent from "@appserver/components/row-content";
 import Link from "@appserver/components/link";
-import LinkWithDropdown from "@appserver/components/link-with-dropdown";
-import Text from "@appserver/components/text";
-import Box from "@appserver/components/box";
+import api from "@appserver/common/api";
+const { ProjectsFilter, TasksFilter } = api;
 import { useTranslation } from "react-i18next";
+import moment from "moment";
 
-const ListContent = ({ isMobile, list, sectionWidth }) => {
+const ListContent = ({ isMobile, list, sectionWidth, filter }) => {
   const {
     title,
-    description,
     participantCount,
     taskCount,
-    openTask,
-    firstLinkTitle,
-    secondLinkTitle,
+    deadline,
     createdBy,
     responsible,
   } = list;
   const { t } = useTranslation(["Home", "Common"]);
 
   const firstTitle =
-    (openTask && `${t("OpenTask")}: ${taskCount}`) || t(firstLinkTitle);
+    filter instanceof ProjectsFilter
+      ? `${t("OpenTask")}: ${taskCount}`
+      : filter instanceof TasksFilter
+      ? `${t("AddSubtask")}`
+      : "title";
+
+  const secondTitle =
+    filter instanceof ProjectsFilter
+      ? `${t("Team")}: ${participantCount}`
+      : filter instanceof TasksFilter
+      ? `${moment(deadline).format("l")}`
+      : "title";
+
+  const creator = responsible
+    ? responsible.displayName
+    : createdBy
+    ? createdBy.displayName
+    : "byTitle";
   return (
     <RowContent isMobile={isMobile} sectionWidth={sectionWidth} disableSideInfo>
       <Link
@@ -49,9 +63,9 @@ const ListContent = ({ isMobile, list, sectionWidth }) => {
         containerMinWidth="60px"
         containerWidth="8%"
         type="page"
-        title={secondLinkTitle}
+        title={secondTitle}
       >
-        {secondLinkTitle}
+        {secondTitle}
       </Link>
       <Link
         color="#A3A9AE"
@@ -60,7 +74,7 @@ const ListContent = ({ isMobile, list, sectionWidth }) => {
         type="page"
         title="by Title"
       >
-        {responsible ? responsible.displayName : "byTitle"}
+        {creator}
       </Link>
     </RowContent>
   );

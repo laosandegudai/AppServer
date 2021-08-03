@@ -2,7 +2,7 @@ import { action, makeObservable, observable } from "mobx";
 import config from "../../package.json";
 import { updateTempContent } from "@appserver/common/utils";
 import api from "@appserver/common/api";
-import { getProjectStatus } from "../helpers/projects-helper";
+import { getProjectStatus, getTaskStatus } from "../helpers/projects-helper";
 
 const { ProjectsFilter } = api;
 
@@ -19,7 +19,6 @@ class ProjectsStore {
   items = [];
   selection = [];
   selected = "close";
-  filterCommonOptions = [];
 
   firstLoad = true;
 
@@ -42,7 +41,6 @@ class ProjectsStore {
       items: observable,
       selection: observable,
       selected: observable,
-      filterCommonOptions: observable,
       filter: observable,
       isLoaded: observable,
       setIsLoading: action,
@@ -53,7 +51,6 @@ class ProjectsStore {
       setItems: action,
       init: action,
       setFilter: action,
-      setFilterCommonOptions: action,
     });
   }
 
@@ -86,10 +83,6 @@ class ProjectsStore {
     });
   };
 
-  setFilterCommonOptions = (options) => {
-    this.filterCommonOptions = options;
-  };
-
   setIsLoading = (loading) => {
     this.isLoading = loading;
   };
@@ -111,7 +104,6 @@ class ProjectsStore {
   };
 
   selectProject = (item) => {
-    console.log(item);
     return this.selection.push(item);
   };
 
@@ -121,8 +113,11 @@ class ProjectsStore {
   };
 
   getProjectsChecked = (item, selected) => {
-    const status = getProjectStatus(item);
-    console.log(status);
+    const status =
+      this.filter instanceof ProjectsFilter
+        ? getProjectStatus(item)
+        : getTaskStatus(item);
+
     switch (selected) {
       case "all":
         return true;
@@ -151,7 +146,6 @@ class ProjectsStore {
     this.selected = selected;
     const items = this.items;
     this.selection = this.getItemsBySelected(items, selected);
-    console.log(this.selection);
   };
 
   setSelection = (selection) => {

@@ -1,10 +1,7 @@
 import React, { useEffect } from "react";
-
 import { withRouter } from "react-router";
-
 import PageLayout from "@appserver/common/components/PageLayout";
 import { withTranslation } from "react-i18next";
-
 import { inject } from "mobx-react";
 import i18n from "../../i18n";
 import { I18nextProvider } from "react-i18next";
@@ -31,7 +28,6 @@ const Home = ({
   fetchProjects,
   history,
   isLoading,
-  selectedTreeNode,
   fetchTasks,
   setExpandedKeys,
 }) => {
@@ -43,13 +39,13 @@ const Home = ({
     let filterObj = null;
 
     if (match && match.length > 0) {
-      filterObj = ProjectsFilter.getFilter(window.location);
+      filterObj = TasksFilter.getFilter(window.location);
 
       if (!filterObj) {
-        filterObj = ProjectsFilter.getDefault();
-        filterObj.folder = "projects";
+        filterObj = TasksFilter.getDefault();
+        filterObj.folder = "tasks";
         setIsLoading(true);
-        fetchProjects(filterObj, null, true).finally(() => {
+        fetchTasks(filterObj, null, true).finally(() => {
           setIsLoading(false);
           setFirstLoad(false);
         });
@@ -63,7 +59,6 @@ const Home = ({
         setIsLoading(false);
         setFirstLoad(false);
       });
-      // тест разворачивания дерева при f5
       setExpandedKeys(["projects"]);
     }
 
@@ -125,18 +120,11 @@ const HomeWrapper = inject(
       firstLoad,
       setIsLoading,
       setFirstLoad,
-      setFilterCommonOptions,
-      setFilter,
       filter,
     } = projectsStore;
-    const { selectedTreeNode, setExpandedKeys } = treeFoldersStore;
-    const { fetchTasks, getTaskFilterCommonOptions } = tasksFilterStore;
-    const {
-      fetchAllProjects,
-      projects,
-      fetchProjects,
-      getProjectFilterCommonOptions,
-    } = projectsFilterStore;
+    const { setExpandedKeys } = treeFoldersStore;
+    const { fetchTasks } = tasksFilterStore;
+    const { projects, fetchProjects } = projectsFilterStore;
     return {
       modules: auth.moduleStore.modules,
       isLoaded: auth.isLoaded,
@@ -147,15 +135,10 @@ const HomeWrapper = inject(
       firstLoad,
       setIsLoading,
       setFirstLoad,
-      selectedTreeNode,
-      fetchAllProjects,
       filter,
       projects,
       fetchTasks,
       setExpandedKeys,
-      getProjectFilterCommonOptions,
-      setFilterCommonOptions,
-      getTaskFilterCommonOptions,
     };
   }
 )(withRouter(withTranslation(["Home", "Common", "Article"])(Home)));

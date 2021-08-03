@@ -5,7 +5,7 @@ import Row from "@appserver/components/row";
 import ComboBox from "@appserver/components/combobox";
 import ListContent from "./ListContent";
 import { useTranslation } from "react-i18next";
-import { RowProjectOptionStatus } from "../../../../constants";
+import { ProjectOptionStatus, TaskOptionStatus } from "../../../../constants";
 import styled from "styled-components";
 import api from "@appserver/common/api";
 const { ProjectsFilter, TasksFilter } = api;
@@ -77,30 +77,44 @@ const SimpleProjectsRow = ({
   };
 
   const getSelectedOption = () => {
-    switch (list.status) {
-      case RowProjectOptionStatus.Active:
-        return {
-          icon: "images/catalog.status-play.react.svg",
-          key: 0,
-          //label: "Open",
-        };
-      case RowProjectOptionStatus.Closed:
-        return {
-          icon: "images/catalog.status-closed.react.svg",
-          key: 1,
-          //label: "Closed",
-        };
-      case RowProjectOptionStatus.Paused:
-        return {
-          icon: "images/catalog.status-pause.react.svg",
-          key: 2,
-          //label: "Paused",
-        };
+    if (filter instanceof ProjectsFilter) {
+      switch (list.status) {
+        case ProjectOptionStatus.Active:
+          return {
+            icon: "images/catalog.status-play.react.svg",
+            key: 1,
+          };
+        case ProjectOptionStatus.Closed:
+          return {
+            icon: "images/catalog.status-closed.react.svg",
+            key: 2,
+          };
+        case ProjectOptionStatus.Paused:
+          return {
+            icon: "images/catalog.status-pause.react.svg",
+            key: 3,
+          };
+      }
+    }
+
+    if (filter instanceof TasksFilter) {
+      switch (list.status) {
+        case TaskOptionStatus.Active:
+          return {
+            icon: "images/catalog.status-play.react.svg",
+            key: 1,
+          };
+
+        case TaskOptionStatus.Closed:
+          return {
+            icon: "images/catalog.status-closed.react.svg",
+            key: 2,
+          };
+      }
     }
   };
 
   const getComboBoxOptions = () => {
-    // пока что под 2 категории
     const options = [
       {
         icon: "images/catalog.status-play.react.svg",
@@ -151,6 +165,7 @@ const SimpleProjectsRow = ({
         isMobile={isMobile}
         sectionWidth={sectionWidth}
         list={list}
+        filter={filter}
       />
     </Row>
   );

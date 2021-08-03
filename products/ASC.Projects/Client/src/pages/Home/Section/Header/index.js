@@ -161,7 +161,6 @@ const PureSectionHeaderContent = (props) => {
   };
 
   const getChildren = () => {
-    // если что, потом поменять генерацию, сделав switch case
     if (filter instanceof ProjectsFilter) {
       return [
         <DropDownItem key="active" label={t("Active")} data-index={0} />,
@@ -207,8 +206,6 @@ const PureSectionHeaderContent = (props) => {
   };
 
   const getMenuItems = () => {
-    // меню тоже генерируется у каждого раздела свое
-    // пока что только отображение
     let menu = [
       {
         label: t("Common:Select"),

@@ -31,8 +31,8 @@ class ProjectsFilterStore {
     this.filter = filter;
   };
 
-  // пока функции повторяются.
   resolveData = async (data, filterData) => {
+    console.log(data);
     const { setSelectedNode } = this.treeFoldersStore;
     this.setProjects([]);
 
@@ -54,11 +54,6 @@ class ProjectsFilterStore {
   };
 
   fetchProjects = (filter, folderName, isFolderSelect) => {
-    //const newFilter = filter.clone();
-    // вот здесь нужно скорее всего убрать
-    // newFilter.page = 0;
-    // newFilter.startIndex = 0;
-
     const filterData = filter ? filter.clone() : ProjectsFilter.getDefault();
 
     filterData.folder = folderName ? folderName : filterData.folder;
@@ -147,7 +142,7 @@ class ProjectsFilterStore {
     selectedItem,
     user
   ) => {
-    const { usersCaption, groupsCaption } = customNames;
+    const { groupsCaption } = customNames;
     const options = [
       {
         key: "filter-status",
@@ -180,12 +175,6 @@ class ProjectsFilterStore {
         key: "user-manager-me",
         group: "filter-author-manager",
         label: translation.me,
-        // isSelector: true,
-        //defaultOptionLabel: translation.meLabel,
-        //defaultSelectLabel: translation.select,
-        //groupsCaption,
-        //defaultOption: user,
-        //selectedItem,
       },
       {
         key: "user-manager-other",
@@ -266,9 +255,6 @@ class ProjectsFilterStore {
         responsible,
       } = item;
 
-      const openTask = `OpenTask: ${taskCount}`;
-      const secondLinkTitle = `Team: ${participantCount}`;
-
       return {
         status,
         id,
@@ -277,8 +263,6 @@ class ProjectsFilterStore {
         taskCount,
         participantCount,
         createdBy,
-        openTask,
-        secondLinkTitle,
         responsible,
       };
     });

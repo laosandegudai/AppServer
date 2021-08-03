@@ -3,17 +3,17 @@ import { inject, observer } from "mobx-react";
 import { isMobile } from "react-device-detect";
 import Paging from "@appserver/components/paging";
 import { useTranslation } from "react-i18next";
+import api from "@appserver/common/api";
+const { ProjectsFilter, TasksFilter } = api;
 
 const SectionPagingContent = ({
   filter,
-  items,
   selectedTreeNode,
   fetchProjects,
+  setIsLoading,
+  fetchTasks,
 }) => {
   const { t } = useTranslation("Home");
-
-  const pathname = window.location.pathname;
-
   const pageItems = useMemo(() => {
     const totalPages = Math.ceil(filter.total / filter.pageCount);
     return [...Array(totalPages).keys()].map((item) => {
@@ -33,13 +33,23 @@ const SectionPagingContent = ({
       const newFilter = filter.clone();
       newFilter.page = pageItems.key;
 
-      if (pathname.indexOf("/projects/filter") > -1) {
-        console.log("daa");
-        // добавить лоадинг
-        fetchProjects(newFilter, selectedTreeNode[0]);
+      if (filter instanceof ProjectsFilter) {
+        setIsLoading(true);
+        fetchProjects(newFilter, selectedTreeNode[0]).finally(() =>
+          setIsLoading(false)
+        );
+      }
+
+      console.log(filter, fetchTasks);
+
+      if (filter instanceof TasksFilter) {
+        setIsLoading(true);
+        fetchTasks(newFilter, selectedTreeNode[0]).finally(() =>
+          setIsLoading(false)
+        );
       }
     },
-    [filter, selectedTreeNode, fetchProjects]
+    [filter, selectedTreeNode, fetchProjects, fetchTasks]
   );
 
   const countItems = useMemo(
@@ -66,13 +76,21 @@ const SectionPagingContent = ({
       newFilter.page = 0;
       newFilter.pageCount = pageItem.key;
 
-      if (pathname.indexOf("/projects/filter") > -1) {
-        console.log("daa");
-        // добавить лоадинг
-        fetchProjects(newFilter, selectedTreeNode[0]);
+      if (filter instanceof ProjectsFilter) {
+        setIsLoading(true);
+        fetchProjects(newFilter, selectedTreeNode[0]).finally(() =>
+          setIsLoading(false)
+        );
+      }
+
+      if (filter instanceof TasksFilter) {
+        setIsLoading(true);
+        fetchTasks(newFilter, selectedTreeNode[0]).finally(() =>
+          setIsLoading(false)
+        );
       }
     },
-    [filter, selectedTreeNode, fetchProjects]
+    [filter, selectedTreeNode, fetchProjects, fetchTasks]
   );
 
   const onPrevClick = useCallback(
@@ -84,13 +102,21 @@ const SectionPagingContent = ({
       const newFilter = filter.clone();
       newFilter.page--;
 
-      if (pathname.indexOf("/projects/filter") > -1) {
-        console.log("daa");
-        // добавить лоадинг
-        fetchProjects(newFilter, selectedTreeNode[0]);
+      if (filter instanceof ProjectsFilter) {
+        setIsLoading(true);
+        fetchProjects(newFilter, selectedTreeNode[0]).finally(() =>
+          setIsLoading(false)
+        );
+      }
+
+      if (filter instanceof TasksFilter) {
+        setIsLoading(true);
+        fetchTasks(newFilter, selectedTreeNode[0]).finally(() =>
+          setIsLoading(false)
+        );
       }
     },
-    [selectedTreeNode, filter, fetchProjects]
+    [selectedTreeNode, filter, fetchProjects, fetchTasks]
   );
 
   const onNextClick = useCallback(
@@ -101,12 +127,21 @@ const SectionPagingContent = ({
       }
       const newFilter = filter.clone();
       newFilter.page++;
-      if (pathname.indexOf("/projects/filter") > -1) {
-        console.log("daa", newFilter);
-        fetchProjects(newFilter, selectedTreeNode[0]);
+      if (filter instanceof ProjectsFilter) {
+        setIsLoading(true);
+        fetchProjects(newFilter, selectedTreeNode[0]).finally(() =>
+          setIsLoading(false)
+        );
+      }
+
+      if (filter instanceof TasksFilter) {
+        setIsLoading(true);
+        fetchTasks(newFilter, selectedTreeNode[0]).finally(() =>
+          setIsLoading(false)
+        );
       }
     },
-    [selectedTreeNode, filter, fetchProjects]
+    [selectedTreeNode, filter, fetchProjects, fetchTasks]
   );
 
   const emptyPageSelection = {
@@ -141,8 +176,8 @@ const SectionPagingContent = ({
       previousAction={onPrevClick}
       nextAction={onNextClick}
       openDirection="top"
-      selectedPageItem={selectedPageItem} //FILTER CURRENT PAGE
-      selectedCountItem={selectedCountItem} //FILTER PAGE COUNT
+      selectedPageItem={selectedPageItem}
+      selectedCountItem={selectedCountItem}
       //showCountItem={showCountItem}
     />
   );
@@ -155,14 +190,18 @@ export default inject(
     projectsFilterStore,
     tasksFilterStore,
   }) => {
-    const { filter, items } = projectsStore;
+    const { filter, items, setIsLoading } = projectsStore;
     const { fetchProjects } = projectsFilterStore;
+    const { fetchTasks } = tasksFilterStore;
     const { selectedTreeNode } = treeFoldersStore;
+
     return {
       filter,
       items,
       selectedTreeNode,
       fetchProjects,
+      fetchTasks,
+      setIsLoading,
     };
   }
 )(observer(SectionPagingContent));

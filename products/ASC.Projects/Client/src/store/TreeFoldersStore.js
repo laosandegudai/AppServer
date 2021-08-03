@@ -1,5 +1,4 @@
 import { makeAutoObservable } from "mobx";
-//import { getFolderTree } from "../components/Article/utils";
 import { getFolders } from "@appserver/common/api/projects";
 
 class TreeFoldersStore {
