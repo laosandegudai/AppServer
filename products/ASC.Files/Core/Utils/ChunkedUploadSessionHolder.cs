@@ -34,6 +34,7 @@ using ASC.Files.Core;
 using ASC.Web.Files.Classes;
 using ASC.Web.Studio.Core;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace ASC.Web.Files.Utils
@@ -61,17 +62,6 @@ namespace ASC.Web.Files.Utils
             SetupInfo = setupInfo;
             TempPath = tempPath;
             FileHelper = fileHelper;
-
-            // clear old sessions
-            //TODO
-            //try
-            //{
-            //    CommonSessionHolder(false).DeleteExpired();
-            //}
-            //catch (Exception err)
-            //{
-            //    options.CurrentValue.Error(err);
-            //}
         }
 
         public void StoreSession<T>(ChunkedUploadSession<T> s)
@@ -127,6 +117,35 @@ namespace ASC.Web.Files.Utils
         private CommonChunkedUploadSessionHolder CommonSessionHolder(bool currentTenant = true)
         {
             return new CommonChunkedUploadSessionHolder(TempPath, Options, GlobalStore.GetStore(currentTenant), FileConstant.StorageDomainTmp, SetupInfo.ChunkUploadSize);
+        }
+    }
+
+    [Singletone]
+    public class DeleterExpired
+    {
+        private ILog Log { get; }
+        private CommonChunkedUploadSessionHolder CommonChunkedUploadSessionHolder { get; }
+
+        public DeleterExpired(
+            IOptionsMonitor<ILog> options,
+            SetupInfo setupInfo,
+            TempPath tempPath,
+            GlobalStore globalStore)
+        {
+            Log = options.CurrentValue;
+            CommonChunkedUploadSessionHolder = new CommonChunkedUploadSessionHolder(tempPath, options, globalStore.GetStore(false), FileConstant.StorageDomainTmp, setupInfo.ChunkUploadSize);
+        }
+
+        public void DeleteExpired()
+        {
+            try
+            {
+                CommonChunkedUploadSessionHolder.DeleteExpired();
+            }
+            catch (Exception err)
+            {
+                Log.Error(err);
+            }
         }
     }
 }

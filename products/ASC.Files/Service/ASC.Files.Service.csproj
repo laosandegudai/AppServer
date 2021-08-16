@@ -19,6 +19,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\..\..\common\services\ASC.DeleteExpired\ASC.DeleteExpired.csproj" />
     <ProjectReference Include="..\..\..\common\services\ASC.Feed.Aggregator\ASC.Feed.Aggregator.csproj" />
     <ProjectReference Include="..\Core\ASC.Files.Core.csproj" />
   </ItemGroup>

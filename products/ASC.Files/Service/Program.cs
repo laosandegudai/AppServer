@@ -7,6 +7,7 @@ using ASC.Common;
 using ASC.Common.Caching;
 using ASC.Common.DependencyInjection;
 using ASC.Common.Utils;
+using ASC.DeleteExpired;
 using ASC.ElasticSearch;
 using ASC.Feed.Aggregator;
 using ASC.Files.ThumbnailBuilder;
@@ -81,6 +82,9 @@ namespace ASC.Files.Service
 
                     services.AddHostedService<Launcher>();
                     diHelper.TryAdd<Launcher>();
+                    
+                    services.AddHostedService<DeleteExpiredServiceLauncher>();
+                    diHelper.TryAdd<DeleteExpiredServiceLauncher>();
 
                     //diHelper.TryAdd<FileConverter>();
                     diHelper.TryAdd<FactoryIndexerFile>();
