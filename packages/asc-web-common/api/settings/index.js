@@ -317,6 +317,14 @@ export function validateTfaCode(code) {
   });
 }
 
+export function getCommonThirdPartyList() {
+  const options = {
+    method: "get",
+    url: "/files/thirdparty/common",
+  };
+  return request(options);
+}
+
 export function getSecuritySettings(modules) {
   /*return request({
     method: "get",
