@@ -59,6 +59,12 @@ namespace ASC.Api.Core
             services.AddHttpContextAccessor();
             services.AddMemoryCache();
 
+            services.AddStackExchangeRedisCache(options => 
+            {
+                options.Configuration = "localhost";
+                options.InstanceName = "SampleInstance";
+            });
+
             if(AddAndUseSession)
                 services.AddSession();
 
@@ -90,6 +96,7 @@ namespace ASC.Api.Core
             DIHelper.TryAdd<ConfirmAuthHandler>();
 
             DIHelper.TryAdd(typeof(ICacheNotify<>), typeof(KafkaCache<>));
+            DIHelper.TryAdd(typeof(DistributedCache<>));
 
             if (LoadProducts)
             {
