@@ -1,0 +1,24 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+package ASC.Core.Tenants;
+
+message TenantQuota {
+	int32 Id = 1;
+	google.protobuf.StringValue Name = 2;
+	int64 MaxFileSize = 3;
+	int64 MaxTotalSize = 4;
+	int32 ActiveUsers = 5;
+	google.protobuf.StringValue Features = 6;
+	DecimalValue PriceProto = 7;
+	google.protobuf.StringValue AvangateId = 8;
+	bool Visible = 9;
+}
+
+message TenantQuotaList {
+	repeated TenantQuota Quotas = 1;
+}
+
+message DecimalValue {
+	int64 units = 1;
+	sfixed32 nanos = 2;
+}

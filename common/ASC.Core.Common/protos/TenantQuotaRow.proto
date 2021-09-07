@@ -1,0 +1,14 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+package ASC.Core.Tenants;
+
+message TenantQuotaRow {
+	int32 Tenant = 1;
+	google.protobuf.StringValue Path = 2;
+	int64 Counter = 3;
+	google.protobuf.StringValue Tag = 4;
+}
+
+message TenantQuotaRowList {
+	repeated TenantQuotaRow QuotaRows = 1;
+}

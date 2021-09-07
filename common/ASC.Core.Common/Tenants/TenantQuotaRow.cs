@@ -25,18 +25,42 @@
 
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
+
+using ASC.Common.Caching;
 
 namespace ASC.Core.Tenants
 {
-    [Serializable]
-    public class TenantQuotaRow
+    public partial class TenantQuotaRowList : ICustomSer<TenantQuotaRowList>,
+        IEnumerable<TenantQuotaRow>
     {
-        public int Tenant { get; set; }
+        public void CustomDeSer() { }
+        public void CustomSer() { }
 
-        public string Path { get; set; }
+        public IEnumerator<TenantQuotaRow> GetEnumerator()
+        {
+            return QuotaRows.GetEnumerator();
+        }
 
-        public long Counter { get; set; }
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return QuotaRows.GetEnumerator();
+        }
+    }
 
-        public string Tag { get; set; }
+    [Serializable]
+    public partial class TenantQuotaRow : ICustomSer<TenantQuotaRow>
+    {
+        //public int Tenant { get; set; }
+
+        //public string Path { get; set; }
+
+        //public long Counter { get; set; }
+
+        //public string Tag { get; set; }
+
+        public void CustomDeSer() { }
+        public void CustomSer() { }
     }
 }

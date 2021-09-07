@@ -25,13 +25,73 @@
 
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
+using ASC.Common.Caching;
+
 namespace ASC.Core.Tenants
 {
+    public partial class DecimalValue
+    {
+        private const decimal NanoFactor = 1_000_000_000;
+
+        public DecimalValue(long units, int nanos)
+        {
+            Units = units;
+            Nanos = nanos;
+        }
+
+        public static implicit operator decimal(DecimalValue grpcDecimal)
+        {
+            return grpcDecimal.Units + grpcDecimal.Nanos / NanoFactor;
+        }
+
+        public static implicit operator DecimalValue(decimal value)
+        {
+            var units = decimal.ToInt64(value);
+            var nanos = decimal.ToInt32((value - units) * NanoFactor);
+
+            return new DecimalValue(units, nanos);
+        }
+    }
+
+    public partial class TenantQuotaList : ICustomSer<TenantQuotaList>,
+        IEnumerable<TenantQuota>
+    {
+        public void CustomDeSer() 
+        { 
+            foreach (var quota in Quotas)
+            {
+                quota.CustomDeSer();
+            }
+        }
+
+        public void CustomSer() 
+        {
+            foreach (var quota in Quotas)
+            {
+                quota.CustomSer();
+            }
+        }
+
+        public IEnumerator<TenantQuota> GetEnumerator()
+        {
+            return Quotas.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return Quotas.GetEnumerator();
+        }
+    }
+
+
+
     [DebuggerDisplay("{Name}")]
-    public class TenantQuota : ICloneable
+    public partial class TenantQuota : ICustomSer<TenantQuota> //: ICloneable
     {
         public static readonly TenantQuota Default = new TenantQuota(Tenant.DEFAULT_TENANT)
         {
@@ -41,23 +101,22 @@ namespace ASC.Core.Tenants
             ActiveUsers = int.MaxValue,
         };
 
-        public int Id { get; set; }
+        //public int Id { get; set; }
 
-        public string Name { get; set; }
+        //public string Name { get; set; }
 
-        public long MaxFileSize { get; set; }
+        //public long MaxFileSize { get; set; }
 
-        public long MaxTotalSize { get; set; }
+        //public long MaxTotalSize { get; set; }
 
-        public int ActiveUsers { get; set; }
+        //public int ActiveUsers { get; set; }
 
-        public string Features { get; set; }
-
+        //public string Features { get; set; }
         public decimal Price { get; set; }
 
-        public string AvangateId { get; set; }
+        //public string AvangateId { get; set; }
 
-        public bool Visible { get; set; }
+        //public bool Visible { get; set; }
 
         public bool Year
         {
@@ -279,25 +338,20 @@ namespace ASC.Core.Tenants
             set { SetFeature("thirdparty", value); }
         }
 
-        public TenantQuota()
-        {
-        }
         public TenantQuota(int tenant)
         {
             Id = tenant;
         }
 
+        //public override int GetHashCode()
+        //{
+        //    return Id.GetHashCode();
+        //}
 
-        public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is TenantQuota q && q.Id == Id;
-        }
-
+        //public override bool Equals(object obj)
+        //{
+        //    return obj is TenantQuota q && q.Id == Id;
+        //}
 
         public bool GetFeature(string feature)
         {
@@ -320,9 +374,14 @@ namespace ASC.Core.Tenants
             Features = string.Join(",", features.ToArray());
         }
 
-        public object Clone()
+        public void CustomSer()
         {
-            return MemberwiseClone();
+            PriceProto = (DecimalValue)Price;
+        }
+
+        public void CustomDeSer()
+        {
+            Price = (decimal)PriceProto;
         }
     }
 }
