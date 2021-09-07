@@ -1997,18 +1997,12 @@ namespace ASC.Employee.Core.Controllers
             PermissionContext.DemandPermissions(new UserSecurityProvider(user.ID), Constants.Action_EditUser);
             if (contacts == null) return;
 
-            if (user.ContactsList == null)
-            {
-                user.ContactsList = new List<string>();
-            }
-
             foreach (var contact in contacts)
             {
-                var index = user.ContactsList.IndexOf(contact.Type);
-                if (index != -1)
+                if (user.ContactsList.Contains(contact.Type))
                 {
-                    //Remove existing
-                    user.ContactsList.RemoveRange(index, 2);
+                    user.ContactsList.Remove(contact.Type);
+                    user.ContactsList.Remove(contact.Value);
                 }
             }
         }

@@ -34,7 +34,7 @@
     <None Remove="protos\CreateClientProto.proto" />
     <None Remove="protos\DisableClientProto.proto" />
     <None Remove="protos\EncryptionSettingsProto.proto" />
-    <None Remove="protos\GroupCacheItem.proto" />
+    <None Remove="protos\Group.proto" />
     <None Remove="protos\NotifyInvoke.proto" />
     <None Remove="protos\NotifyMessage.proto" />
     <None Remove="protos\QuotaCacheItem.proto" />
@@ -43,10 +43,11 @@
     <None Remove="protos\SubscriptionMethodCache.proto" />
     <None Remove="protos\SubscriptionRecord.proto" />
     <None Remove="protos\TenantCacheItem.proto" />
+    <None Remove="protos\TenantQuota.proto" />
+    <None Remove="protos\TenantQuotaRow.proto" />
     <None Remove="protos\TenantSetting.proto" />
-    <None Remove="protos\UserGroupRefCacheItem.proto" />
-    <None Remove="protos\UserInfoCacheItem.proto" />
-    <None Remove="protos\UserPhotoCacheItem.proto" />
+    <None Remove="protos\UserGroupRef.proto" />
+    <None Remove="protos\UserInfo.proto" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AWSSDK.Core" Version="3.5.1.25" />
@@ -63,6 +64,7 @@
   <ItemGroup>
     <Protobuf Include="protos\CreateClientProto.proto" />
     <Protobuf Include="protos\EncryptionSettingsProto.proto" />
+    <Protobuf Include="protos\Group.proto" />
     <Protobuf Include="protos\NotifyInvoke.proto" />
     <Protobuf Include="protos\NotifyMessage.proto" />
     <Protobuf Include="protos\DisableClientProto.proto" />
@@ -70,15 +72,15 @@
     <Protobuf Include="protos\SettingsCacheItem.proto" />
     <Protobuf Include="protos\ConsumerCacheItem.proto" />
     <Protobuf Include="protos\TenantCacheItem.proto" />
-    <Protobuf Include="protos\GroupCacheItem.proto" />
-    <Protobuf Include="protos\UserGroupRefCacheItem.proto" />
-    <Protobuf Include="protos\UserInfoCacheItem.proto" />
-    <Protobuf Include="protos\UserPhotoCacheItem.proto" />
+    <Protobuf Include="protos\TenantQuota.proto" />
+    <Protobuf Include="protos\TenantQuotaRow.proto" />
+    <Protobuf Include="protos\UserGroupRef.proto" />
     <Protobuf Include="protos\TenantSetting.proto" />
     <Protobuf Include="protos\SubscriptionMethodCache.proto" />
     <Protobuf Include="protos\SubscriptionRecord.proto" />
     <Protobuf Include="protos\TariffCacheItem.proto" />
     <Protobuf Include="protos\AzRecordCache.proto" />
     <Protobuf Include="protos\QuotaCacheItem.proto" />
+    <Protobuf Include="protos\UserInfo.proto" />
   </ItemGroup>
 </Project>

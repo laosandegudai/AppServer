@@ -1,0 +1,37 @@
+﻿syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+package ASC.Core.Users;
+
+message UserInfo {
+        bytes IDProto = 1;
+        google.protobuf.StringValue FirstName = 2;
+        google.protobuf.StringValue LastName = 3;
+        google.protobuf.StringValue UserName = 4;
+        google.protobuf.Timestamp BirthDateProto = 5;
+        bool SexProto = 6;
+        bool SexIsNull = 27;
+        int32 StatusProto = 7;
+        int32 ActivationStatusProto = 8;
+        google.protobuf.Timestamp TerminatedDateProto = 9;
+        google.protobuf.StringValue Title = 10;
+        google.protobuf.Timestamp WorkFromDateProto = 11;
+        google.protobuf.StringValue Email = 12;
+        google.protobuf.StringValue contacts = 13;
+        repeated string  ContactsList = 14;
+        google.protobuf.StringValue Location = 15;
+        google.protobuf.StringValue Notes = 16;
+        bool Removed = 17;
+        google.protobuf.Timestamp LastModifiedProto = 18;
+        int32 Tenant = 19;
+        google.protobuf.StringValue CultureName = 20;
+        google.protobuf.StringValue MobilePhone = 21;
+        int32 MobilePhoneActivationStatusProto = 22;
+        google.protobuf.StringValue Sid = 23;
+        google.protobuf.StringValue SsoNameId = 24;
+        google.protobuf.StringValue SsoSessionId = 25;
+        google.protobuf.Timestamp CreateDateProto = 26;
+}
+message UserInfoList {
+        repeated UserInfo UserInfoListProto = 1;
+}

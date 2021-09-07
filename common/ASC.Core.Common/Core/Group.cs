@@ -26,71 +26,58 @@
 
 using System;
 
+using ASC.Common.Caching;
+
 namespace ASC.Core
 {
-    public class Group
+    public partial class Group
     {
         public Guid Id
         {
-            get;
-            set;
+            get
+            {
+                return IDProto.FromByteString();
+            }
+            set
+            {
+                IDProto = value.ToByteString();
+            }
         }
 
         public Guid ParentId
         {
-            get;
-            set;
-        }
-
-        public string Name
-        {
-            get;
-            set;
+            get
+            {
+                return ParentIdProto.FromByteString();
+            }
+            set
+            {
+                ParentIdProto = value.ToByteString();
+            }
         }
 
         public Guid CategoryId
         {
-            get;
-            set;
-        }
-
-        public bool Removed
-        {
-            get;
-            set;
+            get
+            {
+                return CategoryIdProto.FromByteString();
+            }
+            set
+            {
+                CategoryIdProto = value.ToByteString();
+            }
         }
 
         public DateTime LastModified
         {
-            get;
-            set;
-        }
-
-        public int Tenant
-        {
-            get;
-            set;
-        }
-
-        public string Sid
-        {
-            get;
-            set;
-        }
-
-        public override string ToString()
-        {
-            return Name;
-        }
-
-        public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is Group g && g.Id == Id;
+            get
+            {
+                return LastModifiedProto.ToDateTime();
+            }
+            set
+            {
+                LastModifiedProto = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(value.ToUniversalTime());
+            }
         }
     }
 }

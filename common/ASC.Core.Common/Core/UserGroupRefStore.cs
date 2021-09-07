@@ -29,130 +29,151 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ASC.Core.Caching
+using ASC.Common.Caching;
+
+using Confluent.Kafka;
+using Google.Protobuf;
+
+namespace ASC.Core
 {
-    class UserGroupRefStore : IDictionary<string, UserGroupRef>
+    partial class UserGroupRefStore : IDictionary<string, UserGroupRef>, ICustomSer<UserGroupRefStore>
     {
-        private readonly IDictionary<string, UserGroupRef> refs;
+        //private readonly IDictionary<string, UserGroupRef> refs;
         private ILookup<Guid, UserGroupRef> index;
         private bool changed;
 
 
         public UserGroupRefStore(IDictionary<string, UserGroupRef> refs)
         {
-            this.refs = refs;
+            this.Refs.Clear();
+            this.Refs.Add(refs);
             changed = true;
         }
 
 
         public void Add(string key, UserGroupRef value)
         {
-            refs.Add(key, value);
+            Refs.Add(key, value);
             RebuildIndex();
         }
 
         public bool ContainsKey(string key)
         {
-            return refs.ContainsKey(key);
+            return Refs.ContainsKey(key);
         }
 
         public ICollection<string> Keys
         {
-            get { return refs.Keys; }
+            get { return Refs.Keys; }
         }
 
         public bool Remove(string key)
         {
-            var result = refs.Remove(key);
+            var result = Refs.Remove(key);
             RebuildIndex();
             return result;
         }
 
         public bool TryGetValue(string key, out UserGroupRef value)
         {
-            return refs.TryGetValue(key, out value);
+            return Refs.TryGetValue(key, out value);
         }
 
         public ICollection<UserGroupRef> Values
         {
-            get { return refs.Values; }
+            get { return Refs.Values; }
         }
 
         public UserGroupRef this[string key]
         {
             get
             {
-                return refs[key];
+                return Refs[key];
             }
             set
             {
-                refs[key] = value;
+                Refs[key] = value;
                 RebuildIndex();
             }
         }
 
         public void Add(KeyValuePair<string, UserGroupRef> item)
         {
-            refs.Add(item);
+            Refs.Add(item.Key, item.Value);
             RebuildIndex();
         }
 
         public void Clear()
         {
-            refs.Clear();
+            Refs.Clear();
             RebuildIndex();
         }
 
         public bool Contains(KeyValuePair<string, UserGroupRef> item)
         {
-            return refs.Contains(item);
+            return Refs.Contains(item);
         }
 
         public void CopyTo(KeyValuePair<string, UserGroupRef>[] array, int arrayIndex)
         {
-            refs.CopyTo(array, arrayIndex);
+            if (array == null) throw new ArgumentNullException(nameof(array));
+            if (arrayIndex < 0) throw new ArgumentOutOfRangeException(nameof(arrayIndex));
+
+            Refs.ToArray().CopyTo(array, arrayIndex);
         }
 
         public int Count
         {
-            get { return refs.Count; }
+            get { return Refs.Count; }
         }
 
         public bool IsReadOnly
         {
-            get { return refs.IsReadOnly; }
+            get { return Refs.IsReadOnly; }
         }
 
         public bool Remove(KeyValuePair<string, UserGroupRef> item)
         {
-            var result = refs.Remove(item);
+            var result = Refs.Remove(item.Key);
             RebuildIndex();
+
             return result;
         }
 
         public IEnumerator<KeyValuePair<string, UserGroupRef>> GetEnumerator()
         {
-            return refs.GetEnumerator();
+            return Refs.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return refs.GetEnumerator();
+            return Refs.GetEnumerator();
         }
 
         public IEnumerable<UserGroupRef> GetRefsByUser(Guid userId)
         {
-            if (changed)
+            if (changed || index == null)
             {
-                index = refs.Values.ToLookup(r => r.UserId);
+                index = Refs.Values.ToLookup(r => r.UserId);
                 changed = false;
             }
+
             return index[userId];
         }
 
         private void RebuildIndex()
         {
             changed = true;
+        }
+
+        public void CustomSer()
+        {
+            
+        }
+
+        public void CustomDeSer()
+        {
+            
         }
     }
 }

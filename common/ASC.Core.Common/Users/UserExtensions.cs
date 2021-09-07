@@ -112,7 +112,8 @@ namespace ASC.Core.Users
                 }
             }
 
-            ui.ContactsList = newContacts;
+            ui.ContactsList.Clear();
+            ui.ContactsList.AddRange(newContacts);
         }
     }
 }

@@ -1,0 +1,18 @@
+﻿syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+package ASC.Core;
+
+message Group {
+        bytes IDProto = 1;
+        bytes ParentIdProto = 2;
+        google.protobuf.StringValue Name = 3;
+        bytes CategoryIdProto = 4;
+        bool Removed = 5;
+        google.protobuf.Timestamp LastModifiedProto = 6;
+        int32 Tenant = 7;
+        google.protobuf.StringValue Sid = 8;
+}
+message GroupList {
+        repeated Group GroupListProto = 1;
+}

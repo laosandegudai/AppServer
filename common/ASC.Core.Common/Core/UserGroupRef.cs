@@ -33,24 +33,63 @@ using ASC.Core.Caching;
 namespace ASC.Core
 {
     [DebuggerDisplay("{UserId} - {GroupId}")]
-    public class UserGroupRef
+    public sealed partial class UserGroupRef
     {
         public Guid UserId { get; set; }
 
         public Guid GroupId { get; set; }
 
-        public bool Removed { get; set; }
-
-        public DateTime LastModified { get; set; }
-
-        public UserGroupRefType RefType { get; set; }
-
-        public int Tenant { get; set; }
-
-
-        public UserGroupRef()
+        public bool Removed
         {
+            get 
+            {  
+                return RemovedProto;
+            }
+            set 
+            {  
+                RemovedProto = value; 
+            }
         }
+
+        public DateTime LastModified
+        {
+            get
+            {
+                return DateTime.FromBinary(LastModifiedProto);
+            }
+            set
+            {
+                LastModifiedProto = value.Ticks;
+            }
+        }
+
+        public UserGroupRefType RefType
+        {
+            get
+            {
+                return (UserGroupRefType)RefTypeProto;
+            }
+            set
+            {
+                RefTypeProto = (int)value;
+            }
+        }
+
+        public int Tenant
+        {
+            get
+            {
+                return TenantProto;
+            }
+            set
+            {
+                TenantProto = value;
+            }
+        }
+
+        //public UserGroupRef()
+        //{
+        //}
 
         public UserGroupRef(Guid userId, Guid groupId, UserGroupRefType refType)
         {
@@ -69,47 +108,47 @@ namespace ASC.Core
             return CreateKey(Tenant, UserId, GroupId, RefType);
         }
 
-        public override int GetHashCode()
-        {
-            return UserId.GetHashCode() ^ GroupId.GetHashCode() ^ Tenant.GetHashCode() ^ RefType.GetHashCode();
-        }
+        //public override int GetHashCode()
+        //{
+        //    return UserId.GetHashCode() ^ GroupId.GetHashCode() ^ Tenant.GetHashCode() ^ RefType.GetHashCode();
+        //}
 
-        public override bool Equals(object obj)
-        {
-            return obj is UserGroupRef r && r.Tenant == Tenant && r.UserId == UserId && r.GroupId == GroupId && r.RefType == RefType;
-        }
+        //public override bool Equals(object obj)
+        //{
+        //    return obj is UserGroupRef r && r.Tenant == Tenant && r.UserId == UserId && r.GroupId == GroupId && r.RefType == RefType;
+        //}
 
-        public static implicit operator UserGroupRef(UserGroupRefCacheItem cache)
-        {
-            var result = new UserGroupRef
-            {
-                UserId = cache.UserId.FromByteString(),
-                GroupId = cache.GroupId.FromByteString()
-            };
+        //public static implicit operator UserGroupRef(UserGroupRefCacheItem cache)
+        //{
+        //    var result = new UserGroupRef
+        //    {
+        //        UserId = cache.UserId.FromByteString(),
+        //        GroupId = cache.GroupId.FromByteString()
+        //    };
 
-            if (Enum.TryParse<UserGroupRefType>(cache.RefType, out var refType))
-            {
-                result.RefType = refType;
-            }
+        //    if (Enum.TryParse<UserGroupRefType>(cache.RefType, out var refType))
+        //    {
+        //        result.RefType = refType;
+        //    }
 
-            result.Tenant = cache.Tenant;
-            result.LastModified = new DateTime(cache.LastModified);
-            result.Removed = cache.Removed;
+        //    result.Tenant = cache.Tenant;
+        //    result.LastModified = new DateTime(cache.LastModified);
+        //    result.Removed = cache.Removed;
 
-            return result;
-        }
+        //    return result;
+        //}
 
-        public static implicit operator UserGroupRefCacheItem(UserGroupRef cache)
-        {
-            return new UserGroupRefCacheItem
-            {
-                GroupId = cache.GroupId.ToByteString(),
-                UserId = cache.UserId.ToByteString(),
-                RefType = cache.RefType.ToString(),
-                LastModified = cache.LastModified.Ticks,
-                Removed = cache.Removed,
-                Tenant = cache.Tenant
-            };
-        }
+        //public static implicit operator UserGroupRefCacheItem(UserGroupRef cache)
+        //{
+        //    return new UserGroupRefCacheItem
+        //    {
+        //        GroupId = cache.GroupId.ToByteString(),
+        //        UserId = cache.UserId.ToByteString(),
+        //        RefType = cache.RefType.ToString(),
+        //        LastModified = cache.LastModified.Ticks,
+        //        Removed = cache.Removed,
+        //        Tenant = cache.Tenant
+        //    };
+        //}
     }
 }

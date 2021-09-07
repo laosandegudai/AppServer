@@ -32,16 +32,18 @@ using System.Threading;
 
 using ASC.Common;
 using ASC.Common.Caching;
+using ASC.Common.Logging;
 using ASC.Core.Common.EF;
 using ASC.Core.Data;
 using ASC.Core.Tenants;
 using ASC.Core.Users;
 
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 
 namespace ASC.Core.Caching
 {
-    [Singletone]
+    [Scope]
     public class UserServiceCache
     {
         public const string USERS = "users";
@@ -49,35 +51,26 @@ namespace ASC.Core.Caching
         public const string REFS = "refs";
 
         public TrustInterval TrustInterval { get; set; }
-        internal ICache Cache { get; }
+        public DistributedCache<UserGroupRefStore> CacheUserGroupRefStore { get; }
+        public DistributedCache<UserInfo> CacheUserInfo { get; }
+        public DistributedCache<UserInfoList> CacheUserInfoList { get; }
+        public DistributedCache<GroupList> CacheGroupList { get; }
         internal CoreBaseSettings CoreBaseSettings { get; }
-        internal ICacheNotify<UserInfoCacheItem> CacheUserInfoItem { get; }
-        internal ICacheNotify<UserPhotoCacheItem> CacheUserPhotoItem { get; }
-        internal ICacheNotify<GroupCacheItem> CacheGroupCacheItem { get; }
-        internal ICacheNotify<UserGroupRefCacheItem> CacheUserGroupRefItem { get; }
 
         public UserServiceCache(
             CoreBaseSettings coreBaseSettings,
-            ICacheNotify<UserInfoCacheItem> cacheUserInfoItem,
-            ICacheNotify<UserPhotoCacheItem> cacheUserPhotoItem,
-            ICacheNotify<GroupCacheItem> cacheGroupCacheItem,
-            ICacheNotify<UserGroupRefCacheItem> cacheUserGroupRefItem, 
-            ICache cache)
+            DistributedCache<UserGroupRefStore> cacheUserGroupRefStore,
+            DistributedCache<UserInfo> cacheUserInfo,
+            DistributedCache<UserInfoList> cacheUserInfoList,
+            DistributedCache<GroupList> cacheGroupList,
+            IOptionsMonitor<ILog> options)
         {
             TrustInterval = new TrustInterval();
-            Cache = cache;
             CoreBaseSettings = coreBaseSettings;
-            CacheUserInfoItem = cacheUserInfoItem;
-            CacheUserPhotoItem = cacheUserPhotoItem;
-            CacheGroupCacheItem = cacheGroupCacheItem;
-            CacheUserGroupRefItem = cacheUserGroupRefItem;
-
-            cacheUserInfoItem.Subscribe((u) => InvalidateCache(u), CacheNotifyAction.Any);
-            cacheUserPhotoItem.Subscribe((p) => Cache.Remove(p.Key), CacheNotifyAction.Remove);
-            cacheGroupCacheItem.Subscribe((g) => InvalidateCache(), CacheNotifyAction.Any);
-
-            cacheUserGroupRefItem.Subscribe((r) => UpdateUserGroupRefCache(r, true), CacheNotifyAction.Remove);
-            cacheUserGroupRefItem.Subscribe((r) => UpdateUserGroupRefCache(r, false), CacheNotifyAction.InsertOrUpdate);
+            CacheUserGroupRefStore = cacheUserGroupRefStore;
+            CacheUserInfo = cacheUserInfo;
+            CacheUserInfoList = cacheUserInfoList;
+            CacheGroupList = cacheGroupList;
         }
 
         public void InvalidateCache()
@@ -85,12 +78,12 @@ namespace ASC.Core.Caching
             InvalidateCache(null);
         }
 
-        private void InvalidateCache(UserInfoCacheItem userInfo)
+        private void InvalidateCache(UserInfo userInfo)
         {
             if (CoreBaseSettings.Personal && userInfo != null)
             {
-                var key = GetUserCacheKeyForPersonal(userInfo.Tenant, userInfo.ID.FromByteString());
-                Cache.Remove(key);
+                var key = GetUserCacheKeyForPersonal(userInfo.Tenant, userInfo.ID);
+                CacheUserInfo.Remove(key);
             }
 
             TrustInterval.Expire();
@@ -99,7 +92,7 @@ namespace ASC.Core.Caching
         private void UpdateUserGroupRefCache(UserGroupRef r, bool remove)
         {
             var key = GetRefCacheKey(r.Tenant);
-            var refs = Cache.Get<UserGroupRefStore>(key);
+            var refs = CacheUserGroupRefStore.Get(key);
             if (!remove && refs != null)
             {
                 lock (refs)
@@ -166,11 +159,11 @@ namespace ASC.Core.Caching
             options.Service = Service.Value;
             options.CoreBaseSettings = CoreBaseSettings;
             options.UserServiceCache = UserServiceCache;
-            options.Cache = UserServiceCache.Cache;
-            options.CacheUserInfoItem = UserServiceCache.CacheUserInfoItem;
-            options.CacheUserPhotoItem = UserServiceCache.CacheUserPhotoItem;
-            options.CacheGroupCacheItem = UserServiceCache.CacheGroupCacheItem;
-            options.CacheUserGroupRefItem = UserServiceCache.CacheUserGroupRefItem;
+            options.CacheUserGroupRefStore = UserServiceCache.CacheUserGroupRefStore;
+            options.CacheGroupList = UserServiceCache.CacheGroupList;
+            options.CacheUserInfo = UserServiceCache.CacheUserInfo;
+            options.CacheUserInfoList = UserServiceCache.CacheUserInfoList;
+            options.TrustInterval = UserServiceCache.TrustInterval;
             options.TrustInterval = UserServiceCache.TrustInterval;
         }
     }
@@ -179,20 +172,21 @@ namespace ASC.Core.Caching
     public class CachedUserService : IUserService, ICachedService
     {
         internal IUserService Service { get; set; }
-        internal ICache Cache { get; set; }
+
+        protected UserInfoList LocalUserInfoList;
 
         internal TrustInterval TrustInterval { get; set; }
         private int getchanges;
 
+        public DistributedCache<UserGroupRefStore> CacheUserGroupRefStore { get; set; }
+        public DistributedCache<UserInfo> CacheUserInfo { get; set; }
+        public DistributedCache<UserInfoList> CacheUserInfoList { get; set; }
+        public DistributedCache<GroupList> CacheGroupList { get; set; }
         private TimeSpan CacheExpiration { get; set; }
         private TimeSpan DbExpiration { get; set; }
         private TimeSpan PhotoExpiration { get; set; }
         internal CoreBaseSettings CoreBaseSettings { get; set; }
         internal UserServiceCache UserServiceCache { get; set; }
-        internal ICacheNotify<UserInfoCacheItem> CacheUserInfoItem { get; set; }
-        internal ICacheNotify<UserPhotoCacheItem> CacheUserPhotoItem { get; set; }
-        internal ICacheNotify<GroupCacheItem> CacheGroupCacheItem { get; set; }
-        internal ICacheNotify<UserGroupRefCacheItem> CacheUserGroupRefItem { get; set; }
 
         public CachedUserService()
         {
@@ -210,11 +204,11 @@ namespace ASC.Core.Caching
             Service = service ?? throw new ArgumentNullException("service");
             CoreBaseSettings = coreBaseSettings;
             UserServiceCache = userServiceCache;
-            Cache = userServiceCache.Cache;
-            CacheUserInfoItem = userServiceCache.CacheUserInfoItem;
-            CacheUserPhotoItem = userServiceCache.CacheUserPhotoItem;
-            CacheGroupCacheItem = userServiceCache.CacheGroupCacheItem;
-            CacheUserGroupRefItem = userServiceCache.CacheUserGroupRefItem;
+            CacheUserGroupRefStore = userServiceCache.CacheUserGroupRefStore;
+            CacheUserInfo = userServiceCache.CacheUserInfo;
+            CacheUserInfoList = userServiceCache.CacheUserInfoList;
+            CacheUserInfo = userServiceCache.CacheUserInfo;
+            CacheGroupList = userServiceCache.CacheGroupList;
             TrustInterval = userServiceCache.TrustInterval;
         }
 
@@ -252,12 +246,20 @@ namespace ASC.Core.Caching
                 return GetUserForPersonal(tenant, id);
             }
 
-            var users = GetUsers(tenant);
-            lock (users)
+            var keyForUser = UserServiceCache.GetUserCacheKeyForPersonal(tenant, id);
+            var user = CacheUserInfo.Get(keyForUser);
+
+            if (user != null) return user;
+
+            else
             {
-                users.TryGetValue(id, out var u);
-                return u;
+                var usersList = GetUsersProto(tenant);
+                user = usersList.UserInfoListProto.Where(u =>  u.ID == id).FirstOrDefault();
             }
+
+            if (user != null) CacheUserInfo.Insert(keyForUser, user, CacheExpiration);
+
+            return user;
         }
 
         public UserInfo GetUser(int tenant, string email)
@@ -282,7 +284,7 @@ namespace ASC.Core.Caching
             if (!CoreBaseSettings.Personal) return GetUser(tenant, id);
 
             var key = UserServiceCache.GetUserCacheKeyForPersonal(tenant, id);
-            var user = Cache.Get<UserInfo>(key);
+            var user = CacheUserInfo.Get(key);
 
             if (user == null)
             {
@@ -290,7 +292,7 @@ namespace ASC.Core.Caching
 
                 if (user != null)
                 {
-                    Cache.Insert(key, user, CacheExpiration);
+                    CacheUserInfo.Insert(key, user, CacheExpiration);
                 }
             }
 
@@ -304,32 +306,83 @@ namespace ASC.Core.Caching
 
         public UserInfo SaveUser(int tenant, UserInfo user)
         {
+            var users = GetUsersProto(tenant);
+            var keyForUsers = UserServiceCache.GetUserCacheKey(tenant);
+
+            CacheUserInfo.Remove(keyForUsers);
+
+            var findedUser = users.UserInfoListProto.SingleOrDefault(u => u.ID ==  user.ID);
+
+            if (findedUser != null) users.UserInfoListProto.Remove(findedUser);
+
+            users.UserInfoListProto.Add(user);
+
+            var options = new DistributedCacheEntryOptions()
+            {
+                SlidingExpiration = CacheExpiration
+            };
+
+            CacheUserInfoList.cache.SetString(keyForUsers + "hash", users.UserInfoListProto.GetHashCode().ToString(), options);
+            CacheUserInfoList.Insert(keyForUsers, users, CacheExpiration);
+
+            LocalUserInfoList = users;
+
+            var keyForUser = UserServiceCache.GetUserCacheKeyForPersonal(tenant, user.ID);
+
+            CacheUserInfo.Remove(keyForUser);
+            CacheUserInfo.Insert(keyForUser, user, CacheExpiration);
+
             user = Service.SaveUser(tenant, user);
-            CacheUserInfoItem.Publish(new UserInfoCacheItem { ID = user.ID.ToByteString(), Tenant = tenant }, CacheNotifyAction.Any);
             return user;
         }
 
         public void RemoveUser(int tenant, Guid id)
         {
+            var key = UserServiceCache.GetUserCacheKey(tenant);
+            var users = GetUsersProto(tenant);
+            var user = users.UserInfoListProto.Where(x => x.ID == id).FirstOrDefault();
+
+            if (user == null) return;
+
+            CacheUserInfo.Remove(key);
+
+            var options = new DistributedCacheEntryOptions()
+            {
+                SlidingExpiration = CacheExpiration
+            };
+
+            CacheUserInfo.cache.SetString(key + "hash", users.UserInfoListProto.GetHashCode().ToString(), options);
+
+            users.UserInfoListProto.Remove(user);
+            CacheUserInfoList.Insert(key, users, CacheExpiration);
+
+            LocalUserInfoList = users;
+
+            key = UserServiceCache.GetUserCacheKeyForPersonal(tenant, user.ID);
+            CacheUserInfo.Remove(key);
+
             Service.RemoveUser(tenant, id);
-            CacheUserInfoItem.Publish(new UserInfoCacheItem { Tenant = tenant, ID = id.ToByteString() }, CacheNotifyAction.Any);
         }
 
         public byte[] GetUserPhoto(int tenant, Guid id)
         {
-            var photo = Cache.Get<byte[]>(UserServiceCache.GetUserPhotoCacheKey(tenant, id));
+            var photo = CacheUserInfo.GetClean(UserServiceCache.GetUserPhotoCacheKey(tenant, id));
+
             if (photo == null)
             {
                 photo = Service.GetUserPhoto(tenant, id);
-                Cache.Insert(UserServiceCache.GetUserPhotoCacheKey(tenant, id), photo, PhotoExpiration);
+                CacheUserInfo.Insert(UserServiceCache.GetUserPhotoCacheKey(tenant, id), photo, PhotoExpiration);
             }
+
             return photo;
         }
 
         public void SetUserPhoto(int tenant, Guid id, byte[] photo)
         {
+            var key = UserServiceCache.GetUserPhotoCacheKey(tenant, id);
+            CacheUserInfo.Remove(key);
+
             Service.SetUserPhoto(tenant, id, photo);
-            CacheUserPhotoItem.Publish(new UserPhotoCacheItem { Key = UserServiceCache.GetUserPhotoCacheKey(tenant, id) }, CacheNotifyAction.Remove);
         }
 
         public DateTime GetUserPasswordStamp(int tenant, Guid id)
@@ -339,10 +392,14 @@ namespace ASC.Core.Caching
 
         public void SetUserPasswordHash(int tenant, Guid id, string passwordHash)
         {
+            var key = UserServiceCache.GetUserCacheKey(tenant);
+            CacheUserInfo.Remove(key);
+
+            key = UserServiceCache.GetUserCacheKeyForPersonal(tenant, id);
+            CacheUserInfo.Remove(key);
+
             Service.SetUserPasswordHash(tenant, id, passwordHash);
         }
-
-
 
         public IDictionary<Guid, Group> GetGroups(int tenant, DateTime from)
         {
@@ -365,15 +422,19 @@ namespace ASC.Core.Caching
 
         public Group SaveGroup(int tenant, Group group)
         {
+            var key = UserServiceCache.GetGroupCacheKey(tenant);
+            CacheGroupList.Remove(key);
+
             group = Service.SaveGroup(tenant, group);
-            CacheGroupCacheItem.Publish(new GroupCacheItem { ID = group.Id.ToString() }, CacheNotifyAction.Any);
             return group;
         }
 
         public void RemoveGroup(int tenant, Guid id)
         {
+            var key = UserServiceCache.GetGroupCacheKey(tenant);
+            CacheGroupList.Remove(key);
+
             Service.RemoveGroup(tenant, id);
-            CacheGroupCacheItem.Publish(new GroupCacheItem { ID = id.ToString() }, CacheNotifyAction.Any);
         }
 
 
@@ -387,10 +448,10 @@ namespace ASC.Core.Caching
             GetChangesFromDb();
 
             var key = UserServiceCache.GetRefCacheKey(tenant);
-            if (!(Cache.Get<UserGroupRefStore>(key) is IDictionary<string, UserGroupRef> refs))
+            if (!(CacheUserGroupRefStore.Get(key) is IDictionary<string, UserGroupRef> refs))
             {
                 refs = Service.GetUserGroupRefs(tenant, default);
-                Cache.Insert(key, new UserGroupRefStore(refs), CacheExpiration);
+                CacheUserGroupRefStore.Insert(key, new UserGroupRefStore(refs), CacheExpiration);
             }
             lock (refs)
             {
@@ -400,33 +461,25 @@ namespace ASC.Core.Caching
 
         public UserGroupRef SaveUserGroupRef(int tenant, UserGroupRef r)
         {
+            var key = UserServiceCache.GetRefCacheKey(tenant);
+            CacheUserGroupRefStore.Remove(key);
+
             r = Service.SaveUserGroupRef(tenant, r);
-            CacheUserGroupRefItem.Publish(r, CacheNotifyAction.InsertOrUpdate);
             return r;
         }
 
         public void RemoveUserGroupRef(int tenant, Guid userId, Guid groupId, UserGroupRefType refType)
         {
-            Service.RemoveUserGroupRef(tenant, userId, groupId, refType);
+            var key = UserServiceCache.GetRefCacheKey(tenant);
+            CacheUserGroupRefStore.Remove(key);
 
-            var r = new UserGroupRef(userId, groupId, refType) { Tenant = tenant };
-            CacheUserGroupRefItem.Publish(r, CacheNotifyAction.Remove);
+            Service.RemoveUserGroupRef(tenant, userId, groupId, refType);
         }
 
 
         private IDictionary<Guid, UserInfo> GetUsers(int tenant)
         {
-            GetChangesFromDb();
-
-            var key = UserServiceCache.GetUserCacheKey(tenant);
-            var users = Cache.Get<IDictionary<Guid, UserInfo>>(key);
-            if (users == null)
-            {
-                users = Service.GetUsers(tenant, default);
-
-                Cache.Insert(key, users, CacheExpiration);
-            }
-            return users;
+            return GetUsersProto(tenant).UserInfoListProto.ToDictionary(r => r.ID, r => r);
         }
 
         private IDictionary<Guid, Group> GetGroups(int tenant)
@@ -434,13 +487,17 @@ namespace ASC.Core.Caching
             GetChangesFromDb();
 
             var key = UserServiceCache.GetGroupCacheKey(tenant);
-            var groups = Cache.Get<IDictionary<Guid, Group>>(key);
+            var groups = CacheGroupList.Get(key);
+
             if (groups == null)
             {
-                groups = Service.GetGroups(tenant, default);
-                Cache.Insert(key, groups, CacheExpiration);
+                groups = new GroupList();
+
+                groups.GroupListProto.AddRange(Service.GetGroups(tenant, default).Values);
+                CacheGroupList.Insert(key, groups, CacheExpiration);
             }
-            return groups;
+
+            return groups.GroupListProto.ToDictionary(r => r.Id, r => r);
         }
 
         private void GetChangesFromDb()
@@ -469,39 +526,39 @@ namespace ASC.Core.Caching
                     TrustInterval.Start(DbExpiration);
 
                     //get and merge changes in cached tenants
-                    foreach (var tenantGroup in Service.GetUsers(Tenant.DEFAULT_TENANT, starttime).Values.GroupBy(u => u.Tenant))
-                    {
-                        var users = Cache.Get<IDictionary<Guid, UserInfo>>(UserServiceCache.GetUserCacheKey(tenantGroup.Key));
-                        if (users != null)
-                        {
-                            lock (users)
-                            {
-                                foreach (var u in tenantGroup)
-                                {
-                                    users[u.ID] = u;
-                                }
-                            }
-                        }
-                    }
+                    //foreach (var tenantGroup in Service.GetUsers(Tenant.DEFAULT_TENANT, starttime).Values.GroupBy(u => u.Tenant))
+                    //{
+                    //    var users = Cache.Get<IDictionary<Guid, UserInfo>>(UserServiceCache.GetUserCacheKey(tenantGroup.Key));
+                    //    if (users != null)
+                    //    {
+                    //        lock (users)
+                    //        {
+                    //            foreach (var u in tenantGroup)
+                    //            {
+                    //                users[u.ID] = u;
+                    //            }
+                    //        }
+                    //    }
+                    //}
 
-                    foreach (var tenantGroup in Service.GetGroups(Tenant.DEFAULT_TENANT, starttime).Values.GroupBy(g => g.Tenant))
-                    {
-                        var groups = Cache.Get<IDictionary<Guid, Group>>(UserServiceCache.GetGroupCacheKey(tenantGroup.Key));
-                        if (groups != null)
-                        {
-                            lock (groups)
-                            {
-                                foreach (var g in tenantGroup)
-                                {
-                                    groups[g.Id] = g;
-                                }
-                            }
-                        }
-                    }
+                    //foreach (var tenantGroup in Service.GetGroups(Tenant.DEFAULT_TENANT, starttime).Values.GroupBy(g => g.Tenant))
+                    //{
+                    //    var groups = Cache.Get<IDictionary<Guid, Group>>(UserServiceCache.GetGroupCacheKey(tenantGroup.Key));
+                    //    if (groups != null)
+                    //    {
+                    //        lock (groups)
+                    //        {
+                    //            foreach (var g in tenantGroup)
+                    //            {
+                    //                groups[g.Id] = g;
+                    //            }
+                    //        }
+                    //    }
+                    //}
 
                     foreach (var tenantGroup in Service.GetUserGroupRefs(Tenant.DEFAULT_TENANT, starttime).Values.GroupBy(r => r.Tenant))
                     {
-                        var refs = Cache.Get<UserGroupRefStore>(UserServiceCache.GetRefCacheKey(tenantGroup.Key));
+                        var refs = CacheUserGroupRefStore.Get(UserServiceCache.GetRefCacheKey(tenantGroup.Key));
                         if (refs != null)
                         {
                             lock (refs)
@@ -530,6 +587,38 @@ namespace ASC.Core.Caching
         public UserInfo GetUser(int tenant, Guid id, Expression<Func<User, UserInfo>> exp)
         {
             return Service.GetUser(tenant, id, exp);
+        }
+
+        private UserInfoList GetUsersProto(int tenant)
+        {
+            var key = UserServiceCache.GetUserCacheKey(tenant);
+            var hashString = CacheUserInfoList.cache.GetString(key + "hash");
+
+            if (int.TryParse(hashString, out int result) && LocalUserInfoList != null && result == LocalUserInfoList.UserInfoListProto.GetHashCode())
+            {
+                return LocalUserInfoList;
+            }
+
+            var usersList = CacheUserInfoList.Get(key);
+
+            if (usersList == null)
+            {
+                usersList = new UserInfoList();
+                var users = Service.GetUsers(tenant, default).Values;
+                usersList.UserInfoListProto.AddRange(users);
+
+                var options = new DistributedCacheEntryOptions()
+                {
+                    SlidingExpiration = CacheExpiration
+                };
+
+                CacheUserInfoList.cache.SetString(key + "hash", usersList.UserInfoListProto.GetHashCode().ToString(), options);
+                CacheUserInfoList.Insert(key, usersList, CacheExpiration);
+            }
+
+            LocalUserInfoList = usersList;
+
+            return usersList;
         }
 
         [Serializable]

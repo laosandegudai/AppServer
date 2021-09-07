@@ -29,112 +29,182 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
+using ASC.Common;
+using ASC.Common.Caching;
+using ASC.Core.Caching;
 using ASC.Notify.Recipients;
+
+using Confluent.Kafka;
+
+using Google.Protobuf;
+
+namespace ASC.Core
+{
+    public sealed partial class GroupList : ICustomSer<GroupList>
+    {
+        public void CustomDeSer()
+        {
+
+        }
+
+        public void CustomSer()
+        {
+
+        }
+    }
+}
+
 
 namespace ASC.Core.Users
 {
-    [Serializable]
-    public sealed class UserInfo : IDirectRecipient, ICloneable
+    public sealed partial class UserInfoList : ICustomSer<UserInfoList>
     {
-        public UserInfo()
+        public void CustomDeSer()
         {
-            Status = EmployeeStatus.Active;
-            ActivationStatus = EmployeeActivationStatus.NotActivated;
-            LastModified = DateTime.UtcNow;
-        }
-
-
-        public Guid ID { get; set; }
-
-        public string FirstName { get; set; }
-
-        public string LastName { get; set; }
-
-        public string UserName { get; set; }
-
-        public DateTime? BirthDate { get; set; }
-
-        public bool? Sex { get; set; }
-
-        public EmployeeStatus Status { get; set; }
-
-        public EmployeeActivationStatus ActivationStatus { get; set; }
-
-        public DateTime? TerminatedDate { get; set; }
-
-        public string Title { get; set; }
-
-        public DateTime? WorkFromDate { get; set; }
-
-        public string Email { get; set; }
-
-        private string contacts;
-        public string Contacts
-        {
-            get => contacts;
-            set
+            foreach (var u in this.UserInfoListProto)
             {
-                contacts = value;
-                ContactsFromString(contacts);
+                u.CustomDeSer();
             }
         }
 
-        public List<string> ContactsList { get; set; }
+        public void CustomSer()
+        {
+            foreach (var u in this.UserInfoListProto)
+            {
+                u.CustomSer();
+            }
+        }
+    }
 
-        public string Location { get; set; }
 
-        public string Notes { get; set; }
+    [Serializable]
+    public sealed partial class UserInfo : IDirectRecipient, ICustomSer<UserInfo>
+    {
+        partial void OnConstruction()
+        {
+            Status = EmployeeStatus.Active;
+            ActivationStatus = (int)EmployeeActivationStatus.NotActivated;
+            LastModified = DateTime.UtcNow;
+        }
 
-        public bool Removed { get; set; }
+        public Guid ID { get; set; }
+        public DateTime? BirthDate { get; set; }
 
-        public DateTime LastModified { get; set; }
+        private bool? sex;
+        public bool? Sex
+        {
+            get
+            {
+                return sex;
+            }
+            set
+            {
+                SexIsNull = !value.HasValue;
+                SexProto = value ?? default;
+                sex = value;
+            }
+        }
 
-        public int Tenant { get; set; }
+        public EmployeeStatus Status
+        {
+            get
+            {
+                return (EmployeeStatus)StatusProto;
+            }
+            set
+            {
+                StatusProto = (int)value;
+            }
+        }
+
+        public EmployeeActivationStatus ActivationStatus
+        {
+            get
+            {
+                return (EmployeeActivationStatus)ActivationStatusProto;
+            }
+            set
+            {
+                ActivationStatusProto = (int)value;
+            }
+        }
+
+        private DateTime? terminateDate;
+        public DateTime? TerminatedDate
+        {
+            get
+            {
+                return terminateDate;
+            }
+            set
+            {
+                
+            }
+        }
+
+        private DateTime? workFromDate;
+        public DateTime? WorkFromDate
+        {
+            get
+            {
+                return workFromDate;
+            }
+            set
+            {
+                workFromDate = value;
+            }
+        }
+
+        private DateTime lastModified;
+        public DateTime LastModified
+        {
+            get
+            {
+                return lastModified;
+            }
+            set
+            {
+                lastModified = value;
+            }
+        }
 
         public bool IsActive
         {
-            get { return ActivationStatus.HasFlag(EmployeeActivationStatus.Activated); }
+            get
+            {
+                return ((EmployeeActivationStatus)ActivationStatus).HasFlag(EmployeeActivationStatus.Activated);
+            }
         }
 
-        public string CultureName { get; set; }
-
-        public string MobilePhone { get; set; }
-
-        public MobilePhoneActivationStatus MobilePhoneActivationStatus { get; set; }
-
-        public string Sid { get; set; } // LDAP user identificator
-
-        public string SsoNameId { get; set; } // SSO SAML user identificator
-
-        public string SsoSessionId { get; set; } // SSO SAML user session identificator
-
-        public DateTime CreateDate { get; set; }
-
-        public override string ToString()
+        public MobilePhoneActivationStatus MobilePhoneActivationStatus
         {
-            return string.Format("{0} {1}", FirstName, LastName).Trim();
+            get
+            {
+                return (MobilePhoneActivationStatus)MobilePhoneActivationStatusProto;
+            }
+            set
+            {
+                MobilePhoneActivationStatusProto = (int)value;
+            }
         }
 
-        public override int GetHashCode()
+        private DateTime createDate;
+        public DateTime CreateDate
         {
-            return ID.GetHashCode();
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is UserInfo ui && ID.Equals(ui.ID);
-        }
-
-        public bool Equals(UserInfo obj)
-        {
-            return obj != null && ID.Equals(obj.ID);
+            get
+            {
+                return createDate;
+            }
+            set
+            {
+                createDate = value;
+            }
         }
 
         public CultureInfo GetCulture()
         {
             return string.IsNullOrEmpty(CultureName) ? CultureInfo.CurrentCulture : CultureInfo.GetCultureInfo(CultureName);
         }
-
 
         string[] IDirectRecipient.Addresses
         {
@@ -156,12 +226,6 @@ namespace ASC.Core.Users
             get { return ToString(); }
         }
 
-        public object Clone()
-        {
-            return MemberwiseClone();
-        }
-
-
         internal string ContactsToString()
         {
             if (ContactsList == null || ContactsList.Count == 0) return null;
@@ -177,18 +241,55 @@ namespace ASC.Core.Users
         {
             if (string.IsNullOrEmpty(contacts)) return this;
 
-            if (ContactsList == null)
-            {
-                ContactsList = new List<string>();
-            }
-            else
-            {
-                ContactsList.Clear();
-            }
+            ContactsList.Clear();
 
             ContactsList.AddRange(contacts.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries));
 
             return this;
+        }
+
+        public void CustomSer()
+        {
+            IDProto = ID.ToByteString();
+
+            BirthDateProto = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.MinValue.ToUniversalTime());
+
+            TerminatedDateProto = (TerminatedDate == null) ? 
+                Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.MinValue.ToUniversalTime()) 
+                : Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(TerminatedDate.Value.ToUniversalTime());
+
+            CreateDateProto = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(CreateDate.ToUniversalTime());
+
+            WorkFromDateProto = (WorkFromDate == null) ? 
+                Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.MinValue.ToUniversalTime()) 
+                : Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(WorkFromDate.Value.ToUniversalTime());
+
+            LastModifiedProto = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(LastModified.ToUniversalTime());
+        }
+
+        public void CustomDeSer()
+        {
+            ID = IDProto.FromByteString();
+
+            if (BirthDateProto != null)
+            {
+                var result = BirthDateProto.ToDateTime();
+
+                if (result != DateTime.MinValue)
+                {
+                    BirthDate = result;
+                }
+            }
+
+            if (TerminatedDateProto != null)
+            {
+                var result = TerminatedDateProto.ToDateTime();
+
+                if (result != DateTime.MinValue)
+                {
+                    TerminatedDate = result;
+                }
+            }
         }
     }
 }
