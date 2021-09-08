@@ -25,45 +25,33 @@
 
 
 using System;
+using System.Linq;
+
+using ASC.Common.Caching;
 
 namespace ASC.Core
 {
     [Serializable]
-    public class SubscriptionMethod
+    public partial class SubscriptionMethod : ICustomSer<SubscriptionMethod>
     {
-        public int Tenant { get; set; }
-
-        public string SourceId { get; set; }
-
-        public string ActionId { get; set; }
-
-        public string RecipientId { get; set; }
-
         public string[] Methods { get; set; }
 
-        public string MethodsFromDb { set { Methods = value.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries); } }
-
-
-        public static implicit operator SubscriptionMethod(SubscriptionMethodCache cache)
+        public string MethodsFromDb
         {
-            return new SubscriptionMethod()
+            set 
             {
-                Tenant = cache.Tenant,
-                SourceId = cache.SourceId,
-                ActionId = cache.ActionId,
-                RecipientId = cache.RecipientId
-            };
+                Methods = value.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+            } 
         }
 
-        public static implicit operator SubscriptionMethodCache(SubscriptionMethod cache)
+        public void CustomDeSer()
         {
-            return new SubscriptionMethodCache
-            {
-                Tenant = cache.Tenant,
-                SourceId = cache.SourceId,
-                ActionId = cache.ActionId,
-                RecipientId = cache.RecipientId
-            };
+            Methods = MethodsProto.ToArray();
+        }
+
+        public void CustomSer()
+        {
+            MethodsProto.AddRange(Methods);
         }
     }
 }
