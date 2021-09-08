@@ -49,7 +49,6 @@ namespace ASC.Core.Caching
         internal DistributedCache<TenantQuotaRow> CacheTenantQuotaRow { get; }
         internal DistributedCache<TenantQuotaList> CacheTenantQuotaList { get; }
         internal DistributedCache<TenantQuotaRowList> CacheTenantQuotaRowList { get; }
-        //internal ICacheNotify<QuotaCacheItem> CacheNotify { get; }
 
         internal bool QuotaCacheEnabled { get; }
 
@@ -68,24 +67,11 @@ namespace ASC.Core.Caching
                 QuotaCacheEnabled = !bool.TryParse(Configuration["core:enable-quota-cache"], out var enabled) || enabled;
             }
 
-            //CacheNotify = cacheNotify;
             CacheTenantQuota = cacheTenantQuota;
             CacheTenantQuotaRow = cacheTenantQuotaRow;
             CacheTenantQuotaList = cacheTenantQuotaList;
             CacheTenantQuotaRowList = cacheTenantQuotaRowList;
             Interval = new TrustInterval();
-
-            //cacheNotify.Subscribe((i) =>
-            //{
-            //    if (i.Key == KEY_QUOTA)
-            //    {
-            //        Cache.Remove(KEY_QUOTA);
-            //    }
-            //    else
-            //    {
-            //        Cache.Remove(i.Key);
-            //    }
-            //}, CacheNotifyAction.Any);
         }
     }
 
@@ -115,7 +101,6 @@ namespace ASC.Core.Caching
             options.QuotaServiceCache = QuotaServiceCache;
             options.CacheTenantQuota = QuotaServiceCache.CacheTenantQuota;
             options.CacheTenantQuotaRow = QuotaServiceCache.CacheTenantQuotaRow;
-            //options.CacheNotify = QuotaServiceCache.CacheNotify;
         }
     }
 
@@ -123,7 +108,6 @@ namespace ASC.Core.Caching
     class CachedQuotaService : IQuotaService
     {
         internal IQuotaService Service { get; set; }
-        //internal ICacheNotify<QuotaCacheItem> CacheNotify { get; set; }
         internal DistributedCache<TenantQuota> CacheTenantQuota { get; set; }
         internal DistributedCache<TenantQuotaRow> CacheTenantQuotaRow {  get; set; }
         internal DistributedCache<TenantQuotaList> CacheTenantQuotaList { get; set; }
@@ -151,7 +135,6 @@ namespace ASC.Core.Caching
             CacheTenantQuotaRow = cacheTenantQuotaRow;
             CacheTenantQuotaList = cacheTenantQuotaList;
             CacheTenantQuotaRowList = cacheTenantQuotaRowList;
-            //CacheNotify = quotaServiceCache.CacheNotify;
         }
 
         public IEnumerable<TenantQuota> GetTenantQuotas()
@@ -191,7 +174,6 @@ namespace ASC.Core.Caching
 
             CacheTenantQuotaList.Insert(QuotaServiceCache.KEY_QUOTA, quotasList, DateTime.UtcNow.Add(CacheExpiration));
 
-            //CacheNotify.Publish(new QuotaCacheItem { Key = QuotaServiceCache.KEY_QUOTA }, CacheNotifyAction.Any);
             return q;
         }
 
@@ -210,14 +192,14 @@ namespace ASC.Core.Caching
 
             if (pastRow != null) rows.Remove(pastRow);
 
-            rows.Add(row);
+            pastRow.Counter = exchange ? pastRow.Counter + row.Counter : row.Counter;
+
+            rows.Add(pastRow);
 
             var rowsList = new TenantQuotaRowList();
             rowsList.QuotaRows.AddRange(rows);
 
             CacheTenantQuotaRowList.Insert(GetKey(row.Tenant), rowsList, DateTime.UtcNow.Add(CacheExpiration));
-
-            //CacheNotify.Publish(new QuotaCacheItem { Key = GetKey(row.Tenant) }, CacheNotifyAction.InsertOrUpdate);
         }
 
         public IEnumerable<TenantQuotaRow> FindTenantQuotaRows(int tenantId)
