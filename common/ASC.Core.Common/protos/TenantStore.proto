@@ -1,0 +1,8 @@
+﻿syntax = "proto3";
+package ASC.Core.Tenants;
+import "protos/Tenant.proto";
+
+message TenantStore {
+	map<int32, Tenant> ById = 1;
+	map<string, Tenant> ByDomain = 2;
+}

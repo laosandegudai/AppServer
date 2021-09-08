@@ -1,0 +1,35 @@
+﻿syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+package ASC.Core.Tenants;
+
+
+message Tenant {
+	int32 TenantId = 1;
+	google.protobuf.StringValue TenantAlias = 2;
+	google.protobuf.StringValue MappedDomain = 3;
+	int32 Version = 4;
+	google.protobuf.Timestamp VersionChangedProto = 5;
+	google.protobuf.StringValue HostedRegion = 6;
+	google.protobuf.StringValue Name = 7;
+	google.protobuf.StringValue Language = 8;
+	google.protobuf.StringValue TimeZone = 9;
+	repeated google.protobuf.StringValue TrustedDomainsProto = 10;
+	int32 TrustedDomainsTypeProto = 11;
+	bytes OwnerIdProto = 12;
+	google.protobuf.Timestamp CreatedDateTimeProto = 13;
+	google.protobuf.Timestamp LastModifiedProto = 14;
+	int32 StatusProto = 15;
+	google.protobuf.Timestamp StatusChangeDateProto = 16;
+	google.protobuf.StringValue PartnerId = 17;
+	google.protobuf.StringValue AffiliateId = 18;
+	google.protobuf.StringValue Campaign = 19;
+	google.protobuf.StringValue PaymentId = 20;
+	int32 IndustryProto = 21;
+	bool Spam = 22;
+	bool Calls = 23;
+}
+
+message TenantList {
+	repeated Tenant Tenants = 1;
+}
