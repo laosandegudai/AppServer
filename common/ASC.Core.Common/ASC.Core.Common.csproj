@@ -42,10 +42,12 @@
     <None Remove="protos\SettingsCacheItem.proto" />
     <None Remove="protos\SubscriptionMethodCache.proto" />
     <None Remove="protos\SubscriptionRecord.proto" />
+    <None Remove="protos\Tenant.proto" />
     <None Remove="protos\TenantCacheItem.proto" />
     <None Remove="protos\TenantQuota.proto" />
     <None Remove="protos\TenantQuotaRow.proto" />
     <None Remove="protos\TenantSetting.proto" />
+    <None Remove="protos\TenantStore.proto" />
     <None Remove="protos\UserGroupRef.proto" />
     <None Remove="protos\UserInfo.proto" />
   </ItemGroup>
@@ -71,9 +73,11 @@
     <Protobuf Include="protos\RegisterUserProto.proto" />
     <Protobuf Include="protos\SettingsCacheItem.proto" />
     <Protobuf Include="protos\ConsumerCacheItem.proto" />
+    <Protobuf Include="protos\Tenant.proto" />
     <Protobuf Include="protos\TenantCacheItem.proto" />
     <Protobuf Include="protos\TenantQuota.proto" />
     <Protobuf Include="protos\TenantQuotaRow.proto" />
+    <Protobuf Include="protos\TenantStore.proto" />
     <Protobuf Include="protos\UserGroupRef.proto" />
     <Protobuf Include="protos\TenantSetting.proto" />
     <Protobuf Include="protos\SubscriptionMethodCache.proto" />
