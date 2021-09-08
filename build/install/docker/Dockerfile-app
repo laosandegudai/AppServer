@@ -347,7 +347,7 @@ FROM builder AS mail_watchdog
 WORKDIR ${BUILD_PATH}/products/ASC.Mail/ASC.Mail.Watchdog.Service/
 
 COPY --chown=onlyoffice:onlyoffice docker-entrypoint.sh .
-COPY --from=base --chown=onlyoffice:onlyoffice ${BUILD_PATH}/services/ASC.Mail.StorageCleaner.Service/service/ .
+COPY --from=base --chown=onlyoffice:onlyoffice ${BUILD_PATH}/services/ASC.Mail.Watchdog.Service/service/ .
 
 CMD ["ASC.Mail.Watchdog.Service.dll", "ASC.Mail.Watchdog.Service"]
 
