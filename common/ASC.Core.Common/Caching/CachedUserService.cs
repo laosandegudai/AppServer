@@ -311,9 +311,9 @@ namespace ASC.Core.Caching
 
             CacheUserInfo.Remove(keyForUsers);
 
-            var findedUser = users.UserInfoListProto.SingleOrDefault(u => u.ID ==  user.ID);
+            var pastUser = users.UserInfoListProto.SingleOrDefault(u => u.ID ==  user.ID);
 
-            if (findedUser != null) users.UserInfoListProto.Remove(findedUser);
+            if (pastUser != null) users.UserInfoListProto.Remove(pastUser);
 
             users.UserInfoListProto.Add(user);
 
