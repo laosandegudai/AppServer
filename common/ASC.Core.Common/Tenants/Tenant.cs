@@ -25,21 +25,53 @@
 
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
 
+using ASC.Common.Caching;
+
 namespace ASC.Core.Tenants
 {
+    public partial class TenantList : ICustomSer<TenantList>, IEnumerable<Tenant>
+    {
+        public void CustomDeSer()
+        {
+            foreach (var tenant in Tenants)
+            {
+                tenant.CustomDeSer();
+            }
+        }
+
+        public void CustomSer()
+        {
+            foreach (var tenant in Tenants)
+            {
+                tenant.CustomSer();
+            }
+        }
+
+        public IEnumerator<Tenant> GetEnumerator()
+        {
+            return Tenants.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return Tenants.GetEnumerator();
+        }
+    }
+
     [Serializable]
-    public class Tenant
+    public partial class Tenant : ICustomSer<Tenant>
     {
         public const int DEFAULT_TENANT = -1;
 
         public static readonly string HostName = Dns.GetHostName().ToLowerInvariant();
 
-        public Tenant()
+        partial void OnConstruction()
         {
             TenantId = DEFAULT_TENANT;
             TimeZone = TimeZoneInfo.Utc.Id;
@@ -66,23 +98,22 @@ namespace ASC.Core.Tenants
         }
 
 
-        public int TenantId { get; internal set; }
+        //public int TenantId { get; internal set; }
 
-        public string TenantAlias { get; set; }
+        //public string TenantAlias { get; set; }
 
-        public string MappedDomain { get; set; }
+        //public string MappedDomain { get; set; }
 
-        public int Version { get; set; }
-
+        //public int Version { get; set; }
         public DateTime VersionChanged { get; set; }
 
-        public string HostedRegion { get; set; }
+        //public string HostedRegion { get; set; }
 
-        public string Name { get; set; }
+        //public string Name { get; set; }
 
-        public string Language { get; set; }
+        //public string Language { get; set; }
 
-        public string TimeZone { get; set; }
+        //public string TimeZone { get; set; }
 
         public List<string> TrustedDomains { get; set; }
         public string TrustedDomainsRaw
@@ -93,33 +124,61 @@ namespace ASC.Core.Tenants
             }
         }
 
-        public TenantTrustedDomainsType TrustedDomainsType { get; set; }
+        public TenantTrustedDomainsType TrustedDomainsType
+        {
+            get
+            {
+                return (TenantTrustedDomainsType)TrustedDomainsTypeProto;
+            }
+            set
+            {
+                TrustedDomainsTypeProto = (int)value;
+            }
+        }
 
         public Guid OwnerId { get; set; }
-
         public DateTime CreatedDateTime { get; internal set; }
 
         public CultureInfo GetCulture() { return !string.IsNullOrEmpty(Language) ? CultureInfo.GetCultureInfo(Language.Trim()) : CultureInfo.CurrentCulture; }
 
         public DateTime LastModified { get; set; }
 
-        public TenantStatus Status { get; internal set; }
-
+        public TenantStatus Status
+        {
+            get
+            {
+                return (TenantStatus)StatusProto;
+            }
+            internal set
+            {
+                StatusProto = (int)value;
+            }
+        }
         public DateTime StatusChangeDate { get; internal set; }
 
-        public string PartnerId { get; set; }
+        //public string PartnerId { get; set; }
 
-        public string AffiliateId { get; set; }
+        //public string AffiliateId { get; set; }
 
-        public string Campaign { get; set; }
+        //public string Campaign { get; set; }
 
-        public string PaymentId { get; set; }
+        //public string PaymentId { get; set; }
 
-        public TenantIndustry Industry { get; set; }
+        public TenantIndustry Industry
+        {
+            get
+            {
+                return (TenantIndustry)IndustryProto;
+            }
+            set
+            {
+                IndustryProto = (int)value;
+            }
+        }
 
-        public bool Spam { get; set; }
+        //public bool Spam { get; set; }
 
-        public bool Calls { get; set; }
+        //public bool Calls { get; set; }
 
         public void SetStatus(TenantStatus status)
         {
@@ -128,25 +187,26 @@ namespace ASC.Core.Tenants
         }
 
 
-        public override bool Equals(object obj)
-        {
-            return obj is Tenant t && t.TenantId == TenantId;
-        }
+        //public override bool Equals(object obj)
+        //{
+        //    return obj is Tenant t && t.TenantId == TenantId;
+        //}
 
-        public override int GetHashCode()
-        {
-            return TenantId;
-        }
+        //public override int GetHashCode()
+        //{
+        //    return TenantId;
+        //}
 
-        public override string ToString()
-        {
-            return TenantAlias;
-        }
+        //public override string ToString()
+        //{
+        //    return TenantAlias;
+        //}
 
 
         internal string GetTrustedDomains()
         {
             TrustedDomains.RemoveAll(d => string.IsNullOrEmpty(d));
+
             if (TrustedDomains.Count == 0) return null;
             return string.Join("|", TrustedDomains.ToArray());
         }
@@ -197,6 +257,38 @@ namespace ASC.Core.Tenants
             }
 
             return result;
+        }
+
+        public void CustomSer()
+        {
+            VersionChangedProto = Google.Protobuf.WellKnownTypes.Timestamp
+                .FromDateTime(VersionChanged.ToUniversalTime());
+
+            CreatedDateTimeProto = Google.Protobuf.WellKnownTypes.Timestamp
+                .FromDateTime(CreatedDateTime.ToUniversalTime());
+
+            LastModifiedProto = Google.Protobuf.WellKnownTypes.Timestamp
+                .FromDateTime(LastModified.ToUniversalTime());
+
+            StatusChangeDateProto = Google.Protobuf.WellKnownTypes.Timestamp
+                .FromDateTime(StatusChangeDate.ToUniversalTime());
+
+            OwnerIdProto = OwnerId.ToByteString();
+
+            TrustedDomainsProto.Clear();
+            TrustedDomainsProto.AddRange(TrustedDomains);
+        }
+
+        public void CustomDeSer()
+        {
+            VersionChanged = VersionChangedProto.ToDateTime();
+            CreatedDateTime = CreatedDateTimeProto.ToDateTime();
+            LastModified = LastModifiedProto.ToDateTime();
+            StatusChangeDate = StatusChangeDateProto.ToDateTime();
+
+            OwnerId = OwnerIdProto.FromByteString();
+
+            TrustedDomains.AddRange(TrustedDomainsProto);
         }
     }
 }
