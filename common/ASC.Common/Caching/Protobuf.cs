@@ -3,6 +3,7 @@
 using Confluent.Kafka;
 
 using Google.Protobuf;
+using Google.Protobuf.Collections;
 
 namespace ASC.Common.Caching
 {
@@ -40,6 +41,25 @@ namespace ASC.Common.Caching
             if (id.Length == 0) return new Guid("00000000-0000-0000-0000-000000000000");
 
             return new Guid(id.ToByteArray());
+        }
+    }
+
+    public static class RepeatedFieldExtension
+    {
+        public static int RemoveAll<T>(this RepeatedField<T> repeatedField, Predicate<T> match)
+        {
+            int counter = 0;
+
+            foreach (var field in repeatedField)
+            {
+                if (match.Invoke(field))
+                {
+                    repeatedField.Remove(field);
+                    counter++;
+                }
+            }
+
+            return counter;
         }
     }
 }
