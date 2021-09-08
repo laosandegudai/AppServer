@@ -129,16 +129,16 @@ namespace ASC.Core.Users
             }
         }
 
-        private DateTime? terminateDate;
+        private DateTime? terminatedDate;
         public DateTime? TerminatedDate
         {
             get
             {
-                return terminateDate;
+                return terminatedDate;
             }
             set
             {
-                
+                terminatedDate = value;
             }
         }
 
@@ -270,6 +270,10 @@ namespace ASC.Core.Users
         public void CustomDeSer()
         {
             ID = IDProto.FromByteString();
+
+            CreateDate = CreateDateProto.ToDateTime();
+            WorkFromDate = WorkFromDateProto.ToDateTime();
+            LastModified = LastModifiedProto.ToDateTime();
 
             if (BirthDateProto != null)
             {
