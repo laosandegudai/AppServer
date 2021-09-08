@@ -40,8 +40,10 @@
     <None Remove="protos\QuotaCacheItem.proto" />
     <None Remove="protos\RegisterUserProto.proto" />
     <None Remove="protos\SettingsCacheItem.proto" />
+    <None Remove="protos\SubscriptionMethod.proto" />
     <None Remove="protos\SubscriptionMethodCache.proto" />
     <None Remove="protos\SubscriptionRecord.proto" />
+    <None Remove="protos\SubscriptionsStore.proto" />
     <None Remove="protos\Tenant.proto" />
     <None Remove="protos\TenantCacheItem.proto" />
     <None Remove="protos\TenantQuota.proto" />
@@ -73,6 +75,8 @@
     <Protobuf Include="protos\RegisterUserProto.proto" />
     <Protobuf Include="protos\SettingsCacheItem.proto" />
     <Protobuf Include="protos\ConsumerCacheItem.proto" />
+    <Protobuf Include="protos\SubscriptionMethod.proto" />
+    <Protobuf Include="protos\SubscriptionsStore.proto" />
     <Protobuf Include="protos\Tenant.proto" />
     <Protobuf Include="protos\TenantCacheItem.proto" />
     <Protobuf Include="protos\TenantQuota.proto" />

@@ -1,0 +1,9 @@
+﻿syntax = "proto3";
+import "protos/SubscriptionRecord.proto";
+import "protos/SubscriptionMethod.proto";
+package ASC.Core;
+
+message SubscriptionsStore {
+	repeated SubscriptionRecord Records = 1;
+	repeated SubscriptionMethod Methods = 2;
+}

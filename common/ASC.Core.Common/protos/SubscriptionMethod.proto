@@ -1,0 +1,11 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+package ASC.Core;
+
+message SubscriptionMethod {
+	int32 Tenant = 1;
+	google.protobuf.StringValue SourceId = 2;
+	google.protobuf.StringValue ActionId = 3;
+	google.protobuf.StringValue RecipientId = 4;
+	repeated string MethodsProto = 5;
+}
