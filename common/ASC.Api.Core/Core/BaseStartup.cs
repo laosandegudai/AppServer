@@ -62,7 +62,7 @@ namespace ASC.Api.Core
             services.AddStackExchangeRedisCache(options => 
             {
                 options.Configuration = "localhost";
-                options.InstanceName = "SampleInstance";
+                options.InstanceName = "AppServer_";
             });
 
             if(AddAndUseSession)
