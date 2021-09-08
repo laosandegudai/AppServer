@@ -95,7 +95,6 @@ namespace ASC.Common.Caching
         {
             var sw = Stopwatch.StartNew();
 
-
             var options = new DistributedCacheEntryOptions
             {
                 SlidingExpiration = sligingExpiration
@@ -117,6 +116,8 @@ namespace ASC.Common.Caching
 
         public void Insert(string key, T value, DateTime absolutExpiration)
         {
+            var sw = Stopwatch.StartNew();
+
             var options = new DistributedCacheEntryOptions()
             {
                 AbsoluteExpiration = absolutExpiration
@@ -131,10 +132,15 @@ namespace ASC.Common.Caching
             {
                 _logger.Error(ex);
             }
+
+            sw.Stop();
+            _logger.Info($"DistributedCache: Key {key} Insert in {sw.Elapsed.TotalMilliseconds} ms.");
         }
 
         public void Insert(string key, byte[] value, TimeSpan sligingExpiration)
         {
+            var sw = Stopwatch.StartNew();
+
             var options = new DistributedCacheEntryOptions()
             {
                 SlidingExpiration = sligingExpiration
@@ -148,10 +154,15 @@ namespace ASC.Common.Caching
             {
                 _logger.Error(ex);
             }
+
+            sw.Stop();
+            _logger.Info($"DistributedCache: Key {key} Insert in {sw.Elapsed.TotalMilliseconds} ms.");
         }
 
         public void Insert(string key, byte[] value, DateTime absolutExpiration)
         {
+            var sw = Stopwatch.StartNew();
+
             var options = new DistributedCacheEntryOptions()
             {
                 AbsoluteExpiration = absolutExpiration
@@ -165,10 +176,18 @@ namespace ASC.Common.Caching
             {
                 _logger.Error(ex);
             }
+
+            sw.Stop();
+            _logger.Info($"DistributedCache: Key {key} Insert in {sw.Elapsed.TotalMilliseconds} ms.");
         }
         public void Remove(string key)
         {
+            var sw = Stopwatch.StartNew();
+
             cache.Remove(key);
+
+            sw.Stop();
+            _logger.Info($"DistributedCache: Key {key} Remove in {sw.Elapsed.TotalMilliseconds} ms.");
         }
 
         public void Remove(Regex pattern)
