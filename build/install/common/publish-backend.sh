@@ -86,6 +86,9 @@ services_name_backend+=(ASC.UrlShortener.Svc)
 services_name_backend+=(ASC.Web.Api)
 services_name_backend+=(ASC.Web.Studio)
 services_name_backend+=(ASC.SsoAuth.Svc)
+services_name_backend+=(ASC.Mail.Aggregator.CollectionService)
+services_name_backend+=(ASC.Mail.StorageCleaner.Service)
+services_name_backend+=(ASC.Mail.Watchdog.Service)
 
 # Publish backend services
 for i in ${!services_name_backend[@]}; do

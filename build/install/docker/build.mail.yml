@@ -1,0 +1,23 @@
+version: "3.6"
+
+services: 
+  onlyoffice-mail-aggregator:
+    build:
+      context: ./
+      dockerfile: "${DOCKERFILE}"
+      target: mail-aggregator
+    image: "${REPO}/${STATUS}appserver-mail-aggregator:${SRV_VERSION}"
+     
+  onlyoffice-mail-storagecleaner:
+    build:
+      context: ./
+      dockerfile: "${DOCKERFILE}"
+      target: mail-storagecleaner
+    image: "${REPO}/${STATUS}appserver-mail-storagecleaner:${SRV_VERSION}"
+
+  onlyoffice-mail-watchdog:
+    build:
+      context: ./
+      dockerfile: "${DOCKERFILE}"
+      target: mail-watchdog
+    image: "${REPO}/${STATUS}appserver-mail-watchdog:${SRV_VERSION}"

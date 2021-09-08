@@ -324,6 +324,33 @@ COPY --from=base --chown=onlyoffice:onlyoffice  ${BUILD_PATH}/services/ASC.SsoAu
 
 CMD ["ASC.SsoAuth.Svc.dll", "ASC.SsoAuth.Svc"]
 
+## ASC.Mail.Aggregator.CollectionService ##
+FROM builder AS mail-aggregator
+WORKDIR ${BUILD_PATH}/products/ASC.Mail/ASC.Mail.Aggregator.CollectionService/
+
+COPY --chown=onlyoffice:onlyoffice docker-entrypoint.sh .
+COPY --from=base --chown=onlyoffice:onlyoffice ${BUILD_PATH}/services/ASC.Mail.Aggregator.CollectionService/service/ .
+
+CMD ["ASC.Mail.Aggregator.CollectionService.dll", "ASC.Mail.Aggregator.CollectionService"]
+
+## ASC.Mail.StorageCleaner.Service ##
+FROM builder AS mail-storagecleaner
+WORKDIR ${BUILD_PATH}/products/ASC.Mail/ASC.Mail.StorageCleaner.Service/
+
+COPY --chown=onlyoffice:onlyoffice docker-entrypoint.sh .
+COPY --from=base --chown=onlyoffice:onlyoffice ${BUILD_PATH}/services/ASC.Mail.StorageCleaner.Service/ .
+
+CMD ["ASC.Mail.StorageCleaner.Service.dll", "ASC.Mail.StorageCleaner.Service"]
+
+## ASC.Mail.Watchdog.Service ##
+FROM builder AS mail-watchdog
+WORKDIR ${BUILD_PATH}/products/ASC.Mail/ASC.Mail.Watchdog.Service/
+
+COPY --chown=onlyoffice:onlyoffice docker-entrypoint.sh .
+COPY --from=base --chown=onlyoffice:onlyoffice ${BUILD_PATH}/services/ASC.Mail.StorageCleaner.Service/ .
+
+CMD ["ASC.Mail.Watchdog.Service.dll", "ASC.Mail.Watchdog.Service"]
+
 ## image for k8s bin-share ##
 FROM busybox:latest AS bin_share
 RUN mkdir -p /app/appserver/ASC.Files/server && \
