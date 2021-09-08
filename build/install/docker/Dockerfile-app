@@ -325,7 +325,7 @@ COPY --from=base --chown=onlyoffice:onlyoffice  ${BUILD_PATH}/services/ASC.SsoAu
 CMD ["ASC.SsoAuth.Svc.dll", "ASC.SsoAuth.Svc"]
 
 ## ASC.Mail.Aggregator.CollectionService ##
-FROM builder AS mail-aggregator
+FROM builder AS mail_aggregator
 WORKDIR ${BUILD_PATH}/products/ASC.Mail/ASC.Mail.Aggregator.CollectionService/
 
 COPY --chown=onlyoffice:onlyoffice docker-entrypoint.sh .
@@ -334,7 +334,7 @@ COPY --from=base --chown=onlyoffice:onlyoffice ${BUILD_PATH}/services/ASC.Mail.A
 CMD ["ASC.Mail.Aggregator.CollectionService.dll", "ASC.Mail.Aggregator.CollectionService"]
 
 ## ASC.Mail.StorageCleaner.Service ##
-FROM builder AS mail-storagecleaner
+FROM builder AS mail_storagecleaner
 WORKDIR ${BUILD_PATH}/products/ASC.Mail/ASC.Mail.StorageCleaner.Service/
 
 COPY --chown=onlyoffice:onlyoffice docker-entrypoint.sh .
@@ -343,7 +343,7 @@ COPY --from=base --chown=onlyoffice:onlyoffice ${BUILD_PATH}/services/ASC.Mail.S
 CMD ["ASC.Mail.StorageCleaner.Service.dll", "ASC.Mail.StorageCleaner.Service"]
 
 ## ASC.Mail.Watchdog.Service ##
-FROM builder AS mail-watchdog
+FROM builder AS mail_watchdog
 WORKDIR ${BUILD_PATH}/products/ASC.Mail/ASC.Mail.Watchdog.Service/
 
 COPY --chown=onlyoffice:onlyoffice docker-entrypoint.sh .

@@ -5,19 +5,19 @@ services:
     build:
       context: ./
       dockerfile: "${DOCKERFILE}"
-      target: mail-aggregator
+      target: mail_aggregator
     image: "${REPO}/${STATUS}appserver-mail-aggregator:${SRV_VERSION}"
      
   onlyoffice-mail-storagecleaner:
     build:
       context: ./
       dockerfile: "${DOCKERFILE}"
-      target: mail-storagecleaner
+      target: mail_storagecleaner
     image: "${REPO}/${STATUS}appserver-mail-storagecleaner:${SRV_VERSION}"
 
   onlyoffice-mail-watchdog:
     build:
       context: ./
       dockerfile: "${DOCKERFILE}"
-      target: mail-watchdog
+      target: mail_watchdog
     image: "${REPO}/${STATUS}appserver-mail-watchdog:${SRV_VERSION}"
