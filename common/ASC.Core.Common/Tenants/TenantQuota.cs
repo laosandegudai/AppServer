@@ -91,7 +91,7 @@ namespace ASC.Core.Tenants
 
 
     [DebuggerDisplay("{Name}")]
-    public partial class TenantQuota : ICustomSer<TenantQuota> //: ICloneable
+    public partial class TenantQuota : ICustomSer<TenantQuota>
     {
         public static readonly TenantQuota Default = new TenantQuota(Tenant.DEFAULT_TENANT)
         {
@@ -101,22 +101,7 @@ namespace ASC.Core.Tenants
             ActiveUsers = int.MaxValue,
         };
 
-        //public int Id { get; set; }
-
-        //public string Name { get; set; }
-
-        //public long MaxFileSize { get; set; }
-
-        //public long MaxTotalSize { get; set; }
-
-        //public int ActiveUsers { get; set; }
-
-        //public string Features { get; set; }
         public decimal Price { get; set; }
-
-        //public string AvangateId { get; set; }
-
-        //public bool Visible { get; set; }
 
         public bool Year
         {
@@ -342,16 +327,6 @@ namespace ASC.Core.Tenants
         {
             Id = tenant;
         }
-
-        //public override int GetHashCode()
-        //{
-        //    return Id.GetHashCode();
-        //}
-
-        //public override bool Equals(object obj)
-        //{
-        //    return obj is TenantQuota q && q.Id == Id;
-        //}
 
         public bool GetFeature(string feature)
         {
