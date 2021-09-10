@@ -1,18 +1,13 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using ASC.Common.Logging;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Diagnostics;
+
+using ASC.Common.Logging;
+
+using Google.Protobuf;
+
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
-using System.IO;
-using Google.Protobuf;
-using System.Diagnostics;
-using NLog.Fluent;
 
 namespace ASC.Common.Caching
 {
@@ -91,95 +86,71 @@ namespace ASC.Common.Caching
             return cache.Get(key);
         }
 
+        public string GetString(string key)
+        {
+            return cache.GetString(key);
+        }
+
         public void Insert(string key, T value, TimeSpan sligingExpiration)
         {
-            var sw = Stopwatch.StartNew();
-
             var options = new DistributedCacheEntryOptions
             {
                 SlidingExpiration = sligingExpiration
             };
 
-            try
-            {
-                value.CustomSer();
-                cache.Set(key, value.ToByteArray(), options);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-            }
-
-            sw.Stop();
-            _logger.Info($"DistributedCache: Key {key} Insert in {sw.Elapsed.TotalMilliseconds} ms.");
+            Insert(key, value, options);
         }
 
         public void Insert(string key, T value, DateTime absolutExpiration)
         {
-            var sw = Stopwatch.StartNew();
-
             var options = new DistributedCacheEntryOptions()
             {
                 AbsoluteExpiration = absolutExpiration
             };
 
-            try
-            {
-                value.CustomSer();
-                cache.Set(key, value.ToByteArray(), options);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-            }
-
-            sw.Stop();
-            _logger.Info($"DistributedCache: Key {key} Insert in {sw.Elapsed.TotalMilliseconds} ms.");
+            Insert(key, value, options);
         }
 
         public void Insert(string key, byte[] value, TimeSpan sligingExpiration)
         {
-            var sw = Stopwatch.StartNew();
-
             var options = new DistributedCacheEntryOptions()
             {
                 SlidingExpiration = sligingExpiration
             };
 
-            try
-            {
-                cache.Set(key, value, options);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-            }
-
-            sw.Stop();
-            _logger.Info($"DistributedCache: Key {key} Insert in {sw.Elapsed.TotalMilliseconds} ms.");
+            Insert(key, value, options);
         }
 
         public void Insert(string key, byte[] value, DateTime absolutExpiration)
         {
-            var sw = Stopwatch.StartNew();
-
             var options = new DistributedCacheEntryOptions()
             {
                 AbsoluteExpiration = absolutExpiration
             };
 
-            try
-            {
-                cache.Set(key, value, options);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-            }
-
-            sw.Stop();
-            _logger.Info($"DistributedCache: Key {key} Insert in {sw.Elapsed.TotalMilliseconds} ms.");
+            Insert(key, value, options);
         }
+
+        public void InsertString(string key, string value, DateTime absolutExpiration)
+        {
+            var options = new DistributedCacheEntryOptions()
+            {
+                AbsoluteExpiration = absolutExpiration
+            };
+
+            InsertString(key, value, options);
+        }
+
+        public void InsertString(string key, string value, TimeSpan sligingExpiration)
+        {
+            var options = new DistributedCacheEntryOptions()
+            {
+                SlidingExpiration = sligingExpiration
+            };
+
+            InsertString(key, value, options);
+        }
+
         public void Remove(string key)
         {
             var sw = Stopwatch.StartNew();
@@ -190,9 +161,56 @@ namespace ASC.Common.Caching
             _logger.Info($"DistributedCache: Key {key} Remove in {sw.Elapsed.TotalMilliseconds} ms.");
         }
 
-        public void Remove(Regex pattern)
+        private void Insert(string key, T value, DistributedCacheEntryOptions options)
         {
-            throw new NotImplementedException();
+            var sw = Stopwatch.StartNew();
+
+            try
+            {
+                value.CustomSer();
+                cache.Set(key, value.ToByteArray(), options);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
+
+            sw.Stop();
+            _logger.Info($"DistributedCache: Key {key} Insert in {sw.Elapsed.TotalMilliseconds} ms.");
+        }
+
+        private void Insert(string key, byte[] value, DistributedCacheEntryOptions options)
+        {
+            var sw = Stopwatch.StartNew();
+
+            try
+            {
+                cache.Set(key, value, options);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
+
+            sw.Stop();
+            _logger.Info($"DistributedCache: Key {key} Insert in {sw.Elapsed.TotalMilliseconds} ms.");
+        }
+
+        private void InsertString(string key, string value, DistributedCacheEntryOptions options)
+        {
+            var sw = Stopwatch.StartNew();
+
+            try
+            {
+                cache.SetString(key, value, options);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
+
+            sw.Stop();
+            _logger.Info($"DistributedCache: Key {key} Insert in {sw.Elapsed.TotalMilliseconds} ms.");
         }
     }
 }
