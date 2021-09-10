@@ -38,7 +38,7 @@ namespace ASC.Common.Caching
         }
         public static Guid FromByteString(this ByteString id)
         {
-            if (id.Length == 0) return new Guid("00000000-0000-0000-0000-000000000000");
+            if (id.Length == 0) return Guid.Empty;
 
             return new Guid(id.ToByteArray());
         }
