@@ -82,7 +82,7 @@ namespace ASC.Core.Caching
         {
             this.service = service ?? throw new ArgumentNullException("service");
             AzServiceCache = azServiceCache;
-            CacheAzRecordStore = azServiceCache.CacheAzRecordStore;
+            CacheAzRecordStore = AzServiceCache.CacheAzRecordStore;
             CacheExpiration = TimeSpan.FromMinutes(10);
         }
 
