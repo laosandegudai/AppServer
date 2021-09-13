@@ -25,53 +25,32 @@
 
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
-using ASC.Common;
 using ASC.Common.Caching;
-using ASC.Core.Caching;
 using ASC.Notify.Recipients;
 
-using Confluent.Kafka;
-
 using Google.Protobuf;
-
-namespace ASC.Core
-{
-    public sealed partial class GroupList : ICustomSer<GroupList>
-    {
-        public void CustomDeSer()
-        {
-
-        }
-
-        public void CustomSer()
-        {
-
-        }
-    }
-}
 
 
 namespace ASC.Core.Users
 {
-    public sealed partial class UserInfoList : ICustomSer<UserInfoList>
+    public partial class UserInfoStore : ICustomSer<UserInfoStore>
     {
         public void CustomDeSer()
         {
-            foreach (var u in this.UserInfoListProto)
+            foreach (var pair in ByGuid)
             {
-                u.CustomDeSer();
+                pair.Value.CustomDeSer();
             }
         }
 
         public void CustomSer()
         {
-            foreach (var u in this.UserInfoListProto)
+            foreach (var pair in ByGuid)
             {
-                u.CustomSer();
+                pair.Value.CustomSer();
             }
         }
     }
@@ -254,14 +233,14 @@ namespace ASC.Core.Users
 
             BirthDateProto = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.MinValue.ToUniversalTime());
 
-            TerminatedDateProto = (TerminatedDate == null) ? 
-                Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.MinValue.ToUniversalTime()) 
+            TerminatedDateProto = (TerminatedDate == null) ?
+                Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.MinValue.ToUniversalTime())
                 : Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(TerminatedDate.Value.ToUniversalTime());
 
             CreateDateProto = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(CreateDate.ToUniversalTime());
 
-            WorkFromDateProto = (WorkFromDate == null) ? 
-                Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.MinValue.ToUniversalTime()) 
+            WorkFromDateProto = (WorkFromDate == null) ?
+                Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.MinValue.ToUniversalTime())
                 : Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(WorkFromDate.Value.ToUniversalTime());
 
             LastModifiedProto = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(LastModified.ToUniversalTime());
