@@ -25,6 +25,7 @@
 
 
 using System;
+using System.Collections.Generic;
 
 using ASC.Common.Caching;
 
@@ -32,6 +33,14 @@ namespace ASC.Core
 {
     public partial class GroupStore : ICustomSer<GroupStore>
     {
+        public GroupStore(IEnumerable<Group> groups)
+        {
+            foreach (var group in groups)
+            {
+                ByGuid.Add(group.Id.ToString(), group);
+            }
+        }
+
         public void CustomDeSer()
         {
             foreach (var pair in ByGuid)

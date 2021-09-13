@@ -25,6 +25,7 @@
 
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
@@ -38,6 +39,14 @@ namespace ASC.Core.Users
 {
     public partial class UserInfoStore : ICustomSer<UserInfoStore>
     {
+        public UserInfoStore(IEnumerable<UserInfo> userInfos)
+        {
+            foreach (var userInfo in userInfos)
+            {
+                ByGuid.Add(userInfo.ID.ToString(), userInfo);
+            }
+        }
+
         public void CustomDeSer()
         {
             foreach (var pair in ByGuid)
