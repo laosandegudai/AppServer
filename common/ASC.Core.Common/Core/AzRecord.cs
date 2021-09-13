@@ -25,28 +25,31 @@
 
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
+using ASC.Common.Caching;
 using ASC.Common.Security;
 using ASC.Common.Security.Authorizing;
 
 namespace ASC.Core
 {
     [Serializable]
-    public class AzRecord
+    public partial class AzRecord : ICustomSer<AzRecord>
     {
         public Guid SubjectId { get; set; }
-
         public Guid ActionId { get; set; }
 
-        public string ObjectId { get; set; }
-
-        public AceType Reaction { get; set; }
-
-        public int Tenant { get; set; }
-
-
-        public AzRecord()
+        public AceType Reaction
         {
+            get
+            {
+                return (AceType)ReactionProto;
+            }
+            set
+            {
+                ReactionProto = (int)value;
+            }
         }
 
         public AzRecord(Guid subjectId, Guid actionId, AceType reaction)
@@ -68,64 +71,45 @@ namespace ASC.Core
             ObjectId = objectId;
         }
 
-
-        public static implicit operator AzRecord(AzRecordCache cache)
+        public void CustomSer()
         {
-            var result = new AzRecord()
-            {
-                Tenant = cache.Tenant
-            };
-
-
-            if (Guid.TryParse(cache.SubjectId, out var subjectId))
-            {
-                result.SubjectId = subjectId;
-            }
-
-            if (Guid.TryParse(cache.ActionId, out var actionId))
-            {
-                result.ActionId = actionId;
-            }
-
-            result.ObjectId = cache.ObjectId;
-
-            if (Enum.TryParse<AceType>(cache.Reaction, out var reaction))
-            {
-                result.Reaction = reaction;
-            }
-
-            return result;
+            SubjectIdProto = SubjectId.ToByteString();
+            ActionIdProto = ActionId.ToByteString();
         }
 
-        public static implicit operator AzRecordCache(AzRecord cache)
+        public void CustomDeSer()
         {
-            return new AzRecordCache
+            SubjectId = SubjectIdProto.FromByteString();
+            ActionId = ActionIdProto.FromByteString();
+        }
+    }
+
+    public partial class AzRecordList : ICustomSer<AzRecordList>, IEnumerable<AzRecord>
+    {
+        public void CustomDeSer()
+        {
+            foreach (var record in AzRecords)
             {
-                SubjectId = cache.SubjectId.ToString(),
-                ActionId = cache.ActionId.ToString(),
-                ObjectId = cache.ObjectId,
-                Reaction = cache.Reaction.ToString(),
-                Tenant = cache.Tenant
-            };
+                record.CustomDeSer();
+            }
         }
 
-        public override bool Equals(object obj)
+        public void CustomSer()
         {
-            return obj is AzRecord r &&
-                r.Tenant == Tenant &&
-                r.SubjectId == SubjectId &&
-                r.ActionId == ActionId &&
-                r.ObjectId == ObjectId &&
-                r.Reaction == Reaction;
+            foreach (var record in AzRecords)
+            {
+                record.CustomSer();
+            }
         }
 
-        public override int GetHashCode()
+        public IEnumerator<AzRecord> GetEnumerator()
         {
-            return Tenant.GetHashCode() ^
-                SubjectId.GetHashCode() ^
-                ActionId.GetHashCode() ^
-                (ObjectId ?? string.Empty).GetHashCode() ^
-                Reaction.GetHashCode();
+            return AzRecords.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return AzRecords.GetEnumerator();
         }
     }
 }
