@@ -32,13 +32,11 @@ using System.Threading;
 
 using ASC.Common;
 using ASC.Common.Caching;
-using ASC.Common.Logging;
 using ASC.Core.Common.EF;
 using ASC.Core.Data;
 using ASC.Core.Tenants;
 using ASC.Core.Users;
 
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 
 namespace ASC.Core.Caching
@@ -52,25 +50,24 @@ namespace ASC.Core.Caching
 
         public TrustInterval TrustInterval { get; set; }
         public DistributedCache<UserGroupRefStore> CacheUserGroupRefStore { get; }
+        public DistributedCache<UserInfoStore> CacheUserInfoStore { get; }
         public DistributedCache<UserInfo> CacheUserInfo { get; }
-        public DistributedCache<UserInfoList> CacheUserInfoList { get; }
-        public DistributedCache<GroupList> CacheGroupList { get; }
+        public DistributedCache<GroupStore> CacheGroupStore { get; }
         internal CoreBaseSettings CoreBaseSettings { get; }
 
         public UserServiceCache(
             CoreBaseSettings coreBaseSettings,
             DistributedCache<UserGroupRefStore> cacheUserGroupRefStore,
             DistributedCache<UserInfo> cacheUserInfo,
-            DistributedCache<UserInfoList> cacheUserInfoList,
-            DistributedCache<GroupList> cacheGroupList,
-            IOptionsMonitor<ILog> options)
+            DistributedCache<UserInfoStore> cacheUserInfoStore,
+            DistributedCache<GroupStore> cacheGroupStore)
         {
             TrustInterval = new TrustInterval();
             CoreBaseSettings = coreBaseSettings;
             CacheUserGroupRefStore = cacheUserGroupRefStore;
             CacheUserInfo = cacheUserInfo;
-            CacheUserInfoList = cacheUserInfoList;
-            CacheGroupList = cacheGroupList;
+            CacheUserInfoStore = cacheUserInfoStore;
+            CacheGroupStore = cacheGroupStore;
         }
 
         public void InvalidateCache()
@@ -160,9 +157,9 @@ namespace ASC.Core.Caching
             options.CoreBaseSettings = CoreBaseSettings;
             options.UserServiceCache = UserServiceCache;
             options.CacheUserGroupRefStore = UserServiceCache.CacheUserGroupRefStore;
-            options.CacheGroupList = UserServiceCache.CacheGroupList;
             options.CacheUserInfo = UserServiceCache.CacheUserInfo;
-            options.CacheUserInfoList = UserServiceCache.CacheUserInfoList;
+            options.CacheUserInfoStore = UserServiceCache.CacheUserInfoStore;
+            options.CacheGroupStore = UserServiceCache.CacheGroupStore;
             options.TrustInterval = UserServiceCache.TrustInterval;
             options.TrustInterval = UserServiceCache.TrustInterval;
         }
@@ -180,8 +177,8 @@ namespace ASC.Core.Caching
 
         public DistributedCache<UserGroupRefStore> CacheUserGroupRefStore { get; set; }
         public DistributedCache<UserInfo> CacheUserInfo { get; set; }
-        public DistributedCache<UserInfoList> CacheUserInfoList { get; set; }
-        public DistributedCache<GroupList> CacheGroupList { get; set; }
+        public DistributedCache<UserInfoStore> CacheUserInfoStore { get; set; }
+        public DistributedCache<GroupStore> CacheGroupStore { get; set; }
         private TimeSpan CacheExpiration { get; set; }
         private TimeSpan DbExpiration { get; set; }
         private TimeSpan PhotoExpiration { get; set; }
@@ -206,9 +203,9 @@ namespace ASC.Core.Caching
             UserServiceCache = userServiceCache;
             CacheUserGroupRefStore = userServiceCache.CacheUserGroupRefStore;
             CacheUserInfo = userServiceCache.CacheUserInfo;
-            CacheUserInfoList = userServiceCache.CacheUserInfoList;
             CacheUserInfo = userServiceCache.CacheUserInfo;
-            CacheGroupList = userServiceCache.CacheGroupList;
+            CacheUserInfoStore = userServiceCache.CacheUserInfoStore;
+            CacheGroupStore = userServiceCache.CacheGroupStore;
             TrustInterval = userServiceCache.TrustInterval;
         }
 
@@ -241,6 +238,8 @@ namespace ASC.Core.Caching
 
         public UserInfo GetUser(int tenant, Guid id)
         {
+            if (id.Equals(Guid.Empty)) return null;
+
             if (CoreBaseSettings.Personal)
             {
                 return GetUserForPersonal(tenant, id);
@@ -251,11 +250,8 @@ namespace ASC.Core.Caching
 
             if (user != null) return user;
 
-            else
-            {
-                var usersList = GetUsersProto(tenant);
-                user = usersList.UserInfoListProto.Where(u =>  u.ID == id).FirstOrDefault();
-            }
+            var usersStore = GetUsersStore(tenant);
+            usersStore.ByGuid.TryGetValue(id.ToString(), out user);
 
             if (user != null) CacheUserInfo.Insert(keyForUser, user, CacheExpiration);
 
@@ -290,10 +286,7 @@ namespace ASC.Core.Caching
             {
                 user = Service.GetUser(tenant, id);
 
-                if (user != null)
-                {
-                    CacheUserInfo.Insert(key, user, CacheExpiration);
-                }
+                if (user != null) CacheUserInfo.Insert(key, user, CacheExpiration);
             }
 
             return user;
@@ -306,62 +299,39 @@ namespace ASC.Core.Caching
 
         public UserInfo SaveUser(int tenant, UserInfo user)
         {
-            var users = GetUsersProto(tenant);
+            user = Service.SaveUser(tenant, user);
+
+            var users = GetUsersStore(tenant);
             var keyForUsers = UserServiceCache.GetUserCacheKey(tenant);
 
             CacheUserInfo.Remove(keyForUsers);
 
-            var pastUser = users.UserInfoListProto.SingleOrDefault(u => u.ID ==  user.ID);
+            users.ByGuid[user.ID.ToString()] = user;
 
-            if (pastUser != null) users.UserInfoListProto.Remove(pastUser);
-
-            users.UserInfoListProto.Add(user);
-
-            var options = new DistributedCacheEntryOptions()
-            {
-                SlidingExpiration = CacheExpiration
-            };
-
-            CacheUserInfoList.cache.SetString(keyForUsers + "hash", users.UserInfoListProto.GetHashCode().ToString(), options);
-            CacheUserInfoList.Insert(keyForUsers, users, CacheExpiration);
-
-            LocalUserInfoList = users;
+            CacheUserInfoStore.Insert(keyForUsers, users, CacheExpiration);
 
             var keyForUser = UserServiceCache.GetUserCacheKeyForPersonal(tenant, user.ID);
 
             CacheUserInfo.Remove(keyForUser);
             CacheUserInfo.Insert(keyForUser, user, CacheExpiration);
 
-            user = Service.SaveUser(tenant, user);
             return user;
         }
 
         public void RemoveUser(int tenant, Guid id)
         {
-            var key = UserServiceCache.GetUserCacheKey(tenant);
-            var users = GetUsersProto(tenant);
-            var user = users.UserInfoListProto.Where(x => x.ID == id).FirstOrDefault();
-
-            if (user == null) return;
-
-            CacheUserInfo.Remove(key);
-
-            var options = new DistributedCacheEntryOptions()
-            {
-                SlidingExpiration = CacheExpiration
-            };
-
-            CacheUserInfo.cache.SetString(key + "hash", users.UserInfoListProto.GetHashCode().ToString(), options);
-
-            users.UserInfoListProto.Remove(user);
-            CacheUserInfoList.Insert(key, users, CacheExpiration);
-
-            LocalUserInfoList = users;
-
-            key = UserServiceCache.GetUserCacheKeyForPersonal(tenant, user.ID);
-            CacheUserInfo.Remove(key);
-
             Service.RemoveUser(tenant, id);
+
+            var key = UserServiceCache.GetUserCacheKey(tenant);
+            var usersStore = GetUsersStore(tenant);
+
+            CacheUserInfo.Remove(key);
+
+            usersStore.ByGuid.Remove(id.ToString());
+            CacheUserInfoStore.Insert(key, usersStore, CacheExpiration);
+
+            key = UserServiceCache.GetUserCacheKeyForPersonal(tenant, id);
+            CacheUserInfo.Remove(key);
         }
 
         public byte[] GetUserPhoto(int tenant, Guid id)
@@ -423,7 +393,7 @@ namespace ASC.Core.Caching
         public Group SaveGroup(int tenant, Group group)
         {
             var key = UserServiceCache.GetGroupCacheKey(tenant);
-            CacheGroupList.Remove(key);
+            CacheGroupStore.Remove(key);
 
             group = Service.SaveGroup(tenant, group);
             return group;
@@ -432,7 +402,7 @@ namespace ASC.Core.Caching
         public void RemoveGroup(int tenant, Guid id)
         {
             var key = UserServiceCache.GetGroupCacheKey(tenant);
-            CacheGroupList.Remove(key);
+            CacheGroupStore.Remove(key);
 
             Service.RemoveGroup(tenant, id);
         }
@@ -479,7 +449,7 @@ namespace ASC.Core.Caching
 
         private IDictionary<Guid, UserInfo> GetUsers(int tenant)
         {
-            return GetUsersProto(tenant).UserInfoListProto.ToDictionary(r => r.ID, r => r);
+            return GetUsersStore(tenant).ByGuid.ToDictionary(r => Guid.Parse(r.Key), r => r.Value);
         }
 
         private IDictionary<Guid, Group> GetGroups(int tenant)
@@ -487,17 +457,22 @@ namespace ASC.Core.Caching
             GetChangesFromDb();
 
             var key = UserServiceCache.GetGroupCacheKey(tenant);
-            var groups = CacheGroupList.Get(key);
+            var groupsStore = CacheGroupStore.Get(key);
 
-            if (groups == null)
+            if (groupsStore == null)
             {
-                groups = new GroupList();
+                groupsStore = new GroupStore();
+                var groups = Service.GetGroups(tenant, default).Values;
+                
+                foreach (var group in groups)
+                {
+                    groupsStore.ByGuid[group.Id.ToString()] = group;
+                }
 
-                groups.GroupListProto.AddRange(Service.GetGroups(tenant, default).Values);
-                CacheGroupList.Insert(key, groups, CacheExpiration);
+                CacheGroupStore.Insert(key, groupsStore, CacheExpiration);
             }
 
-            return groups.GroupListProto.ToDictionary(r => r.Id, r => r);
+            return groupsStore.ByGuid.ToDictionary(r => Guid.Parse(r.Key), r => r.Value);
         }
 
         private void GetChangesFromDb()
@@ -526,39 +501,49 @@ namespace ASC.Core.Caching
                     TrustInterval.Start(DbExpiration);
 
                     //get and merge changes in cached tenants
-                    //foreach (var tenantGroup in Service.GetUsers(Tenant.DEFAULT_TENANT, starttime).Values.GroupBy(u => u.Tenant))
-                    //{
-                    //    var users = Cache.Get<IDictionary<Guid, UserInfo>>(UserServiceCache.GetUserCacheKey(tenantGroup.Key));
-                    //    if (users != null)
-                    //    {
-                    //        lock (users)
-                    //        {
-                    //            foreach (var u in tenantGroup)
-                    //            {
-                    //                users[u.ID] = u;
-                    //            }
-                    //        }
-                    //    }
-                    //}
+                    foreach (var tenantGroup in Service.GetUsers(Tenant.DEFAULT_TENANT, starttime).Values.GroupBy(u => u.Tenant))
+                    {
+                        var key = UserServiceCache.GetUserCacheKey(tenantGroup.Key);
+                        var users = CacheUserInfoStore.Get(key);
 
-                    //foreach (var tenantGroup in Service.GetGroups(Tenant.DEFAULT_TENANT, starttime).Values.GroupBy(g => g.Tenant))
-                    //{
-                    //    var groups = Cache.Get<IDictionary<Guid, Group>>(UserServiceCache.GetGroupCacheKey(tenantGroup.Key));
-                    //    if (groups != null)
-                    //    {
-                    //        lock (groups)
-                    //        {
-                    //            foreach (var g in tenantGroup)
-                    //            {
-                    //                groups[g.Id] = g;
-                    //            }
-                    //        }
-                    //    }
-                    //}
+                        if (users != null)
+                        {
+                            lock (users)
+                            {
+                                foreach (var u in tenantGroup)
+                                {
+                                    users.ByGuid[u.ID.ToString()] = u;
+                                }
+                            }
+
+                            CacheUserInfoStore.Insert(key, users, CacheExpiration);
+                        }
+                    }
+
+                    foreach (var tenantGroup in Service.GetGroups(Tenant.DEFAULT_TENANT, starttime).Values.GroupBy(g => g.Tenant))
+                    {
+                        var key = UserServiceCache.GetGroupCacheKey(tenantGroup.Key);
+                        var groups = CacheGroupStore.Get(key);
+
+                        if (groups != null)
+                        {
+                            lock (groups)
+                            {
+                                foreach (var g in tenantGroup)
+                                {
+                                    groups.ByGuid[g.Id.ToString()] = g;
+                                }
+                            }
+
+                            CacheGroupStore.Insert(key, groups, CacheExpiration);
+                        }
+                    }
 
                     foreach (var tenantGroup in Service.GetUserGroupRefs(Tenant.DEFAULT_TENANT, starttime).Values.GroupBy(r => r.Tenant))
                     {
-                        var refs = CacheUserGroupRefStore.Get(UserServiceCache.GetRefCacheKey(tenantGroup.Key));
+                        var key = UserServiceCache.GetRefCacheKey(tenantGroup.Key);
+                        var refs = CacheUserGroupRefStore.Get(key);
+
                         if (refs != null)
                         {
                             lock (refs)
@@ -568,7 +553,9 @@ namespace ASC.Core.Caching
                                     refs[r.CreateKey()] = r;
                                 }
                             }
-                        }
+
+                            CacheUserGroupRefStore.Insert(key, refs, CacheExpiration);
+                        }                       
                     }
                 }
                 finally
@@ -589,36 +576,25 @@ namespace ASC.Core.Caching
             return Service.GetUser(tenant, id, exp);
         }
 
-        private UserInfoList GetUsersProto(int tenant)
+        private UserInfoStore GetUsersStore(int tenant)
         {
             var key = UserServiceCache.GetUserCacheKey(tenant);
-            var hashString = CacheUserInfoList.cache.GetString(key + "hash");
+            var usersStore = CacheUserInfoStore.Get(key);
 
-            if (int.TryParse(hashString, out int result) && LocalUserInfoList != null && result == LocalUserInfoList.UserInfoListProto.GetHashCode())
+            if (usersStore == null)
             {
-                return LocalUserInfoList;
-            }
-
-            var usersList = CacheUserInfoList.Get(key);
-
-            if (usersList == null)
-            {
-                usersList = new UserInfoList();
+                usersStore = new UserInfoStore();
                 var users = Service.GetUsers(tenant, default).Values;
-                usersList.UserInfoListProto.AddRange(users);
-
-                var options = new DistributedCacheEntryOptions()
+                
+                foreach (var user in users)
                 {
-                    SlidingExpiration = CacheExpiration
-                };
+                    usersStore.ByGuid.Add(user.ID.ToString(), user);
+                }
 
-                CacheUserInfoList.cache.SetString(key + "hash", usersList.UserInfoListProto.GetHashCode().ToString(), options);
-                CacheUserInfoList.Insert(key, usersList, CacheExpiration);
+                CacheUserInfoStore.Insert(key, usersStore, CacheExpiration);
             }
 
-            LocalUserInfoList = usersList;
-
-            return usersList;
+            return usersStore;
         }
 
         [Serializable]
