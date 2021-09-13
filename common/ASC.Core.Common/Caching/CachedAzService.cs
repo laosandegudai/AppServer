@@ -33,24 +33,19 @@ using ASC.Core.Data;
 
 namespace ASC.Core.Caching
 {
-    [Singletone]
+    [Scope]
     class AzServiceCache
     {
-        internal ICache Cache { get; }
-        internal ICacheNotify<AzRecordCache> CacheNotify { get; }
+        internal DistributedCache<AzRecordStore> CacheAzRecordStore { get; }
 
-        public AzServiceCache(ICacheNotify<AzRecordCache> cacheNotify, ICache cache)
+        public AzServiceCache(DistributedCache<AzRecordStore> cacheAzRecordStore)
         {
-            CacheNotify = cacheNotify;
-            Cache = cache;
-
-            cacheNotify.Subscribe((r) => UpdateCache(r, true), CacheNotifyAction.Remove);
-            cacheNotify.Subscribe((r) => UpdateCache(r, false), CacheNotifyAction.InsertOrUpdate);
+            CacheAzRecordStore = cacheAzRecordStore;
         }
 
         private void UpdateCache(AzRecord r, bool remove)
         {
-            var aces = Cache.Get<AzRecordStore>(GetKey(r.Tenant));
+            var aces = CacheAzRecordStore.Get(GetKey(r.Tenant));
             if (aces != null)
             {
                 lock (aces)
@@ -77,10 +72,8 @@ namespace ASC.Core.Caching
     class CachedAzService : IAzService
     {
         private readonly IAzService service;
-
-        private readonly ICacheNotify<AzRecordCache> cacheNotify;
-
-        private ICache Cache { get; }
+        private DistributedCache<AzRecordStore> CacheAzRecordStore;
+        private AzServiceCache AzServiceCache;
 
         private TimeSpan CacheExpiration { get; set; }
 
@@ -88,8 +81,8 @@ namespace ASC.Core.Caching
         public CachedAzService(DbAzService service, AzServiceCache azServiceCache)
         {
             this.service = service ?? throw new ArgumentNullException("service");
-            Cache = azServiceCache.Cache;
-            cacheNotify = azServiceCache.CacheNotify;
+            AzServiceCache = azServiceCache;
+            CacheAzRecordStore = azServiceCache.CacheAzRecordStore;
             CacheExpiration = TimeSpan.FromMinutes(10);
         }
 
@@ -97,11 +90,11 @@ namespace ASC.Core.Caching
         public IEnumerable<AzRecord> GetAces(int tenant, DateTime from)
         {
             var key = AzServiceCache.GetKey(tenant);
-            var aces = Cache.Get<AzRecordStore>(key);
+            var aces = CacheAzRecordStore.Get(key);
             if (aces == null)
             {
                 var records = service.GetAces(tenant, default);
-                Cache.Insert(key, aces = new AzRecordStore(records), DateTime.UtcNow.Add(CacheExpiration));
+                CacheAzRecordStore.Insert(key, aces = new AzRecordStore(records), DateTime.UtcNow.Add(CacheExpiration));
             }
             return aces;
         }
@@ -109,14 +102,27 @@ namespace ASC.Core.Caching
         public AzRecord SaveAce(int tenant, AzRecord r)
         {
             r = service.SaveAce(tenant, r);
-            cacheNotify.Publish(r, CacheNotifyAction.InsertOrUpdate);
+
+            var key = AzServiceCache.GetKey(tenant);
+            var aces = CacheAzRecordStore.Get(key);
+
+            aces.Add(r);
+
+            CacheAzRecordStore.Insert(key, aces, CacheExpiration);
+
             return r;
         }
 
         public void RemoveAce(int tenant, AzRecord r)
         {
             service.RemoveAce(tenant, r);
-            cacheNotify.Publish(r, CacheNotifyAction.Remove);
+
+            var key = AzServiceCache.GetKey(tenant);
+            var aces = CacheAzRecordStore.Get(key);
+
+            aces.Remove(r);
+
+            CacheAzRecordStore.Insert(key, aces, CacheExpiration);
         }
     }
 }
