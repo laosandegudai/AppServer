@@ -35,35 +35,6 @@ using ASC.Common.Caching;
 
 namespace ASC.Core.Tenants
 {
-    public partial class TenantList : ICustomSer<TenantList>, IEnumerable<Tenant>
-    {
-        public void CustomDeSer()
-        {
-            foreach (var tenant in Tenants)
-            {
-                tenant.CustomDeSer();
-            }
-        }
-
-        public void CustomSer()
-        {
-            foreach (var tenant in Tenants)
-            {
-                tenant.CustomSer();
-            }
-        }
-
-        public IEnumerator<Tenant> GetEnumerator()
-        {
-            return Tenants.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return Tenants.GetEnumerator();
-        }
-    }
-
     [Serializable]
     public partial class Tenant : ICustomSer<Tenant>
     {
@@ -97,30 +68,16 @@ namespace ASC.Core.Tenants
             TenantId = id;
         }
 
-
-        //public int TenantId { get; internal set; }
-
-        //public string TenantAlias { get; set; }
-
-        //public string MappedDomain { get; set; }
-
-        //public int Version { get; set; }
         public DateTime VersionChanged { get; set; }
-
-        //public string HostedRegion { get; set; }
-
-        //public string Name { get; set; }
-
-        //public string Language { get; set; }
-
-        //public string TimeZone { get; set; }
 
         public List<string> TrustedDomains { get; set; }
         public string TrustedDomainsRaw
         {
             set
             {
-                TrustedDomains = value != null ? value.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries).ToList() : new List<string>();
+                TrustedDomains = value != null ? 
+                    value.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries).ToList() 
+                    : new List<string>();
             }
         }
 
@@ -156,14 +113,6 @@ namespace ASC.Core.Tenants
         }
         public DateTime StatusChangeDate { get; internal set; }
 
-        //public string PartnerId { get; set; }
-
-        //public string AffiliateId { get; set; }
-
-        //public string Campaign { get; set; }
-
-        //public string PaymentId { get; set; }
-
         public TenantIndustry Industry
         {
             get
@@ -176,32 +125,11 @@ namespace ASC.Core.Tenants
             }
         }
 
-        //public bool Spam { get; set; }
-
-        //public bool Calls { get; set; }
-
         public void SetStatus(TenantStatus status)
         {
             Status = status;
             StatusChangeDate = DateTime.UtcNow;
         }
-
-
-        //public override bool Equals(object obj)
-        //{
-        //    return obj is Tenant t && t.TenantId == TenantId;
-        //}
-
-        //public override int GetHashCode()
-        //{
-        //    return TenantId;
-        //}
-
-        //public override string ToString()
-        //{
-        //    return TenantAlias;
-        //}
-
 
         internal string GetTrustedDomains()
         {
