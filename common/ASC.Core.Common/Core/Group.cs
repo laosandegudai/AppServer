@@ -30,54 +30,51 @@ using ASC.Common.Caching;
 
 namespace ASC.Core
 {
-    public partial class Group
+    public partial class GroupStore : ICustomSer<GroupStore>
     {
-        public Guid Id
+        public void CustomDeSer()
         {
-            get
+            foreach (var pair in ByGuid)
             {
-                return IDProto.FromByteString();
-            }
-            set
-            {
-                IDProto = value.ToByteString();
+                pair.Value.CustomDeSer();
             }
         }
 
-        public Guid ParentId
+        public void CustomSer()
         {
-            get
+            foreach (var pair in ByGuid)
             {
-                return ParentIdProto.FromByteString();
-            }
-            set
-            {
-                ParentIdProto = value.ToByteString();
+                pair.Value.CustomSer();
             }
         }
+    }
 
-        public Guid CategoryId
+    public partial class Group : ICustomSer<Group>
+    {
+        public Guid Id { get; set; }
+
+        public Guid ParentId { get; set; }
+
+        public Guid CategoryId { get; set; }
+
+        public DateTime LastModified { get; set; }
+
+        public void CustomDeSer()
         {
-            get
-            {
-                return CategoryIdProto.FromByteString();
-            }
-            set
-            {
-                CategoryIdProto = value.ToByteString();
-            }
+            Id = IDProto.FromByteString();
+            ParentId = ParentIdProto.FromByteString();
+            CategoryId = CategoryIdProto.FromByteString();
+
+            LastModified = LastModifiedProto.ToDateTime();
         }
 
-        public DateTime LastModified
+        public void CustomSer()
         {
-            get
-            {
-                return LastModifiedProto.ToDateTime();
-            }
-            set
-            {
-                LastModifiedProto = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(value.ToUniversalTime());
-            }
+            IDProto = Id.ToByteString();
+            ParentIdProto = ParentId.ToByteString();
+            CategoryIdProto = CategoryId.ToByteString();
+
+            LastModifiedProto = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(LastModified.ToUniversalTime());
         }
     }
 }
