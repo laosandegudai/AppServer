@@ -1,0 +1,8 @@
+﻿syntax = "proto3";
+import "protos/UserInfo.proto";
+package ASC.Core.Users;
+
+
+message UserInfoStore {
+	map<string, UserInfo> ByGuid = 1;
+}
