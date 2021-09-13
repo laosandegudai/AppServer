@@ -13,6 +13,3 @@ message Group {
         int32 Tenant = 7;
         google.protobuf.StringValue Sid = 8;
 }
-message GroupList {
-        repeated Group GroupListProto = 1;
-}
