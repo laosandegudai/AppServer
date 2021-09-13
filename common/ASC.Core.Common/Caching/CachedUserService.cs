@@ -461,13 +461,8 @@ namespace ASC.Core.Caching
 
             if (groupsStore == null)
             {
-                groupsStore = new GroupStore();
                 var groups = Service.GetGroups(tenant, default).Values;
-                
-                foreach (var group in groups)
-                {
-                    groupsStore.ByGuid[group.Id.ToString()] = group;
-                }
+                groupsStore = new GroupStore(groups);
 
                 CacheGroupStore.Insert(key, groupsStore, CacheExpiration);
             }
@@ -583,13 +578,8 @@ namespace ASC.Core.Caching
 
             if (usersStore == null)
             {
-                usersStore = new UserInfoStore();
                 var users = Service.GetUsers(tenant, default).Values;
-                
-                foreach (var user in users)
-                {
-                    usersStore.ByGuid.Add(user.ID.ToString(), user);
-                }
+                usersStore = new UserInfoStore(users);
 
                 CacheUserInfoStore.Insert(key, usersStore, CacheExpiration);
             }
