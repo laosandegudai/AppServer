@@ -29,7 +29,3 @@ message Tenant {
 	bool Spam = 22;
 	bool Calls = 23;
 }
-
-message TenantList {
-	repeated Tenant Tenants = 1;
-}
