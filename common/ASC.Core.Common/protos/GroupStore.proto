@@ -1,0 +1,7 @@
+﻿syntax = "proto3";
+import "protos/Group.proto";
+package ASC.Core;
+
+message GroupStore {
+	map<string, Group> ByGuid = 1;
+}
