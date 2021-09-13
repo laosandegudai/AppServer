@@ -1,0 +1,16 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+package ASC.Core;
+
+
+message AzRecord {
+	bytes SubjectIdProto = 1;
+	bytes ActionIdProto = 2;
+	google.protobuf.StringValue ObjectId = 3;
+	int32 ReactionProto = 4;
+	int32 Tenant = 5;
+}
+
+message AzRecordList {
+	repeated AzRecord AzRecords = 1;
+}
