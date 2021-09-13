@@ -1,0 +1,7 @@
+﻿syntax = "proto3";
+import "protos/AzRecord.proto";
+package ASC.Core;
+
+message AzRecordStore {
+	map<string, AzRecordList> ByObjectId = 1;
+}
