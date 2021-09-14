@@ -351,6 +351,15 @@ COPY --from=base --chown=onlyoffice:onlyoffice ${BUILD_PATH}/services/ASC.Mail.W
 
 CMD ["ASC.Mail.Watchdog.Service.dll", "ASC.Mail.Watchdog.Service"]
 
+## ASC.Mail.ImapSync ##
+FROM builder AS mail_imapsync
+WORKDIR ${BUILD_PATH}/products/ASC.Mail/ASC.Mail.ImapSync/
+
+COPY --chown=onlyoffice:onlyoffice docker-entrypoint.sh .
+COPY --from=base --chown=onlyoffice:onlyoffice ${BUILD_PATH}/services/ASC.Mail.ImapSync/service/ .
+
+CMD ["ASC.Mail.ImapSync.dll", "ASC.Mail.ImapSync"]
+
 ## image for k8s bin-share ##
 FROM busybox:latest AS bin_share
 RUN mkdir -p /app/appserver/ASC.Files/server && \

@@ -21,3 +21,10 @@ services:
       dockerfile: "${DOCKERFILE}"
       target: mail_watchdog
     image: "${REPO}/${STATUS}appserver-mail-watchdog:${SRV_VERSION}"
+
+  onlyoffice-mail-imapsync:
+    build:
+      context: ./
+      dockerfile: "${DOCKERFILE}"
+      target: mail_imapsync
+    image: "${REPO}/${STATUS}appserver-mail-imapsync:${SRV_VERSION}"
