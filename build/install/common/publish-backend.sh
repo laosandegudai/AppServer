@@ -89,6 +89,7 @@ services_name_backend+=(ASC.SsoAuth.Svc)
 services_name_backend+=(ASC.Mail.Aggregator.CollectionService)
 services_name_backend+=(ASC.Mail.StorageCleaner.Service)
 services_name_backend+=(ASC.Mail.Watchdog.Service)
+services_name_backend+=(ASC.Mail.ImapSync)
 
 # Publish backend services
 for i in ${!services_name_backend[@]}; do
