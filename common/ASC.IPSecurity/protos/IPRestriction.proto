@@ -1,0 +1,13 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+package ASC.IPSecurity;
+
+message IPRestriction {
+	int32 Id = 1;
+	int32 TenantId = 2;
+	google.protobuf.StringValue Ip = 3;
+}
+
+message IPRestrictionList {
+	repeated IPRestriction ipRestrictions = 1;
+}
