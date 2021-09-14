@@ -38,7 +38,6 @@ using ASC.Mail.Core.Dao.Expressions.Mailbox;
 using ASC.Mail.Core.Dao.Interfaces;
 using ASC.Mail.Core.Entities;
 using ASC.Mail.Extensions;
-using ASC.Mail.Models;
 using ASC.Security.Cryptography;
 
 using Microsoft.EntityFrameworkCore;
@@ -360,23 +359,13 @@ namespace ASC.Mail.Core.Dao
             return result > 0;
         }
 
-        public int SetMailboxesInProcess(MailBoxData mailBox)
+        public int SetMailboxesInProcess(string address)
         {
-            var mailMailboxes = MailDbContext.MailMailbox
-                .Where(mb => mb.Address == mailBox.EMail.Address
-                    && mb.IsProcessed == false
-                    && mb.IsRemoved == false);
-
-            if (mailMailboxes == null && !mailMailboxes.Any())
-                return 0;
-
-            foreach (var box in mailMailboxes)
-            {
-                box.IsProcessed = true;
-                box.DateChecked = DateTime.UtcNow;
-            }
-
-            return MailDbContext.SaveChanges();
+            return MailDbContext.Database.ExecuteSqlRaw(
+                "UPDATE mail_mailbox " +
+                "SET is_processed = 1, date_checked = {0} " +
+                "WHERE address = {1} AND is_processed = 0 AND is_removed = 0",
+                DateTime.UtcNow, address);
         }
 
         public bool ReleaseMailbox(Mailbox mailbox, int nextLoginDelay, ILog log, bool? enabled = null,
@@ -437,13 +426,9 @@ namespace ASC.Mail.Core.Dao
 
             var result = MailDbContext.SaveChanges();
 
-            if (result > 0)
+            if (result <= 0)
             {
-                log.InfoFormat($"Successfull Release Mailbox {mailbox.Address} Id:{mailbox.Id}.");
-            }
-            else
-            {
-                log.Warn($"Problem when trying release mailbox {mailbox.Address} Id:{mailbox.Id}.");
+                log.Warn($"Problem when trying release mailbox {mailbox.Address} | Id:{mailbox.Id}.");
             }
 
             return result > 0;

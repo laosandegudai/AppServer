@@ -137,6 +137,12 @@ namespace ASC.Mail.Core.Engine
 
             var mailboxes = MailDaoFactory.GetMailboxDao().GetUniqueMailBoxes(exp);
 
+            Log.Info($"Returned for queue boxes: ");
+            foreach (var box in mailboxes)
+            {
+                Log.Info($"Box {box.Id} have {box.DateLoginDelayExpires} date login delay expires. IsProcessed: {box.IsProcessed}");
+            }
+
             list.AddRange(mailboxes.Select(GetMailbox).Where(tuple => tuple != null));
 
             return list;
@@ -527,12 +533,15 @@ namespace ASC.Mail.Core.Engine
 
         public bool LockMaibox(MailBoxData mailBox)
         {
-            var boxesCount = MailDaoFactory.GetMailboxDao().SetMailboxesInProcess(mailBox);
+            var boxesCount = MailDaoFactory.GetMailboxDao().SetMailboxesInProcess(mailBox.EMail.Address);
 
-            if (boxesCount > 1) mailBox.NotOnlyOne = true;
+            if (boxesCount > 1)
+            {
+                mailBox.NotOnlyOne = true;
 
-            Log.Info($"The box '{mailBox.EMail.Address}' width id '{mailBox.MailBoxId}' not alone. " +
-                $"Boxes of the same name are set in the process too");
+                Log.Info($"The box '{mailBox.EMail.Address}' width id '{mailBox.MailBoxId}' not alone. " +
+                    $"Boxes of the same name are set in the process too");
+            }
 
             return boxesCount > 0;
         }
@@ -584,12 +593,11 @@ namespace ASC.Mail.Core.Engine
             {
                 var sameMboxes = GetMailboxList(new ConcreteMailboxesExp(mailBox.EMail.Address));
 
-                Log.Info($"Next mailboxes will be released:");
+                if (sameMboxes == null) throw new NullReferenceException("Box collection for release was null.");
 
-                foreach (var box in sameMboxes)
-                {
-                    Log.Info($"{box.Address} width id {box.Id}");
-                }
+                if (!sameMboxes.Any()) throw new Exception("Box collection for release was empty.");
+
+                Log.Info($"{sameMboxes.Count} {sameMboxes.FirstOrDefault().Address} mailboxes will be released.");
 
                 foreach (var box in sameMboxes)
                 {
@@ -631,7 +639,7 @@ namespace ASC.Mail.Core.Engine
             {
                 var box = MailDaoFactory.GetMailboxDao().GetMailBox(new СoncreteUserMailboxExp(mailBox.MailBoxId, mailBox.TenantId, mailBox.UserId));
 
-                Log.Info($"Mailbox {box.Address} width id {box.Id} will be released:");
+                Log.Info($"Mailbox {box.Address} width id {box.Id} will be released");
 
                 if (mailBox.AuthErrorDate.HasValue)
                 {
@@ -849,7 +857,7 @@ namespace ASC.Mail.Core.Engine
 
             var mailboxes = GetUniqueMailboxDataList(new MailboxesForProcessingExp(mailSettings, tasksLimit, false));
 
-            Log.DebugFormat("Found {0} inactive tasks", mailboxes.Count);
+            Log.DebugFormat($"Found {mailboxes.Count} inactive tasks");
 
             return mailboxes;
         }

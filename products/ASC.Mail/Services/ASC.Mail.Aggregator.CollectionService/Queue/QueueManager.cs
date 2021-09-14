@@ -111,7 +111,8 @@ namespace ASC.Mail.Aggregator.CollectionService.Queue
 
             if (_lockedMailBoxList.Any(m => m.MailBoxId == mailBoxData.MailBoxId))
             {
-                Log.Error($"GetLockedMailbox() Stored duplicate with id = {mailBoxData.MailBoxId}, address = {mailBoxData.EMail.Address}");
+                Log.Error($"GetLockedMailbox() Stored dublicate with id = {mailBoxData.MailBoxId}, address = {mailBoxData.EMail.Address}. Mailbox not added to the queue.");
+                return null;
             }
 
             if (_lockedMailBoxList.Any(m => m.EMail.Address == mailBoxData.EMail.Address))
@@ -187,13 +188,24 @@ namespace ASC.Mail.Aggregator.CollectionService.Queue
 
                 mailboxEngine.ReleaseMailbox(mailBoxData, MailSettings);
 
+                Log.Debug($"Mailbox {mailBoxData.MailBoxId} will be realesed...Now remove from locked queue by Id.");
+
                 _lockedMailBoxList.RemoveAll(m => m.MailBoxId == mailBoxData.MailBoxId);
 
                 DeleteMailboxFromDumpDb(mailBoxData.MailBoxId);
             }
+            catch (NullReferenceException nEx)
+            {
+                Log.ErrorFormat($"QueueManager -> ReleaseMailbox(Tenant = {mailBoxData.TenantId} MailboxId = {mailBoxData.MailBoxId}, Address = '{mailBoxData.Account}')\r\nException: {nEx + "\nBox will be removed from queue"} \r\n.");
+                _lockedMailBoxList.RemoveAll(m => m.MailBoxId == mailBoxData.MailBoxId);
+
+                Log.Info($"Boxes in queue: ");
+                foreach (var b in _lockedMailBoxList) { Log.Info($"Id: {b.MailBoxId}\n"); };
+            }
             catch (Exception ex)
             {
                 Log.ErrorFormat($"QueueManager -> ReleaseMailbox(Tenant = {mailBoxData.TenantId} MailboxId = {mailBoxData.MailBoxId}, Address = '{mailBoxData.Account}')\r\nException: {ex} \r\n");
+                _lockedMailBoxList.RemoveAll(m => m.MailBoxId == mailBoxData.MailBoxId);
             }
         }
 
