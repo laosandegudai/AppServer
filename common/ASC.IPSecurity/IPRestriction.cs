@@ -25,17 +25,38 @@
 
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
+using ASC.Common.Caching;
 
 namespace ASC.IPSecurity
 {
-    [Serializable]
-    public class IPRestriction
+    public partial class IPRestrictionList : ICustomSer<IPRestrictionList>, IEnumerable<IPRestriction>
     {
-        public int Id { get; set; }
+        public IPRestrictionList(IEnumerable<IPRestriction> iPRestrictions)
+        {
+            IpRestrictions.AddRange(iPRestrictions);
+        }
 
-        public int TenantId { get; set; }
+        public IEnumerator<IPRestriction> GetEnumerator()
+        {
+            return IpRestrictions.GetEnumerator();
+        }
 
-        public string Ip { get; set; }
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return IpRestrictions.GetEnumerator();
+        }
+
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+    }
+
+    [Serializable]
+    public partial class IPRestriction : ICustomSer<IPRestriction>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
     }
 }
