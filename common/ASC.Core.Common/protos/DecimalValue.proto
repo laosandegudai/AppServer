@@ -1,0 +1,8 @@
+﻿syntax = "proto3";
+package ASC.Core;
+
+
+message DecimalValue {
+	int64 units = 1;
+	sfixed32 nanos = 2;
+}
