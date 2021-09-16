@@ -12,6 +12,11 @@
 
   <ItemGroup>
     <None Remove="callback.htm" />
+    <None Remove="protos\LoginProfile.proto" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ApplicationDefinition Include="protos\LoginProfile.proto" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,6 +43,7 @@
 
   <ItemGroup>
     <Protobuf Include="protos\LinkerCacheItem.proto" />
+    <Protobuf Include="protos\LoginProfile.proto" />
   </ItemGroup>
 
 </Project>

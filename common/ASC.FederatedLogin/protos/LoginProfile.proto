@@ -1,0 +1,10 @@
+﻿syntax = "proto3";
+package ASC.FederatedLogin.Profile;
+
+message LoginProfile {
+	map<string, string> Fields = 1;
+}
+
+message LoginProfileList {
+	repeated LoginProfile Profiles = 1;
+}
