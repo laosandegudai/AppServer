@@ -1,0 +1,6 @@
+﻿syntax = "proto3";
+package ASC.Web.CRM.Classes;
+
+message ContactPhotoCacheStore {
+	map<string, string> Items = 1;
+}
