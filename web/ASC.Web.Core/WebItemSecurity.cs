@@ -42,25 +42,19 @@ using SecurityAction = ASC.Common.Security.Authorizing.Action;
 
 namespace ASC.Web.Core
 {
-    [Singletone]
+    [Scope]
     public class WebItemSecurityCache
     {
-        private ICache Cache { get; }
-        private ICacheNotify<WebItemSecurityNotifier> CacheNotify { get; }
+        private DistributedCache<WebItemSecurityStore> CacheWebItemSecurityStore { get; }
 
-        public WebItemSecurityCache(ICacheNotify<WebItemSecurityNotifier> cacheNotify, ICache cache)
+        public WebItemSecurityCache(DistributedCache<WebItemSecurityStore> cacheWebItemSecurityStore)
         {
-            Cache = cache;
-            CacheNotify = cacheNotify;
-            CacheNotify.Subscribe((r) =>
-            {
-                ClearCache(r.Tenant);
-            }, CacheNotifyAction.Any);
+            CacheWebItemSecurityStore = cacheWebItemSecurityStore;
         }
 
         public void ClearCache(int tenantId)
         {
-            Cache.Remove(GetCacheKey(tenantId));
+            CacheWebItemSecurityStore.Remove(GetCacheKey(tenantId));
         }
 
         public string GetCacheKey(int tenantId)
@@ -68,26 +62,34 @@ namespace ASC.Web.Core
             return $"{tenantId}:webitemsecurity";
         }
 
-        public void Publish(int tenantId)
+        public IDictionary<string, bool> Get(int tenantId)
         {
-            CacheNotify.Publish(new WebItemSecurityNotifier { Tenant = tenantId }, CacheNotifyAction.Any);
+            var store = CacheWebItemSecurityStore.Get(GetCacheKey(tenantId));
+            if (store == null) return null;
+
+            return CacheWebItemSecurityStore.Get(GetCacheKey(tenantId)).Items;
         }
 
-        public Dictionary<string, bool> Get(int tenantId)
-        {
-            return Cache.Get<Dictionary<string, bool>>(GetCacheKey(tenantId));
-        }
-
-        public Dictionary<string, bool> GetOrInsert(int tenantId)
+        public IDictionary<string, bool> GetOrInsert(int tenantId)
         {
 
             var dic = Get(tenantId);
             if (dic == null)
             {
-                Cache.Insert(GetCacheKey(tenantId), dic = new Dictionary<string, bool>(), DateTime.UtcNow.Add(TimeSpan.FromMinutes(1)));
+                var store = new WebItemSecurityStore();
+                dic = store.Items;
+                CacheWebItemSecurityStore.Insert(GetCacheKey(tenantId), store, DateTime.UtcNow.Add(TimeSpan.FromMinutes(1)));
             }
 
             return dic;
+        }
+
+        public void Insert(int tenantId, IDictionary<string, bool> dict)
+        {
+            var store = new WebItemSecurityStore();
+            store.Items.Add(dict);
+
+            CacheWebItemSecurityStore.Insert(GetCacheKey(tenantId), store, DateTime.UtcNow.Add(TimeSpan.FromMinutes(1)));
         }
     }
 
@@ -210,6 +212,8 @@ namespace ASC.Web.Core
                 {
                     dic[id + @for] = result;
                 }
+
+                WebItemSecurityCache.Insert(tenant.TenantId, dic);
             }
             return result;
         }
@@ -242,7 +246,7 @@ namespace ASC.Web.Core
                 AuthorizationManager.AddAce(a);
             }
 
-            WebItemSecurityCache.Publish(TenantManager.GetCurrentTenant().TenantId);
+            WebItemSecurityCache.ClearCache(TenantManager.GetCurrentTenant().TenantId);
         }
 
         public WebItemSecurityInfo GetSecurityInfo(string id)
@@ -327,7 +331,7 @@ namespace ASC.Web.Core
                 UserManager.RemoveUserFromGroup(userid, productid);
             }
 
-            WebItemSecurityCache.Publish(TenantManager.GetCurrentTenant().TenantId);
+            WebItemSecurityCache.ClearCache(TenantManager.GetCurrentTenant().TenantId);
         }
 
         public bool IsProductAdministrator(Guid productid, Guid userid)
