@@ -25,7 +25,10 @@
 
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
+using ASC.Common.Caching;
 using ASC.Core;
 using ASC.Core.Common;
 using ASC.Core.Tenants;
@@ -42,6 +45,8 @@ namespace ASC.VoipService
         {
             get { return Settings.Caller; }
         }
+
+        public VoipPhone() { }
 
         public VoipPhone(AuthContext authContext, TenantUtil tenantUtil, SecurityContext securityContext, BaseCommonLinkUtility baseCommonLinkUtility)
         {
@@ -76,6 +81,66 @@ namespace ASC.VoipService
         public virtual void RejectQueueCall(string callId)
         {
             throw new NotImplementedException();
+        }
+    }
+
+    public partial class VoipPhoneList : ICustomSer<VoipPhoneList>, IEnumerable<VoipPhone>
+    {
+        private IEnumerable<VoipPhone> phones = new List<VoipPhone>();
+
+        public VoipPhoneList(IEnumerable<VoipPhone> phones)
+        {
+            this.phones = phones;
+        }
+
+        public void AddSettings(VoipSettings settings)
+        {
+            foreach (var phone in phones)
+            {
+                phone.Settings = settings;
+            }
+        }
+
+        public void CustomDeSer() 
+        {
+            var list = new List<VoipPhone>(PhoneWrappers.Count);
+
+            foreach (var wrapper in PhoneWrappers)
+            {
+                var phone = new VoipPhone
+                {
+                    Id = wrapper.Id,
+                    Alias = wrapper.Alias,
+                    Number = wrapper.Number
+                };
+
+                list.Add(phone);
+            }
+        }
+
+        public void CustomSer() 
+        {
+            foreach (var phone in phones)
+            {
+                var wrapper = new VoipPhoneWrapper
+                {
+                    Id = phone.Id,
+                    Alias = phone.Alias,
+                    Number = phone.Number
+                };
+
+                PhoneWrappers.Add(wrapper);
+            }
+        }
+
+        public IEnumerator<VoipPhone> GetEnumerator()
+        {
+            return phones.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return phones.GetEnumerator();
         }
     }
 
