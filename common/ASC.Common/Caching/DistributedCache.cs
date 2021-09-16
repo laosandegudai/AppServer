@@ -19,27 +19,27 @@ namespace ASC.Common.Caching
 
 
     [Scope]
-    public class DistributedCache<T> where T : IMessage<T>, ICustomSer<T>, new()
+    public class DistributedCache
     {
         public readonly IDistributedCache cache;
-        public readonly IDictionary<string, T> localCache;
+        public readonly IDictionary<string, object> localCache;
 
         private ILog _logger;
 
         public DistributedCache(IDistributedCache cache, IOptionsMonitor<ILog> options)
         {
             this.cache = cache;
-            localCache = new Dictionary<string, T>();
+            localCache = new Dictionary<string, object>();
             _logger = options.Get("ASC.Web.Api");
 
             _logger.Info("DistributedCache loaded.");
         }
 
-        public T Get(string key)
+        public T Get<T>(string key) where T : IMessage<T>, ICustomSer<T>, new()
         {
             var sw = Stopwatch.StartNew();
 
-            if (localCache.ContainsKey(key)) return localCache[key];
+            if (localCache.ContainsKey(key)) return (T)localCache[key];
 
             var binaryData = cache.Get(key);
 
@@ -91,7 +91,8 @@ namespace ASC.Common.Caching
             return cache.GetString(key);
         }
 
-        public void Insert(string key, T value, TimeSpan sligingExpiration)
+        public void Insert<T>(string key, T value, TimeSpan sligingExpiration)
+            where T : IMessage<T>, ICustomSer<T>, new()
         {
             var options = new DistributedCacheEntryOptions
             {
@@ -101,7 +102,8 @@ namespace ASC.Common.Caching
             Insert(key, value, options);
         }
 
-        public void Insert(string key, T value, DateTime absolutExpiration)
+        public void Insert<T>(string key, T value, DateTime absolutExpiration)
+            where T : IMessage<T>, ICustomSer<T>, new()
         {
             var options = new DistributedCacheEntryOptions()
             {
@@ -161,7 +163,8 @@ namespace ASC.Common.Caching
             _logger.Info($"DistributedCache: Key {key} Remove in {sw.Elapsed.TotalMilliseconds} ms.");
         }
 
-        private void Insert(string key, T value, DistributedCacheEntryOptions options)
+        private void Insert<T>(string key, T value, DistributedCacheEntryOptions options)
+            where T : IMessage<T>, ICustomSer<T>, new()
         {
             var sw = Stopwatch.StartNew();
 
