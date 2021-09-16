@@ -43,29 +43,28 @@ using Microsoft.Extensions.Options;
 
 namespace ASC.FederatedLogin
 {
-    [Singletone]
+    [Scope]
     public class AccountLinkerStorage
     {
-        private readonly ICache cache;
-        private readonly ICacheNotify<LinkerCacheItem> notify;
+        private readonly DistributedCache<LoginProfileList> cacheLoginProfileList;
 
-        public AccountLinkerStorage(ICacheNotify<LinkerCacheItem> notify, ICache cache)
+        public AccountLinkerStorage(DistributedCache<LoginProfileList> cacheLoginProfileList)
         {
-            this.cache = cache;
-            this.notify = notify;
-            notify.Subscribe((c) => cache.Remove(c.Obj), CacheNotifyAction.Remove);
+            this.cacheLoginProfileList = cacheLoginProfileList;
         }
 
         public void RemoveFromCache(string obj)
         {
-            notify.Publish(new LinkerCacheItem { Obj = obj }, CacheNotifyAction.Remove);
+            cacheLoginProfileList.Remove(obj);
         }
-        public List<LoginProfile> GetFromCache(string obj, Func<string, List<LoginProfile>> fromDb)
+
+        public IEnumerable<LoginProfile> GetFromCache(string obj, Func<string, List<LoginProfile>> fromDb)
         {
-            var profiles = cache.Get<List<LoginProfile>>(obj);
+            var profiles = cacheLoginProfileList.Get(obj);
             if (profiles == null)
             {
-                cache.Insert(obj, profiles = fromDb(obj), DateTime.UtcNow + TimeSpan.FromMinutes(10));
+                profiles = new LoginProfileList(fromDb(obj));
+                cacheLoginProfileList.Insert(obj, profiles, DateTime.UtcNow + TimeSpan.FromMinutes(10));
             }
             return profiles;
         }
