@@ -45,22 +45,25 @@ using Microsoft.Extensions.Options;
 
 namespace ASC.Core.Billing
 {
-    [Singletone]
+    [Scope]
     public class TariffServiceStorage
     {
         public ICache Cache { get; }
-        internal ICacheNotify<TariffCacheItem> Notify { get; }
+        public DistributedCache<Tariff> CacheTariff { get; }
+        public DistributedCache<PaymentInfoList> CachePaymentInfoList { get; }
+        public DistributedCache<ProductPriceInfoStore> CacheProductPriceInfoStore { get; }
+        public DistributedCache<ShoppingUriPairStore> CacheShoppingUriPairStore { get; }
 
-        public TariffServiceStorage(ICacheNotify<TariffCacheItem> notify, ICache cache)
+        public TariffServiceStorage(ICacheNotify<TariffCacheItem> notify, ICache cache,
+            DistributedCache<Tariff> cacheTariff, DistributedCache<PaymentInfoList> cachePaymentInfoList,
+            DistributedCache<ProductPriceInfoStore> cacheProductPriceInfoStore,
+            DistributedCache<ShoppingUriPairStore> cacheShoppingUriPairStore)
         {
             Cache = cache;
-            Notify = notify;
-            Notify.Subscribe((i) =>
-            {
-                Cache.Remove(TariffService.GetTariffCacheKey(i.TenantId));
-                Cache.Remove(TariffService.GetBillingUrlCacheKey(i.TenantId));
-                Cache.Remove(TariffService.GetBillingPaymentCacheKey(i.TenantId)); // clear all payments
-            }, CacheNotifyAction.Remove);
+            CacheTariff = cacheTariff;
+            CachePaymentInfoList = cachePaymentInfoList;
+            CacheProductPriceInfoStore = cacheProductPriceInfoStore;
+            CacheShoppingUriPairStore = cacheShoppingUriPairStore;
 
             //TODO: Change code of WCF -> not supported in .NET standard/.Net Core
             /*try
@@ -131,7 +134,11 @@ namespace ASC.Core.Billing
             int.TryParse(Configuration["core:payment:delay"], out var paymentDelay);
             options.PaymentDelay = paymentDelay;
             options.Cache = TariffServiceStorage.Cache;
-            options.Notify = TariffServiceStorage.Notify;
+            options.CacheTariff = TariffServiceStorage.CacheTariff;
+            options.CachePaymentInfoList = TariffServiceStorage.CachePaymentInfoList;
+            options.CacheTariff = TariffServiceStorage.CacheTariff;
+            options.CacheProductPriceInfoStore = TariffServiceStorage.CacheProductPriceInfoStore;
+            options.CacheShoppingUriPairStore = TariffServiceStorage.CacheShoppingUriPairStore;
 
             options.QuotaService = QuotaService.Value;
             options.TenantService = TenantService.Value;
@@ -146,7 +153,10 @@ namespace ASC.Core.Billing
         private static readonly TimeSpan STANDALONE_CACHE_EXPIRATION = TimeSpan.FromMinutes(15);
 
         internal ICache Cache { get; set; }
-        internal ICacheNotify<TariffCacheItem> Notify { get; set; }
+        internal DistributedCache<Tariff> CacheTariff { get; set; }
+        internal DistributedCache<PaymentInfoList> CachePaymentInfoList { get; set; }
+        internal DistributedCache<ProductPriceInfoStore> CacheProductPriceInfoStore { get; set; }
+        internal DistributedCache<ShoppingUriPairStore> CacheShoppingUriPairStore { get; set; }
         internal ILog Log { get; set; }
         internal IQuotaService QuotaService { get; set; }
         internal ITenantService TenantService { get; set; }
@@ -200,7 +210,9 @@ namespace ASC.Core.Billing
             PaymentDelay = paymentDelay;
 
             Cache = TariffServiceStorage.Cache;
-            Notify = TariffServiceStorage.Notify;
+            CacheTariff = TariffServiceStorage.CacheTariff;
+            CachePaymentInfoList = TariffServiceStorage.CachePaymentInfoList;
+            CacheProductPriceInfoStore = TariffServiceStorage.CacheProductPriceInfoStore;
             LazyCoreDbContext = new Lazy<CoreDbContext>(() => coreDbContextManager.Value);
             var range = (Configuration["core.payment-user-range"] ?? "").Split('-');
             if (!int.TryParse(range[0], out ACTIVE_USERS_MIN))
@@ -220,12 +232,12 @@ namespace ASC.Core.Billing
                 tenantId = -1;
 
             var key = GetTariffCacheKey(tenantId);
-            var tariff = Cache.Get<Tariff>(key);
+            var tariff = CacheTariff.Get(key);
             if (tariff == null)
             {
                 tariff = GetBillingInfo(tenantId);
                 tariff = CalculateTariff(tenantId, tariff);
-                Cache.Insert(key, tariff, DateTime.UtcNow.Add(GetCacheExpiration()));
+                CacheTariff.Insert(key, tariff, DateTime.UtcNow.Add(GetCacheExpiration()));
 
                 if (BillingClient.Configured && withRequestToPaymentSystem)
                 {
@@ -258,7 +270,7 @@ namespace ASC.Core.Billing
                               {
                                   asynctariff = CalculateTariff(tenantId, asynctariff);
                                   ClearCache(tenantId);
-                                  Cache.Insert(key, asynctariff, DateTime.UtcNow.Add(GetCacheExpiration()));
+                                  CacheTariff.Insert(key, asynctariff, DateTime.UtcNow.Add(GetCacheExpiration()));
                               }
                           }
                           catch (BillingNotFoundException)
@@ -317,16 +329,18 @@ namespace ASC.Core.Billing
 
         public void ClearCache(int tenantId)
         {
-            Notify.Publish(new TariffCacheItem { TenantId = tenantId }, CacheNotifyAction.Remove);
+            CacheTariff.Remove(GetTariffCacheKey(tenantId));
+            CachePaymentInfoList.Remove(GetBillingPaymentCacheKey(tenantId));
+            CacheShoppingUriPairStore.Remove(GetBillingUrlCacheKey(tenantId));
         }
 
         public IEnumerable<PaymentInfo> GetPayments(int tenantId)
         {
             var key = GetBillingPaymentCacheKey(tenantId);
-            var payments = Cache.Get<List<PaymentInfo>>(key);
-            if (payments == null)
+            var paymentList = CachePaymentInfoList.Get(key);
+            if (paymentList == null)
             {
-                payments = new List<PaymentInfo>();
+                paymentList = new PaymentInfoList();
                 if (BillingClient.Configured)
                 {
                     try
@@ -340,7 +354,7 @@ namespace ASC.Core.Billing
                             {
                                 pi.QuotaId = quota.Id;
                             }
-                            payments.Add(pi);
+                            paymentList.PaymentInfos.Add(pi);
                         }
                     }
                     catch (Exception error)
@@ -349,10 +363,10 @@ namespace ASC.Core.Billing
                     }
                 }
 
-                Cache.Insert(key, payments, DateTime.UtcNow.Add(TimeSpan.FromMinutes(10)));
+                CachePaymentInfoList.Insert(key, paymentList, DateTime.UtcNow.Add(TimeSpan.FromMinutes(10)));
             }
 
-            return payments;
+            return paymentList;
         }
 
         public Uri GetShoppingUri(int? tenant, int quotaId, string affiliateId, string currency = null, string language = null, string customerId = null, string quantity = null)
@@ -364,7 +378,7 @@ namespace ASC.Core.Billing
                           ? GetBillingUrlCacheKey(tenant.Value)
                           : string.Format("notenant{0}", !string.IsNullOrEmpty(affiliateId) ? "_" + affiliateId : "");
             key += quota.Visible ? "" : "0";
-            if (!(Cache.Get<Dictionary<string, Tuple<Uri, Uri>>>(key) is IDictionary<string, Tuple<Uri, Uri>> urls))
+            if (!(CacheShoppingUriPairStore.Get(key) is IDictionary<string, Tuple<Uri, Uri>> urls))
             {
                 urls = new Dictionary<string, Tuple<Uri, Uri>>();
                 if (BillingClient.Configured)
@@ -394,7 +408,9 @@ namespace ASC.Core.Billing
                         Log.Error(error);
                     }
                 }
-                Cache.Insert(key, urls, DateTime.UtcNow.Add(TimeSpan.FromMinutes(10)));
+
+                var store = new ShoppingUriPairStore(urls);
+                CacheShoppingUriPairStore.Insert(key, store, DateTime.UtcNow.Add(TimeSpan.FromMinutes(10)));
             }
 
             ResetCacheExpiration();
@@ -520,7 +536,7 @@ namespace ASC.Core.Billing
                     CoreDbContext.Tariffs.Add(efTariff);
                     CoreDbContext.SaveChanges();
 
-                    Cache.Remove(GetTariffCacheKey(tenant));
+                    CacheTariff.Remove(GetTariffCacheKey(tenant));
                     inserted = true;
                 }
                 tx.Commit();
