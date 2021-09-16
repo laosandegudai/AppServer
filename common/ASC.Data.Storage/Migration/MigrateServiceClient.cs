@@ -36,42 +36,22 @@ namespace ASC.Data.Storage.Migration
     [Singletone]
     public class ServiceClientListener
     {
-        private ICacheNotify<MigrationProgress> ProgressMigrationNotify { get; }
         private IServiceProvider ServiceProvider { get; }
-        private ICache Cache { get; }
+        private DistributedCache<MigrationProgress> CacheMigrationProgress { get; }
 
         public ServiceClientListener(
             ICacheNotify<MigrationProgress> progressMigrationNotify,
             IServiceProvider serviceProvider, 
+            DistributedCache<MigrationProgress> cacheMigrationProgress,
             ICache cache)
         {
-            ProgressMigrationNotify = progressMigrationNotify;
             ServiceProvider = serviceProvider;
-            Cache = cache;
-
-            ProgressListening();
+            CacheMigrationProgress = cacheMigrationProgress;
         }
 
         public MigrationProgress GetProgress(int tenantId)
         {
-            return Cache.Get<MigrationProgress>(GetCacheKey(tenantId));
-        }
-
-        private void ProgressListening()
-        {
-            ProgressMigrationNotify.Subscribe(n =>
-            {
-                var migrationProgress = new MigrationProgress
-                {
-                    TenantId = n.TenantId,
-                    Progress = n.Progress,
-                    IsCompleted = n.IsCompleted,
-                    Error = n.Error
-                };
-
-                Cache.Insert(GetCacheKey(n.TenantId), migrationProgress, DateTime.MaxValue);
-            },
-           CacheNotifyAction.Insert);
+            return CacheMigrationProgress.Get(GetCacheKey(tenantId));
         }
 
         private string GetCacheKey(int tenantId)
