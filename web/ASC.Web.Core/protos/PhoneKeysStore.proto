@@ -1,0 +1,7 @@
+﻿syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+package ASC.Web.Core.Sms;
+
+message PhoneKeysStore {
+	map<string, google.protobuf.Timestamp> KeysProto = 1;
+}

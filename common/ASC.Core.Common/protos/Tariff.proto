@@ -1,0 +1,15 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
+package ASC.Core.Billing;
+
+message Tariff {
+	int32 QuotaId = 1;
+	int32 StateProto = 2;
+	google.protobuf.Timestamp DueDateProto = 3;
+	google.protobuf.Timestamp DelayDueDateProto = 4;
+	google.protobuf.Timestamp LicenseDateProto = 5;
+	bool Autorenewal = 6;
+	bool Prolongable = 7;
+	int32 Quantity = 8;
+}

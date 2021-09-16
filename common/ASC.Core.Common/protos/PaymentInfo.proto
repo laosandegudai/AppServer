@@ -1,0 +1,26 @@
+﻿syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+import "protos/DecimalValue.proto";
+package ASC.Core.Billing;
+
+message PaymentInfo {
+	int32 ID = 1;
+	int32 Status = 2;
+	int32 PaymentSystemId = 3;
+	google.protobuf.StringValue CartId = 4;
+	google.protobuf.StringValue FName = 5;
+	google.protobuf.StringValue LName = 6;
+	google.protobuf.StringValue Email = 7;
+	google.protobuf.Timestamp PaymentDateProto = 8;
+	ASC.Core.DecimalValue PriceProto = 9;
+	google.protobuf.StringValue PaymentCurrency = 10;
+	google.protobuf.StringValue PaymentMethod = 11;
+	int32 QuotaId = 12;
+	google.protobuf.StringValue ProductRef = 13;
+	google.protobuf.StringValue CustomerId = 14;
+}
+
+message PaymentInfoList {
+	repeated PaymentInfo PaymentInfos = 1;
+}

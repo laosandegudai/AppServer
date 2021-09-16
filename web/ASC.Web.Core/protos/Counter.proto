@@ -1,0 +1,8 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+package ASC.Web.Core.Sms;
+
+
+message Counter {
+	google.protobuf.StringValue Value = 1;
+}

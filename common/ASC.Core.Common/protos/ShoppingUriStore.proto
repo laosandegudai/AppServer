@@ -1,0 +1,13 @@
+﻿syntax = "proto3";
+import "protos/DecimalValue.proto";
+import "google/protobuf/wrappers.proto";
+package ASC.Core.Billing;
+
+message ShoppingUriPair {
+	google.protobuf.StringValue Uri1 = 1;
+	google.protobuf.StringValue Uri2 = 2;
+}
+
+message ShoppingUriPairStore {
+	map<string, ShoppingUriPair> UriPairs = 1;
+}

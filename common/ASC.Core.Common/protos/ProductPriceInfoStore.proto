@@ -1,0 +1,11 @@
+﻿syntax = "proto3";
+import "protos/DecimalValue.proto";
+package ASC.Core.Billing;
+
+message ProductPriceInfo {
+	map<string, ASC.Core.DecimalValue> PriceInfos = 1;
+}
+
+message ProductPriceInfoStore {
+	map<string, ProductPriceInfo> ProductPriceInfos = 1;
+}
