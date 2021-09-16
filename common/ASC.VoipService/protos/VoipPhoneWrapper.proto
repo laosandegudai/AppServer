@@ -1,0 +1,13 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+package ASC.VoipService;
+
+message VoipPhoneWrapper {
+	google.protobuf.StringValue Id = 1;
+	google.protobuf.StringValue Number = 2;
+	google.protobuf.StringValue Alias = 3;
+}
+
+message VoipPhoneList {
+	repeated VoipPhoneWrapper PhoneWrappers = 1;
+}
