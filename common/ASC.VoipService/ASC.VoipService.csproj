@@ -22,6 +22,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="protos\VoipPhoneWrapper.proto" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Grpc.Tools" Version="2.32.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -35,5 +39,6 @@
 
   <ItemGroup>
     <Protobuf Include="protos\CachedVoipItem.proto" />
+    <Protobuf Include="protos\VoipPhoneWrapper.proto" />
   </ItemGroup>
 </Project>
