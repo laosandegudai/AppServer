@@ -44,18 +44,15 @@ namespace ASC.Web.Core.Mail
 {
     public class MailServiceHelperStorage
     {
-        private ICacheNotify<MailServiceHelperCache> CacheNotify { get; }
-        public ICache Cache { get; }
-        public MailServiceHelperStorage(ICacheNotify<MailServiceHelperCache> cacheNotify, ICache cache)
+        public DistributedCache<NullableMailServerInfo> CacheMailServerInfo { get; }
+        public MailServiceHelperStorage(DistributedCache<NullableMailServerInfo> cacheMailServerInfo)
         {
-            Cache = cache;
-            CacheNotify = cacheNotify;
-            CacheNotify.Subscribe(r => Cache.Remove(r.Key), CacheNotifyAction.Remove);
+            CacheMailServerInfo = cacheMailServerInfo;
         }
 
         public void Remove()
         {
-            CacheNotify.Publish(new MailServiceHelperCache() { Key = MailServiceHelper.CacheKey }, CacheNotifyAction.Remove);
+            CacheMailServerInfo.Remove(MailServiceHelper.CacheKey);
         }
     }
 
@@ -80,7 +77,7 @@ namespace ASC.Web.Core.Mail
         private EFLoggerFactory LoggerFactory { get; }
         private Lazy<MailDbContext> LazyMailDbContext { get; }
         private MailDbContext MailDbContext { get => LazyMailDbContext.Value; }
-        private ICache Cache { get; }
+        private DistributedCache<NullableMailServerInfo> CacheMailServerInfo { get; }
 
         public MailServiceHelper(
             UserManager userManager,
@@ -99,7 +96,7 @@ namespace ASC.Web.Core.Mail
             MailServiceHelperStorage = mailServiceHelperStorage;
             LoggerFactory = loggerFactory;
             LazyMailDbContext = new Lazy<MailDbContext>(() => dbContext.Get("webstudio"));
-            Cache = mailServiceHelperStorage.Cache;
+            CacheMailServerInfo = mailServiceHelperStorage.CacheMailServerInfo;
             DefaultDatabase = GetDefaultDatabase();
         }
 
@@ -142,21 +139,22 @@ namespace ASC.Web.Core.Mail
 
         private MailServerInfo InnerGetMailServerInfo()
         {
-            var cachedData = Cache.Get<Tuple<MailServerInfo>>(CacheKey);
-
-            if (cachedData != null)
-                return cachedData.Item1;
+            var cachedNullableInfo = CacheMailServerInfo.Get(CacheKey);
+            if (cachedNullableInfo.Data != null)
+                return cachedNullableInfo.Data;
 
             var value = MailDbContext.ServerServer.Select(r => r.ConnectionString).FirstOrDefault();
 
-            cachedData =
-                new Tuple<MailServerInfo>(string.IsNullOrEmpty(value)
-                                                ? null
-                                                : Newtonsoft.Json.JsonConvert.DeserializeObject<MailServerInfo>(value));
+            cachedNullableInfo = new NullableMailServerInfo
+            {
+                Data = string.IsNullOrEmpty(value) 
+                ? null
+                : Newtonsoft.Json.JsonConvert.DeserializeObject<MailServerInfo>(value)
+            };
 
-            Cache.Insert(CacheKey, cachedData, DateTime.UtcNow.Add(TimeSpan.FromDays(1)));
+            CacheMailServerInfo.Insert(CacheKey, cachedNullableInfo, DateTime.UtcNow.Add(TimeSpan.FromDays(1)));
 
-            return cachedData.Item1;
+            return cachedNullableInfo.Data;
         }
 
 
@@ -321,18 +319,13 @@ namespace ASC.Web.Core.Mail
         }
     }
 
-    public class MailServerInfo
+    public partial class NullableMailServerInfo : ICustomSer<NullableMailServerInfo>
     {
-        public string DbConnection { get; set; }
-        public MailServerApiInfo Api { get; set; }
+        public void CustomDeSer() { }
+        public void CustomSer() { }
     }
 
-    public class MailServerApiInfo
-    {
-        public string Protocol { get; set; }
-        public string Server { get; set; }
-        public int Port { get; set; }
-        public string Version { get; set; }
-        public string Token { get; set; }
-    }
+    public partial class MailServerInfo { }
+
+    public partial class MailServerApiInfo { }
 }
