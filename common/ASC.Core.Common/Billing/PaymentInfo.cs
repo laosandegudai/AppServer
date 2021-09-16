@@ -25,38 +25,59 @@
 
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
+
+using ASC.Common.Caching;
 
 namespace ASC.Core.Billing
 {
-    [Serializable]
-    public class PaymentInfo
+    public partial class PaymentInfoList : ICustomSer<PaymentInfoList>, IEnumerable<PaymentInfo>
     {
-        public int ID { get; set; }
+        public void CustomDeSer()
+        {
+            foreach (var payInfo in PaymentInfos)
+            {
+                payInfo.CustomDeSer();
+            }
+        }
 
-        public int Status { get; set; }
+        public void CustomSer()
+        {
+            foreach (var payInfo in PaymentInfos)
+            {
+                payInfo.CustomSer();
+            }
+        }
 
-        public int PaymentSystemId { get; set; }
+        public IEnumerator<PaymentInfo> GetEnumerator()
+        {
+            return PaymentInfos.GetEnumerator();
+        }
 
-        public string CartId { get; set; }
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return PaymentInfos.GetEnumerator();
+        }
+    }
 
-        public string FName { get; set; }
-
-        public string LName { get; set; }
-
-        public string Email { get; set; }
-
+    [Serializable]
+    public partial class PaymentInfo : ICustomSer<PaymentInfo>
+    {
         public DateTime PaymentDate { get; set; }
 
-        public Decimal Price { get; set; }
+        public decimal Price { get; set; }
 
-        public string PaymentCurrency { get; set; }
+        public void CustomDeSer()
+        {
+            PaymentDate = PaymentDateProto.ToDateTime();
+            Price = (decimal)PriceProto;
+        }
 
-        public string PaymentMethod { get; set; }
-
-        public int QuotaId { get; set; }
-
-        public string ProductRef { get; set; }
-
-        public string CustomerId { get; set; }
+        public void CustomSer()
+        {
+            PaymentDateProto = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(PaymentDate.ToUniversalTime());
+            PriceProto = (DecimalValue)Price;
+        }
     }
 }
