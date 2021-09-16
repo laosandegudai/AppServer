@@ -368,11 +368,11 @@ namespace ASC.VoipService.Dao
             }
         }
 
-        private AuthContext AuthContext { get; }
-        private TenantUtil TenantUtil { get; }
-        private SecurityContext SecurityContext { get; }
-        private BaseCommonLinkUtility BaseCommonLinkUtility { get; }
-        private ConsumerFactory ConsumerFactory { get; }
+        protected AuthContext AuthContext { get; }
+        protected TenantUtil TenantUtil { get; }
+        protected SecurityContext SecurityContext { get; }
+        protected BaseCommonLinkUtility BaseCommonLinkUtility { get; }
+        protected ConsumerFactory ConsumerFactory { get; }
 
         #endregion
     }
