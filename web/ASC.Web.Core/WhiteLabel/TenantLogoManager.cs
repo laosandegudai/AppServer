@@ -52,7 +52,7 @@ namespace ASC.Web.Core.WhiteLabel
             private set;
         }
 
-        private DistributedCache<Clean> CacheClean { get; }
+        private DistributedCache Cache { get; }
 
         public TenantLogoManager(
             TenantWhiteLabelSettingsHelper tenantWhiteLabelSettingsHelper,
@@ -61,7 +61,7 @@ namespace ASC.Web.Core.WhiteLabel
             TenantManager tenantManager,
             AuthContext authContext,
             IConfiguration configuration,
-            DistributedCache<Clean> cacheClean)
+            DistributedCache cache)
         {
             TenantWhiteLabelSettingsHelper = tenantWhiteLabelSettingsHelper;
             SettingsManager = settingsManager;
@@ -71,7 +71,7 @@ namespace ASC.Web.Core.WhiteLabel
             Configuration = configuration;
             var hideSettings = (Configuration["web:hide-settings"] ?? "").Split(new[] { ',', ';', ' ' });
             WhiteLabelEnabled = !hideSettings.Contains("WhiteLabel", StringComparer.CurrentCultureIgnoreCase);
-            CacheClean = cacheClean;
+            Cache = cache;
         }
 
         public string GetFavicon(bool general, bool timeParam)
@@ -191,17 +191,17 @@ namespace ASC.Web.Core.WhiteLabel
 
         public byte[] GetMailLogoDataFromCache()
         {
-            return CacheClean.GetClean(CacheKey);
+            return Cache.GetClean(CacheKey);
         }
 
         public void InsertMailLogoDataToCache(byte[] data)
         {
-            CacheClean.Insert(CacheKey, data, DateTime.UtcNow.Add(TimeSpan.FromDays(1)));
+            Cache.Insert(CacheKey, data, DateTime.UtcNow.Add(TimeSpan.FromDays(1)));
         }
 
         public void RemoveMailLogoDataFromCache()
         {
-            CacheClean.Remove(CacheKey);
+            Cache.Remove(CacheKey);
         }
     }
 }

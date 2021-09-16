@@ -36,16 +36,16 @@ namespace ASC.Core.Caching
     [Scope]
     class SubscriptionServiceCache
     {
-        internal DistributedCache<SubscriptionsStore> CacheSubscriptionsStore { get; }
+        internal DistributedCache Cache { get; }
 
-        public SubscriptionServiceCache(DistributedCache<SubscriptionsStore> cacheSubscriptionsStore)
+        public SubscriptionServiceCache(DistributedCache cache)
         {
-            CacheSubscriptionsStore = cacheSubscriptionsStore;
+            Cache = cache;
         }
 
         private SubscriptionsStore GetSubsciptionsStore(int tenant, string sourceId, string actionId)
         {
-            return CacheSubscriptionsStore.Get(GetKey(tenant, sourceId, actionId));
+            return Cache.Get<SubscriptionsStore>(GetKey(tenant, sourceId, actionId));
         }
 
         public static string GetKey(int tenant, string sourceId, string actionId)
@@ -58,7 +58,7 @@ namespace ASC.Core.Caching
     class CachedSubscriptionService : ISubscriptionService
     {
         private readonly ISubscriptionService service;
-        private readonly DistributedCache<SubscriptionsStore> CacheSubscriptionsStore;
+        private readonly DistributedCache Cache;
         private readonly SubscriptionServiceCache SubscriptionServiceCache;
         private TimeSpan CacheExpiration { get; set; }
 
@@ -67,7 +67,7 @@ namespace ASC.Core.Caching
         {
             this.service = service ?? throw new ArgumentNullException("service");
             SubscriptionServiceCache = subscriptionServiceCache;
-            CacheSubscriptionsStore = SubscriptionServiceCache.CacheSubscriptionsStore;
+            Cache = SubscriptionServiceCache.Cache;
             CacheExpiration = TimeSpan.FromMinutes(5);
         }
 
@@ -116,7 +116,7 @@ namespace ASC.Core.Caching
             var store = GetSubsciptionsStore(s.Tenant, s.SourceId, s.ActionId);
             store.SaveSubscription(s);
 
-            CacheSubscriptionsStore.Insert(SubscriptionServiceCache.GetKey(s.Tenant, s.SourceId, s.ActionId),
+            Cache.Insert(SubscriptionServiceCache.GetKey(s.Tenant, s.SourceId, s.ActionId),
                 store, CacheExpiration);
         }
 
@@ -127,7 +127,7 @@ namespace ASC.Core.Caching
             var store = GetSubsciptionsStore(tenant, sourceId, actionId);
             store.RemoveSubscriptions(string.Empty);
 
-            CacheSubscriptionsStore.Insert(SubscriptionServiceCache.GetKey(tenant, sourceId, actionId),
+            Cache.Insert(SubscriptionServiceCache.GetKey(tenant, sourceId, actionId),
                 store, CacheExpiration);
         }
 
@@ -138,7 +138,7 @@ namespace ASC.Core.Caching
             var store = GetSubsciptionsStore(tenant, sourceId, actionId);
             store.RemoveSubscriptions(objectId);
 
-            CacheSubscriptionsStore.Insert(SubscriptionServiceCache.GetKey(tenant, sourceId, actionId),
+            Cache.Insert(SubscriptionServiceCache.GetKey(tenant, sourceId, actionId),
                 store, CacheExpiration);
         }
 
@@ -158,7 +158,7 @@ namespace ASC.Core.Caching
             var store = GetSubsciptionsStore(m.Tenant, m.SourceId, m.ActionId);
             store.SetSubscriptionMethod(m);
 
-            CacheSubscriptionsStore.Insert(SubscriptionServiceCache.GetKey(m.Tenant, m.SourceId, m.ActionId),
+            Cache.Insert(SubscriptionServiceCache.GetKey(m.Tenant, m.SourceId, m.ActionId),
                 store, CacheExpiration);
         }
 
@@ -166,12 +166,12 @@ namespace ASC.Core.Caching
         private SubscriptionsStore GetSubsciptionsStore(int tenant, string sourceId, string actionId)
         {
             var key = SubscriptionServiceCache.GetKey(tenant, sourceId, actionId);
-            var store = CacheSubscriptionsStore.Get(key);
+            var store = Cache.Get<SubscriptionsStore>(key);
             if (store == null)
             {
                 var records = service.GetSubscriptions(tenant, sourceId, actionId);
                 var methods = service.GetSubscriptionMethods(tenant, sourceId, actionId, null);
-                CacheSubscriptionsStore.Insert(key, store = new SubscriptionsStore(records, methods), DateTime.UtcNow.Add(CacheExpiration));
+                Cache.Insert(key, store = new SubscriptionsStore(records, methods), DateTime.UtcNow.Add(CacheExpiration));
             }
             return store;
         }

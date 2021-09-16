@@ -55,7 +55,7 @@ namespace ASC.Data.Storage
         private IServiceProvider ServiceProvider { get; }
         private TempStream TempStream { get; }
         private ICacheNotify<MigrationProgress> CacheMigrationNotify { get; }
-        private DistributedCache<MigrationProgress> CacheMigrationProgress { get; }
+        private DistributedCache Cache { get; }
 
         static StorageUploader()
         {
@@ -63,12 +63,12 @@ namespace ASC.Data.Storage
         }
 
         public StorageUploader(IServiceProvider serviceProvider, TempStream tempStream, ICacheNotify<MigrationProgress> cacheMigrationNotify, DistributedTaskQueueOptionsManager options,
-            DistributedCache<MigrationProgress> cacheMigrationProgress)
+            DistributedCache cache)
         {
             ServiceProvider = serviceProvider;
             TempStream = tempStream;
             CacheMigrationNotify = cacheMigrationNotify;
-            CacheMigrationProgress = cacheMigrationProgress;
+            Cache = cache;
             Queue = options.Get(nameof(StorageUploader));
         }
 
@@ -80,7 +80,7 @@ namespace ASC.Data.Storage
                 var migrateOperation = Queue.GetTask<MigrateOperation>(id);
                 if (migrateOperation != null) return;
 
-                migrateOperation = new MigrateOperation(ServiceProvider, CacheMigrationNotify, CacheMigrationProgress, id, tenantId, newStorageSettings, storageFactoryConfig, TempStream);
+                migrateOperation = new MigrateOperation(ServiceProvider, CacheMigrationNotify, Cache, id, tenantId, newStorageSettings, storageFactoryConfig, TempStream);
                 Queue.QueueTask(migrateOperation);
             }
         }
@@ -124,7 +124,7 @@ namespace ASC.Data.Storage
         public MigrateOperation(
             IServiceProvider serviceProvider,
             ICacheNotify<MigrationProgress> cacheMigrationNotify,
-            DistributedCache<MigrationProgress> cacheMigrationProgress,
+            DistributedCache cache,
             string id,
             int tenantId,
             StorageSettings settings,
@@ -136,7 +136,7 @@ namespace ASC.Data.Storage
 
             ServiceProvider = serviceProvider;
             CacheMigrationNotify = cacheMigrationNotify;
-            CacheMigrationProgress = cacheMigrationProgress;
+            Cache = cache;
             this.tenantId = tenantId;
             this.settings = settings;
             StorageFactoryConfig = storageFactoryConfig;
@@ -151,7 +151,7 @@ namespace ASC.Data.Storage
         private StorageFactoryConfig StorageFactoryConfig { get; }
         private TempStream TempStream { get; }
         private ICacheNotify<MigrationProgress> CacheMigrationNotify { get; }
-        private DistributedCache<MigrationProgress> CacheMigrationProgress { get; }
+        private DistributedCache Cache { get; }
         private TimeSpan CacheExpiration { get; }
 
         protected override void DoJob()
@@ -240,7 +240,7 @@ namespace ASC.Data.Storage
                 IsCompleted = IsCompleted
             };
 
-            CacheMigrationProgress.Insert(StorageUploader.GetCacheKey(tenantId), progress, CacheExpiration);
+            Cache.Insert(StorageUploader.GetCacheKey(tenantId), progress, CacheExpiration);
         }
     }
 

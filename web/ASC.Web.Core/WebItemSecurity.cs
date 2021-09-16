@@ -45,16 +45,16 @@ namespace ASC.Web.Core
     [Scope]
     public class WebItemSecurityCache
     {
-        private DistributedCache<WebItemSecurityStore> CacheWebItemSecurityStore { get; }
+        private DistributedCache Cache { get; }
 
-        public WebItemSecurityCache(DistributedCache<WebItemSecurityStore> cacheWebItemSecurityStore)
+        public WebItemSecurityCache(DistributedCache cache)
         {
-            CacheWebItemSecurityStore = cacheWebItemSecurityStore;
+            Cache = cache;
         }
 
         public void ClearCache(int tenantId)
         {
-            CacheWebItemSecurityStore.Remove(GetCacheKey(tenantId));
+            Cache.Remove(GetCacheKey(tenantId));
         }
 
         public string GetCacheKey(int tenantId)
@@ -64,10 +64,10 @@ namespace ASC.Web.Core
 
         public IDictionary<string, bool> Get(int tenantId)
         {
-            var store = CacheWebItemSecurityStore.Get(GetCacheKey(tenantId));
+            var store = Cache.Get<WebItemSecurityStore>(GetCacheKey(tenantId));
             if (store == null) return null;
 
-            return CacheWebItemSecurityStore.Get(GetCacheKey(tenantId)).Items;
+            return store.Items;
         }
 
         public IDictionary<string, bool> GetOrInsert(int tenantId)
@@ -78,7 +78,7 @@ namespace ASC.Web.Core
             {
                 var store = new WebItemSecurityStore();
                 dic = store.Items;
-                CacheWebItemSecurityStore.Insert(GetCacheKey(tenantId), store, DateTime.UtcNow.Add(TimeSpan.FromMinutes(1)));
+                Cache.Insert(GetCacheKey(tenantId), store, DateTime.UtcNow.Add(TimeSpan.FromMinutes(1)));
             }
 
             return dic;
@@ -89,7 +89,7 @@ namespace ASC.Web.Core
             var store = new WebItemSecurityStore();
             store.Items.Add(dict);
 
-            CacheWebItemSecurityStore.Insert(GetCacheKey(tenantId), store, DateTime.UtcNow.Add(TimeSpan.FromMinutes(1)));
+            Cache.Insert(GetCacheKey(tenantId), store, DateTime.UtcNow.Add(TimeSpan.FromMinutes(1)));
         }
     }
 

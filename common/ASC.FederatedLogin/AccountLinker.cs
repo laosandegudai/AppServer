@@ -46,25 +46,25 @@ namespace ASC.FederatedLogin
     [Scope]
     public class AccountLinkerStorage
     {
-        private readonly DistributedCache<LoginProfileList> cacheLoginProfileList;
+        private readonly DistributedCache cache;
 
-        public AccountLinkerStorage(DistributedCache<LoginProfileList> cacheLoginProfileList)
+        public AccountLinkerStorage(DistributedCache cache)
         {
-            this.cacheLoginProfileList = cacheLoginProfileList;
+            this.cache = cache;
         }
 
         public void RemoveFromCache(string obj)
         {
-            cacheLoginProfileList.Remove(obj);
+            cache.Remove(obj);
         }
 
         public IEnumerable<LoginProfile> GetFromCache(string obj, Func<string, List<LoginProfile>> fromDb)
         {
-            var profiles = cacheLoginProfileList.Get(obj);
+            var profiles = cache.Get<LoginProfileList>(obj);
             if (profiles == null)
             {
                 profiles = new LoginProfileList(fromDb(obj));
-                cacheLoginProfileList.Insert(obj, profiles, DateTime.UtcNow + TimeSpan.FromMinutes(10));
+                cache.Insert(obj, profiles, DateTime.UtcNow + TimeSpan.FromMinutes(10));
             }
             return profiles;
         }

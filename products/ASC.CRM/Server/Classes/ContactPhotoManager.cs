@@ -82,7 +82,7 @@ namespace ASC.Web.CRM.Classes
         public readonly Global _global;
         public readonly WebImageSupplier _webImageSupplier;
         private readonly DistributedTaskQueue _resizeQueue;
-        private readonly DistributedCache<ContactPhotoCacheStore> _cacheContactPhotoStore;
+        private readonly DistributedCache _cache;
 
         private const string PhotosBaseDirName = "photos";
         private const string PhotosDefaultTmpDirName = "temp";
@@ -99,14 +99,13 @@ namespace ASC.Web.CRM.Classes
         public ContactPhotoManager(Global global,
                                    WebImageSupplier webImageSupplier,
                                    IOptionsMonitor<ILog> logger,
-                                   ICache cache,
                                    ICacheNotify<ContactPhotoManagerCacheItem> cacheNotify,
                                    DistributedTaskQueueOptionsManager optionsQueue,
-                                   DistributedCache<ContactPhotoCacheStore> cacheContactPhotoCacheStore)
+                                   DistributedCache cache)
         {
             _global = global;
             _webImageSupplier = webImageSupplier;
-            _cacheContactPhotoStore = cacheContactPhotoCacheStore;
+            _cache = cache;
             _resizeQueue = optionsQueue.Get<ResizeWorkerItem>();
             _logger = logger.Get("ASC.CRM");
         }
@@ -120,7 +119,7 @@ namespace ASC.Web.CRM.Classes
 
         private String FromCache(int contactID, Size photoSize)
         {
-            var cacheItem = _cacheContactPhotoStore.Get(GetCacheKey(contactID));
+            var cacheItem = _cache.Get<ContactPhotoCacheStore>(GetCacheKey(contactID));
 
             if (cacheItem is null) return String.Empty;
 
@@ -131,14 +130,14 @@ namespace ASC.Web.CRM.Classes
 
         private void ToCache(int contactID, String photoUri, Size photoSize)
         {
-            var photoUriBySize = _cacheContactPhotoStore.Get(GetCacheKey(contactID));
+            var photoUriBySize = _cache.Get<ContactPhotoCacheStore>(GetCacheKey(contactID));
 
             if (photoUriBySize.ContactPhotoItems.ContainsKey(photoSize))
                 photoUriBySize.ContactPhotoItems[photoSize] = photoUri;
             else
                 photoUriBySize.ContactPhotoItems.Add(photoSize, photoUri);
 
-            _cacheContactPhotoStore.Insert(GetCacheKey(contactID), photoUriBySize, TimeSpan.FromMinutes(15));
+            _cache.Insert(GetCacheKey(contactID), photoUriBySize, TimeSpan.FromMinutes(15));
         }
 
         private String FromDataStore(int contactID, Size photoSize)
@@ -370,7 +369,7 @@ namespace ASC.Web.CRM.Classes
 
                 if (!isTmpDir)
                 {
-                    _cacheContactPhotoStore.Remove(GetCacheKey(contactID));
+                    _cache.Remove(GetCacheKey(contactID));
                 }
             }
         }

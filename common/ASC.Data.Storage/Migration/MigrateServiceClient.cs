@@ -37,21 +37,20 @@ namespace ASC.Data.Storage.Migration
     public class ServiceClientListener
     {
         private IServiceProvider ServiceProvider { get; }
-        private DistributedCache<MigrationProgress> CacheMigrationProgress { get; }
+        private DistributedCache Cache { get; }
 
         public ServiceClientListener(
             ICacheNotify<MigrationProgress> progressMigrationNotify,
             IServiceProvider serviceProvider, 
-            DistributedCache<MigrationProgress> cacheMigrationProgress,
-            ICache cache)
+            DistributedCache cache)
         {
             ServiceProvider = serviceProvider;
-            CacheMigrationProgress = cacheMigrationProgress;
+            Cache = cache;
         }
 
         public MigrationProgress GetProgress(int tenantId)
         {
-            return CacheMigrationProgress.Get(GetCacheKey(tenantId));
+            return Cache.Get<MigrationProgress>(GetCacheKey(tenantId));
         }
 
         private string GetCacheKey(int tenantId)

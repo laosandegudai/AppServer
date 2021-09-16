@@ -43,23 +43,23 @@ namespace ASC.VoipService.Dao
     [Scope]
     public class VoipDaoCache
     {
-        internal DistributedCache<VoipPhoneList> CacheVoipPhoneList { get; }
+        internal DistributedCache Cache { get; }
 
-        public VoipDaoCache(DistributedCache<VoipPhoneList> voipPhoneList)
+        public VoipDaoCache(DistributedCache cache)
         {
-            CacheVoipPhoneList = voipPhoneList;
+            Cache = cache;
         }
 
         public void ResetCache(string key)
         {
-            CacheVoipPhoneList.Remove(key);
+            Cache.Remove(key);
         }
     }
 
     [Scope]
     public class CachedVoipDao : VoipDao
     {
-        private readonly DistributedCache<VoipPhoneList> cacheVoipPhoneList;
+        private readonly DistributedCache cache;
         private static readonly TimeSpan timeout = TimeSpan.FromDays(1);
 
         private VoipDaoCache VoipDaoCache { get; }
@@ -75,7 +75,7 @@ namespace ASC.VoipService.Dao
             VoipDaoCache voipDaoCache)
             : base(tenantManager, dbOptions, authContext, tenantUtil, securityContext, baseCommonLinkUtility, consumerFactory)
         {
-            cacheVoipPhoneList = voipDaoCache.CacheVoipPhoneList;
+            cache = voipDaoCache.Cache;
             VoipDaoCache = voipDaoCache;
         }
 
@@ -94,11 +94,11 @@ namespace ASC.VoipService.Dao
 
         public override IEnumerable<VoipPhone> GetNumbers(params string[] ids)
         {
-            var numbers = cacheVoipPhoneList.Get(GetCacheKey(TenantID));
+            var numbers = cache.Get<VoipPhoneList>(GetCacheKey(TenantID));
             if (numbers == null)
             {
                 numbers = new VoipPhoneList(base.GetAllNumbers());
-                cacheVoipPhoneList.Insert(GetCacheKey(TenantID), numbers, DateTime.UtcNow.Add(timeout));
+                cache.Insert(GetCacheKey(TenantID), numbers, DateTime.UtcNow.Add(timeout));
             }
 
             numbers.AddSettings(new VoipSettings(AuthContext, 

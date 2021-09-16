@@ -96,7 +96,7 @@ namespace ASC.Api.Core
             DIHelper.TryAdd<ConfirmAuthHandler>();
 
             DIHelper.TryAdd(typeof(ICacheNotify<>), typeof(KafkaCache<>));
-            DIHelper.TryAdd(typeof(DistributedCache<>));
+            DIHelper.TryAdd<DistributedCache>();
 
             if (LoadProducts)
             {

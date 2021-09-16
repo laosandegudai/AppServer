@@ -44,15 +44,15 @@ namespace ASC.Web.Core.Mail
 {
     public class MailServiceHelperStorage
     {
-        public DistributedCache<NullableMailServerInfo> CacheMailServerInfo { get; }
-        public MailServiceHelperStorage(DistributedCache<NullableMailServerInfo> cacheMailServerInfo)
+        public DistributedCache Cache { get; }
+        public MailServiceHelperStorage(DistributedCache cache)
         {
-            CacheMailServerInfo = cacheMailServerInfo;
+            Cache = cache;
         }
 
         public void Remove()
         {
-            CacheMailServerInfo.Remove(MailServiceHelper.CacheKey);
+            Cache.Remove(MailServiceHelper.CacheKey);
         }
     }
 
@@ -77,7 +77,7 @@ namespace ASC.Web.Core.Mail
         private EFLoggerFactory LoggerFactory { get; }
         private Lazy<MailDbContext> LazyMailDbContext { get; }
         private MailDbContext MailDbContext { get => LazyMailDbContext.Value; }
-        private DistributedCache<NullableMailServerInfo> CacheMailServerInfo { get; }
+        private DistributedCache Cache { get; }
 
         public MailServiceHelper(
             UserManager userManager,
@@ -96,7 +96,7 @@ namespace ASC.Web.Core.Mail
             MailServiceHelperStorage = mailServiceHelperStorage;
             LoggerFactory = loggerFactory;
             LazyMailDbContext = new Lazy<MailDbContext>(() => dbContext.Get("webstudio"));
-            CacheMailServerInfo = mailServiceHelperStorage.CacheMailServerInfo;
+            Cache = mailServiceHelperStorage.Cache;
             DefaultDatabase = GetDefaultDatabase();
         }
 
@@ -139,7 +139,7 @@ namespace ASC.Web.Core.Mail
 
         private MailServerInfo InnerGetMailServerInfo()
         {
-            var cachedNullableInfo = CacheMailServerInfo.Get(CacheKey);
+            var cachedNullableInfo = Cache.Get<NullableMailServerInfo>(CacheKey);
             if (cachedNullableInfo.Data != null)
                 return cachedNullableInfo.Data;
 
@@ -152,7 +152,7 @@ namespace ASC.Web.Core.Mail
                 : Newtonsoft.Json.JsonConvert.DeserializeObject<MailServerInfo>(value)
             };
 
-            CacheMailServerInfo.Insert(CacheKey, cachedNullableInfo, DateTime.UtcNow.Add(TimeSpan.FromDays(1)));
+            Cache.Insert(CacheKey, cachedNullableInfo, DateTime.UtcNow.Add(TimeSpan.FromDays(1)));
 
             return cachedNullableInfo.Data;
         }

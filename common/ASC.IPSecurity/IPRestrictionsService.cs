@@ -36,11 +36,11 @@ namespace ASC.IPSecurity
     public class IPRestrictionsServiceCache
     {
         private const string cacheKey = "iprestrictions";
-        public DistributedCache<IPRestrictionList> CacheIPRestrictionList { get; set; }
+        public DistributedCache Cache { get; set; }
 
-        public IPRestrictionsServiceCache(DistributedCache<IPRestrictionList> cacheIPRestrictionList)
+        public IPRestrictionsServiceCache(DistributedCache cache)
         {
-            CacheIPRestrictionList = cacheIPRestrictionList;
+            Cache = cache;
         }
 
         public static string GetCacheKey(int tenant)
@@ -52,7 +52,7 @@ namespace ASC.IPSecurity
     [Scope]
     public class IPRestrictionsService
     {
-        private readonly DistributedCache<IPRestrictionList> CacheIPRestrictionList;
+        private readonly DistributedCache Cache;
         private static readonly TimeSpan timeout = TimeSpan.FromMinutes(5);
 
         private IPRestrictionsRepository IPRestrictionsRepository { get; }
@@ -62,17 +62,17 @@ namespace ASC.IPSecurity
             IPRestrictionsServiceCache iPRestrictionsServiceCache)
         {
             IPRestrictionsRepository = iPRestrictionsRepository;
-            CacheIPRestrictionList = iPRestrictionsServiceCache.CacheIPRestrictionList;
+            Cache = iPRestrictionsServiceCache.Cache;
         }
 
         public IEnumerable<IPRestriction> Get(int tenant)
         {
             var key = IPRestrictionsServiceCache.GetCacheKey(tenant);
-            var restrictions = CacheIPRestrictionList.Get(key);
+            var restrictions = Cache.Get<IPRestrictionList>(key);
             if (restrictions == null)
             {
                 restrictions = new IPRestrictionList(IPRestrictionsRepository.Get(tenant));
-                CacheIPRestrictionList.Insert(key, restrictions, timeout);
+                Cache.Insert(key, restrictions, timeout);
             }
             return restrictions;
         }
@@ -81,7 +81,7 @@ namespace ASC.IPSecurity
         {
             var restrictions = IPRestrictionsRepository.Save(ips, tenant);
 
-            CacheIPRestrictionList.Remove(IPRestrictionsServiceCache.GetCacheKey(tenant));
+            Cache.Remove(IPRestrictionsServiceCache.GetCacheKey(tenant));
 
             return restrictions;
         }
