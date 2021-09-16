@@ -19,6 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="protos\Counter.proto" />
+    <None Remove="protos\MailServerInfo.proto" />
+    <None Remove="protos\PhoneKeysStore.proto" />
+    <None Remove="protos\WebItemSecurtiyStore.proto" />
     <None Remove="PublicResources\webstudio_patterns.xml" />
   </ItemGroup>
 
@@ -203,11 +207,15 @@
   </ItemGroup>
   
   <ItemGroup>
+    <Protobuf Include="protos\Counter.proto" />
+    <Protobuf Include="protos\MailServerInfo.proto" />
+    <Protobuf Include="protos\PhoneKeysStore.proto" />
     <Protobuf Include="protos\SmsKeyCacheKey.proto" />
     <Protobuf Include="protos\TenantLogoCacheItem.proto" />
     <Protobuf Include="protos\MailServiceHelperCache.proto" />
     <Protobuf Include="protos\WebItemSecurityNotifier.proto" />
     <Protobuf Include="protos\UserPhotoManagerCacheItem.proto" />
+    <Protobuf Include="protos\WebItemSecurtiyStore.proto" />
   </ItemGroup>
 
   <ItemGroup>

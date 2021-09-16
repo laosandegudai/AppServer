@@ -1,0 +1,25 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/struct.proto";
+package ASC.Web.Core.Mail;
+
+
+message MailServerInfo {
+	google.protobuf.StringValue DbConnection = 1;
+	MailServerApiInfo Api = 2;
+}
+
+message MailServerApiInfo {
+	google.protobuf.StringValue Protocol = 1;
+	google.protobuf.StringValue Server = 2;
+	int32 Port = 3;
+	google.protobuf.StringValue Version = 4;
+	google.protobuf.StringValue Token = 5;
+}
+
+message NullableMailServerInfo {
+	oneof kind {
+		google.protobuf.NullValue Null = 1;
+		MailServerInfo Data = 2;
+	}
+}
