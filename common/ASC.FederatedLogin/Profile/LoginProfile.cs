@@ -25,6 +25,7 @@
 
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -32,6 +33,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Web;
 
+using ASC.Common.Caching;
 using ASC.Common.Utils;
 using ASC.FederatedLogin.Helpers;
 using ASC.Security.Cryptography;
@@ -47,11 +49,8 @@ namespace ASC.FederatedLogin.Profile
 {
     [Serializable]
     [DebuggerDisplay("{DisplayName} ({Id})")]
-    public class LoginProfile
+    public partial class LoginProfile : ICustomSer<LoginProfile>
     {
-        private IDictionary<string, string> _fields = new Dictionary<string, string>();
-
-
         public string Id
         {
             get { return GetField(WellKnownFields.Id); }
@@ -217,7 +216,7 @@ namespace ASC.FederatedLogin.Profile
 
         internal string GetField(string name)
         {
-            return _fields.ContainsKey(name) ? _fields[name] : string.Empty;
+            return Fields.ContainsKey(name) ? Fields[name] : string.Empty;
         }
 
 
@@ -236,20 +235,20 @@ namespace ASC.FederatedLogin.Profile
             if (name == null) throw new ArgumentNullException("name");
             if (!string.IsNullOrEmpty(value))
             {
-                if (_fields.ContainsKey(name))
+                if (Fields.ContainsKey(name))
                 {
-                    _fields[name] = value;
+                    Fields[name] = value;
                 }
                 else
                 {
-                    _fields.Add(name, value);
+                    Fields.Add(name, value);
                 }
             }
             else
             {
-                if (_fields.ContainsKey(name))
+                if (Fields.ContainsKey(name))
                 {
-                    _fields.Remove(name);
+                    Fields.Remove(name);
                 }
             }
         }
@@ -350,7 +349,7 @@ namespace ASC.FederatedLogin.Profile
 
         internal string ToSerializedString()
         {
-            return string.Join(new string(PairSeparator, 1), _fields.Select(x => string.Join(new string(KeyValueSeparator, 1), new[] { x.Key, x.Value })).ToArray());
+            return string.Join(new string(PairSeparator, 1), Fields.Select(x => string.Join(new string(KeyValueSeparator, 1), new[] { x.Key, x.Value })).ToArray());
         }
 
         internal static LoginProfile CreateFromSerializedString(Signature signature, InstanceCrypto instanceCrypto, string serialized)
@@ -363,7 +362,8 @@ namespace ASC.FederatedLogin.Profile
         internal void FromSerializedString(string serialized)
         {
             if (serialized == null) throw new ArgumentNullException("serialized");
-            _fields = serialized.Split(PairSeparator).ToDictionary(x => x.Split(KeyValueSeparator)[0], y => y.Split(KeyValueSeparator)[1]);
+            Fields.Clear();
+            Fields.Add(serialized.Split(PairSeparator).ToDictionary(x => x.Split(KeyValueSeparator)[0], y => y.Split(KeyValueSeparator)[1]));
         }
 
         internal string Transport()
@@ -400,6 +400,30 @@ namespace ASC.FederatedLogin.Profile
         public string ToJson()
         {
             return System.Text.Json.JsonSerializer.Serialize(this);
+        }
+
+        public void CustomSer() { }
+        public void CustomDeSer() { }
+    }
+
+    public partial class LoginProfileList : ICustomSer<LoginProfileList>, IEnumerable<LoginProfile>
+    {
+        public LoginProfileList(IEnumerable<LoginProfile> profiles)
+        {
+            Profiles.AddRange(profiles);
+        }
+
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public IEnumerator<LoginProfile> GetEnumerator()
+        {
+            return Profiles.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return Profiles.GetEnumerator();
         }
     }
 }
