@@ -27,29 +27,32 @@
 using System;
 using System.Diagnostics;
 
+using ASC.Common.Caching;
 using ASC.Core.Tenants;
 
 namespace ASC.Core.Billing
 {
     [DebuggerDisplay("{QuotaId} ({State} before {DueDate})")]
     [Serializable]
-    public class Tariff
+    public partial class Tariff : ICustomSer<Tariff>
     {
-        public int QuotaId { get; set; }
-
-        public TariffState State { get; set; }
+        public TariffState State
+        {
+            get
+            {
+                return (TariffState)StateProto;
+            }
+            set
+            {
+                StateProto = (int)value;
+            }
+        }
 
         public DateTime DueDate { get; set; }
 
         public DateTime DelayDueDate { get; set; }
 
         public DateTime LicenseDate { get; set; }
-
-        public bool Autorenewal { get; set; }
-
-        public bool Prolongable { get; set; }
-
-        public int Quantity { get; set; }
 
         public static Tariff CreateDefault()
         {
@@ -64,23 +67,26 @@ namespace ASC.Core.Billing
             };
         }
 
-
-        public override int GetHashCode()
-        {
-            return QuotaId.GetHashCode();
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is Tariff t && t.QuotaId == QuotaId;
-        }
-
         public bool EqualsByParams(Tariff t)
         {
             return t != null
                 && t.QuotaId == QuotaId
                 && t.DueDate == DueDate
                 && t.Quantity == Quantity;
+        }
+
+        public void CustomSer()
+        {
+            DueDateProto = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DueDate.ToUniversalTime());
+            DelayDueDateProto = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DelayDueDate.ToUniversalTime());
+            LicenseDateProto = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(LicenseDate.ToUniversalTime());
+        }
+
+        public void CustomDeSer()
+        {
+            DueDate = DueDateProto.ToDateTime();
+            DelayDueDate = DelayDueDateProto.ToDateTime();
+            LicenseDate = LicenseDateProto.ToDateTime();
         }
     }
 }
