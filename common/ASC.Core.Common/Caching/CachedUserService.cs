@@ -232,7 +232,7 @@ namespace ASC.Core.Caching
             if (user != null) return user;
 
             var usersStore = GetUsersStore(tenant);
-            usersStore.ByGuid.TryGetValue(id.ToString(), out user);
+            usersStore.TryGetValue(id.ToString(), out user);
 
             if (user != null) Cache.Insert(keyForUser, user, CacheExpiration);
 
@@ -287,7 +287,7 @@ namespace ASC.Core.Caching
 
             Cache.Remove(keyForUsers);
 
-            users.ByGuid[user.ID.ToString()] = user;
+            users[user.ID.ToString()] = user;
 
             Cache.Insert(keyForUsers, users, CacheExpiration);
 
@@ -308,7 +308,7 @@ namespace ASC.Core.Caching
 
             Cache.Remove(key);
 
-            usersStore.ByGuid.Remove(id.ToString());
+            usersStore.Remove(id.ToString());
             Cache.Insert(key, usersStore, CacheExpiration);
 
             key = UserServiceCache.GetUserCacheKeyForPersonal(tenant, id);
@@ -430,7 +430,7 @@ namespace ASC.Core.Caching
 
         private IDictionary<Guid, UserInfo> GetUsers(int tenant)
         {
-            return GetUsersStore(tenant).ByGuid.ToDictionary(r => Guid.Parse(r.Key), r => r.Value);
+            return GetUsersStore(tenant).ToDictionary(r => Guid.Parse(r.Key), r => r.Value);
         }
 
         private IDictionary<Guid, Group> GetGroups(int tenant)
@@ -488,7 +488,7 @@ namespace ASC.Core.Caching
                             {
                                 foreach (var u in tenantGroup)
                                 {
-                                    users.ByGuid[u.ID.ToString()] = u;
+                                    users[u.ID.ToString()] = u;
                                 }
                             }
 

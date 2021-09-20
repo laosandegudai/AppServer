@@ -37,7 +37,7 @@ using Google.Protobuf;
 
 namespace ASC.Core.Users
 {
-    public partial class UserInfoStore : ICustomSer<UserInfoStore>
+    public partial class UserInfoStore : ProtoSerializeMap<UserInfoStore, string, UserInfo>
     {
         public UserInfoStore(IEnumerable<UserInfo> userInfos)
         {
@@ -47,7 +47,7 @@ namespace ASC.Core.Users
             }
         }
 
-        public void CustomDeSer()
+        public override void CustomDeSer()
         {
             foreach (var pair in ByGuid)
             {
@@ -55,12 +55,17 @@ namespace ASC.Core.Users
             }
         }
 
-        public void CustomSer()
+        public override void CustomSer()
         {
             foreach (var pair in ByGuid)
             {
                 pair.Value.CustomSer();
             }
+        }
+
+        protected override IDictionary<string, UserInfo> GetMap()
+        {
+            return ByGuid;
         }
     }
 
