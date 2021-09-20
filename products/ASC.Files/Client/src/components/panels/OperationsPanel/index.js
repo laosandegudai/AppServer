@@ -17,10 +17,12 @@ const OperationsPanelComponent = (props) => {
     provider,
     selection,
     isRecycleBin,
+    isFolderActions,
     setDestFolderId,
     currentFolderId,
     operationsFolders,
     setCopyPanelVisible,
+    setIsFolderActions,
     setExpandedPanelKeys,
     setMoveToPanelVisible,
     checkOperationConflict,
@@ -33,6 +35,7 @@ const OperationsPanelComponent = (props) => {
   const expandedKeys = props.expandedKeys.map((item) => item.toString());
 
   const onClose = () => {
+    setIsFolderActions(false);
     isCopy ? setCopyPanelVisible(false) : setMoveToPanelVisible(false);
     setExpandedPanelKeys(null);
   };
@@ -68,8 +71,8 @@ const OperationsPanelComponent = (props) => {
         ? selection.filter((x) => !x.providerKey)
         : selection;
 
-    const fileIds = [];
-    const folderIds = [];
+    let fileIds = [];
+    let folderIds = [];
 
     for (let item of items) {
       if (item.fileExst || item.contentLength) {
@@ -79,6 +82,13 @@ const OperationsPanelComponent = (props) => {
       } else {
         folderIds.push(item.id);
       }
+    }
+
+    if (isFolderActions) {
+      fileIds = [];
+      folderIds = [];
+
+      folderIds.push(currentFolderId);
     }
 
     if (!folderIds.length && !fileIds.length) return;
@@ -153,6 +163,8 @@ export default inject(
       moveToPanelVisible,
       copyPanelVisible,
       setCopyPanelVisible,
+      isFolderActions,
+      setIsFolderActions,
       setMoveToPanelVisible,
       setDestFolderId,
       setThirdPartyMoveDialogVisible,
@@ -174,6 +186,8 @@ export default inject(
 
       setCopyPanelVisible,
       setMoveToPanelVisible,
+      isFolderActions,
+      setIsFolderActions,
       setDestFolderId,
       setThirdPartyMoveDialogVisible,
       checkOperationConflict,

@@ -57,9 +57,12 @@ class FilesActionStore {
   };
 
   deleteAction = (translations, newSelection = null) => {
+    console.log("pepega");
     const { isRecycleBinFolder, isPrivacyFolder } = this.treeFoldersStore;
 
     const selection = newSelection ? newSelection : this.filesStore.selection;
+
+    console.log(selection);
 
     const {
       setSecondaryProgressBarData,
@@ -224,17 +227,16 @@ class FilesActionStore {
       });
   };
 
-  downloadAction = (label) => {
+  downloadAction = (label, folderId) => {
     const {
       setSecondaryProgressBarData,
       clearSecondaryProgressData,
     } = this.uploadDataStore.secondaryProgressDataStore;
     const { selection } = this.filesStore;
-    const fileIds = [];
-    const folderIds = [];
+    let fileIds = [];
+    let folderIds = [];
     const items = [];
-
-    if (selection.length === 1 && selection[0].fileExst) {
+    if (selection.length === 1 && selection[0].fileExst && !folderId) {
       window.open(selection[0].viewUrl, "_self");
       return Promise.resolve();
     }
@@ -256,6 +258,13 @@ class FilesActionStore {
       label,
       alert: false,
     });
+
+    if (folderId) {
+      folderIds = [];
+      fileIds = [];
+
+      folderIds.push(folderId);
+    }
 
     return downloadFiles(fileIds, folderIds)
       .then((res) => {

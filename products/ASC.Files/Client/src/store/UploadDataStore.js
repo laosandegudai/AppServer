@@ -883,6 +883,7 @@ class UploadDataStore {
 
           getFolder(destFolderId).then((data) => {
             let newTreeFolders = treeFolders;
+            console.log(newTreeFolders);
             let path = data.pathParts.slice(0);
             let folders = data.folders;
             let foldersCount = data.current.foldersCount;
