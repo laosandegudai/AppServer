@@ -77,11 +77,9 @@ namespace ASC.Files.Thirdparty.GoogleDrive
         public void InvalidateCache(string fileId)
         {
             var driveId = MakeDriveId(fileId);
-            ProviderInfo.CacheReset(driveId, true);
 
             var driveFile = GetDriveEntry(fileId);
             var parentDriveId = GetParentDriveId(driveFile);
-            if (parentDriveId != null) ProviderInfo.CacheReset(parentDriveId);
         }
 
         public File<string> GetFile(string fileId)
@@ -244,7 +242,6 @@ namespace ASC.Files.Thirdparty.GoogleDrive
         public Stream GetFileStream(File<string> file, long offset)
         {
             var driveId = MakeDriveId(file.ID);
-            ProviderInfo.CacheReset(driveId, true);
             var driveFile = GetDriveEntry(file.ID);
             if (driveFile == null) throw new ArgumentNullException("file", FilesCommonResource.ErrorMassage_FileNotFound);
             if (driveFile is ErrorDriveEntry errorDriveEntry) throw new Exception(errorDriveEntry.Error);
@@ -284,10 +281,6 @@ namespace ASC.Files.Thirdparty.GoogleDrive
             {
                 newDriveFile = ProviderInfo.Storage.InsertEntry(fileStream, file.Title, MakeDriveId(file.FolderID));
             }
-
-            ProviderInfo.CacheReset(newDriveFile);
-            var parentDriveId = GetParentDriveId(newDriveFile);
-            if (parentDriveId != null) ProviderInfo.CacheReset(parentDriveId, false);
 
             return ToFile(newDriveFile);
         }
@@ -341,10 +334,6 @@ namespace ASC.Files.Thirdparty.GoogleDrive
             {
                 ProviderInfo.Storage.DeleteEntry(driveFile.Id);
             }
-
-            ProviderInfo.CacheReset(driveFile.Id);
-            var parentDriveId = GetParentDriveId(driveFile);
-            if (parentDriveId != null) ProviderInfo.CacheReset(parentDriveId, false);
         }
 
         public bool IsExist(string title, object folderId)
@@ -394,10 +383,6 @@ namespace ASC.Files.Thirdparty.GoogleDrive
                 ProviderInfo.Storage.RemoveEntryFromFolder(driveFile, fromFolderDriveId);
             }
 
-            ProviderInfo.CacheReset(driveFile.Id);
-            ProviderInfo.CacheReset(fromFolderDriveId, false);
-            ProviderInfo.CacheReset(toDriveFolder.Id, false);
-
             return MakeId(driveFile.Id);
         }
 
@@ -436,9 +421,6 @@ namespace ASC.Files.Thirdparty.GoogleDrive
 
             var newDriveFile = ProviderInfo.Storage.CopyEntry(toDriveFolder.Id, driveFile.Id);
 
-            ProviderInfo.CacheReset(newDriveFile);
-            ProviderInfo.CacheReset(toDriveFolder.Id, false);
-
             return ToFile(newDriveFile);
         }
 
@@ -448,10 +430,6 @@ namespace ASC.Files.Thirdparty.GoogleDrive
             driveFile.Name = newTitle;
 
             driveFile = ProviderInfo.Storage.RenameEntry(driveFile.Id, driveFile.Name);
-
-            ProviderInfo.CacheReset(driveFile);
-            var parentDriveId = GetParentDriveId(driveFile);
-            if (parentDriveId != null) ProviderInfo.CacheReset(parentDriveId, false);
 
             return MakeId(driveFile.Id);
         }
@@ -564,10 +542,6 @@ namespace ASC.Files.Thirdparty.GoogleDrive
             if (uploadSession.Items.ContainsKey("GoogleDriveSession"))
             {
                 var googleDriveSession = uploadSession.GetItemOrDefault<ResumableUploadSession>("GoogleDriveSession");
-
-                ProviderInfo.CacheReset(googleDriveSession.FileId);
-                var parentDriveId = googleDriveSession.FolderId;
-                if (parentDriveId != null) ProviderInfo.CacheReset(parentDriveId, false);
 
                 return ToFile(GetDriveEntry(googleDriveSession.FileId));
             }

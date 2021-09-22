@@ -27,15 +27,14 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text.RegularExpressions;
 
 using ASC.Common;
-using ASC.Common.Caching;
 using ASC.Core.Common.Configuration;
 using ASC.FederatedLogin;
 using ASC.FederatedLogin.Helpers;
 using ASC.FederatedLogin.LoginProviders;
 using ASC.Files.Core;
+using ASC.Files.Core.Core.Thirdparty;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OneDrive.Sdk;
@@ -116,8 +115,6 @@ namespace ASC.Files.Thirdparty.OneDrive
             {
                 Wrapper.Dispose();
             }
-
-            CacheReset();
         }
 
         public void UpdateTitle(string newtitle)
@@ -133,11 +130,6 @@ namespace ASC.Files.Thirdparty.OneDrive
         internal List<Item> GetOneDriveItems(string onedriveFolderId)
         {
             return OneDriveProviderInfoHelper.GetOneDriveItems(Storage, ID, onedriveFolderId);
-        }
-
-        internal void CacheReset(string onedriveId = null)
-        {
-            OneDriveProviderInfoHelper.CacheReset(ID, onedriveId);
         }
     }
 
@@ -189,75 +181,41 @@ namespace ASC.Files.Thirdparty.OneDrive
         }
     }
 
-    [Singletone]
+    [Scope]
     public class OneDriveProviderInfoHelper
     {
-        private readonly TimeSpan CacheExpiration;
-        private readonly ICache CacheItem;
-        private readonly ICache CacheChildItems;
-        private readonly ICacheNotify<OneDriveCacheItem> CacheNotify;
+        private readonly CachedEntities cache = new CachedEntities();
 
-        public OneDriveProviderInfoHelper(ICacheNotify<OneDriveCacheItem> cacheNotify, ICache cache)
+        public OneDriveProviderInfoHelper()
         {
-            CacheExpiration = TimeSpan.FromMinutes(1);
-            CacheItem = cache;
-            CacheChildItems = cache;
 
-            CacheNotify = cacheNotify;
-            CacheNotify.Subscribe((i) =>
-            {
-                if (i.ResetAll)
-                {
-                    CacheChildItems.Remove(new Regex("^onedrivei-" + i.Key + ".*"));
-                    CacheItem.Remove(new Regex("^onedrive-" + i.Key + ".*"));
-                }
-                else
-                {
-                    CacheChildItems.Remove(new Regex("onedrivei-" + i.Key));
-                    CacheItem.Remove("onedrive-" + i.Key);
-                }
-            }, CacheNotifyAction.Remove);
         }
 
         internal Item GetOneDriveItem(OneDriveStorage storage, int id, string itemId)
         {
-            var file = CacheItem.Get<Item>("onedrive-" + id + "-" + itemId);
+            var file = cache.Get<Item>("onedrive-" + id + "-" + itemId);
             if (file == null)
             {
                 file = storage.GetItem(itemId);
                 if (file != null)
-                    CacheItem.Insert("onedrive-" + id + "-" + itemId, file, DateTime.UtcNow.Add(CacheExpiration));
+                    cache.Insert("onedrive-" + id + "-" + itemId, file);
             }
             return file;
         }
 
         internal List<Item> GetOneDriveItems(OneDriveStorage storage, int id, string onedriveFolderId)
         {
-            var items = CacheChildItems.Get<List<Item>>("onedrivei-" + id + "-" + onedriveFolderId);
+            var items = cache.Get<List<Item>>("onedrivei-" + id + "-" + onedriveFolderId);
 
             if (items == null)
             {
                 items = storage.GetItems(onedriveFolderId);
-                CacheChildItems.Insert("onedrivei-" + id + "-" + onedriveFolderId, items, DateTime.UtcNow.Add(CacheExpiration));
+                cache.Insert("onedrivei-" + id + "-" + onedriveFolderId, items);
             }
             return items;
         }
-
-        internal void CacheReset(int id, string onedriveId = null)
-        {
-            var key = id + "-";
-            if (string.IsNullOrEmpty(onedriveId))
-            {
-                CacheNotify.Publish(new OneDriveCacheItem { ResetAll = true, Key = key }, CacheNotifyAction.Remove);
-            }
-            else
-            {
-                key += onedriveId;
-
-                CacheNotify.Publish(new OneDriveCacheItem { Key = key }, CacheNotifyAction.Remove);
-            }
-        }
     }
+
     public class OneDriveProviderInfoExtention
     {
         public static void Register(DIHelper dIHelper)

@@ -76,12 +76,7 @@ namespace ASC.Files.Thirdparty.Dropbox
 
         public void InvalidateCache(string fileId)
         {
-            var dropboxFilePath = MakeDropboxPath(fileId);
-            ProviderInfo.CacheReset(dropboxFilePath, true);
-
-            var dropboxFile = GetDropboxFile(fileId);
-            var parentPath = GetParentFolderPath(dropboxFile);
-            if (parentPath != null) ProviderInfo.CacheReset(parentPath);
+            
         }
 
         public File<string> GetFile(string fileId)
@@ -247,7 +242,6 @@ namespace ASC.Files.Thirdparty.Dropbox
         public Stream GetFileStream(File<string> file, long offset)
         {
             var dropboxFilePath = MakeDropboxPath(file.ID);
-            ProviderInfo.CacheReset(dropboxFilePath, true);
 
             var dropboxFile = GetDropboxFile(file.ID);
             if (dropboxFile == null) throw new ArgumentNullException("file", FilesCommonResource.ErrorMassage_FileNotFound);
@@ -292,10 +286,6 @@ namespace ASC.Files.Thirdparty.Dropbox
                 file.Title = GetAvailableTitle(file.Title, folderPath, IsExist);
                 newDropboxFile = ProviderInfo.Storage.CreateFile(fileStream, file.Title, folderPath);
             }
-
-            ProviderInfo.CacheReset(newDropboxFile);
-            var parentPath = GetParentFolderPath(newDropboxFile);
-            if (parentPath != null) ProviderInfo.CacheReset(parentPath);
 
             return ToFile(newDropboxFile);
         }
@@ -349,10 +339,6 @@ namespace ASC.Files.Thirdparty.Dropbox
             {
                 ProviderInfo.Storage.DeleteItem(dropboxFile);
             }
-
-            ProviderInfo.CacheReset(MakeDropboxPath(dropboxFile), true);
-            var parentFolderPath = GetParentFolderPath(dropboxFile);
-            if (parentFolderPath != null) ProviderInfo.CacheReset(parentFolderPath);
         }
 
         public bool IsExist(string title, object folderId)
@@ -387,10 +373,6 @@ namespace ASC.Files.Thirdparty.Dropbox
             var fromFolderPath = GetParentFolderPath(dropboxFile);
 
             dropboxFile = ProviderInfo.Storage.MoveFile(MakeDropboxPath(dropboxFile), MakeDropboxPath(toDropboxFolder), dropboxFile.Name);
-
-            ProviderInfo.CacheReset(MakeDropboxPath(dropboxFile), true);
-            ProviderInfo.CacheReset(fromFolderPath);
-            ProviderInfo.CacheReset(MakeDropboxPath(toDropboxFolder));
 
             return MakeId(dropboxFile);
         }
@@ -440,9 +422,6 @@ namespace ASC.Files.Thirdparty.Dropbox
 
             var newDropboxFile = ProviderInfo.Storage.CopyFile(MakeDropboxPath(dropboxFile), MakeDropboxPath(toDropboxFolder), dropboxFile.Name);
 
-            ProviderInfo.CacheReset(newDropboxFile);
-            ProviderInfo.CacheReset(MakeDropboxPath(toDropboxFolder));
-
             return ToFile(newDropboxFile);
         }
 
@@ -453,10 +432,6 @@ namespace ASC.Files.Thirdparty.Dropbox
             newTitle = GetAvailableTitle(newTitle, parentFolderPath, IsExist);
 
             dropboxFile = ProviderInfo.Storage.MoveFile(MakeDropboxPath(dropboxFile), parentFolderPath, newTitle);
-
-            ProviderInfo.CacheReset(dropboxFile);
-            var parentPath = GetParentFolderPath(dropboxFile);
-            if (parentPath != null) ProviderInfo.CacheReset(parentPath);
 
             return MakeId(dropboxFile);
         }
@@ -572,9 +547,6 @@ namespace ASC.Files.Thirdparty.Dropbox
                     var title = GetAvailableTitle(file.Title, folderPath, IsExist);
                     dropboxFile = ProviderInfo.Storage.FinishResumableSession(dropboxSession, folderPath, title, uploadSession.BytesUploaded);
                 }
-
-                ProviderInfo.CacheReset(MakeDropboxPath(dropboxFile));
-                ProviderInfo.CacheReset(GetParentFolderPath(dropboxFile), false);
 
                 return ToFile(dropboxFile.AsFile);
             }

@@ -191,10 +191,6 @@ namespace ASC.Files.Thirdparty.OneDrive
 
                 var onedriveFolder = ProviderInfo.Storage.CreateFolder(folder.Title, onedriveFolderId);
 
-                ProviderInfo.CacheReset(onedriveFolder.Id);
-                var parentFolderId = GetParentFolderId(onedriveFolder);
-                if (parentFolderId != null) ProviderInfo.CacheReset(parentFolderId);
-
                 return MakeId(onedriveFolder);
             }
             return null;
@@ -247,10 +243,6 @@ namespace ASC.Files.Thirdparty.OneDrive
 
             if (!(onedriveFolder is ErrorItem))
                 ProviderInfo.Storage.DeleteItem(onedriveFolder);
-
-            ProviderInfo.CacheReset(onedriveFolder.Id);
-            var parentFolderId = GetParentFolderId(onedriveFolder);
-            if (parentFolderId != null) ProviderInfo.CacheReset(parentFolderId);
         }
 
         public TTo MoveFolder<TTo>(string folderId, TTo toFolderId, CancellationToken? cancellationToken)
@@ -291,10 +283,6 @@ namespace ASC.Files.Thirdparty.OneDrive
             var newTitle = GetAvailableTitle(onedriveFolder.Name, toOneDriveFolder.Id, IsExist);
             onedriveFolder = ProviderInfo.Storage.MoveItem(onedriveFolder.Id, newTitle, toOneDriveFolder.Id);
 
-            ProviderInfo.CacheReset(onedriveFolder.Id);
-            ProviderInfo.CacheReset(fromFolderId);
-            ProviderInfo.CacheReset(toOneDriveFolder.Id);
-
             return MakeId(onedriveFolder.Id);
         }
 
@@ -333,9 +321,6 @@ namespace ASC.Files.Thirdparty.OneDrive
 
             var newTitle = GetAvailableTitle(onedriveFolder.Name, toOneDriveFolder.Id, IsExist);
             var newOneDriveFolder = ProviderInfo.Storage.CopyItem(onedriveFolder.Id, newTitle, toOneDriveFolder.Id);
-
-            ProviderInfo.CacheReset(newOneDriveFolder.Id);
-            ProviderInfo.CacheReset(toOneDriveFolder.Id);
 
             return ToFolder(newOneDriveFolder);
         }
@@ -383,9 +368,6 @@ namespace ASC.Files.Thirdparty.OneDrive
                 //rename folder
                 onedriveFolder = ProviderInfo.Storage.RenameItem(onedriveFolder.Id, newTitle);
             }
-
-            ProviderInfo.CacheReset(onedriveFolder.Id);
-            if (parentFolderId != null) ProviderInfo.CacheReset(parentFolderId);
 
             return MakeId(onedriveFolder.Id);
         }

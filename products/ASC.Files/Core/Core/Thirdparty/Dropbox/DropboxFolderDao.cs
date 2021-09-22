@@ -195,10 +195,6 @@ namespace ASC.Files.Thirdparty.Dropbox
 
                 var dropboxFolder = ProviderInfo.Storage.CreateFolder(folder.Title, dropboxFolderPath);
 
-                ProviderInfo.CacheReset(dropboxFolder);
-                var parentFolderPath = GetParentFolderPath(dropboxFolder);
-                if (parentFolderPath != null) ProviderInfo.CacheReset(parentFolderPath);
-
                 return MakeId(dropboxFolder);
             }
             return null;
@@ -251,10 +247,6 @@ namespace ASC.Files.Thirdparty.Dropbox
 
             if (!(dropboxFolder is ErrorFolder))
                 ProviderInfo.Storage.DeleteItem(dropboxFolder);
-
-            ProviderInfo.CacheReset(MakeDropboxPath(dropboxFolder), true);
-            var parentFolderPath = GetParentFolderPath(dropboxFolder);
-            if (parentFolderPath != null) ProviderInfo.CacheReset(parentFolderPath);
         }
 
         public TTo MoveFolder<TTo>(string folderId, TTo toFolderId, CancellationToken? cancellationToken)
@@ -290,13 +282,7 @@ namespace ASC.Files.Thirdparty.Dropbox
             var toDropboxFolder = GetDropboxFolder(toFolderId);
             if (toDropboxFolder is ErrorFolder errorFolder1) throw new Exception(errorFolder1.Error);
 
-            var fromFolderPath = GetParentFolderPath(dropboxFolder);
-
             dropboxFolder = ProviderInfo.Storage.MoveFolder(MakeDropboxPath(dropboxFolder), MakeDropboxPath(toDropboxFolder), dropboxFolder.Name);
-
-            ProviderInfo.CacheReset(MakeDropboxPath(dropboxFolder), false);
-            ProviderInfo.CacheReset(fromFolderPath);
-            ProviderInfo.CacheReset(MakeDropboxPath(toDropboxFolder));
 
             return MakeId(dropboxFolder);
         }
@@ -335,10 +321,6 @@ namespace ASC.Files.Thirdparty.Dropbox
             if (toDropboxFolder is ErrorFolder errorFolder) throw new Exception(errorFolder.Error);
 
             var newDropboxFolder = ProviderInfo.Storage.CopyFolder(MakeDropboxPath(dropboxFolder), MakeDropboxPath(toDropboxFolder), dropboxFolder.Name);
-
-            ProviderInfo.CacheReset(newDropboxFolder);
-            ProviderInfo.CacheReset(MakeDropboxPath(newDropboxFolder), false);
-            ProviderInfo.CacheReset(MakeDropboxPath(toDropboxFolder));
 
             return ToFolder(newDropboxFolder);
         }
@@ -386,9 +368,6 @@ namespace ASC.Files.Thirdparty.Dropbox
                 //rename folder
                 dropboxFolder = ProviderInfo.Storage.MoveFolder(MakeDropboxPath(dropboxFolder), parentFolderPath, newTitle);
             }
-
-            ProviderInfo.CacheReset(dropboxFolder);
-            if (parentFolderPath != null) ProviderInfo.CacheReset(parentFolderPath);
 
             return MakeId(dropboxFolder);
         }

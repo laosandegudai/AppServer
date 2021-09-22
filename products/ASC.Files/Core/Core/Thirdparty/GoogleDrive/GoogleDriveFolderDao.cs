@@ -189,10 +189,6 @@ namespace ASC.Files.Thirdparty.GoogleDrive
 
                 var driveFolder = ProviderInfo.Storage.InsertEntry(null, folder.Title, driveFolderId, true);
 
-                ProviderInfo.CacheReset(driveFolder);
-                var parentDriveId = GetParentDriveId(driveFolder);
-                if (parentDriveId != null) ProviderInfo.CacheReset(parentDriveId, true);
-
                 return MakeId(driveFolder);
             }
             return null;
@@ -239,10 +235,6 @@ namespace ASC.Files.Thirdparty.GoogleDrive
 
             if (!(driveFolder is ErrorDriveEntry))
                 ProviderInfo.Storage.DeleteEntry(driveFolder.Id);
-
-            ProviderInfo.CacheReset(driveFolder.Id);
-            var parentDriveId = GetParentDriveId(driveFolder);
-            if (parentDriveId != null) ProviderInfo.CacheReset(parentDriveId, true);
         }
 
 
@@ -287,10 +279,6 @@ namespace ASC.Files.Thirdparty.GoogleDrive
                 ProviderInfo.Storage.RemoveEntryFromFolder(driveFolder, fromFolderDriveId);
             }
 
-            ProviderInfo.CacheReset(driveFolder.Id);
-            ProviderInfo.CacheReset(fromFolderDriveId, true);
-            ProviderInfo.CacheReset(toDriveFolder.Id, true);
-
             return MakeId(driveFolder.Id);
         }
 
@@ -328,10 +316,6 @@ namespace ASC.Files.Thirdparty.GoogleDrive
             if (toDriveFolder is ErrorDriveEntry errorDriveEntry1) throw new Exception(errorDriveEntry1.Error);
 
             var newDriveFolder = ProviderInfo.Storage.InsertEntry(null, driveFolder.Name, toDriveFolder.Id, true);
-
-            ProviderInfo.CacheReset(newDriveFolder);
-            ProviderInfo.CacheReset(toDriveFolder.Id, true);
-            ProviderInfo.CacheReset(toDriveFolder.Id);
 
             return ToFolder(newDriveFolder);
         }
@@ -377,10 +361,6 @@ namespace ASC.Files.Thirdparty.GoogleDrive
                 driveFolder.Name = newTitle;
                 driveFolder = ProviderInfo.Storage.RenameEntry(driveFolder.Id, driveFolder.Name);
             }
-
-            ProviderInfo.CacheReset(driveFolder);
-            var parentDriveId = GetParentDriveId(driveFolder);
-            if (parentDriveId != null) ProviderInfo.CacheReset(parentDriveId, true);
 
             return MakeId(driveFolder.Id);
         }

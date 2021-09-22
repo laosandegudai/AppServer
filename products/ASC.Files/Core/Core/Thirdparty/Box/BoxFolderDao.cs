@@ -194,10 +194,6 @@ namespace ASC.Files.Thirdparty.Box
 
                 var boxFolder = ProviderInfo.Storage.CreateFolder(folder.Title, boxFolderId);
 
-                ProviderInfo.CacheReset(boxFolder);
-                var parentFolderId = GetParentFolderId(boxFolder);
-                if (parentFolderId != null) ProviderInfo.CacheReset(parentFolderId);
-
                 return MakeId(boxFolder);
             }
             return null;
@@ -252,10 +248,6 @@ namespace ASC.Files.Thirdparty.Box
             {
                 ProviderInfo.Storage.DeleteItem(boxFolder);
             }
-
-            ProviderInfo.CacheReset(boxFolder.Id, true);
-            var parentFolderId = GetParentFolderId(boxFolder);
-            if (parentFolderId != null) ProviderInfo.CacheReset(parentFolderId);
         }
 
         public string MoveFolder(string folderId, string toFolderId, CancellationToken? cancellationToken)
@@ -270,10 +262,6 @@ namespace ASC.Files.Thirdparty.Box
 
             var newTitle = GetAvailableTitle(boxFolder.Name, toBoxFolder.Id, IsExist);
             boxFolder = ProviderInfo.Storage.MoveFolder(boxFolder.Id, newTitle, toBoxFolder.Id);
-
-            ProviderInfo.CacheReset(boxFolder.Id, false);
-            ProviderInfo.CacheReset(fromFolderId);
-            ProviderInfo.CacheReset(toBoxFolder.Id);
 
             return MakeId(boxFolder.Id);
         }
@@ -328,10 +316,6 @@ namespace ASC.Files.Thirdparty.Box
 
             var newTitle = GetAvailableTitle(boxFolder.Name, toBoxFolder.Id, IsExist);
             var newBoxFolder = ProviderInfo.Storage.CopyFolder(boxFolder.Id, newTitle, toBoxFolder.Id);
-
-            ProviderInfo.CacheReset(newBoxFolder);
-            ProviderInfo.CacheReset(newBoxFolder.Id, false);
-            ProviderInfo.CacheReset(toBoxFolder.Id);
 
             return ToFolder(newBoxFolder);
         }
@@ -389,9 +373,6 @@ namespace ASC.Files.Thirdparty.Box
                 //rename folder
                 boxFolder = ProviderInfo.Storage.RenameFolder(boxFolder.Id, newTitle);
             }
-
-            ProviderInfo.CacheReset(boxFolder);
-            if (parentFolderId != null) ProviderInfo.CacheReset(parentFolderId);
 
             return MakeId(boxFolder.Id);
         }

@@ -27,15 +27,14 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text.RegularExpressions;
 
 using ASC.Common;
-using ASC.Common.Caching;
 using ASC.Core.Common.Configuration;
 using ASC.FederatedLogin;
 using ASC.FederatedLogin.Helpers;
 using ASC.FederatedLogin.LoginProviders;
 using ASC.Files.Core;
+using ASC.Files.Core.Core.Thirdparty;
 
 using Box.V2.Models;
 
@@ -132,8 +131,6 @@ namespace ASC.Files.Thirdparty.Box
             {
                 Wrapper.Dispose();
             }
-
-            CacheReset();
         }
 
         public void UpdateTitle(string newtitle)
@@ -154,16 +151,6 @@ namespace ASC.Files.Thirdparty.Box
         internal List<BoxItem> GetBoxItems(string dropboxFolderPath)
         {
             return BoxProviderInfoHelper.GetBoxItems(Storage, ID, dropboxFolderPath);
-        }
-
-        internal void CacheReset(BoxItem boxItem)
-        {
-            BoxProviderInfoHelper.CacheReset(ID, boxItem);
-        }
-
-        internal void CacheReset(string boxPath = null, bool? isFile = null)
-        {
-            BoxProviderInfoHelper.CacheReset(BoxRootId, ID, boxPath, isFile);
         }
     }
 
@@ -215,111 +202,50 @@ namespace ASC.Files.Thirdparty.Box
         }
     }
 
-    [Singletone]
+    [Scope]
     public class BoxProviderInfoHelper
     {
-        private readonly TimeSpan CacheExpiration = TimeSpan.FromMinutes(1);
-        private readonly ICache CacheFile;
-        private readonly ICache CacheFolder;
-        private readonly ICache CacheChildItems;
-        private readonly ICacheNotify<BoxCacheItem> CacheNotify;
+        private readonly CachedEntities cache = new CachedEntities();
 
-        public BoxProviderInfoHelper(ICacheNotify<BoxCacheItem> cacheNotify, ICache cache)
+        public BoxProviderInfoHelper()
         {
-            CacheFile = cache;
-            CacheFolder = cache;
-            CacheChildItems = cache;
-            CacheNotify = cacheNotify;
-            CacheNotify.Subscribe((i) =>
-            {
-                if (i.ResetAll)
-                {
-                    CacheChildItems.Remove(new Regex("^box-" + i.Key + ".*"));
-                    CacheFile.Remove(new Regex("^boxf-" + i.Key + ".*"));
-                    CacheFolder.Remove(new Regex("^boxd-" + i.Key + ".*"));
-                }
-
-                if (!i.IsFileExists)
-                {
-                    CacheChildItems.Remove("box-" + i.Key);
-
-                    CacheFolder.Remove("boxd-" + i.Key);
-                }
-                else
-                {
-                    if (i.IsFileExists)
-                    {
-                        CacheFile.Remove("boxf-" + i.Key);
-                    }
-                    else
-                    {
-                        CacheFolder.Remove("boxd-" + i.Key);
-                    }
-                }
-            }, CacheNotifyAction.Remove);
+            
         }
 
         internal BoxFolder GetBoxFolder(BoxStorage storage, int id, string boxFolderId)
         {
-            var folder = CacheFolder.Get<BoxFolder>("boxd-" + id + "-" + boxFolderId);
+            var folder = cache.Get<BoxFolder>("boxd-" + id + "-" + boxFolderId);
             if (folder == null)
             {
                 folder = storage.GetFolder(boxFolderId);
                 if (folder != null)
-                    CacheFolder.Insert("boxd-" + id + "-" + boxFolderId, folder, DateTime.UtcNow.Add(CacheExpiration));
+                    cache.Insert("boxd-" + id + "-" + boxFolderId, folder);
             }
             return folder;
         }
 
         internal BoxFile GetBoxFile(BoxStorage storage, int id, string boxFileId)
         {
-            var file = CacheFile.Get<BoxFile>("boxf-" + id + "-" + boxFileId);
+            var file = cache.Get<BoxFile>("boxf-" + id + "-" + boxFileId);
             if (file == null)
             {
                 file = storage.GetFile(boxFileId);
                 if (file != null)
-                    CacheFile.Insert("boxf-" + id + "-" + boxFileId, file, DateTime.UtcNow.Add(CacheExpiration));
+                    cache.Insert("boxf-" + id + "-" + boxFileId, file);
             }
             return file;
         }
 
         internal List<BoxItem> GetBoxItems(BoxStorage storage, int id, string boxFolderId)
         {
-            var items = CacheChildItems.Get<List<BoxItem>>("box-" + id + "-" + boxFolderId);
+            var items = cache.Get<List<BoxItem>>("box-" + id + "-" + boxFolderId);
 
             if (items == null)
             {
                 items = storage.GetItems(boxFolderId);
-                CacheChildItems.Insert("box-" + id + "-" + boxFolderId, items, DateTime.UtcNow.Add(CacheExpiration));
+                cache.Insert("box-" + id + "-" + boxFolderId, items);
             }
             return items;
-        }
-
-        internal void CacheReset(int id, BoxItem boxItem)
-        {
-            if (boxItem != null)
-            {
-                CacheNotify.Publish(new BoxCacheItem { IsFile = boxItem is BoxFile, Key = id + "-" + boxItem.Id }, CacheNotifyAction.Remove);
-            }
-        }
-
-        internal void CacheReset(string boxRootId, int id, string boxId = null, bool? isFile = null)
-        {
-            var key = id + "-";
-            if (boxId == null)
-            {
-                CacheNotify.Publish(new BoxCacheItem { ResetAll = true, Key = key }, CacheNotifyAction.Remove);
-            }
-            else
-            {
-                if (boxId == boxRootId)
-                {
-                    boxId = "0";
-                }
-                key += boxId;
-
-                CacheNotify.Publish(new BoxCacheItem { IsFile = isFile ?? false, IsFileExists = isFile.HasValue, Key = key }, CacheNotifyAction.Remove);
-            }
         }
     }
 }
