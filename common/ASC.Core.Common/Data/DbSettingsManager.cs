@@ -37,6 +37,8 @@ using ASC.Core.Common.EF.Model;
 using ASC.Core.Common.Settings;
 using ASC.Core.Tenants;
 
+using Google.Protobuf;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -45,19 +47,16 @@ namespace ASC.Core.Data
     [Singletone]
     public class DbSettingsManagerCache
     {
-        public ICache Cache { get; }
-        private ICacheNotify<SettingsCacheItem> Notify { get; }
+        public DistributedCache Cache { get; }
 
-        public DbSettingsManagerCache(ICacheNotify<SettingsCacheItem> notify, ICache cache)
+        public DbSettingsManagerCache(DistributedCache cache)
         {
             Cache = cache;
-            Notify = notify;
-            Notify.Subscribe((i) => Cache.Remove(i.Key), CacheNotifyAction.Remove);
         }
 
         public void Remove(string key)
         {
-            Notify.Publish(new SettingsCacheItem { Key = key }, CacheNotifyAction.Remove);
+            Cache.Remove(key);
         }
     }
 
@@ -114,7 +113,7 @@ namespace ASC.Core.Data
         private readonly TimeSpan expirationTimeout = TimeSpan.FromMinutes(5);
 
         internal ILog Log { get; set; }
-        internal ICache Cache { get; set; }
+        internal DistributedCache Cache { get; set; }
         internal IServiceProvider ServiceProvider { get; set; }
         internal DbSettingsManagerCache DbSettingsManagerCache { get; set; }
         internal AuthContext AuthContext { get; set; }
@@ -156,25 +155,33 @@ namespace ASC.Core.Data
             get { return ((Guid?)(currentUserID ??= AuthContext.CurrentAccount.ID)).Value; }
         }
 
-        public bool SaveSettings<T>(T settings, int tenantId) where T : ISettings
+        public bool SaveSettings<TEntity, TCachedEntity>(TEntity settings, int tenantId)
+            where TEntity : ISettings, ICacheWrapped<TCachedEntity>
+            where TCachedEntity : ICustomSer<TCachedEntity>, IMessage<TCachedEntity>, ICacheWrapped<TEntity>, new()
         {
-            return SaveSettingsFor(settings, tenantId, Guid.Empty);
+            return SaveSettingsFor<TEntity,TCachedEntity>(settings, tenantId, Guid.Empty);
         }
 
-        public T LoadSettings<T>(int tenantId) where T : class, ISettings
+        public TEntity LoadSettings<TEntity, TCachedEntity>(int tenantId) 
+            where TEntity : class, ISettings, ICacheWrapped<TCachedEntity>
+            where TCachedEntity : ICustomSer<TCachedEntity>, IMessage<TCachedEntity>, ICacheWrapped<TEntity>, new()
         {
-            return LoadSettingsFor<T>(tenantId, Guid.Empty);
+            return LoadSettingsFor<TEntity, TCachedEntity>(tenantId, Guid.Empty);
         }
 
-        public void ClearCache<T>(int tenantId) where T : class, ISettings
+        public void ClearCache<TEntity, TCachedEntity>(int tenantId)
+            where TEntity : class, ISettings, ICacheWrapped<TCachedEntity>
+            where TCachedEntity : ICustomSer<TCachedEntity>, IMessage<TCachedEntity>, ICacheWrapped<TEntity>, new()
         {
-            var settings = LoadSettings<T>(tenantId);
+            var settings = LoadSettings<TEntity, TCachedEntity>(tenantId);
             var key = settings.ID.ToString() + tenantId + Guid.Empty;
             DbSettingsManagerCache.Remove(key);
         }
 
 
-        public bool SaveSettingsFor<T>(T settings, int tenantId, Guid userId) where T : ISettings
+        public bool SaveSettingsFor<TEntity, TCachedEntity>(TEntity settings, int tenantId, Guid userId) 
+            where TEntity : ISettings, ICacheWrapped<TCachedEntity>
+            where TCachedEntity : ICustomSer<TCachedEntity>, IMessage<TCachedEntity>, ICacheWrapped<TEntity>, new()
         {
             if (settings == null) throw new ArgumentNullException("settings");
             try
@@ -182,7 +189,7 @@ namespace ASC.Core.Data
                 var key = settings.ID.ToString() + tenantId + userId;
                 var data = Serialize(settings);
 
-                var def = (T)settings.GetDefault(ServiceProvider);
+                var def = (TEntity)settings.GetDefault(ServiceProvider);
 
                 var defaultData = Serialize(def);
 
@@ -220,8 +227,7 @@ namespace ASC.Core.Data
                 }
 
                 DbSettingsManagerCache.Remove(key);
-
-                Cache.Insert(key, settings, expirationTimeout);
+                Cache.Insert(key, settings.WrapIn(), expirationTimeout);
                 return true;
             }
             catch (Exception ex)
@@ -231,16 +237,18 @@ namespace ASC.Core.Data
             }
         }
 
-        internal T LoadSettingsFor<T>(int tenantId, Guid userId) where T : class, ISettings
+        internal TEntity LoadSettingsFor<TEntity, TCachedEntity>(int tenantId, Guid userId) 
+            where TEntity : class, ISettings, ICacheWrapped<TCachedEntity>
+            where TCachedEntity: ICustomSer<TCachedEntity>, IMessage<TCachedEntity>, ICacheWrapped<TEntity>, new()
         {
-            var settingsInstance = ActivatorUtilities.CreateInstance<T>(ServiceProvider);
+            var settingsInstance = ActivatorUtilities.CreateInstance<TEntity>(ServiceProvider);
             var key = settingsInstance.ID.ToString() + tenantId + userId;
-            var def = (T)settingsInstance.GetDefault(ServiceProvider);
+            var def = (TEntity)settingsInstance.GetDefault(ServiceProvider);
 
             try
             {
-                var settings = Cache.Get<T>(key);
-                if (settings != null) return settings;
+                var cachedSettings = Cache.Get<TCachedEntity>(key);
+                if (cachedSettings != null) return cachedSettings.WrapIn();
 
                 var result = WebstudioDbContext.WebstudioSettings
                         .Where(r => r.Id == settingsInstance.ID)
@@ -249,16 +257,18 @@ namespace ASC.Core.Data
                         .Select(r => r.Data)
                         .FirstOrDefault();
 
+                TEntity settings;
+
                 if (result != null)
                 {
-                    settings = Deserialize<T>(result);
+                    settings = Deserialize<TEntity>(result);
                 }
                 else
                 {
                     settings = def;
                 }
 
-                Cache.Insert(key, settings, expirationTimeout);
+                Cache.Insert(key, settings.WrapIn(), expirationTimeout);
                 return settings;
             }
             catch (Exception ex)
@@ -268,59 +278,81 @@ namespace ASC.Core.Data
             return def;
         }
 
-        public T Load<T>() where T : class, ISettings
+        public TEntity Load<TEntity, TCachedEntity>()
+            where TEntity : class, ISettings, ICacheWrapped<TCachedEntity>
+            where TCachedEntity : ICustomSer<TCachedEntity>, IMessage<TCachedEntity>, ICacheWrapped<TEntity>, new()
         {
-            return LoadSettings<T>(TenantID);
+            return LoadSettings<TEntity, TCachedEntity>(TenantID);
         }
 
-        public T LoadForCurrentUser<T>() where T : class, ISettings
+        public TEntity LoadForCurrentUser<TEntity, TCachedEntity>()
+            where TEntity : class, ISettings, ICacheWrapped<TCachedEntity>
+            where TCachedEntity : ICustomSer<TCachedEntity>, IMessage<TCachedEntity>, ICacheWrapped<TEntity>, new()
         {
-            return LoadForUser<T>(CurrentUserID);
+            return LoadForUser<TEntity, TCachedEntity>(CurrentUserID);
         }
 
-        public T LoadForUser<T>(Guid userId) where T : class, ISettings
+        public TEntity LoadForUser<TEntity, TCachedEntity>(Guid userId)
+            where TEntity : class, ISettings, ICacheWrapped<TCachedEntity>
+            where TCachedEntity : ICustomSer<TCachedEntity>, IMessage<TCachedEntity>, ICacheWrapped<TEntity>, new()
         {
-            return LoadSettingsFor<T>(TenantID, userId);
+            return LoadSettingsFor<TEntity, TCachedEntity>(TenantID, userId);
         }
 
-        public T LoadForDefaultTenant<T>() where T : class, ISettings
+        public TEntity LoadForDefaultTenant<TEntity, TCachedEntity>()
+            where TEntity : class, ISettings, ICacheWrapped<TCachedEntity>
+            where TCachedEntity : ICustomSer<TCachedEntity>, IMessage<TCachedEntity>, ICacheWrapped<TEntity>, new()
         {
-            return LoadForTenant<T>(Tenant.DEFAULT_TENANT);
+            return LoadForTenant<TEntity, TCachedEntity>(Tenant.DEFAULT_TENANT);
         }
 
-        public T LoadForTenant<T>(int tenantId) where T : class, ISettings
+        public TEntity LoadForTenant<TEntity, TCachedEntity>(int tenantId)
+            where TEntity : class, ISettings, ICacheWrapped<TCachedEntity>
+            where TCachedEntity : ICustomSer<TCachedEntity>, IMessage<TCachedEntity>, ICacheWrapped<TEntity>, new()
         {
-            return LoadSettings<T>(tenantId);
+            return LoadSettings<TEntity, TCachedEntity>(tenantId);
         }
 
-        public virtual bool Save<T>(T data) where T : class, ISettings
+        public virtual bool Save<TEntity, TCachedEntity>(TEntity data)
+            where TEntity : class, ISettings, ICacheWrapped<TCachedEntity>
+            where TCachedEntity : ICustomSer<TCachedEntity>, IMessage<TCachedEntity>, ICacheWrapped<TEntity>, new()
         {
-            return SaveSettings(data, TenantID);
+            return SaveSettings<TEntity, TCachedEntity>(data, TenantID);
         }
 
-        public bool SaveForCurrentUser<T>(T data) where T : class, ISettings
+        public bool SaveForCurrentUser<TEntity, TCachedEntity>(TEntity data)
+            where TEntity : class, ISettings, ICacheWrapped<TCachedEntity>
+            where TCachedEntity : ICustomSer<TCachedEntity>, IMessage<TCachedEntity>, ICacheWrapped<TEntity>, new()
         {
-            return SaveForUser(data, CurrentUserID);
+            return SaveForUser<TEntity, TCachedEntity>(data, CurrentUserID);
         }
 
-        public bool SaveForUser<T>(T data, Guid userId) where T : class, ISettings
+        public bool SaveForUser<TEntity, TCachedEntity>(TEntity data, Guid userId)
+            where TEntity : class, ISettings, ICacheWrapped<TCachedEntity>
+            where TCachedEntity : ICustomSer<TCachedEntity>, IMessage<TCachedEntity>, ICacheWrapped<TEntity>, new()
         {
-            return SaveSettingsFor(data, TenantID, userId);
+            return SaveSettingsFor<TEntity, TCachedEntity>(data, TenantID, userId);
         }
 
-        public bool SaveForDefaultTenant<T>(T data) where T : class, ISettings
+        public bool SaveForDefaultTenant<TEntity, TCachedEntity>(TEntity data)
+            where TEntity : class, ISettings, ICacheWrapped<TCachedEntity>
+            where TCachedEntity : ICustomSer<TCachedEntity>, IMessage<TCachedEntity>, ICacheWrapped<TEntity>, new()
         {
-            return SaveForTenant(data, Tenant.DEFAULT_TENANT);
+            return SaveForTenant<TEntity, TCachedEntity>(data, Tenant.DEFAULT_TENANT);
         }
 
-        public bool SaveForTenant<T>(T data, int tenantId) where T : class, ISettings
+        public bool SaveForTenant<TEntity, TCachedEntity>(TEntity data, int tenantId)
+            where TEntity : class, ISettings, ICacheWrapped<TCachedEntity>
+            where TCachedEntity : ICustomSer<TCachedEntity>, IMessage<TCachedEntity>, ICacheWrapped<TEntity>, new()
         {
-            return SaveSettings(data, tenantId);
+            return SaveSettings<TEntity, TCachedEntity>(data, tenantId);
         }
 
-        public void ClearCache<T>() where T : class, ISettings
+        public void ClearCache<TEntity, TCachedEntity>()
+            where TEntity : class, ISettings, ICacheWrapped<TCachedEntity>
+            where TCachedEntity : ICustomSer<TCachedEntity>, IMessage<TCachedEntity>, ICacheWrapped<TEntity>, new()
         {
-            ClearCache<T>(TenantID);
+            ClearCache<TEntity, TCachedEntity>(TenantID);
         }
 
         private T Deserialize<T>(string data)
