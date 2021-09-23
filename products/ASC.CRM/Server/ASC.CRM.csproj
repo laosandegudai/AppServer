@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <None Remove="ContactPhotoManagerCacheItem.proto" />
+    <None Remove="proto\CachedCrmSettings.proto" />
     <None Remove="proto\ContatPhotoCacheStore.proto" />
   </ItemGroup>
 
@@ -184,6 +185,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Protobuf Include="proto\CachedCrmSettings.proto" />
     <Protobuf Include="proto\ContactPhotoManagerCacheItem.proto" />
     <Protobuf Include="proto\ContatPhotoCacheStore.proto" />
 	  <Prtobuf Include="proto\ContactPhotoCacheStore.proto" />
