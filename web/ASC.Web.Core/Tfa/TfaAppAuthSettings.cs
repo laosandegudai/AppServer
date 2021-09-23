@@ -27,12 +27,13 @@
 using System;
 using System.Text.Json.Serialization;
 
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 namespace ASC.Web.Studio.Core.TFA
 {
     [Serializable]
-    public class TfaAppAuthSettings : ISettings
+    public class TfaAppAuthSettings : ISettings, ICacheWrapped<CachedTfaAppAuthSettings>
     {
         public Guid ID
         {
@@ -44,6 +45,14 @@ namespace ASC.Web.Studio.Core.TFA
             return new TfaAppAuthSettings { EnableSetting = false, };
         }
 
+        public CachedTfaAppAuthSettings WrapIn()
+        {
+            return new CachedTfaAppAuthSettings
+            {
+                EnableSetting = this.EnableSetting
+            };
+        }
+
         [JsonPropertyName("Enable")]
         public bool EnableSetting { get; set; }
 
@@ -51,6 +60,20 @@ namespace ASC.Web.Studio.Core.TFA
         public static bool IsVisibleSettings
         {
             get { return SetupInfo.IsVisibleSettings<TfaAppAuthSettings>(); }
+        }
+    }
+
+    public partial class CachedTfaAppAuthSettings : ICustomSer<CachedTfaAppAuthSettings>, ICacheWrapped<TfaAppAuthSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public TfaAppAuthSettings WrapIn()
+        {
+            return new TfaAppAuthSettings
+            {
+                EnableSetting = this.EnableSetting
+            };
         }
     }
 }

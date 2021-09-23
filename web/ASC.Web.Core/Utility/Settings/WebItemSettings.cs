@@ -28,13 +28,14 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ASC.Web.Core.Utility.Settings
 {
-    public class WebItemSettings : ISettings
+    public class WebItemSettings : ISettings, ICacheWrapped<CachedWebItemSettings>
     {
         public Guid ID
         {
@@ -65,14 +66,56 @@ namespace ASC.Web.Core.Utility.Settings
             return settings;
         }
 
-        [Serializable]
-        public class WebItemOption
+        public CachedWebItemSettings WrapIn()
         {
-            public Guid ItemID { get; set; }
+            var cached = new CachedWebItemSettings();
+            if (SettingsCollection != null) cached.SettingsCollection.Add(SettingsCollection);
 
-            public int SortOrder { get; set; }
+            return cached;
+        }
+    }
 
-            public bool Disabled { get; set; }
+    [Serializable]
+    public partial class WebItemOption : ICustomSer<WebItemOption>
+    {
+        public Guid ItemID { get; set; }
+
+        public void CustomDeSer()
+        {
+            ItemID = ItemIDProto.FromByteString();
+        }
+
+        public void CustomSer()
+        {
+            ItemIDProto = ItemID.ToByteString();
+        }
+    }
+
+    public partial class CachedWebItemSettings : ICustomSer<CachedWebItemSettings>,
+        ICacheWrapped<WebItemSettings>
+    {
+        public void CustomDeSer()
+        {
+            foreach (var settings in SettingsCollection)
+            {
+                settings.CustomDeSer();
+            }
+        }
+
+        public void CustomSer()
+        {
+            foreach (var settings in SettingsCollection)
+            {
+                settings.CustomSer();
+            }
+        }
+
+        public WebItemSettings WrapIn()
+        {
+            return new WebItemSettings
+            {
+                SettingsCollection = new List<WebItemOption>(this.SettingsCollection)
+            };
         }
     }
 }

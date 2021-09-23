@@ -26,12 +26,13 @@
 
 using System;
 
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 namespace ASC.Web.Studio.Core
 {
     [Serializable]
-    public class CollaboratorSettings : ISettings
+    public class CollaboratorSettings : ISettings, ICacheWrapped<CachedCollaboratorSettings>
     {
         public bool FirstVisit { get; set; }
 
@@ -45,6 +46,29 @@ namespace ASC.Web.Studio.Core
             return new CollaboratorSettings()
             {
                 FirstVisit = true
+            };
+        }
+
+        public CachedCollaboratorSettings WrapIn()
+        {
+            return new CachedCollaboratorSettings
+            {
+                FirstVisit = this.FirstVisit
+            };
+        }
+    }
+
+    public partial class CachedCollaboratorSettings : ICustomSer<CachedCollaboratorSettings>,
+        ICacheWrapped<CollaboratorSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public CollaboratorSettings WrapIn()
+        {
+            return new CollaboratorSettings
+            {
+                FirstVisit = this.FirstVisit
             };
         }
     }

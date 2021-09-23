@@ -26,11 +26,12 @@
 
 using System;
 
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 namespace ASC.Web.Studio.Core
 {
-    public class StudioTrustedDomainSettings : ISettings
+    public class StudioTrustedDomainSettings : ISettings, ICacheWrapped<CachedStudioTrustedDomainSettings>
     {
         public bool InviteUsersAsVisitors { get; set; }
 
@@ -42,6 +43,29 @@ namespace ASC.Web.Studio.Core
         public ISettings GetDefault(IServiceProvider serviceProvider)
         {
             return new StudioTrustedDomainSettings { InviteUsersAsVisitors = false };
+        }
+
+        public CachedStudioTrustedDomainSettings WrapIn()
+        {
+            return new CachedStudioTrustedDomainSettings
+            {
+                InviteUsersAsVisitors = this.InviteUsersAsVisitors
+            };
+        }
+    }
+
+    public partial class CachedStudioTrustedDomainSettings : ICustomSer<CachedStudioTrustedDomainSettings>,
+        ICacheWrapped<StudioTrustedDomainSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public StudioTrustedDomainSettings WrapIn()
+        {
+            return new StudioTrustedDomainSettings
+            {
+                InviteUsersAsVisitors = this.InviteUsersAsVisitors
+            };
         }
     }
 }

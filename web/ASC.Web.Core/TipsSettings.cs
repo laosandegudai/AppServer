@@ -27,12 +27,13 @@
 using System;
 using System.Runtime.Serialization;
 
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 namespace ASC.Web.Studio.Core
 {
     [Serializable]
-    public class TipsSettings : ISettings
+    public class TipsSettings : ISettings, ICacheWrapped<CachedTipsSettings>
     {
         [DataMember(Name = "Show")]
         public bool Show { get; set; }
@@ -45,6 +46,28 @@ namespace ASC.Web.Studio.Core
         public ISettings GetDefault(IServiceProvider serviceProvider)
         {
             return new TipsSettings { Show = true };
+        }
+
+        public CachedTipsSettings WrapIn()
+        {
+            return new CachedTipsSettings
+            {
+                Show = this.Show
+            };
+        }
+    }
+
+    public partial class CachedTipsSettings : ICustomSer<CachedTipsSettings>, ICacheWrapped<TipsSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public TipsSettings WrapIn()
+        {
+            return new TipsSettings
+            {
+                Show = this.Show
+            };
         }
     }
 }

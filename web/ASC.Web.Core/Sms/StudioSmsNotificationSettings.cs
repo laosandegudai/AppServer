@@ -28,6 +28,7 @@ using System;
 using System.Text.Json.Serialization;
 
 using ASC.Common;
+using ASC.Common.Caching;
 using ASC.Core;
 using ASC.Core.Common.Settings;
 using ASC.Web.Core.Sms;
@@ -36,7 +37,7 @@ using ASC.Web.Studio.Utility;
 namespace ASC.Web.Studio.Core.SMS
 {
     [Serializable]
-    public class StudioSmsNotificationSettings : ISettings
+    public class StudioSmsNotificationSettings : ISettings, ICacheWrapped<CachedStudioSmsNotificationSettings>
     {
         public Guid ID
         {
@@ -50,6 +51,29 @@ namespace ASC.Web.Studio.Core.SMS
 
         [JsonPropertyName("Enable")]
         public bool EnableSetting { get; set; }
+
+        public CachedStudioSmsNotificationSettings WrapIn()
+        {
+            return new CachedStudioSmsNotificationSettings
+            {
+                EnableSetting = EnableSetting
+            };
+        }
+    }
+
+    public partial class CachedStudioSmsNotificationSettings : ICustomSer<CachedStudioSmsNotificationSettings>,
+        ICacheWrapped<StudioSmsNotificationSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public StudioSmsNotificationSettings WrapIn()
+        {
+            return new StudioSmsNotificationSettings
+            {
+                EnableSetting = this.EnableSetting
+            };
+        }
     }
 
     [Scope]
@@ -87,12 +111,12 @@ namespace ASC.Web.Studio.Core.SMS
 
         public bool Enable
         {
-            get { return SettingsManager.Load<StudioSmsNotificationSettings>().EnableSetting && SmsProviderManager.Enabled(); }
+            get { return SettingsManager.Load<StudioSmsNotificationSettings, CachedStudioSmsNotificationSettings>().EnableSetting && SmsProviderManager.Enabled(); }
             set
             {
-                var settings = SettingsManager.Load<StudioSmsNotificationSettings>();
+                var settings = SettingsManager.Load<StudioSmsNotificationSettings, CachedStudioSmsNotificationSettings>();
                 settings.EnableSetting = value;
-                SettingsManager.Save<StudioSmsNotificationSettings>(settings);
+                SettingsManager.Save<StudioSmsNotificationSettings, CachedStudioSmsNotificationSettings>(settings);
             }
         }
     }

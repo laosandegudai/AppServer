@@ -26,12 +26,13 @@
 
 using System;
 
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 namespace ASC.IPSecurity
 {
     [Serializable]
-    public class IPRestrictionsSettings : ISettings
+    public class IPRestrictionsSettings : ISettings, ICacheWrapped<CachedIPRestrictionsSettings>
     {
         public bool Enable { get; set; }
 
@@ -43,6 +44,29 @@ namespace ASC.IPSecurity
         public ISettings GetDefault(IServiceProvider serviceProvider)
         {
             return new IPRestrictionsSettings { Enable = false };
+        }
+
+        public CachedIPRestrictionsSettings WrapIn()
+        {
+            return new CachedIPRestrictionsSettings
+            {
+                Enable = this.Enable
+            };
+        }
+    }
+
+    public partial class CachedIPRestrictionsSettings : ICustomSer<CachedIPRestrictionsSettings>,
+        ICacheWrapped<IPRestrictionsSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public IPRestrictionsSettings WrapIn()
+        {
+            return new IPRestrictionsSettings
+            {
+                Enable = this.Enable
+            };
         }
     }
 }

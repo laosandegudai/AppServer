@@ -26,6 +26,7 @@
 
 using System;
 
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 using Microsoft.Extensions.Configuration;
@@ -34,7 +35,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ASC.Web.Core.Utility
 {
     [Serializable]
-    public sealed class PasswordSettings : ISettings
+    public sealed class PasswordSettings : ISettings, ICacheWrapped<CachedPasswordSettings>
     {
         public Guid ID
         {
@@ -78,6 +79,34 @@ namespace ASC.Web.Core.Utility
         public ISettings GetDefault(IServiceProvider serviceProvider)
         {
             return GetDefault(serviceProvider.GetService<IConfiguration>());
+        }
+
+        public CachedPasswordSettings WrapIn()
+        {
+            return new CachedPasswordSettings
+            {
+                UpperCase = this.UpperCase,
+                Digits = this.Digits,
+                MinLength = this.MinLength,
+                SpecSymbols = this.SpecSymbols
+            };
+        }
+    }
+
+    public partial class CachedPasswordSettings : ICustomSer<CachedPasswordSettings>, ICacheWrapped<PasswordSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public PasswordSettings WrapIn()
+        {
+            return new PasswordSettings
+            {
+                Digits = this.Digits,
+                UpperCase = this.UpperCase,
+                MinLength = this.MinLength,
+                SpecSymbols = this.SpecSymbols
+            };
         }
     }
 }

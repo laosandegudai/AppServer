@@ -27,6 +27,7 @@
 using System;
 
 using ASC.Common;
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 using Microsoft.Extensions.Configuration;
@@ -40,7 +41,7 @@ namespace ASC.Web.Core.WhiteLabel
     }
 
     [Serializable]
-    public class AdditionalWhiteLabelSettings : ISettings
+    public class AdditionalWhiteLabelSettings : ISettings, ICacheWrapped<CachedAdditionalWhiteLabelSettings>
     {
         public bool StartDocsEnabled { get; set; }
 
@@ -130,6 +131,51 @@ namespace ASC.Web.Core.WhiteLabel
         public ISettings GetDefault(IServiceProvider serviceProvider)
         {
             return GetDefault(serviceProvider.GetService<IConfiguration>());
+        }
+
+        public CachedAdditionalWhiteLabelSettings WrapIn()
+        {
+            return new CachedAdditionalWhiteLabelSettings
+            {
+                UserForumEnabled = this.UserForumEnabled,
+                UserForumUrl = this.UserForumUrl,
+                BuyUrl = this.BuyUrl,
+                HelpCenterEnabled = this.HelpCenterEnabled,
+                FeedbackAndSupportEnabled = this.FeedbackAndSupportEnabled,
+                FeedbackAndSupportUrl = this.FeedbackAndSupportUrl,
+                LicenseAgreementsEnabled = this.LicenseAgreementsEnabled,
+                LicenseAgreementsUrl = this.LicenseAgreementsUrl,
+                SalesEmail = this.SalesEmail,
+                StartDocsEnabled = this.StartDocsEnabled,
+                VideoGuidesEnabled = this.VideoGuidesEnabled,
+                VideoGuidesUrl = this.VideoGuidesUrl
+            };
+        }
+    }
+
+    public partial class CachedAdditionalWhiteLabelSettings : ICustomSer<CachedAdditionalWhiteLabelSettings>,
+        ICacheWrapped<AdditionalWhiteLabelSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public AdditionalWhiteLabelSettings WrapIn()
+        {
+            return new AdditionalWhiteLabelSettings
+            {
+                UserForumEnabled = this.UserForumEnabled,
+                UserForumUrl = this.UserForumUrl,
+                BuyUrl = this.BuyUrl,
+                HelpCenterEnabled = this.HelpCenterEnabled,
+                FeedbackAndSupportEnabled = this.FeedbackAndSupportEnabled,
+                FeedbackAndSupportUrl = this.FeedbackAndSupportUrl,
+                LicenseAgreementsEnabled = this.LicenseAgreementsEnabled,
+                LicenseAgreementsUrl = this.LicenseAgreementsUrl,
+                SalesEmail = this.SalesEmail,
+                StartDocsEnabled = this.StartDocsEnabled,
+                VideoGuidesEnabled = this.VideoGuidesEnabled,
+                VideoGuidesUrl = this.VideoGuidesUrl
+            };
         }
     }
 

@@ -26,12 +26,13 @@
 
 using System;
 
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 namespace ASC.Web.Core.Utility.Settings
 {
     [Serializable]
-    public class TenantAccessSettings : ISettings
+    public class TenantAccessSettings : ISettings, ICacheWrapped<CachedTenantAccessSettings>
     {
         public bool Anyone { get; set; }
 
@@ -45,6 +46,31 @@ namespace ASC.Web.Core.Utility.Settings
         public ISettings GetDefault(IServiceProvider serviceProvider)
         {
             return new TenantAccessSettings { Anyone = false, RegisterUsersImmediately = false };
+        }
+
+        public CachedTenantAccessSettings WrapIn()
+        {
+            return new CachedTenantAccessSettings
+            {
+                Anyone = this.Anyone,
+                RegisterUsersImmediately = this.RegisterUsersImmediately
+            };
+        }
+    }
+
+    public partial class CachedTenantAccessSettings : ICustomSer<CachedTenantAccessSettings>,
+        ICacheWrapped<TenantAccessSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public TenantAccessSettings WrapIn()
+        {
+            return new TenantAccessSettings
+            {
+                Anyone = this.Anyone,
+                RegisterUsersImmediately = this.RegisterUsersImmediately
+            };
         }
     }
 }

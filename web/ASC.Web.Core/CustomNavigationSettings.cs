@@ -27,12 +27,13 @@
 using System;
 using System.Collections.Generic;
 
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 namespace ASC.Web.Studio.Core
 {
     [Serializable]
-    public class CustomNavigationSettings : ISettings
+    public class CustomNavigationSettings : ISettings, ICacheWrapped<CachedCustomNavigationSettings>
     {
         public List<CustomNavigationItem> Items { get; set; }
 
@@ -45,24 +46,20 @@ namespace ASC.Web.Studio.Core
         {
             return new CustomNavigationSettings { Items = new List<CustomNavigationItem>() };
         }
+
+        public CachedCustomNavigationSettings WrapIn()
+        {
+            var cached = new CachedCustomNavigationSettings();
+            if (Items != null) cached.Items.Add(Items);
+
+            return cached;
+        }
     }
 
     [Serializable]
-    public class CustomNavigationItem
+    public partial class CustomNavigationItem : ICustomSer<CustomNavigationItem>
     {
         public Guid Id { get; set; }
-
-        public string Label { get; set; }
-
-        public string Url { get; set; }
-
-        public string BigImg { get; set; }
-
-        public string SmallImg { get; set; }
-
-        public bool ShowInMenu { get; set; }
-
-        public bool ShowOnHomePage { get; set; }
 
         private static string GetDefaultBigImg()
         {
@@ -83,6 +80,44 @@ namespace ASC.Web.Studio.Core
                 ShowOnHomePage = true,
                 BigImg = GetDefaultBigImg(),
                 SmallImg = GetDefaultSmallImg()
+            };
+        }
+
+        public void CustomSer()
+        {
+            IdProto = Id.ToByteString();
+        }
+
+        public void CustomDeSer()
+        {
+            Id = IdProto.FromByteString();
+        }
+    }
+
+    public partial class CachedCustomNavigationSettings : ICustomSer<CachedCustomNavigationSettings>,
+        ICacheWrapped<CustomNavigationSettings>
+    {
+        public void CustomDeSer()
+        {
+            foreach (var item in Items)
+            {
+                item.CustomDeSer();
+            }
+        }
+
+        public void CustomSer()
+        {
+            foreach (var item in Items)
+            {
+                item.CustomSer();
+            }
+        }
+
+        public CustomNavigationSettings WrapIn()
+        {
+            return new CustomNavigationSettings
+            {
+                Items = new List<CustomNavigationItem>(Items)
             };
         }
     }

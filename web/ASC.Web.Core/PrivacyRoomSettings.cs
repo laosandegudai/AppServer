@@ -27,13 +27,14 @@
 using System;
 using System.Text.Json.Serialization;
 
+using ASC.Common.Caching;
 using ASC.Core;
 using ASC.Core.Common.Settings;
 using ASC.Web.Studio.Utility;
 
 namespace ASC.Web.Studio.Core
 {
-    public class PrivacyRoomSettings : ISettings
+    public class PrivacyRoomSettings : ISettings, ICacheWrapped<CachedPrivacyRoomSettings>
     {
         [JsonPropertyName("enbaled")]
         public bool EnabledSetting { get; set; }
@@ -53,22 +54,45 @@ namespace ASC.Web.Studio.Core
 
         public static bool GetEnabled(SettingsManager settingsManager)
         {
-            return settingsManager.Load<PrivacyRoomSettings>().EnabledSetting;
+            return settingsManager.Load<PrivacyRoomSettings, CachedPrivacyRoomSettings>().EnabledSetting;
         }
 
         public static void SetEnabled(TenantManager tenantManager, SettingsManager settingsManager, bool value)
         {
             if (!IsAvailable(tenantManager)) return;
 
-            var settings = settingsManager.Load<PrivacyRoomSettings>();
+            var settings = settingsManager.Load<PrivacyRoomSettings, CachedPrivacyRoomSettings>();
             settings.EnabledSetting = value;
-            settingsManager.Save(settings);
+            settingsManager.Save<PrivacyRoomSettings, CachedPrivacyRoomSettings>(settings);
         }
 
         public static bool IsAvailable(TenantManager tenantManager)
         {
             return SetupInfo.IsVisibleSettings(ManagementType.PrivacyRoom.ToString())
                 && tenantManager.GetTenantQuota(tenantManager.GetCurrentTenant().TenantId).PrivacyRoom;
+        }
+
+        public CachedPrivacyRoomSettings WrapIn()
+        {
+            return new CachedPrivacyRoomSettings
+            {
+                EnabledSetting = this.EnabledSetting
+            };
+        }
+    }
+
+    public partial class CachedPrivacyRoomSettings : ICustomSer<CachedPrivacyRoomSettings>,
+        ICacheWrapped<PrivacyRoomSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public PrivacyRoomSettings WrapIn()
+        {
+            return new PrivacyRoomSettings
+            {
+                EnabledSetting = this.EnabledSetting
+            };
         }
     }
 }

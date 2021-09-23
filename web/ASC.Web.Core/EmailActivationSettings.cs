@@ -26,12 +26,13 @@
 
 using System;
 
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 namespace ASC.Web.Studio.Core
 {
     [Serializable]
-    public class EmailActivationSettings : ISettings
+    public class EmailActivationSettings : ISettings, ICacheWrapped<CachedEmailActivationSettings>
     {
         public bool Show { get; set; }
 
@@ -43,6 +44,29 @@ namespace ASC.Web.Studio.Core
         public ISettings GetDefault(IServiceProvider serviceProvider)
         {
             return new EmailActivationSettings { Show = true };
+        }
+
+        public CachedEmailActivationSettings WrapIn()
+        {
+            return new CachedEmailActivationSettings
+            {
+                Show = this.Show
+            };
+        }
+    }
+
+    public partial class CachedEmailActivationSettings : ICustomSer<CachedEmailActivationSettings>,
+        ICacheWrapped<EmailActivationSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public EmailActivationSettings WrapIn()
+        {
+            return new EmailActivationSettings
+            {
+                Show = this.Show
+            };
         }
     }
 }

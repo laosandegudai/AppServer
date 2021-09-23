@@ -27,6 +27,7 @@
 using System;
 using System.Text.Json.Serialization;
 
+using ASC.Common.Caching;
 using ASC.Core;
 using ASC.Core.Common.Settings;
 
@@ -41,7 +42,7 @@ namespace ASC.Web.Core.WhiteLabel
     }
 
     [Serializable]
-    public class CompanyWhiteLabelSettings : ISettings
+    public class CompanyWhiteLabelSettings : ISettings, ICacheWrapped<CachedCompanyWhiteLabelSettings>
     {
         public string CompanyName { get; set; }
 
@@ -106,7 +107,40 @@ namespace ASC.Web.Core.WhiteLabel
 
         public static CompanyWhiteLabelSettings Instance(SettingsManager settingsManager)
         {
-            return settingsManager.LoadForDefaultTenant<CompanyWhiteLabelSettings>();
+            return settingsManager.LoadForDefaultTenant<CompanyWhiteLabelSettings, CachedCompanyWhiteLabelSettings>();
+        }
+
+        public CachedCompanyWhiteLabelSettings WrapIn()
+        {
+            return new CachedCompanyWhiteLabelSettings
+            {
+                CompanyName = this.CompanyName,
+                Address = this.Address,
+                Email = this.Email,
+                IsLicensorSetting = this.IsLicensorSetting,
+                Phone = this.Phone,
+                Site = this.Site
+            };
+        }
+    }
+
+    public partial class CachedCompanyWhiteLabelSettings : ICustomSer<CachedCompanyWhiteLabelSettings>,
+        ICacheWrapped<CompanyWhiteLabelSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public CompanyWhiteLabelSettings WrapIn()
+        {
+            return new CompanyWhiteLabelSettings
+            {
+                CompanyName = this.CompanyName,
+                Address = this.Address,
+                Email = this.Email,
+                IsLicensorSetting = this.IsLicensorSetting,
+                Phone = this.Phone,
+                Site = this.Site
+            };
         }
     }
 }

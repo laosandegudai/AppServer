@@ -220,7 +220,7 @@ namespace ASC.Web.Core
 
         public void SetSecurity(string id, bool enabled, params Guid[] subjects)
         {
-            if (SettingsManager.Load<TenantAccessSettings>().Anyone)
+            if (SettingsManager.Load<TenantAccessSettings, CachedTenantAccessSettings>().Anyone)
                 throw new SecurityException("Security settings are disabled for an open portal");
 
             var securityObj = WebItemSecurityObject.Create(id, WebItemManager);

@@ -34,6 +34,8 @@ using ASC.Core;
 using ASC.Core.Common.Configuration;
 using ASC.Core.Common.Settings;
 
+using Google.Protobuf;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -69,16 +71,16 @@ namespace ASC.Data.Storage.Configuration
 
                     var scopeClass = scope.ServiceProvider.GetService<BaseStorageSettingsListenerScope>();
                     var (storageSettingsHelper, settingsManager, cdnStorageSettings) = scopeClass;
-                    var settings = settingsManager.LoadForTenant<StorageSettings>(i.TenantId);
+                    var settings = settingsManager.LoadForTenant<StorageSettings, CachedStorageSettings>(i.TenantId);
                     if (i.Name == settings.Module)
                     {
-                        storageSettingsHelper.Clear(settings);
+                        storageSettingsHelper.Clear<StorageSettings,CachedStorageSettings>(settings);
                     }
 
-                    var cdnSettings = settingsManager.LoadForTenant<CdnStorageSettings>(i.TenantId);
+                    var cdnSettings = settingsManager.LoadForTenant<CdnStorageSettings, CachedCdnStorageSettings>(i.TenantId);
                     if (i.Name == cdnSettings.Module)
                     {
-                        storageSettingsHelper.Clear(cdnSettings);
+                        storageSettingsHelper.Clear<CdnStorageSettings, CachedCdnStorageSettings>(cdnSettings);
                     }
                 }, CacheNotifyAction.Remove);
             }
@@ -105,17 +107,41 @@ namespace ASC.Data.Storage.Configuration
     }
 
     [Serializable]
-    public class StorageSettings : BaseStorageSettings<StorageSettings>
+    public class StorageSettings : BaseStorageSettings<StorageSettings>, ICacheWrapped<CachedStorageSettings>
     {
         public override Guid ID
         {
             get { return new Guid("F13EAF2D-FA53-44F1-A6D6-A5AEDA46FA2B"); }
         }
+
+        public CachedStorageSettings WrapIn()
+        {
+            var cached = new CachedStorageSettings();
+            cached.Module = this.Module;
+            if (Props != null) cached.Props.Add(Props);
+
+            return cached;
+        }
+    }
+
+    public partial class CachedStorageSettings : ICustomSer<CachedStorageSettings>, ICacheWrapped<StorageSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public StorageSettings WrapIn()
+        {
+            return new StorageSettings
+            {
+                Module = this.Module,
+                Props = new Dictionary<string, string>(this.Props)
+            };
+        }
     }
 
     [Scope]
     [Serializable]
-    public class CdnStorageSettings : BaseStorageSettings<CdnStorageSettings>
+    public class CdnStorageSettings : BaseStorageSettings<CdnStorageSettings>, ICacheWrapped<CachedCdnStorageSettings>
     {
         public override Guid ID
         {
@@ -123,6 +149,32 @@ namespace ASC.Data.Storage.Configuration
         }
 
         public override Func<DataStoreConsumer, DataStoreConsumer> Switch { get { return d => d.Cdn; } }
+
+        public CachedCdnStorageSettings WrapIn()
+        {
+            var cached = new CachedCdnStorageSettings();
+            cached.Module = Module;
+            if (Props != null) cached.Props.Add(Props);
+
+            return cached;
+        }
+    }
+
+    public partial class CachedCdnStorageSettings :
+        ICustomSer<CachedCdnStorageSettings>, ICacheWrapped<CdnStorageSettings>
+    {
+        public void CustomDeSer() { }
+
+        public void CustomSer() { }
+
+        public CdnStorageSettings WrapIn()
+        {
+            return new CdnStorageSettings
+            {
+                Module = Module,
+                Props = new Dictionary<string, string>(Props)
+            };
+        }
     }
 
     [Scope]
@@ -171,11 +223,13 @@ namespace ASC.Data.Storage.Configuration
             HttpContextAccessor = httpContextAccessor;
         }
 
-        public bool Save<T>(BaseStorageSettings<T> baseStorageSettings) where T : class, ISettings, new()
+        public bool Save<TEntity, TCachedEntity>(TEntity baseStorageSettings)
+            where TEntity : BaseStorageSettings<TEntity>, ISettings, ICacheWrapped<TCachedEntity>, new()
+            where TCachedEntity : ICustomSer<TCachedEntity>, IMessage<TCachedEntity>, ICacheWrapped<TEntity>, new()
         {
             ClearDataStoreCache();
             dataStoreConsumer = null;
-            return SettingsManager.Save(baseStorageSettings);
+            return SettingsManager.Save<TEntity, TCachedEntity>(baseStorageSettings);
         }
 
         internal void ClearDataStoreCache()
@@ -188,11 +242,13 @@ namespace ASC.Data.Storage.Configuration
             }
         }
 
-        public void Clear<T>(BaseStorageSettings<T> baseStorageSettings) where T : class, ISettings, new()
+        public void Clear<TEntity, TCachedEntity>(TEntity baseStorageSettings)
+            where TEntity : BaseStorageSettings<TEntity>, ISettings, ICacheWrapped<TCachedEntity>, new()
+            where TCachedEntity : ICustomSer<TCachedEntity>, IMessage<TCachedEntity>, ICacheWrapped<TEntity>, new()
         {
             baseStorageSettings.Module = null;
             baseStorageSettings.Props = null;
-            Save(baseStorageSettings);
+            Save<TEntity, TCachedEntity>(baseStorageSettings);
         }
 
         private DataStoreConsumer dataStoreConsumer;

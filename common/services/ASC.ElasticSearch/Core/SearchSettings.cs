@@ -43,7 +43,7 @@ using Newtonsoft.Json;
 namespace ASC.ElasticSearch.Core
 {
     [Serializable]
-    public class SearchSettings : ISettings
+    public class SearchSettings : ISettings, ICacheWrapped<CachedSearchSettings>
     {
         public string Data { get; set; }
 
@@ -78,6 +78,29 @@ namespace ASC.ElasticSearch.Core
 
             return wrapper != null && wrapper.Enabled;
         }
+
+        public CachedSearchSettings WrapIn()
+        {
+            return new CachedSearchSettings
+            {
+                Data = this.Data
+            };
+        }
+    }
+
+    public partial class CachedSearchSettings : ICustomSer<CachedSearchSettings>,
+        ICacheWrapped<SearchSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public SearchSettings WrapIn()
+        {
+            return new SearchSettings
+            {
+                Data = this.Data
+            };
+        }
     }
 
     [Scope]
@@ -110,7 +133,7 @@ namespace ASC.ElasticSearch.Core
         {
             if (!CoreBaseSettings.Standalone) return new List<SearchSettingsItem>();
 
-            var settings = SettingsManager.Load<SearchSettings>();
+            var settings = SettingsManager.Load<SearchSettings, CachedSearchSettings>();
 
             return AllItems.Select(r => new SearchSettingsItem
             {
@@ -133,14 +156,14 @@ namespace ASC.ElasticSearch.Core
         {
             if (!CoreBaseSettings.Standalone) return;
 
-            var settings = SettingsManager.Load<SearchSettings>();
+            var settings = SettingsManager.Load<SearchSettings, CachedSearchSettings>();
 
             var settingsItems = settings.Items;
             var toReIndex = !settingsItems.Any() ? items.Where(r => r.Enabled).ToList() : items.Where(item => settingsItems.Any(r => r.ID == item.ID && r.Enabled != item.Enabled)).ToList();
 
             settings.Items = items;
             settings.Data = JsonConvert.SerializeObject(items);
-            SettingsManager.Save(settings);
+            SettingsManager.Save<SearchSettings, CachedSearchSettings>(settings);
 
             var action = new ReIndexAction() { Tenant = TenantManager.GetCurrentTenant().TenantId };
             action.Names.AddRange(toReIndex.Select(r => r.ID).ToList());
@@ -164,7 +187,7 @@ namespace ASC.ElasticSearch.Core
 
             if (!CoreBaseSettings.Standalone) return true;
 
-            var settings = SettingsManager.LoadForTenant<SearchSettings>(tenantId);
+            var settings = SettingsManager.LoadForTenant<SearchSettings, CachedSearchSettings>(tenantId);
 
             return settings.IsEnabled(((ISearchItemDocument)ServiceProvider.GetService(t)).IndexName);
         }

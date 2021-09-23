@@ -26,11 +26,13 @@
 
 using System;
 
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 namespace ASC.Web.Studio.Core
 {
-    public class StudioAdminMessageSettings : ISettings
+    [Serializable]
+    public class StudioAdminMessageSettings : ISettings, ICacheWrapped<CachedStudioAdminMessageSettings>
     {
         public bool Enable { get; set; }
 
@@ -42,6 +44,29 @@ namespace ASC.Web.Studio.Core
         public ISettings GetDefault(IServiceProvider serviceProvider)
         {
             return new StudioAdminMessageSettings { Enable = false };
+        }
+
+        public CachedStudioAdminMessageSettings WrapIn()
+        {
+            return new CachedStudioAdminMessageSettings
+            {
+                Enable = this.Enable
+            };
+        }
+    }
+
+    public partial class CachedStudioAdminMessageSettings : ICustomSer<CachedStudioAdminMessageSettings>,
+        ICacheWrapped<StudioAdminMessageSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public StudioAdminMessageSettings WrapIn()
+        {
+            return new StudioAdminMessageSettings
+            {
+                Enable = this.Enable
+            };
         }
     }
 }

@@ -26,12 +26,13 @@
 
 using System;
 
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 namespace ASC.Web.Studio.Core.Notify
 {
     [Serializable]
-    public class SpamEmailSettings : ISettings
+    public class SpamEmailSettings : ISettings, ICacheWrapped<CachedSpamEmailSettings>
     {
         public int MailsSendedCount { get; set; }
 
@@ -66,6 +67,40 @@ namespace ASC.Web.Studio.Core.Notify
             return MailsSendedDate.Date < DateTime.UtcNow.Date
                        ? 0
                        : MailsSendedCount;
+        }
+
+        public CachedSpamEmailSettings WrapIn()
+        {
+            return new CachedSpamEmailSettings
+            {
+                MailsSendedDate = this.MailsSendedDate,
+                MailsSendedCount = this.MailsSendedCount
+            };
+        }
+    }
+
+    public partial class CachedSpamEmailSettings : ICustomSer<CachedSpamEmailSettings>,
+        ICacheWrapped<SpamEmailSettings>
+    {
+        public DateTime MailsSendedDate { get; set; }
+
+        public void CustomDeSer()
+        {
+            MailsSendedDate = MailsSendedDateProto.ToDateTime();
+        }
+
+        public void CustomSer()
+        {
+            MailsSendedDateProto = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(MailsSendedDate.ToUniversalTime());
+        }
+
+        public SpamEmailSettings WrapIn()
+        {
+            return new SpamEmailSettings
+            {
+                MailsSendedCount = this.MailsSendedCount,
+                MailsSendedDate = this.MailsSendedDate
+            };
         }
     }
 }

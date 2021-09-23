@@ -26,11 +26,12 @@
 
 using System;
 
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 namespace ASC.Web.Studio.Core
 {
-    public class OpensourceGiftSettings : ISettings
+    public class OpensourceGiftSettings : ISettings, ICacheWrapped<CachedOpensourceGiftSettings>
     {
         public bool Readed { get; set; }
 
@@ -46,6 +47,29 @@ namespace ASC.Web.Studio.Core
             return new OpensourceGiftSettings { Readed = false };
         }
 
+        public CachedOpensourceGiftSettings WrapIn()
+        {
+            return new CachedOpensourceGiftSettings
+            {
+                Readed = this.Readed
+            };
+        }
+
         #endregion
+    }
+
+    public partial class CachedOpensourceGiftSettings : ICustomSer<CachedOpensourceGiftSettings>,
+        ICacheWrapped<OpensourceGiftSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public OpensourceGiftSettings WrapIn()
+        {
+            return new OpensourceGiftSettings
+            {
+                Readed = this.Readed
+            };
+        }
     }
 }

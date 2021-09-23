@@ -27,6 +27,7 @@
 using System;
 
 using ASC.Common;
+using ASC.Common.Caching;
 using ASC.Core.Common;
 using ASC.Core.Common.Settings;
 
@@ -36,7 +37,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ASC.Web.Core.WhiteLabel
 {
     [Serializable]
-    public class MailWhiteLabelSettings : ISettings
+    public class MailWhiteLabelSettings : ISettings, ICacheWrapped<CachedMailWhiteLabelSettings>
     {
         public bool FooterEnabled { get; set; }
 
@@ -88,7 +89,7 @@ namespace ASC.Web.Core.WhiteLabel
 
         public static MailWhiteLabelSettings Instance(SettingsManager settingsManager)
         {
-            return settingsManager.LoadForDefaultTenant<MailWhiteLabelSettings>();
+            return settingsManager.LoadForDefaultTenant<MailWhiteLabelSettings, CachedMailWhiteLabelSettings>();
         }
         public static bool IsDefault(SettingsManager settingsManager, IConfiguration configuration)
         {
@@ -98,6 +99,41 @@ namespace ASC.Web.Core.WhiteLabel
         public ISettings GetDefault(IServiceProvider serviceProvider)
         {
             return GetDefault(serviceProvider.GetService<IConfiguration>());
+        }
+
+        public CachedMailWhiteLabelSettings WrapIn()
+        {
+            return new CachedMailWhiteLabelSettings
+            {
+                FooterEnabled = this.FooterEnabled,
+                FooterSocialEnabled = this.FooterSocialEnabled,
+                SupportUrl = this.SupportEmail,
+                SalesEmail = this.SalesEmail,
+                SupportEmail = this.SupportEmail,
+                DemoUrl = this.DemoUrl,
+                SiteUrl = this.SiteUrl
+            };
+        }
+    }
+
+    public partial class CachedMailWhiteLabelSettings : ICustomSer<CachedMailWhiteLabelSettings>,
+        ICacheWrapped<MailWhiteLabelSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public MailWhiteLabelSettings WrapIn()
+        {
+            return new MailWhiteLabelSettings
+            {
+                FooterEnabled = this.FooterEnabled,
+                FooterSocialEnabled = this.FooterSocialEnabled,
+                SupportUrl = this.SupportEmail,
+                SalesEmail = this.SalesEmail,
+                SupportEmail = this.SupportEmail,
+                DemoUrl = this.DemoUrl,
+                SiteUrl = this.SiteUrl
+            };
         }
     }
 

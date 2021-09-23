@@ -28,6 +28,7 @@ using System;
 using System.IO;
 
 using ASC.Common;
+using ASC.Common.Caching;
 using ASC.Common.Utils;
 using ASC.Core.Common.Settings;
 
@@ -37,7 +38,7 @@ using Microsoft.Extensions.Hosting;
 namespace ASC.Web.Core.Utility
 {
     [Serializable]
-    public class ColorThemesSettings : ISettings
+    public class ColorThemesSettings : ISettings, ICacheWrapped<CachedColorThemesSettings>
     {
         public const string ThemeFolderTemplate = "<theme_folder>";
         private const string DefaultName = "pure-orange";
@@ -56,9 +57,33 @@ namespace ASC.Web.Core.Utility
             };
         }
 
+        public CachedColorThemesSettings WrapIn()
+        {
+            return new CachedColorThemesSettings
+            {
+                ColorThemeName = this.ColorThemeName,
+                FirstRequest = this.FirstRequest
+            };
+        }
+
         public Guid ID
         {
             get { return new Guid("{AB5B3C97-A972-475C-BB13-71936186C4E6}"); }
+        }
+    }
+
+    public partial class CachedColorThemesSettings : ICustomSer<CachedColorThemesSettings>, ICacheWrapped<ColorThemesSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public ColorThemesSettings WrapIn()
+        {
+            return new ColorThemesSettings
+            {
+                ColorThemeName = this.ColorThemeName,
+                FirstRequest = this.FirstRequest
+            };
         }
     }
 
@@ -109,13 +134,13 @@ namespace ASC.Web.Core.Utility
 
         public string GetColorThemesSettings()
         {
-            var colorTheme = SettingsManager.Load<ColorThemesSettings>();
+            var colorTheme = SettingsManager.Load<ColorThemesSettings, CachedColorThemesSettings>();
             var colorThemeName = colorTheme.ColorThemeName;
 
             if (colorTheme.FirstRequest)
             {
                 colorTheme.FirstRequest = false;
-                SettingsManager.Save(colorTheme);
+                SettingsManager.Save<ColorThemesSettings, CachedColorThemesSettings>(colorTheme);
             }
 
             return colorThemeName;
@@ -132,7 +157,7 @@ namespace ASC.Web.Core.Utility
                 var filePath = CrossPlatform.PathCombine(HostEnvironment.ContentRootPath, resolvedPath);
                 if (Directory.Exists(filePath))
                 {
-                    SettingsManager.Save(settings);
+                    SettingsManager.Save<ColorThemesSettings, CachedColorThemesSettings>(settings);
                 }
             }
             catch (Exception)

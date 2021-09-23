@@ -28,6 +28,7 @@ using System;
 using System.Text.Json.Serialization;
 
 using ASC.Common;
+using ASC.Common.Caching;
 using ASC.Core;
 using ASC.Core.Common.Settings;
 using ASC.Files.Core;
@@ -36,7 +37,7 @@ using ASC.Web.Studio.Core;
 namespace ASC.Web.Files.Classes
 {
     [Serializable]
-    public class FilesSettings : ISettings
+    public class FilesSettings : ISettings, ICacheWrapped<CachedFilesSettings>
     {
         [JsonPropertyName("EnableThirdpartySettings")]
         public bool EnableThirdpartySetting { get; set; }
@@ -105,9 +106,64 @@ namespace ASC.Web.Files.Classes
             };
         }
 
+        public CachedFilesSettings WrapIn()
+        {
+            return new CachedFilesSettings
+            {
+                FastDeleteSetting = this.FastDeleteSetting,
+                EnableThirdpartySetting = this.EnableThirdpartySetting,
+                StoreOriginalFilesSetting = this.StoreOriginalFilesSetting,
+                UpdateIfExistSetting = this.UpdateIfExistSetting,
+                ConvertNotifySetting = this.ConvertNotifySetting,
+                DefaultSortedBySetting = this.DefaultSortedBySetting,
+                DefaultSortedAscSetting = this.DefaultSortedAscSetting,
+                HideConfirmConvertSaveSetting = this.HideConfirmConvertSaveSetting,
+                HideConfirmConvertOpenSetting = this.HideConfirmConvertOpenSetting,
+                ForcesaveSetting = this.ForcesaveSetting,
+                StoreForcesaveSetting = this.StoreForcesaveSetting,
+                HideRecentSetting = this.HideRecentSetting,
+                HideFavoritesSetting = this.HideFavoritesSetting,
+                HideTemplatesSetting = this.HideTemplatesSetting,
+                DownloadTarGzSetting = this.DownloadTarGzSetting
+            };
+        }
+
         public Guid ID
         {
             get { return new Guid("{03B382BD-3C20-4f03-8AB9-5A33F016316E}"); }
+        }
+    }
+
+    public partial class CachedFilesSettings : ICustomSer<CachedFilesSettings>, ICacheWrapped<FilesSettings>
+    {
+        public SortedByType DefaultSortedBySetting
+        {
+            get => (SortedByType)DefaultSortedBySettingProto;
+            set => DefaultSortedBySettingProto = (int)value;
+        }
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public FilesSettings WrapIn()
+        {
+            return new FilesSettings
+            {
+                FastDeleteSetting = this.FastDeleteSetting,
+                EnableThirdpartySetting = this.EnableThirdpartySetting,
+                StoreOriginalFilesSetting = this.StoreOriginalFilesSetting,
+                UpdateIfExistSetting = this.UpdateIfExistSetting,
+                ConvertNotifySetting = this.ConvertNotifySetting,
+                DefaultSortedBySetting = this.DefaultSortedBySetting,
+                DefaultSortedAscSetting = this.DefaultSortedAscSetting,
+                HideConfirmConvertSaveSetting = this.HideConfirmConvertSaveSetting,
+                HideConfirmConvertOpenSetting = this.HideConfirmConvertOpenSetting,
+                ForcesaveSetting = this.ForcesaveSetting,
+                StoreForcesaveSetting = this.StoreForcesaveSetting,
+                HideRecentSetting = this.HideRecentSetting,
+                HideFavoritesSetting = this.HideFavoritesSetting,
+                HideTemplatesSetting = this.HideTemplatesSetting,
+                DownloadTarGzSetting = this.DownloadTarGzSetting
+            };
         }
     }
 
@@ -140,11 +196,11 @@ namespace ASC.Web.Files.Classes
         {
             set
             {
-                var setting = SettingsManager.Load<FilesSettings>();
+                var setting = SettingsManager.Load<FilesSettings, CachedFilesSettings>();
                 setting.EnableThirdpartySetting = value;
-                SettingsManager.Save(setting);
+                SettingsManager.Save<FilesSettings, CachedFilesSettings>(setting);
             }
-            get { return SettingsManager.Load<FilesSettings>().EnableThirdpartySetting; }
+            get { return SettingsManager.Load<FilesSettings, CachedFilesSettings>().EnableThirdpartySetting; }
         }
 
         public bool StoreOriginalFiles
@@ -237,11 +293,11 @@ namespace ASC.Web.Files.Classes
             set
             {
                 if (CoreBaseSettings.Personal) throw new NotSupportedException();
-                var setting = SettingsManager.Load<FilesSettings>();
+                var setting = SettingsManager.Load<FilesSettings, CachedFilesSettings>();
                 setting.StoreForcesaveSetting = value;
-                SettingsManager.Save(setting);
+                SettingsManager.Save<FilesSettings, CachedFilesSettings>(setting);
             }
-            get { return !CoreBaseSettings.Personal && SettingsManager.Load<FilesSettings>().StoreForcesaveSetting; }
+            get { return !CoreBaseSettings.Personal && SettingsManager.Load<FilesSettings, CachedFilesSettings>().StoreForcesaveSetting; }
         }
 
         public bool RecentSection
@@ -295,12 +351,12 @@ namespace ASC.Web.Files.Classes
 
         private FilesSettings LoadForCurrentUser()
         {
-            return SettingsManager.LoadForCurrentUser<FilesSettings>();
+            return SettingsManager.LoadForCurrentUser<FilesSettings, CachedFilesSettings>();
         }
 
         private void SaveForCurrentUser(FilesSettings settings)
         {
-            SettingsManager.SaveForCurrentUser(settings);
+            SettingsManager.SaveForCurrentUser<FilesSettings, CachedFilesSettings>(settings);
         }
     }
 }

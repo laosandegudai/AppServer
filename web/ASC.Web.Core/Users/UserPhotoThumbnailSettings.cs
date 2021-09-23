@@ -27,12 +27,13 @@
 using System;
 using System.Drawing;
 
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 namespace ASC.Web.Core.Users
 {
     [Serializable]
-    public class UserPhotoThumbnailSettings : ISettings
+    public class UserPhotoThumbnailSettings : ISettings, ICacheWrapped<CachedUserPhotoThumbnailSettings>
     {
         public Guid ID
         {
@@ -68,6 +69,33 @@ namespace ASC.Web.Core.Users
                 Point = new Point(0, 0),
                 Size = new Size(UserPhotoManager.MaxFotoSize.Width, UserPhotoManager.MaxFotoSize.Height),
                 IsDefault = true
+            };
+        }
+
+        public CachedUserPhotoThumbnailSettings WrapIn()
+        {
+            return new CachedUserPhotoThumbnailSettings
+            {
+                X = Point.X,
+                Y = Point.Y,
+                Width = Size.Width,
+                Height = Size.Height
+            };
+        }
+    }
+
+    public partial class CachedUserPhotoThumbnailSettings : ICacheWrapped<UserPhotoThumbnailSettings>, 
+        ICustomSer<CachedUserPhotoThumbnailSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public UserPhotoThumbnailSettings WrapIn()
+        {
+            return new UserPhotoThumbnailSettings
+            {
+                Point = new Point(X, Y),
+                Size = new Size(Width, height_)
             };
         }
     }

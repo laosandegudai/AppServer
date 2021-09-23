@@ -28,12 +28,13 @@ using System;
 using System.Collections.Generic;
 
 using ASC.Common;
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 namespace ASC.Web.Core.Users
 {
     [Serializable]
-    public class UserHelpTourSettings : ISettings
+    public class UserHelpTourSettings : ISettings, ICacheWrapped<CachedUserHelpTourSettings>
     {
         public Guid ID
         {
@@ -52,6 +53,45 @@ namespace ASC.Web.Core.Users
                 IsNewUser = false
             };
         }
+
+        public CachedUserHelpTourSettings WrapIn()
+        {
+            return new CachedUserHelpTourSettings
+            {
+                IsNewUser = IsNewUser,
+                ModuleHelpTour = this.ModuleHelpTour
+            };
+        }
+    }
+
+    public partial class CachedUserHelpTourSettings : ICustomSer<CachedUserHelpTourSettings>,
+        ICacheWrapped<UserHelpTourSettings>
+    {
+        public Dictionary<Guid, int> ModuleHelpTour { get; set; } = new Dictionary<Guid, int>();
+        public void CustomDeSer()
+        {
+            foreach (var pair in ModuleHelpTourProto)
+            {
+                ModuleHelpTour.Add(Guid.Parse(pair.Key), pair.Value);
+            }
+        }
+
+        public void CustomSer()
+        {
+            foreach (var pair in ModuleHelpTour)
+            {
+                ModuleHelpTourProto.Add(pair.Key.ToString(), pair.Value);
+            }
+        }
+
+        public UserHelpTourSettings WrapIn()
+        {
+            return new UserHelpTourSettings
+            {
+                ModuleHelpTour = this.ModuleHelpTour,
+                IsNewUser = this.IsNewUser
+            };
+        }
     }
 
     [Scope]
@@ -66,12 +106,12 @@ namespace ASC.Web.Core.Users
 
         public bool IsNewUser
         {
-            get { return SettingsManager.LoadForCurrentUser<UserHelpTourSettings>().IsNewUser; }
+            get { return SettingsManager.LoadForCurrentUser<UserHelpTourSettings, CachedUserHelpTourSettings>().IsNewUser; }
             set
             {
-                var settings = SettingsManager.LoadForCurrentUser<UserHelpTourSettings>();
+                var settings = SettingsManager.LoadForCurrentUser<UserHelpTourSettings, CachedUserHelpTourSettings>();
                 settings.IsNewUser = value;
-                SettingsManager.SaveForCurrentUser(settings);
+                SettingsManager.SaveForCurrentUser<UserHelpTourSettings, CachedUserHelpTourSettings>(settings);
             }
         }
     }

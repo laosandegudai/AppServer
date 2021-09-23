@@ -26,12 +26,13 @@
 
 using System;
 
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 namespace ASC.Web.Studio.Core
 {
     [Serializable]
-    public class PromotionsSettings : ISettings
+    public class PromotionsSettings : ISettings, ICacheWrapped<CachedPromotionsSettings>
     {
         public bool Show { get; set; }
 
@@ -43,6 +44,29 @@ namespace ASC.Web.Studio.Core
         public ISettings GetDefault(IServiceProvider serviceProvider)
         {
             return new PromotionsSettings { Show = true };
+        }
+
+        public CachedPromotionsSettings WrapIn()
+        {
+            return new CachedPromotionsSettings
+            {
+                Show = this.Show
+            };
+        }
+    }
+
+    public partial class CachedPromotionsSettings : ICustomSer<CachedPromotionsSettings>,
+        ICacheWrapped<PromotionsSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public PromotionsSettings WrapIn()
+        {
+            return new PromotionsSettings
+            {
+                Show = this.Show
+            };
         }
     }
 }

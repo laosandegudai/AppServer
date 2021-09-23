@@ -31,6 +31,7 @@ using System.IO;
 using System.Text.Json.Serialization;
 
 using ASC.Common;
+using ASC.Common.Caching;
 using ASC.Core;
 using ASC.Core.Common.Settings;
 using ASC.Data.Storage;
@@ -41,7 +42,7 @@ using Microsoft.Extensions.Configuration;
 namespace ASC.Web.Core.WhiteLabel
 {
     [Serializable]
-    public class TenantInfoSettings : ISettings
+    public class TenantInfoSettings : ISettings, ICacheWrapped<CachedTenantInfoSettings>
     {
         [JsonPropertyName("LogoSize")]
         public Size CompanyLogoSize { get; internal set; }
@@ -60,9 +61,37 @@ namespace ASC.Web.Core.WhiteLabel
             };
         }
 
+        public CachedTenantInfoSettings WrapIn()
+        {
+            return new CachedTenantInfoSettings
+            {
+                CompanyLogoFileName = this.CompanyLogoFileName,
+                Width = CompanyLogoSize.Width,
+                Height = CompanyLogoSize.Height,
+                IsDefault = this.IsDefault
+            };
+        }
+
         public Guid ID
         {
             get { return new Guid("{5116B892-CCDD-4406-98CD-4F18297C0C0A}"); }
+        }
+    }
+
+    public partial class CachedTenantInfoSettings : ICustomSer<CachedTenantInfoSettings>,
+        ICacheWrapped<TenantInfoSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public TenantInfoSettings WrapIn()
+        {
+            return new TenantInfoSettings
+            {
+                CompanyLogoFileName = this.CompanyLogoFileName,
+                CompanyLogoSize = new Size(Width, Height),
+                IsDefault = this.IsDefault
+            };
         }
     }
 

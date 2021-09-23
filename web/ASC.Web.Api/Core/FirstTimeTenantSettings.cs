@@ -108,7 +108,7 @@ namespace ASC.Web.Studio.UserControls.FirstTime
                 var (email, passwordHash, lng, timeZone, promocode, amiid, subscribeFromSite) = wizardModel;
 
                 var tenant = TenantManager.GetCurrentTenant();
-                var settings = SettingsManager.Load<WizardSettings>();
+                var settings = SettingsManager.Load<WizardSettings, CachedWizardSettings>();
                 if (settings.Completed)
                 {
                     throw new Exception("Wizard passed.");
@@ -171,7 +171,7 @@ namespace ASC.Web.Studio.UserControls.FirstTime
                 }
 
                 settings.Completed = true;
-                SettingsManager.Save(settings);
+                SettingsManager.Save<WizardSettings, CachedWizardSettings>(settings);
 
                 TrySetLanguage(tenant, lng);
 

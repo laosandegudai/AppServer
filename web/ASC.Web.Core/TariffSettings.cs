@@ -28,12 +28,13 @@ using System;
 using System.Globalization;
 using System.Text.Json.Serialization;
 
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 namespace ASC.Web.Studio.UserControls.Management
 {
     [Serializable]
-    public class TariffSettings : ISettings
+    public class TariffSettings : ISettings, ICacheWrapped<CachedTariffSettings>
     {
         private static readonly CultureInfo CultureInfo = CultureInfo.CreateSpecificCulture("en-US");
 
@@ -63,41 +64,67 @@ namespace ASC.Web.Studio.UserControls.Management
 
         public static bool GetHideNotify(SettingsManager settingsManager)
         {
-            return settingsManager.LoadForCurrentUser<TariffSettings>().HideNotifySetting;
+            return settingsManager.LoadForCurrentUser<TariffSettings, CachedTariffSettings>().HideNotifySetting;
         }
 
         public static void SetHideNotify(SettingsManager settingsManager, bool newVal)
         {
-            var tariffSettings = settingsManager.LoadForCurrentUser<TariffSettings>();
+            var tariffSettings = settingsManager.LoadForCurrentUser<TariffSettings, CachedTariffSettings>();
             tariffSettings.HideNotifySetting = newVal;
-            settingsManager.SaveForCurrentUser(tariffSettings);
+            settingsManager.SaveForCurrentUser<TariffSettings, CachedTariffSettings>(tariffSettings);
         }
 
         public static bool GetHidePricingPage(SettingsManager settingsManager)
         {
-            return settingsManager.Load<TariffSettings>().HidePricingPageForUsers;
+            return settingsManager.Load<TariffSettings, CachedTariffSettings>().HidePricingPageForUsers;
         }
 
         public static void SetHidePricingPage(SettingsManager settingsManager, bool newVal)
         {
-            var tariffSettings = settingsManager.Load<TariffSettings>();
+            var tariffSettings = settingsManager.Load<TariffSettings, CachedTariffSettings>();
             tariffSettings.HidePricingPageForUsers = newVal;
-            settingsManager.Save<TariffSettings>(tariffSettings);
+            settingsManager.Save<TariffSettings, CachedTariffSettings>(tariffSettings);
         }
 
         public static bool GetLicenseAccept(SettingsManager settingsManager)
         {
-            return !DateTime.MinValue.ToString(CultureInfo).Equals(settingsManager.LoadForDefaultTenant<TariffSettings>().LicenseAcceptSetting);
+            return !DateTime.MinValue.ToString(CultureInfo).Equals(settingsManager.LoadForDefaultTenant<TariffSettings, CachedTariffSettings>().LicenseAcceptSetting);
         }
 
         public static void SetLicenseAccept(SettingsManager settingsManager)
         {
-            var tariffSettings = settingsManager.LoadForDefaultTenant<TariffSettings>();
+            var tariffSettings = settingsManager.LoadForDefaultTenant<TariffSettings, CachedTariffSettings>();
             if (DateTime.MinValue.ToString(CultureInfo).Equals(tariffSettings.LicenseAcceptSetting))
             {
                 tariffSettings.LicenseAcceptSetting = DateTime.UtcNow.ToString(CultureInfo);
-                settingsManager.SaveForDefaultTenant(tariffSettings);
+                settingsManager.SaveForDefaultTenant<TariffSettings, CachedTariffSettings>(tariffSettings);
             }
+        }
+
+        public CachedTariffSettings WrapIn()
+        {
+            return new CachedTariffSettings()
+            {
+                HidePricingPageForUsers = this.HidePricingPageForUsers,
+                HideNotifySetting = this.HideNotifySetting,
+                LicenseAcceptSetting = this.LicenseAcceptSetting
+            };
+        }
+    }
+
+    public partial class CachedTariffSettings : ICustomSer<CachedTariffSettings>, ICacheWrapped<TariffSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public TariffSettings WrapIn()
+        {
+            return new TariffSettings
+            {
+                HideNotifySetting = this.HideNotifySetting,
+                HidePricingPageForUsers = this.HidePricingPageForUsers,
+                LicenseAcceptSetting = this.LicenseAcceptSetting
+            };
         }
     }
 }

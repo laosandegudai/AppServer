@@ -33,6 +33,7 @@ using System.Linq;
 using System.Text.Json.Serialization;
 
 using ASC.Common;
+using ASC.Common.Caching;
 using ASC.Common.Logging;
 using ASC.Core;
 using ASC.Core.Common.Settings;
@@ -49,7 +50,7 @@ using TMResourceData;
 namespace ASC.Web.Core.WhiteLabel
 {
     [Serializable]
-    public class TenantWhiteLabelSettings : ISettings
+    public class TenantWhiteLabelSettings : ISettings, ICacheWrapped<CachedTenantWhiteLabelSettings>
     {
         public const string DefaultLogoText = BaseWhiteLabelSettings.DefaultLogoText;
 
@@ -83,7 +84,7 @@ namespace ASC.Web.Core.WhiteLabel
             if (!string.IsNullOrEmpty(LogoText) && LogoText != DefaultLogoText)
                 return LogoText;
 
-            var partnerSettings = settingsManager.LoadForDefaultTenant<TenantWhiteLabelSettings>();
+            var partnerSettings = settingsManager.LoadForDefaultTenant<TenantWhiteLabelSettings, CachedTenantWhiteLabelSettings>();
             return string.IsNullOrEmpty(partnerSettings.LogoText) ? DefaultLogoText : partnerSettings.LogoText;
         }
 
@@ -192,8 +193,46 @@ namespace ASC.Web.Core.WhiteLabel
                     break;
             }
         }
-
         #endregion
+
+        public CachedTenantWhiteLabelSettings WrapIn()
+        {
+            return new CachedTenantWhiteLabelSettings
+            {
+                IsDefaultLogoDark = this.IsDefaultLogoDark,
+                IsDefaultLogoDocsEditor = this.IsDefaultLogoDocsEditor,
+                IsDefaultLogoFavicon = this.IsDefaultLogoFavicon,
+                IsDefaultLogoLightSmall = this.IsDefaultLogoLightSmall,
+                LogoDarkExt = this.LogoDarkExt,
+                LogoDocsEditorExt = this.LogoDocsEditorExt,
+                LogoFaviconExt = this.LogoFaviconExt,
+                LogoLightSmallExt = this.LogoLightSmallExt,
+                LogoText = this.LogoText
+            };
+        }
+    }
+
+    public partial class CachedTenantWhiteLabelSettings : ICustomSer<CachedTenantWhiteLabelSettings>,
+        ICacheWrapped<TenantWhiteLabelSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public TenantWhiteLabelSettings WrapIn()
+        {
+            return new TenantWhiteLabelSettings
+            {
+                IsDefaultLogoDark = this.IsDefaultLogoDark,
+                IsDefaultLogoDocsEditor = this.IsDefaultLogoDocsEditor,
+                IsDefaultLogoFavicon = this.IsDefaultLogoFavicon,
+                IsDefaultLogoLightSmall = this.IsDefaultLogoLightSmall,
+                LogoDarkExt = this.LogoDarkExt,
+                LogoDocsEditorExt = this.LogoDocsEditorExt,
+                LogoFaviconExt = this.LogoFaviconExt,
+                LogoLightSmallExt = this.LogoLightSmallExt,
+                LogoText = this.LogoText
+            };
+        }
     }
 
     [Scope]
@@ -439,7 +478,7 @@ namespace ASC.Web.Core.WhiteLabel
 
         private string GetPartnerStorageLogoPath(WhiteLabelLogoTypeEnum type, bool general)
         {
-            var partnerSettings = SettingsManager.LoadForDefaultTenant<TenantWhiteLabelSettings>();
+            var partnerSettings = SettingsManager.LoadForDefaultTenant<TenantWhiteLabelSettings, CachedTenantWhiteLabelSettings>();
 
             if (partnerSettings.GetIsDefault(type)) return null;
 
@@ -480,7 +519,7 @@ namespace ASC.Web.Core.WhiteLabel
 
         private Stream GetPartnerStorageLogoData(WhiteLabelLogoTypeEnum type, bool general)
         {
-            var partnerSettings = SettingsManager.LoadForDefaultTenant<TenantWhiteLabelSettings>();
+            var partnerSettings = SettingsManager.LoadForDefaultTenant<TenantWhiteLabelSettings, CachedTenantWhiteLabelSettings>();
 
             if (partnerSettings.GetIsDefault(type)) return null;
 
@@ -567,7 +606,7 @@ namespace ASC.Web.Core.WhiteLabel
 
         public void Save(TenantWhiteLabelSettings tenantWhiteLabelSettings, int tenantId, TenantLogoManager tenantLogoManager, bool restore = false)
         {
-            SettingsManager.SaveForTenant(tenantWhiteLabelSettings, tenantId);
+            SettingsManager.SaveForTenant<TenantWhiteLabelSettings, CachedTenantWhiteLabelSettings>(tenantWhiteLabelSettings, tenantId);
 
             if (tenantId == Tenant.DEFAULT_TENANT)
             {
@@ -583,7 +622,7 @@ namespace ASC.Web.Core.WhiteLabel
         private void SetNewLogoText(TenantWhiteLabelSettings tenantWhiteLabelSettings, int tenantId, bool restore = false)
         {
             WhiteLabelHelper.DefaultLogoText = TenantWhiteLabelSettings.DefaultLogoText;
-            var partnerSettings = SettingsManager.LoadForDefaultTenant<TenantWhiteLabelSettings>();
+            var partnerSettings = SettingsManager.LoadForDefaultTenant<TenantWhiteLabelSettings, CachedTenantWhiteLabelSettings>();
 
             if (restore && string.IsNullOrEmpty(partnerSettings.GetLogoText(SettingsManager)))
             {

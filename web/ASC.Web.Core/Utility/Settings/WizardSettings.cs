@@ -26,12 +26,13 @@
 
 using System;
 
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 namespace ASC.Web.Core.Utility.Settings
 {
     [Serializable]
-    public class WizardSettings : ISettings
+    public class WizardSettings : ISettings, ICacheWrapped<CachedWizardSettings>
     {
         public bool Completed { get; set; }
 
@@ -46,6 +47,29 @@ namespace ASC.Web.Core.Utility.Settings
             return new WizardSettings
             {
                 Completed = true
+            };
+        }
+
+        public CachedWizardSettings WrapIn()
+        {
+            return new CachedWizardSettings
+            {
+                Completed = this.Completed
+            };
+        }
+    }
+
+    public partial class CachedWizardSettings : ICustomSer<CachedWizardSettings>,
+        ICacheWrapped<WizardSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public WizardSettings WrapIn()
+        {
+            return new WizardSettings
+            {
+                Completed = this.Completed
             };
         }
     }

@@ -28,12 +28,13 @@ using System;
 using System.Text.Json.Serialization;
 
 using ASC.Common;
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 namespace ASC.Web.Studio.Core
 {
     [Serializable]
-    public class PersonalSettings : ISettings
+    public class PersonalSettings : ISettings, ICacheWrapped<CachedPersonalSettings>
     {
 
         [JsonPropertyName("IsNewUser")]
@@ -55,6 +56,31 @@ namespace ASC.Web.Studio.Core
                 IsNotActivatedSetting = false,
             };
         }
+
+        public CachedPersonalSettings WrapIn()
+        {
+            return new CachedPersonalSettings
+            {
+                IsNotActivatedSetting = this.IsNotActivatedSetting,
+                IsNewUserSetting = this.IsNewUserSetting
+            };
+        }
+    }
+
+    public partial class CachedPersonalSettings : ICustomSer<CachedPersonalSettings>,
+        ICacheWrapped<PersonalSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public PersonalSettings WrapIn()
+        {
+            return new PersonalSettings
+            {
+                IsNewUserSetting = this.IsNewUserSetting,
+                IsNotActivatedSetting = this.IsNotActivatedSetting
+            };
+        }
     }
 
     [Scope]
@@ -67,23 +93,23 @@ namespace ASC.Web.Studio.Core
 
         public bool IsNewUser
         {
-            get { return SettingsManager.LoadForCurrentUser<PersonalSettings>().IsNewUserSetting; }
+            get { return SettingsManager.LoadForCurrentUser<PersonalSettings, CachedPersonalSettings>().IsNewUserSetting; }
             set
             {
-                var settings = SettingsManager.LoadForCurrentUser<PersonalSettings>();
+                var settings = SettingsManager.LoadForCurrentUser<PersonalSettings, CachedPersonalSettings>();
                 settings.IsNewUserSetting = value;
-                SettingsManager.SaveForCurrentUser(settings);
+                SettingsManager.SaveForCurrentUser<PersonalSettings, CachedPersonalSettings>(settings);
             }
         }
 
         public bool IsNotActivated
         {
-            get { return SettingsManager.LoadForCurrentUser<PersonalSettings>().IsNotActivatedSetting; }
+            get { return SettingsManager.LoadForCurrentUser<PersonalSettings, CachedPersonalSettings>().IsNotActivatedSetting; }
             set
             {
-                var settings = SettingsManager.LoadForCurrentUser<PersonalSettings>();
+                var settings = SettingsManager.LoadForCurrentUser<PersonalSettings, CachedPersonalSettings>();
                 settings.IsNotActivatedSetting = value;
-                SettingsManager.SaveForCurrentUser(settings);
+                SettingsManager.SaveForCurrentUser<PersonalSettings, CachedPersonalSettings>(settings);
             }
         }
 

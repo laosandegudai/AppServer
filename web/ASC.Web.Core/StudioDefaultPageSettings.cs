@@ -26,12 +26,13 @@
 
 using System;
 
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 namespace ASC.Web.Studio.Core
 {
     [Serializable]
-    public class StudioDefaultPageSettings : ISettings
+    public class StudioDefaultPageSettings : ISettings, ICacheWrapped<CachedStudioDefaultPageSettings>
     {
         public Guid DefaultProductID { get; set; }
 
@@ -48,6 +49,38 @@ namespace ASC.Web.Studio.Core
         public ISettings GetDefault(IServiceProvider serviceProvider)
         {
             return new StudioDefaultPageSettings { DefaultProductID = Guid.Empty };
+        }
+
+        public CachedStudioDefaultPageSettings WrapIn()
+        {
+            return new CachedStudioDefaultPageSettings
+            {
+                DefaultProductID = this.DefaultProductID
+            };
+        }
+    }
+
+    public partial class CachedStudioDefaultPageSettings : ICustomSer<CachedStudioDefaultPageSettings>,
+        ICacheWrapped<StudioDefaultPageSettings>
+    {
+        public Guid DefaultProductID { get; set; }
+
+        public void CustomDeSer()
+        {
+            DefaultProductID = DefaultProductIDProto.FromByteString();
+        }
+
+        public void CustomSer()
+        {
+            DefaultProductIDProto = DefaultProductID.ToByteString();
+        }
+
+        public StudioDefaultPageSettings WrapIn()
+        {
+            return new StudioDefaultPageSettings
+            {
+                DefaultProductID = this.DefaultProductID
+            };
         }
     }
 }
