@@ -1,0 +1,18 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+package ASC.Web.Core.WhiteLabel;
+
+message CachedAdditionalWhiteLabelSettings {
+	bool StartDocsEnabled = 1;
+	bool HelpCenterEnabled = 2;
+	bool FeedbackAndSupportEnabled = 3;
+	google.protobuf.StringValue FeedbackAndSupportUrl = 4;
+	bool UserForumEnabled = 5;
+	google.protobuf.StringValue	UserForumUrl = 6;
+	bool VideoGuidesEnabled = 7;
+	google.protobuf.StringValue VideoGuidesUrl = 8;
+	google.protobuf.StringValue	SalesEmail = 9;
+	google.protobuf.StringValue	BuyUrl = 10;
+	bool LicenseAgreementsEnabled = 11;
+	google.protobuf.StringValue	LicenseAgreementsUrl = 12;
+}

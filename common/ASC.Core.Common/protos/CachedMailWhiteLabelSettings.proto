@@ -1,0 +1,13 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+package ASC.Web.Core.WhiteLabel;
+
+message CachedMailWhiteLabelSettings {
+	bool FooterEnabled = 1;
+	bool FooterSocialEnabled = 2;
+	google.protobuf.StringValue SupportUrl = 3;
+	google.protobuf.StringValue SupportEmail = 4;
+	google.protobuf.StringValue	SalesEmail = 5;
+	google.protobuf.StringValue	DemoUrl = 6;
+	google.protobuf.StringValue	SiteUrl = 7;
+}

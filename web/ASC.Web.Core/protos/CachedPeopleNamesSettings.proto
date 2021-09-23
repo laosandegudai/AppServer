@@ -1,0 +1,12 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+package ASC.Web.Core.Users;
+
+message PeopleNamesItem {
+	google.protobuf.StringValue Id = 1;
+}
+
+message CachedPeopleNamesSettings {
+	PeopleNamesItem Item = 1;
+	google.protobuf.StringValue ItemId = 2;
+}

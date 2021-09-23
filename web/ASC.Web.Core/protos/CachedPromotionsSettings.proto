@@ -1,0 +1,6 @@
+﻿syntax = "proto3";
+package ASC.Web.Studio.Core;
+
+message CachedPromotionsSettings {
+	bool Show = 1;
+}

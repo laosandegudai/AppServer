@@ -1,0 +1,8 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+package ASC.Web.Core.Utility;
+
+message CachedColorThemesSettings {
+	google.protobuf.StringValue ColorThemeName = 1;
+	bool FirstRequest = 2;
+}

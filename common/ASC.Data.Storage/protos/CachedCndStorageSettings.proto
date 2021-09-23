@@ -1,0 +1,8 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+package ASC.Data.Storage.Configuration;
+
+message CachedCdnStorageSettings {
+	google.protobuf.StringValue Module = 1;
+	map<string,string> Props = 2;
+}

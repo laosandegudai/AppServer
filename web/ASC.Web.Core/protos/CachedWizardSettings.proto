@@ -1,0 +1,6 @@
+﻿syntax = "proto3";
+package ASC.Web.Core.Utility.Settings;
+
+message CachedWizardSettings {
+	bool Completed = 1;
+}

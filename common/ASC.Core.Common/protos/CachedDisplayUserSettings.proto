@@ -1,0 +1,6 @@
+﻿syntax = "proto3";
+package ASC.Web.Core.Users;
+
+message CachedDisplayUserSettings {
+	bool IsDisableGettingStarted = 1;
+}

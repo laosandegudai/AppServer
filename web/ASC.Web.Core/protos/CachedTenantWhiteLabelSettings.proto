@@ -1,0 +1,15 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+package ASC.Web.Core.WhiteLabel;
+
+message CachedTenantWhiteLabelSettings {
+	google.protobuf.StringValue LogoLightSmallExt = 1;
+	bool IsDefaultLogoLightSmall = 2;
+	google.protobuf.StringValue	LogoDarkExt = 3;
+	bool IsDefaultLogoDark = 4;
+	google.protobuf.StringValue LogoFaviconExt = 5;
+	bool IsDefaultLogoFavicon = 6;
+	google.protobuf.StringValue LogoDocsEditorExt = 7;
+	bool IsDefaultLogoDocsEditor = 8;
+	google.protobuf.StringValue LogoText = 9;
+}

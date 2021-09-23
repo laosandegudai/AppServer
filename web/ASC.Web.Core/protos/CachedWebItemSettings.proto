@@ -1,0 +1,12 @@
+﻿syntax = "proto3";
+package ASC.Web.Core.Utility.Settings;
+
+message WebItemOption {
+	bytes ItemIDProto = 1;
+	int32 SortOrder = 2;
+	bool Disabled = 3;
+}
+
+message CachedWebItemSettings {
+	repeated WebItemOption SettingsCollection = 1;
+}

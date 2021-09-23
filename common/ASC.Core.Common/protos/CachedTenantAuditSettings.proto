@@ -1,0 +1,7 @@
+﻿syntax = "proto3";
+package ASC.Core.Tenants;
+
+message CachedTenantAuditSettings {
+	int32 LoginHistoryLifeTime = 1;
+	int32 AuditTrailLifeTime = 2;
+}

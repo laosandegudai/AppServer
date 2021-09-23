@@ -1,0 +1,20 @@
+﻿syntax = "proto3";
+package ASC.Web.Files.Classes;
+
+message CachedFilesSettings {
+	bool EnableThirdpartySetting = 1;
+	bool FastDeleteSetting = 2;
+	bool StoreOriginalFilesSetting = 3;
+	bool UpdateIfExistSetting = 4;
+	bool ConvertNotifySetting = 5;
+	int32 DefaultSortedBySettingProto = 6;
+	bool DefaultSortedAscSetting = 7;
+	bool HideConfirmConvertSaveSetting = 8;
+	bool HideConfirmConvertOpenSetting = 9;
+	bool ForcesaveSetting = 10;
+	bool StoreForcesaveSetting = 11;
+	bool HideRecentSetting = 12;
+	bool HideFavoritesSetting = 13;
+	bool HideTemplatesSetting = 14;
+	bool DownloadTarGzSetting = 15;
+}

@@ -1,0 +1,6 @@
+﻿syntax = "proto3";
+package ASC.Core.Tenants;
+
+message CachedTenantControlPanelSettings {
+	bool LimitedAccess = 1;
+}

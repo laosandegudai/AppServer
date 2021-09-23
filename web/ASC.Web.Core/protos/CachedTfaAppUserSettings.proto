@@ -1,0 +1,11 @@
+﻿syntax = "proto3";
+package ASC.Web.Studio.Core.TFA;
+
+message BackupCode {
+	bool IsUsed = 1;
+}
+
+message CachedTfaAppUserSettings {
+	repeated BackupCode CodesSetting = 1;
+	int64 SaltSetting = 2;
+}

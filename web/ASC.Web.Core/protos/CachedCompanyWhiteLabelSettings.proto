@@ -1,0 +1,12 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+package ASC.Web.Core.WhiteLabel;
+
+message CachedCompanyWhiteLabelSettings {
+	google.protobuf.StringValue CompanyName = 1;
+	google.protobuf.StringValue Site = 2;
+	google.protobuf.StringValue Email = 3;
+	google.protobuf.StringValue Address = 4;
+	google.protobuf.StringValue Phone = 5;
+	bool IsLicensorSetting = 6;
+}

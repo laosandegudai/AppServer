@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <None Remove="proto\BoxCacheItem.proto" />
+    <None Remove="proto\CachedFilesSettings.proto" />
     <None Remove="proto\DropboxCacheItem.proto" />
     <None Remove="proto\GoogleDriveCacheItem.proto" />
     <None Remove="proto\OneDriveCacheItem.proto" />
@@ -39,6 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Protobuf Include="proto\CachedFilesSettings.proto" />
     <Protobuf Include="proto\ThumbnailRequest.proto" />
     <Protobuf Include="proto\BoxCacheItem.proto" />
     <Protobuf Include="proto\DropboxCacheItem.proto" />

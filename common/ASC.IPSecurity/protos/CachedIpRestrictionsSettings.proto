@@ -1,0 +1,6 @@
+﻿syntax = "proto3";
+package ASC.IPSecurity;
+
+message CachedIPRestrictionsSettings {
+	bool Enable = 1;
+}

@@ -24,6 +24,7 @@
     <None Remove="Properties\**" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="protos\CachedSearchSettings.proto" />
     <None Remove="protos\SearchItem.proto" />
   </ItemGroup>
   <ItemGroup>
@@ -43,6 +44,7 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
+    <Protobuf Include="protos\CachedSearchSettings.proto" />
     <Protobuf Include="protos\SearchItem.proto" />
   </ItemGroup>
 </Project>

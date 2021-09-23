@@ -1,0 +1,10 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+package ASC.Web.Core.WhiteLabel;
+
+message CachedTenantInfoSettings {
+	int32 Width = 1;
+	int32 Height = 2;
+	google.protobuf.StringValue CompanyLogoFileName = 3;
+	bool IsDefault = 4;
+}

@@ -1,0 +1,7 @@
+﻿syntax = "proto3";
+package ASC.Web.Core.Utility.Settings;
+
+message CachedTenantAccessSettings {
+	bool Anyone = 1;
+	bool RegisterUsersImmediately = 2;
+}

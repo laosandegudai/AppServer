@@ -1,0 +1,6 @@
+﻿syntax = "proto3";
+package ASC.Web.Studio.Core.TFA;
+
+message CachedTfaAppAuthSettings {
+	bool EnableSetting = 1;
+}

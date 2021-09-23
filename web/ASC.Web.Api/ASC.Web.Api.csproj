@@ -21,6 +21,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="proto\CachedOpensourceGiftSettings.proto" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Grpc.Tools" Version="2.40.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="5.0.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="5.0.1" />
   </ItemGroup>
@@ -29,6 +37,10 @@
     <ProjectReference Include="..\..\common\ASC.Core.Common\ASC.Core.Common.csproj" />
     <ProjectReference Include="..\..\common\services\ASC.AuditTrail\ASC.AuditTrail.csproj" />
     <ProjectReference Include="..\..\common\services\ASC.Data.Backup\ASC.Data.Backup.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="proto\CachedOpensourceGiftSettings.proto" />
   </ItemGroup>
 
   <ItemGroup>

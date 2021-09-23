@@ -1,0 +1,8 @@
+﻿syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+package ASC.Web.Studio.Core.Notify;
+
+message CachedSpamEmailSettings {
+	int32 MailsSendedCount = 1;
+	google.protobuf.Timestamp MailsSendedDateProto = 2;
+}

@@ -1,0 +1,7 @@
+﻿syntax = "proto3";
+package ASC.Web.Core.Users;
+
+message CachedUserHelpTourSettings {
+	map<string, int32> ModuleHelpTourProto = 1;
+	bool IsNewUser = 2;
+}

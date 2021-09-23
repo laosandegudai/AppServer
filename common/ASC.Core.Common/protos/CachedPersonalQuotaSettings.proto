@@ -1,0 +1,6 @@
+﻿syntax = "proto3";
+package ASC.Core.Tenants;
+
+message CachedPersonalQuotaSettings {
+	int64 MaxSpace = 1;
+}

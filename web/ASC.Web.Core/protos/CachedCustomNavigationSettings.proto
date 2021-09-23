@@ -1,0 +1,17 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+package ASC.Web.Studio.Core;
+
+message CustomNavigationItem {
+	bytes IdProto = 1;
+	google.protobuf.StringValue Label = 2;
+	google.protobuf.StringValue Url = 3;
+	google.protobuf.StringValue	BigImg = 4;
+	google.protobuf.StringValue	SmallImg = 5;
+	bool ShowInMenu = 6;
+	bool ShowOnHomePage = 7;
+}
+
+message CachedCustomNavigationSettings {
+	repeated CustomNavigationItem Items = 1;
+}

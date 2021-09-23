@@ -32,6 +32,12 @@
     <None Remove="protos\AzRecord.proto" />
     <None Remove="protos\AzRecordCache.proto" />
     <None Remove="protos\AzRecordStore.proto" />
+    <None Remove="protos\CachedDisplayUserSettings.proto" />
+    <None Remove="protos\CachedMailWhiteLabelSettings.proto" />
+    <None Remove="protos\CachedPersonalQuotaSettings.proto" />
+    <None Remove="protos\CachedTenantAuditSettings.proto" />
+    <None Remove="protos\CachedTenantControlPanelSettings.proto" />
+    <None Remove="protos\CachedTenantCookieSettings.proto" />
     <None Remove="protos\Clean.proto" />
     <None Remove="protos\ConsumerCacheItem.proto" />
     <None Remove="protos\CreateClientProto.proto" />
@@ -81,6 +87,12 @@
   <ItemGroup>
     <Protobuf Include="protos\AzRecord.proto" />
     <Protobuf Include="protos\AzRecordStore.proto" />
+    <Protobuf Include="protos\CachedDisplayUserSettings.proto" />
+    <Protobuf Include="protos\CachedMailWhiteLabelSettings.proto" />
+    <Protobuf Include="protos\CachedPersonalQuotaSettings.proto" />
+    <Protobuf Include="protos\CachedTenantAuditSettings.proto" />
+    <Protobuf Include="protos\CachedTenantControlPanelSettings.proto" />
+    <Protobuf Include="protos\CachedTenantCookieSettings.proto" />
     <Protobuf Include="protos\Clean.proto" />
     <Protobuf Include="protos\CreateClientProto.proto" />
     <Protobuf Include="protos\DecimalValue.proto" />

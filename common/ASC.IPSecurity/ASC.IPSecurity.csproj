@@ -14,6 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="protos\CachedIpRestrictionsSettings.proto" />
     <None Remove="protos\IPRestriction.proto" />
   </ItemGroup>
 
@@ -28,6 +29,7 @@
     <ProjectReference Include="..\ASC.Core.Common\ASC.Core.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Protobuf Include="protos\CachedIpRestrictionsSettings.proto" />
     <Protobuf Include="protos\IPRestriction.proto" />
     <Protobuf Include="protos\IPRestrictionItem.proto" />
   </ItemGroup>

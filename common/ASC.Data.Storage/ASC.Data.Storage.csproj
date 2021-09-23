@@ -22,11 +22,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="protos\CachedCndStorageSettings.proto" />
+    <None Remove="protos\CachedStorageSettings.proto" />
     <None Remove="protos\EncryptionStop.proto" />
     <None Remove="protos\MigrationCache.proto" />
     <None Remove="protos\MigrationProgress.proto" />
     <None Remove="protos\MigrationUploadCdn.proto" />
     <None Remove="protos\ProgressEncryption.proto" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="protos\CachedCndStorageSettings.proto" />
+    <Protobuf Include="protos\CachedStorageSettings.proto" />
   </ItemGroup>
 
   <ItemGroup>

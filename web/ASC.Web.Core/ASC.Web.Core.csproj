@@ -19,11 +19,42 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="protos\CachedAdditionalWhiteLabelSettings.proto" />
+    <None Remove="protos\CachedCollaboratorSettings.proto" />
+    <None Remove="protos\CachedColorThemesSettings.proto" />
+    <None Remove="protos\CachedCompanyWhiteLabelSettings.proto" />
+    <None Remove="protos\CachedCustomNavigationSettings.proto" />
+    <None Remove="protos\CachedEmailActivationSettings.proto" />
+    <None Remove="protos\CachedPasswordSettings.proto" />
+    <None Remove="protos\CachedPeopleNamesSettings.proto" />
+    <None Remove="protos\CachedPersonalSettings.proto" />
+    <None Remove="protos\CachedPrivacyRoomSettings.proto" />
+    <None Remove="protos\CachedPromotionsSettings.proto" />
+    <None Remove="protos\CachedSpamEmailSettings.proto" />
+    <None Remove="protos\CachedStudioAdminMessageSettings.proto" />
+    <None Remove="protos\CachedStudioDefaultPageSettings.proto" />
+    <None Remove="protos\CachedStudioSmsNotificationSettings.proto" />
+    <None Remove="protos\CachedStudioTrustedDomainSettings.proto" />
+    <None Remove="protos\CachedTariffSettings.proto" />
+    <None Remove="protos\CachedTenantAccessSettings.proto" />
+    <None Remove="protos\CachedTenantInfoSettings.proto" />
+    <None Remove="protos\CachedTenantWhiteLabelSettings.proto" />
+    <None Remove="protos\CachedTfaAppAuthSettings.proto" />
+    <None Remove="protos\CachedTfaAppUserSettings.proto" />
+    <None Remove="protos\CachedTipsSettings.proto" />
+    <None Remove="protos\CachedUserHelpTourSettings.proto" />
+    <None Remove="protos\CachedUserPhotoThumbnailSettings.proto" />
+    <None Remove="protos\CachedWebItemSettings.proto" />
+    <None Remove="protos\CachedWizardSettings.proto" />
     <None Remove="protos\Counter.proto" />
     <None Remove="protos\MailServerInfo.proto" />
     <None Remove="protos\PhoneKeysStore.proto" />
     <None Remove="protos\WebItemSecurtiyStore.proto" />
     <None Remove="PublicResources\webstudio_patterns.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ApplicationDefinition Include="protos\CachedUserPhotoThumbnailSettings.proto" />
   </ItemGroup>
 
   <ItemGroup>
@@ -207,6 +238,32 @@
   </ItemGroup>
   
   <ItemGroup>
+    <Protobuf Include="protos\CachedAdditionalWhiteLabelSettings.proto" />
+    <Protobuf Include="protos\CachedCollaboratorSettings.proto" />
+    <Protobuf Include="protos\CachedColorThemesSettings.proto" />
+    <Protobuf Include="protos\CachedCompanyWhiteLabelSettings.proto" />
+    <Protobuf Include="protos\CachedCustomNavigationSettings.proto" />
+    <Protobuf Include="protos\CachedEmailActivationSettings.proto" />
+    <Protobuf Include="protos\CachedPasswordSettings.proto" />
+    <Protobuf Include="protos\CachedPeopleNamesSettings.proto" />
+    <Protobuf Include="protos\CachedPersonalSettings.proto" />
+    <Protobuf Include="protos\CachedPrivacyRoomSettings.proto" />
+    <Protobuf Include="protos\CachedPromotionsSettings.proto" />
+    <Protobuf Include="protos\CachedSpamEmailSettings.proto" />
+    <Protobuf Include="protos\CachedStudioAdminMessageSettings.proto" />
+    <Protobuf Include="protos\CachedStudioDefaultPageSettings.proto" />
+    <Protobuf Include="protos\CachedStudioSmsNotificationSettings.proto" />
+    <Protobuf Include="protos\CachedStudioTrustedDomainSettings.proto" />
+    <Protobuf Include="protos\CachedTariffSettings.proto" />
+    <Protobuf Include="protos\CachedTenantAccessSettings.proto" />
+    <Protobuf Include="protos\CachedTenantInfoSettings.proto" />
+    <Protobuf Include="protos\CachedTenantWhiteLabelSettings.proto" />
+    <Protobuf Include="protos\CachedTfaAppAuthSettings.proto" />
+    <Protobuf Include="protos\CachedTfaAppUserSettings.proto" />
+    <Protobuf Include="protos\CachedTipsSettings.proto" />
+    <Protobuf Include="protos\CachedUserHelpTourSettings.proto" />
+    <Protobuf Include="protos\CachedWebItemSettings.proto" />
+    <Protobuf Include="protos\CachedWizardSettings.proto" />
     <Protobuf Include="protos\Counter.proto" />
     <Protobuf Include="protos\MailServerInfo.proto" />
     <Protobuf Include="protos\PhoneKeysStore.proto" />
@@ -216,6 +273,7 @@
     <Protobuf Include="protos\WebItemSecurityNotifier.proto" />
     <Protobuf Include="protos\UserPhotoManagerCacheItem.proto" />
     <Protobuf Include="protos\WebItemSecurtiyStore.proto" />
+	 <Protobuf Include="protos\CachedUserPhotoThumbnailSettings.proto" />
   </ItemGroup>
 
   <ItemGroup>

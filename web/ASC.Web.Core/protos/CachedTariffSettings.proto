@@ -1,0 +1,9 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+package ASC.Web.Studio.UserControls.Management;
+
+message CachedTariffSettings {
+	bool HideNotifySetting = 1;
+	bool HidePricingPageForUsers = 2;
+	google.protobuf.StringValue	LicenseAcceptSetting = 3;
+}
