@@ -1,0 +1,7 @@
+﻿syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+package ASC.ElasticSearch.Core;
+
+message CachedSearchSettings {
+	google.protobuf.StringValue Data = 1;	
+}
