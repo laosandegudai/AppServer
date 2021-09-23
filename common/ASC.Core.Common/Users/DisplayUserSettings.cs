@@ -29,6 +29,7 @@ using System.Reflection;
 using System.Web;
 
 using ASC.Common;
+using ASC.Common.Caching;
 using ASC.Core;
 using ASC.Core.Common.Settings;
 using ASC.Core.Users;
@@ -38,7 +39,7 @@ using Microsoft.Extensions.Configuration;
 namespace ASC.Web.Core.Users
 {
     [Serializable]
-    public class DisplayUserSettings : ISettings
+    public class DisplayUserSettings : ISettings, ICacheWrapped<CachedDisplayUserSettings>
     {
         public Guid ID
         {
@@ -52,6 +53,29 @@ namespace ASC.Web.Core.Users
             return new DisplayUserSettings
             {
                 IsDisableGettingStarted = false,
+            };
+        }
+
+        public CachedDisplayUserSettings WrapIn()
+        {
+            return new CachedDisplayUserSettings
+            {
+                IsDisableGettingStarted = this.IsDisableGettingStarted
+            };
+        }
+    }
+
+    public partial class CachedDisplayUserSettings : ICustomSer<CachedDisplayUserSettings>,
+        ICacheWrapped<DisplayUserSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public DisplayUserSettings WrapIn()
+        {
+            return new DisplayUserSettings
+            {
+                IsDisableGettingStarted = this.IsDisableGettingStarted
             };
         }
     }

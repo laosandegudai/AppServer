@@ -26,12 +26,13 @@
 
 using System;
 
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 namespace ASC.Core.Tenants
 {
     [Serializable]
-    public class TenantAuditSettings : ISettings
+    public class TenantAuditSettings : ISettings, ICacheWrapped<CachedTenantAuditSettings>
     {
         public const int MaxLifeTime = 180;
 
@@ -51,6 +52,30 @@ namespace ASC.Core.Tenants
             {
                 LoginHistoryLifeTime = MaxLifeTime,
                 AuditTrailLifeTime = MaxLifeTime
+            };
+        }
+
+        public CachedTenantAuditSettings WrapIn()
+        {
+            return new CachedTenantAuditSettings
+            {
+                AuditTrailLifeTime = this.AuditTrailLifeTime,
+                LoginHistoryLifeTime = this.LoginHistoryLifeTime
+            };
+        }
+    }
+
+    public partial class CachedTenantAuditSettings : ICustomSer<CachedTenantAuditSettings>, ICacheWrapped<TenantAuditSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public TenantAuditSettings WrapIn()
+        {
+            return new TenantAuditSettings
+            {
+                LoginHistoryLifeTime = this.LoginHistoryLifeTime,
+                AuditTrailLifeTime = this.AuditTrailLifeTime
             };
         }
     }

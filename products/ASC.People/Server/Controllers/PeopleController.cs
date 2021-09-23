@@ -1061,7 +1061,7 @@ namespace ASC.Employee.Core.Controllers
                 var data = UserPhotoManager.GetTempPhotoData(fileName);
 
                 var settings = new UserPhotoThumbnailSettings(thumbnailsModel.X, thumbnailsModel.Y, thumbnailsModel.Width, thumbnailsModel.Height);
-                SettingsManager.SaveForUser(settings, user.ID);
+                SettingsManager.SaveForUser<UserPhotoThumbnailSettings, CachedUserPhotoThumbnailSettings>(settings, user.ID);
 
                 UserPhotoManager.RemovePhoto(user.ID);
                 UserPhotoManager.SaveOrUpdatePhoto(user.ID, data);

@@ -702,7 +702,7 @@ namespace ASC.Web.Files.Services.DocumentService
             get
             {
                 if (CoreBaseSettings.Standalone) return null;
-                var settings = SettingsManager.LoadForDefaultTenant<AdditionalWhiteLabelSettings>();
+                var settings = SettingsManager.LoadForDefaultTenant<AdditionalWhiteLabelSettings, CachedAdditionalWhiteLabelSettings>();
                 if (!settings.FeedbackAndSupportEnabled) return null;
 
                 return new FeedbackConfig
@@ -834,7 +834,7 @@ namespace ASC.Web.Files.Services.DocumentService
             set { }
             get
             {
-                return (SettingsManager.Load<TenantWhiteLabelSettings>().GetLogoText(SettingsManager) ?? "")
+                return (SettingsManager.Load<TenantWhiteLabelSettings, CachedTenantWhiteLabelSettings>().GetLogoText(SettingsManager) ?? "")
                     .Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("/", "\\/");
             }
         }

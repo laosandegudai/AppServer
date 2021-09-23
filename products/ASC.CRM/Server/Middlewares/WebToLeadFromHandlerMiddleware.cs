@@ -92,7 +92,7 @@ namespace ASC.Web.CRM.HttpHandlers
 
                 var webFromKeyAsGuid = new Guid(webFromKey);
 
-                var TenantSettings = SettingsManager.Load<CrmSettings>();
+                var TenantSettings = SettingsManager.Load<CrmSettings, CachedCrmSettings>();
 
                 return TenantSettings.WebFormKey == webFromKeyAsGuid;
             }

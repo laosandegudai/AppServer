@@ -338,11 +338,11 @@ namespace ASC.ApiSystem.Controllers
                     /* set wizard not completed*/
                     TenantManager.SetCurrentTenant(t);
 
-                    var settings = SettingsManager.Load<WizardSettings>();
+                    var settings = SettingsManager.Load<WizardSettings, CachedWizardSettings>();
 
                     settings.Completed = false;
 
-                    SettingsManager.Save(settings);
+                    SettingsManager.Save<WizardSettings, CachedWizardSettings>(settings);
                 }
                 catch (Exception e)
                 {

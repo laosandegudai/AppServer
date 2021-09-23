@@ -328,7 +328,7 @@ namespace ASC.Api.Settings
             }
             else
             {
-                if (!SettingsManager.Load<WizardSettings>().Completed)
+                if (!SettingsManager.Load<WizardSettings, CachedWizardSettings>().Completed)
                 {
                     settings.WizardToken = CommonLinkUtility.GetToken(Tenant.TenantId, "", ConfirmType.Wizard, userId: Tenant.OwnerId);
                 }
@@ -344,7 +344,7 @@ namespace ASC.Api.Settings
                     settings.TrustedDomains = Tenant.TrustedDomains;
                 }
 
-                var studioAdminMessageSettings = SettingsManager.Load<StudioAdminMessageSettings>();
+                var studioAdminMessageSettings = SettingsManager.Load<StudioAdminMessageSettings, CachedStudioAdminMessageSettings>();
 
                 settings.EnableAdmMess = studioAdminMessageSettings.Enable || TenantExtra.IsNotPaid();
 
@@ -373,7 +373,7 @@ namespace ASC.Api.Settings
         {
             PermissionContext.DemandPermissions(SecutiryConstants.EditPortalSettings);
 
-            SettingsManager.Save(new StudioAdminMessageSettings { Enable = model.TurnOn });
+            SettingsManager.Save<StudioAdminMessageSettings, CachedStudioAdminMessageSettings>(new StudioAdminMessageSettings { Enable = model.TurnOn });
 
             MessageService.Send(MessageAction.AdministratorMessageSettingsUpdated);
 
@@ -397,7 +397,7 @@ namespace ASC.Api.Settings
 
         private object SendAdmMail(AdminMessageSettingsModel model)
         {
-            var studioAdminMessageSettings = SettingsManager.Load<StudioAdminMessageSettings>();
+            var studioAdminMessageSettings = SettingsManager.Load<StudioAdminMessageSettings, CachedStudioAdminMessageSettings>();
             var enableAdmMess = studioAdminMessageSettings.Enable || TenantExtra.IsNotPaid();
 
             if (!enableAdmMess)
@@ -451,7 +451,7 @@ namespace ASC.Api.Settings
 
             Tenant.TrustedDomainsType = model.Type;
 
-            SettingsManager.Save(new StudioTrustedDomainSettings { InviteUsersAsVisitors = model.InviteUsersAsVisitors });
+            SettingsManager.Save<StudioTrustedDomainSettings, CachedStudioTrustedDomainSettings>(new StudioTrustedDomainSettings { InviteUsersAsVisitors = model.InviteUsersAsVisitors });
 
             TenantManager.SaveTenant(Tenant);
 
@@ -495,12 +495,12 @@ namespace ASC.Api.Settings
                 if (!user.ID.Equals(Constants.LostUser.ID))
                     throw new Exception(CustomNamingPeople.Substitute<Resource>("ErrorEmailAlreadyExists"));
 
-                var settings = SettingsManager.Load<IPRestrictionsSettings>();
+                var settings = SettingsManager.Load<IPRestrictionsSettings, CachedIPRestrictionsSettings>();
 
                 if (settings.Enable && !IpSecurity.Verify())
                     throw new Exception(Resource.ErrorAccessRestricted);
 
-                var trustedDomainSettings = SettingsManager.Load<StudioTrustedDomainSettings>();
+                var trustedDomainSettings = SettingsManager.Load<StudioTrustedDomainSettings, CachedStudioTrustedDomainSettings>();
                 var emplType = trustedDomainSettings.InviteUsersAsVisitors ? EmployeeType.Visitor : EmployeeType.User;
                 var enableInviteUsers = TenantStatisticsProvider.GetUsersCount() < TenantExtra.GetTenantQuota().ActiveUsers;
 
@@ -862,7 +862,7 @@ namespace ASC.Api.Settings
         [Authorize(AuthenticationSchemes = "confirm", Roles = "Everyone")]
         public object GetPasswordSettings()
         {
-            var UserPasswordSettings = SettingsManager.Load<PasswordSettings>();
+            var UserPasswordSettings = SettingsManager.Load<PasswordSettings, CachedPasswordSettings>();
 
             return UserPasswordSettings;
         }
@@ -938,7 +938,7 @@ namespace ASC.Api.Settings
                     itemList.Add(item.Key, item.Value);
             }
 
-            var defaultPageSettings = SettingsManager.Load<StudioDefaultPageSettings>();
+            var defaultPageSettings = SettingsManager.Load<StudioDefaultPageSettings, CachedStudioDefaultPageSettings>();
 
             foreach (var item in itemList)
             {
@@ -961,7 +961,7 @@ namespace ASC.Api.Settings
                 }
                 else if (productId == defaultPageSettings.DefaultProductID)
                 {
-                    SettingsManager.Save((StudioDefaultPageSettings)defaultPageSettings.GetDefault(ServiceProvider));
+                    SettingsManager.Save<StudioDefaultPageSettings, CachedStudioDefaultPageSettings>((StudioDefaultPageSettings)defaultPageSettings.GetDefault(ServiceProvider));
                 }
 
                 WebItemSecurity.SetSecurity(item.Key, item.Value, subjects);
@@ -1025,7 +1025,7 @@ namespace ASC.Api.Settings
         [Read("logo")]
         public object GetLogo()
         {
-            return TenantInfoSettingsHelper.GetAbsoluteCompanyLogoPath(SettingsManager.Load<TenantInfoSettings>());
+            return TenantInfoSettingsHelper.GetAbsoluteCompanyLogoPath(SettingsManager.Load<TenantInfoSettings, CachedTenantInfoSettings>());
         }
 
         ///<visible>false</visible>
@@ -1065,14 +1065,14 @@ namespace ASC.Api.Settings
 
         private void SaveWhiteLabelSettingsForCurrentTenant(WhiteLabelModel model)
         {
-            var settings = SettingsManager.Load<TenantWhiteLabelSettings>();
+            var settings = SettingsManager.Load<TenantWhiteLabelSettings, CachedTenantWhiteLabelSettings>();
 
             SaveWhiteLabelSettingsForTenant(settings, null, Tenant.TenantId, model);
         }
 
         private void SaveWhiteLabelSettingsForDefaultTenant(WhiteLabelModel model)
         {
-            var settings = SettingsManager.LoadForDefaultTenant<TenantWhiteLabelSettings>();
+            var settings = SettingsManager.LoadForDefaultTenant<TenantWhiteLabelSettings, CachedTenantWhiteLabelSettings>();
             var storage = StorageFactory.GetStorage(string.Empty, "static_partnerdata");
 
             SaveWhiteLabelSettingsForTenant(settings, storage, Tenant.DEFAULT_TENANT, model);
@@ -1123,14 +1123,14 @@ namespace ASC.Api.Settings
 
         private void SaveWhiteLabelSettingsFromFilesForCurrentTenant()
         {
-            var settings = SettingsManager.Load<TenantWhiteLabelSettings>();
+            var settings = SettingsManager.Load<TenantWhiteLabelSettings, CachedTenantWhiteLabelSettings>();
 
             SaveWhiteLabelSettingsFromFilesForTenant(settings, null, Tenant.TenantId);
         }
 
         private void SaveWhiteLabelSettingsFromFilesForDefaultTenant()
         {
-            var settings = SettingsManager.LoadForDefaultTenant<TenantWhiteLabelSettings>();
+            var settings = SettingsManager.LoadForDefaultTenant<TenantWhiteLabelSettings, CachedTenantWhiteLabelSettings>();
             var storage = StorageFactory.GetStorage(string.Empty, "static_partnerdata");
 
             SaveWhiteLabelSettingsFromFilesForTenant(settings, storage, Tenant.DEFAULT_TENANT);
@@ -1146,7 +1146,7 @@ namespace ASC.Api.Settings
                 TenantWhiteLabelSettingsHelper.SetLogoFromStream(settings, logoType, fileExt, f.OpenReadStream(), storage);
             }
 
-            SettingsManager.SaveForTenant(settings, tenantId);
+            SettingsManager.SaveForTenant<TenantWhiteLabelSettings, CachedTenantWhiteLabelSettings>(settings, tenantId);
         }
 
 
@@ -1198,7 +1198,7 @@ namespace ASC.Api.Settings
             }
             else
             {
-                var _tenantWhiteLabelSettings = SettingsManager.Load<TenantWhiteLabelSettings>();
+                var _tenantWhiteLabelSettings = SettingsManager.Load<TenantWhiteLabelSettings, CachedTenantWhiteLabelSettings>();
 
                 result = new Dictionary<string, string>
                     {
@@ -1221,7 +1221,7 @@ namespace ASC.Api.Settings
                 throw new BillingException(Resource.ErrorNotAllowedOption, "WhiteLabel");
             }
 
-            var settings = query.IsDefault ? SettingsManager.LoadForDefaultTenant<TenantWhiteLabelSettings>() : SettingsManager.Load<TenantWhiteLabelSettings>();
+            var settings = query.IsDefault ? SettingsManager.LoadForDefaultTenant<TenantWhiteLabelSettings, CachedTenantWhiteLabelSettings>() : SettingsManager.Load<TenantWhiteLabelSettings, CachedTenantWhiteLabelSettings>();
 
             return settings.LogoText ?? TenantWhiteLabelSettings.DefaultLogoText;
         }
@@ -1251,18 +1251,18 @@ namespace ASC.Api.Settings
 
         private void RestoreWhiteLabelOptionsForCurrentTenant()
         {
-            var settings = SettingsManager.Load<TenantWhiteLabelSettings>();
+            var settings = SettingsManager.Load<TenantWhiteLabelSettings, CachedTenantWhiteLabelSettings>();
 
             RestoreWhiteLabelOptionsForTenant(settings, null, Tenant.TenantId);
 
-            var tenantInfoSettings = SettingsManager.Load<TenantInfoSettings>();
+            var tenantInfoSettings = SettingsManager.Load<TenantInfoSettings, CachedTenantInfoSettings>();
             TenantInfoSettingsHelper.RestoreDefaultLogo(tenantInfoSettings, TenantLogoManager);
-            SettingsManager.Save(tenantInfoSettings);
+            SettingsManager.Save<TenantInfoSettings, CachedTenantInfoSettings>(tenantInfoSettings);
         }
 
         private void RestoreWhiteLabelOptionsForDefaultTenant()
         {
-            var settings = SettingsManager.LoadForDefaultTenant<TenantWhiteLabelSettings>();
+            var settings = SettingsManager.LoadForDefaultTenant<TenantWhiteLabelSettings, CachedTenantWhiteLabelSettings>();
             var storage = StorageFactory.GetStorage(string.Empty, "static_partnerdata");
 
             RestoreWhiteLabelOptionsForTenant(settings, storage, Tenant.DEFAULT_TENANT);
@@ -1318,7 +1318,7 @@ namespace ASC.Api.Settings
             PermissionContext.DemandPermissions(SecutiryConstants.EditPortalSettings);
 
             var settings = new IPRestrictionsSettings { Enable = model.Enable };
-            SettingsManager.Save(settings);
+            SettingsManager.Save<IPRestrictionsSettings, CachedIPRestrictionsSettings>(settings);
 
             return settings;
         }
@@ -1339,7 +1339,7 @@ namespace ASC.Api.Settings
         private TipsSettings UpdateTipsSettings(SettingsModel model)
         {
             var settings = new TipsSettings { Show = model.Show };
-            SettingsManager.SaveForCurrentUser(settings);
+            SettingsManager.SaveForCurrentUser<TipsSettings, CachedTipsSettings>(settings);
 
             if (!model.Show && !string.IsNullOrEmpty(SetupInfo.TipsAddress))
             {
@@ -1417,7 +1417,7 @@ namespace ASC.Api.Settings
             {
                 result.Add(new TfaSettings
                 {
-                    Enabled = SettingsManager.Load<TfaAppAuthSettings>().EnableSetting,
+                    Enabled = SettingsManager.Load<TfaAppAuthSettings, CachedTfaAppAuthSettings>().EnableSetting,
                     Id = "app",
                     Title = Resource.ButtonTfaAppEnable,
                     Avaliable = true
@@ -1450,7 +1450,7 @@ namespace ASC.Api.Settings
                 return CommonLinkUtility.GetConfirmationUrl(user.Email, confirmType);
             }
 
-            if (TfaAppAuthSettings.IsVisibleSettings && SettingsManager.Load<TfaAppAuthSettings>().EnableSetting)
+            if (TfaAppAuthSettings.IsVisibleSettings && SettingsManager.Load<TfaAppAuthSettings, CachedTfaAppAuthSettings>().EnableSetting)
             {
                 var confirmType = TfaAppUserSettings.EnableForUser(SettingsManager, AuthContext.CurrentAccount.ID)
                     ? ConfirmType.TfaAuth
@@ -1482,7 +1482,7 @@ namespace ASC.Api.Settings
             var result = false;
 
             MessageAction action;
-            var settings = SettingsManager.Load<TfaAppAuthSettings>();
+            var settings = SettingsManager.Load<TfaAppAuthSettings, CachedTfaAppAuthSettings>();
 
             switch (model.Type)
             {
@@ -1499,7 +1499,7 @@ namespace ASC.Api.Settings
                     if (settings.EnableSetting)
                     {
                         settings.EnableSetting = false;
-                        SettingsManager.Save(settings);
+                        SettingsManager.Save<TfaAppAuthSettings, CachedTfaAppAuthSettings>(settings);
                     }
 
                     result = true;
@@ -1513,7 +1513,7 @@ namespace ASC.Api.Settings
                     }
 
                     settings.EnableSetting = true;
-                    SettingsManager.Save(settings);
+                    SettingsManager.Save<TfaAppAuthSettings, CachedTfaAppAuthSettings>(settings);
 
                     action = MessageAction.TwoFactorAuthenticationEnabledByTfaApp;
 
@@ -1530,7 +1530,7 @@ namespace ASC.Api.Settings
                     if (settings.EnableSetting)
                     {
                         settings.EnableSetting = false;
-                        SettingsManager.Save(settings);
+                        SettingsManager.Save<TfaAppAuthSettings, CachedTfaAppAuthSettings>(settings);
                     }
 
                     if (StudioSmsNotificationSettingsHelper.IsVisibleSettings() && StudioSmsNotificationSettingsHelper.Enable)
@@ -1560,7 +1560,7 @@ namespace ASC.Api.Settings
             var currentUser = UserManager.GetUsers(AuthContext.CurrentAccount.ID);
 
             if (!TfaAppAuthSettings.IsVisibleSettings ||
-                !SettingsManager.Load<TfaAppAuthSettings>().EnableSetting ||
+                !SettingsManager.Load<TfaAppAuthSettings, CachedTfaAppAuthSettings>().EnableSetting ||
                 TfaAppUserSettings.EnableForUser(SettingsManager, currentUser.ID))
                 throw new Exception(Resource.TfaAppNotAvailable);
 
@@ -1581,7 +1581,7 @@ namespace ASC.Api.Settings
             if (currentUser.IsVisitor(UserManager) || currentUser.IsOutsider(UserManager))
                 throw new NotSupportedException("Not available.");
 
-            return SettingsManager.LoadForCurrentUser<TfaAppUserSettings>().CodesSetting.Select(r => new { r.IsUsed, r.Code }).ToList();
+            return SettingsManager.LoadForCurrentUser<TfaAppUserSettings, CachedTfaAppUserSettings>().CodesSetting.Select(r => new { r.IsUsed, r.Code }).ToList();
         }
 
         [Update("tfaappnewcodes")]
@@ -1647,13 +1647,13 @@ namespace ASC.Api.Settings
         {
             var currentUser = UserManager.GetUsers(AuthContext.CurrentAccount.ID);
 
-            var collaboratorPopupSettings = SettingsManager.LoadForCurrentUser<CollaboratorSettings>();
+            var collaboratorPopupSettings = SettingsManager.LoadForCurrentUser<CollaboratorSettings, CachedCollaboratorSettings>();
 
             if (!(currentUser.IsVisitor(UserManager) && collaboratorPopupSettings.FirstVisit && !currentUser.IsOutsider(UserManager)))
                 throw new NotSupportedException("Not available.");
 
             collaboratorPopupSettings.FirstVisit = false;
-            SettingsManager.SaveForCurrentUser(collaboratorPopupSettings);
+            SettingsManager.SaveForCurrentUser<CollaboratorSettings, CachedCollaboratorSettings>(collaboratorPopupSettings);
         }
 
         ///<visible>false</visible>
@@ -1829,7 +1829,7 @@ namespace ASC.Api.Settings
         {
             PermissionContext.DemandPermissions(SecutiryConstants.EditPortalSettings);
 
-            SettingsManager.Save(new StudioDefaultPageSettings { DefaultProductID = model.DefaultProductID });
+            SettingsManager.Save<StudioDefaultPageSettings, CachedStudioDefaultPageSettings>(new StudioDefaultPageSettings { DefaultProductID = model.DefaultProductID });
 
             MessageService.Send(MessageAction.DefaultStartPageSettingsUpdated);
 
@@ -1939,7 +1939,7 @@ namespace ASC.Api.Settings
             try
             {
                 ApiContext.AuthByClaim();
-                if (!AuthContext.IsAuthenticated && SettingsManager.Load<WizardSettings>().Completed) throw new SecurityException(Resource.PortalSecurity);
+                if (!AuthContext.IsAuthenticated && SettingsManager.Load<WizardSettings, CachedWizardSettings>().Completed) throw new SecurityException(Resource.PortalSecurity);
                 if (!model.Files.Any()) throw new Exception(Resource.ErrorEmptyUploadFileSelected);
 
 
@@ -1983,7 +1983,7 @@ namespace ASC.Api.Settings
         [Read("customnavigation/getall")]
         public List<CustomNavigationItem> GetCustomNavigationItems()
         {
-            return SettingsManager.Load<CustomNavigationSettings>().Items;
+            return SettingsManager.Load<CustomNavigationSettings, CachedCustomNavigationSettings>().Items;
         }
 
         [Read("customnavigation/getsample")]
@@ -1995,7 +1995,7 @@ namespace ASC.Api.Settings
         [Read("customnavigation/get/{id}")]
         public CustomNavigationItem GetCustomNavigationItem(Guid id)
         {
-            return SettingsManager.Load<CustomNavigationSettings>().Items.FirstOrDefault(item => item.Id == id);
+            return SettingsManager.Load<CustomNavigationSettings, CachedCustomNavigationSettings>().Items.FirstOrDefault(item => item.Id == id);
         }
 
         [Create("customnavigation/create")]
@@ -2015,7 +2015,7 @@ namespace ASC.Api.Settings
         {
             PermissionContext.DemandPermissions(SecutiryConstants.EditPortalSettings);
 
-            var settings = SettingsManager.Load<CustomNavigationSettings>();
+            var settings = SettingsManager.Load<CustomNavigationSettings, CachedCustomNavigationSettings>();
 
             var exist = false;
 
@@ -2053,7 +2053,7 @@ namespace ASC.Api.Settings
                 settings.Items.Add(item);
             }
 
-            SettingsManager.Save(settings);
+            SettingsManager.Save<CustomNavigationSettings, CachedCustomNavigationSettings>(settings);
 
             MessageService.Send(MessageAction.CustomNavigationSettingsUpdated);
 
@@ -2065,7 +2065,7 @@ namespace ASC.Api.Settings
         {
             PermissionContext.DemandPermissions(SecutiryConstants.EditPortalSettings);
 
-            var settings = SettingsManager.Load<CustomNavigationSettings>();
+            var settings = SettingsManager.Load<CustomNavigationSettings, CachedCustomNavigationSettings>();
 
             var terget = settings.Items.FirstOrDefault(item => item.Id == id);
 
@@ -2075,7 +2075,7 @@ namespace ASC.Api.Settings
             StorageHelper.DeleteLogo(terget.BigImg);
 
             settings.Items.Remove(terget);
-            SettingsManager.Save(settings);
+            SettingsManager.Save<CustomNavigationSettings, CachedCustomNavigationSettings>(settings);
 
             MessageService.Send(MessageAction.CustomNavigationSettingsUpdated);
         }
@@ -2083,7 +2083,7 @@ namespace ASC.Api.Settings
         [Update("emailactivation")]
         public EmailActivationSettings UpdateEmailActivationSettingsFromBody([FromBody] EmailActivationSettings settings)
         {
-            SettingsManager.SaveForCurrentUser(settings);
+            SettingsManager.SaveForCurrentUser<EmailActivationSettings, CachedEmailActivationSettings>(settings);
             return settings;
         }
 
@@ -2091,7 +2091,7 @@ namespace ASC.Api.Settings
         [Consumes("application/x-www-form-urlencoded")]
         public EmailActivationSettings UpdateEmailActivationSettingsFromForm([FromForm] EmailActivationSettings settings)
         {
-            SettingsManager.SaveForCurrentUser(settings);
+            SettingsManager.SaveForCurrentUser<EmailActivationSettings, CachedEmailActivationSettings>(settings);
             return settings;
         }
 
@@ -2193,7 +2193,7 @@ namespace ASC.Api.Settings
 
             TenantExtra.DemandControlPanelPermission();
 
-            var current = SettingsManager.Load<StorageSettings>();
+            var current = SettingsManager.Load<StorageSettings, CachedStorageSettings>();
             var consumers = ConsumerFactory.GetAll<DataStoreConsumer>().ToList();
             return consumers.Select(consumer => new StorageWrapper(consumer, current)).ToList();
         }
@@ -2442,7 +2442,7 @@ namespace ASC.Api.Settings
                 if (!consumer.IsSet)
                     throw new ArgumentException("module");
 
-                var settings = SettingsManager.Load<StorageSettings>();
+                var settings = SettingsManager.Load<StorageSettings, CachedStorageSettings>();
                 if (settings.Module == model.Module) return settings;
 
                 settings.Module = model.Module;
@@ -2468,7 +2468,7 @@ namespace ASC.Api.Settings
 
                 TenantExtra.DemandControlPanelPermission();
 
-                var settings = SettingsManager.Load<StorageSettings>();
+                var settings = SettingsManager.Load<StorageSettings, CachedStorageSettings>();
 
                 settings.Module = null;
                 settings.Props = null;
@@ -2491,7 +2491,7 @@ namespace ASC.Api.Settings
 
             TenantExtra.DemandControlPanelPermission();
 
-            var current = SettingsManager.Load<CdnStorageSettings>();
+            var current = SettingsManager.Load<CdnStorageSettings, CachedCdnStorageSettings>();
             var consumers = ConsumerFactory.GetAll<DataStoreConsumer>().Where(r => r.Cdn != null).ToList();
             return consumers.Select(consumer => new StorageWrapper(consumer, current)).ToList();
         }
@@ -2520,7 +2520,7 @@ namespace ASC.Api.Settings
             if (!consumer.IsSet)
                 throw new ArgumentException("module");
 
-            var settings = SettingsManager.Load<CdnStorageSettings>();
+            var settings = SettingsManager.Load<CdnStorageSettings, CachedCdnStorageSettings>();
             if (settings.Module == model.Module) return settings;
 
             settings.Module = model.Module;
@@ -2547,7 +2547,7 @@ namespace ASC.Api.Settings
 
             TenantExtra.DemandControlPanelPermission();
 
-            StorageSettingsHelper.Clear(SettingsManager.Load<CdnStorageSettings>());
+            StorageSettingsHelper.Clear<CdnStorageSettings, CachedCdnStorageSettings>(SettingsManager.Load<CdnStorageSettings, CachedCdnStorageSettings>());
         }
 
         [Read("storage/backup")]
@@ -2601,7 +2601,7 @@ namespace ASC.Api.Settings
         [Read("controlpanel")]
         public TenantControlPanelSettings GetTenantControlPanelSettings()
         {
-            return SettingsManager.Load<TenantControlPanelSettings>();
+            return SettingsManager.Load<TenantControlPanelSettings, CachedTenantControlPanelSettings>();
         }
 
         ///<visible>false</visible>
@@ -2626,7 +2626,7 @@ namespace ASC.Api.Settings
 
             companyWhiteLabelSettingsWrapper.Settings.IsLicensorSetting = false; //TODO: CoreContext.TenantManager.GetTenantQuota(TenantProvider.CurrentTenantID).Branding && settings.IsLicensor
 
-            SettingsManager.SaveForDefaultTenant(companyWhiteLabelSettingsWrapper.Settings);
+            SettingsManager.SaveForDefaultTenant<CompanyWhiteLabelSettings, CachedCompanyWhiteLabelSettings>(companyWhiteLabelSettingsWrapper.Settings);
             return true;
         }
 
@@ -2634,7 +2634,7 @@ namespace ASC.Api.Settings
         [Read("rebranding/company")]
         public CompanyWhiteLabelSettings GetCompanyWhiteLabelSettings()
         {
-            return SettingsManager.LoadForDefaultTenant<CompanyWhiteLabelSettings>();
+            return SettingsManager.LoadForDefaultTenant<CompanyWhiteLabelSettings, CachedCompanyWhiteLabelSettings>();
         }
 
         ///<visible>false</visible>
@@ -2643,9 +2643,9 @@ namespace ASC.Api.Settings
         {
             DemandRebrandingPermission();
 
-            var defaultSettings = (CompanyWhiteLabelSettings)SettingsManager.LoadForDefaultTenant<CompanyWhiteLabelSettings>().GetDefault(CoreSettings);
+            var defaultSettings = (CompanyWhiteLabelSettings)SettingsManager.LoadForDefaultTenant<CompanyWhiteLabelSettings, CachedCompanyWhiteLabelSettings>().GetDefault(CoreSettings);
 
-            SettingsManager.SaveForDefaultTenant(defaultSettings);
+            SettingsManager.SaveForDefaultTenant<CompanyWhiteLabelSettings, CachedCompanyWhiteLabelSettings>(defaultSettings);
 
             return defaultSettings;
         }
@@ -2670,7 +2670,7 @@ namespace ASC.Api.Settings
 
             DemandRebrandingPermission();
 
-            SettingsManager.SaveForDefaultTenant(wrapper.Settings);
+            SettingsManager.SaveForDefaultTenant<AdditionalWhiteLabelSettings, CachedAdditionalWhiteLabelSettings>(wrapper.Settings);
             return true;
         }
 
@@ -2678,7 +2678,7 @@ namespace ASC.Api.Settings
         [Read("rebranding/additional")]
         public AdditionalWhiteLabelSettings GetAdditionalWhiteLabelSettings()
         {
-            return SettingsManager.LoadForDefaultTenant<AdditionalWhiteLabelSettings>();
+            return SettingsManager.LoadForDefaultTenant<AdditionalWhiteLabelSettings, CachedAdditionalWhiteLabelSettings>();
         }
 
         ///<visible>false</visible>
@@ -2687,9 +2687,9 @@ namespace ASC.Api.Settings
         {
             DemandRebrandingPermission();
 
-            var defaultSettings = (AdditionalWhiteLabelSettings)SettingsManager.LoadForDefaultTenant<AdditionalWhiteLabelSettings>().GetDefault(Configuration);
+            var defaultSettings = (AdditionalWhiteLabelSettings)SettingsManager.LoadForDefaultTenant<AdditionalWhiteLabelSettings, CachedAdditionalWhiteLabelSettings>().GetDefault(Configuration);
 
-            SettingsManager.SaveForDefaultTenant(defaultSettings);
+            SettingsManager.SaveForDefaultTenant<AdditionalWhiteLabelSettings, CachedAdditionalWhiteLabelSettings>(defaultSettings);
 
             return defaultSettings;
         }
@@ -2714,7 +2714,7 @@ namespace ASC.Api.Settings
 
             DemandRebrandingPermission();
 
-            SettingsManager.SaveForDefaultTenant(settings);
+            SettingsManager.SaveForDefaultTenant<MailWhiteLabelSettings, CachedMailWhiteLabelSettings>(settings);
             return true;
         }
 
@@ -2736,11 +2736,11 @@ namespace ASC.Api.Settings
         {
             DemandRebrandingPermission();
 
-            var settings = SettingsManager.LoadForDefaultTenant<MailWhiteLabelSettings>();
+            var settings = SettingsManager.LoadForDefaultTenant<MailWhiteLabelSettings, CachedMailWhiteLabelSettings>();
 
             settings.FooterEnabled = model.FooterEnabled;
 
-            SettingsManager.SaveForDefaultTenant(settings);
+            SettingsManager.SaveForDefaultTenant<MailWhiteLabelSettings, CachedMailWhiteLabelSettings>(settings);
 
             return true;
         }
@@ -2749,7 +2749,7 @@ namespace ASC.Api.Settings
         [Read("rebranding/mail")]
         public MailWhiteLabelSettings GetMailWhiteLabelSettings()
         {
-            return SettingsManager.LoadForDefaultTenant<MailWhiteLabelSettings>();
+            return SettingsManager.LoadForDefaultTenant<MailWhiteLabelSettings, CachedMailWhiteLabelSettings>();
         }
 
         ///<visible>false</visible>
@@ -2758,9 +2758,9 @@ namespace ASC.Api.Settings
         {
             DemandRebrandingPermission();
 
-            var defaultSettings = (MailWhiteLabelSettings)SettingsManager.LoadForDefaultTenant<MailWhiteLabelSettings>().GetDefault(Configuration);
+            var defaultSettings = (MailWhiteLabelSettings)SettingsManager.LoadForDefaultTenant<MailWhiteLabelSettings, CachedMailWhiteLabelSettings>().GetDefault(Configuration);
 
-            SettingsManager.SaveForDefaultTenant(defaultSettings);
+            SettingsManager.SaveForDefaultTenant<MailWhiteLabelSettings, CachedMailWhiteLabelSettings>(defaultSettings);
 
             return defaultSettings;
         }
@@ -2864,7 +2864,7 @@ namespace ASC.Api.Settings
         [Read("payment", Check = false)]
         public object PaymentSettings()
         {
-            var settings = SettingsManager.LoadForDefaultTenant<AdditionalWhiteLabelSettings>();
+            var settings = SettingsManager.LoadForDefaultTenant<AdditionalWhiteLabelSettings, CachedAdditionalWhiteLabelSettings>();
             var currentQuota = TenantExtra.GetTenantQuota();
             var currentTariff = TenantExtra.GetCurrentTariff();
 

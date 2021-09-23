@@ -170,11 +170,11 @@ namespace ASC.CRM.Api
         [Update(@"contact/status/settings")]
         public Boolean? UpdateCRMContactStatusSettings(Boolean? changeContactStatusGroupAuto)
         {
-            var tenantSettings = _settingsManager.Load<CrmSettings>();
+            var tenantSettings = _settingsManager.Load<CrmSettings, CachedCrmSettings>();
 
             tenantSettings.ChangeContactStatusGroupAuto = changeContactStatusGroupAuto;
 
-            _settingsManager.Save<CrmSettings>(tenantSettings);
+            _settingsManager.Save<CrmSettings, CachedCrmSettings>(tenantSettings);
 
             _messageService.Send(MessageAction.ContactTemperatureLevelSettingsUpdated);
 
@@ -194,11 +194,11 @@ namespace ASC.CRM.Api
         [Update(@"contact/mailtohistory/settings")]
         public Boolean UpdateCRMWriteMailToHistorySettings(Boolean writeMailToHistoryAuto)
         {
-            var tenantSettings = _settingsManager.Load<CrmSettings>();
+            var tenantSettings = _settingsManager.Load<CrmSettings, CachedCrmSettings>();
 
             tenantSettings.WriteMailToHistoryAuto = writeMailToHistoryAuto;
 
-            _settingsManager.Save<CrmSettings>(tenantSettings);
+            _settingsManager.Save<CrmSettings, CachedCrmSettings>(tenantSettings);
             //MessageService.Send( MessageAction.ContactTemperatureLevelSettingsUpdated);
 
             return writeMailToHistoryAuto;
@@ -217,10 +217,10 @@ namespace ASC.CRM.Api
         [Update(@"contact/tag/settings")]
         public Boolean? UpdateCRMContactTagSettings(Boolean? addTagToContactGroupAuto)
         {
-            var tenantSettings = _settingsManager.Load<CrmSettings>();
+            var tenantSettings = _settingsManager.Load<CrmSettings, CachedCrmSettings>();
             tenantSettings.AddTagToContactGroupAuto = addTagToContactGroupAuto;
 
-            _settingsManager.Save<CrmSettings>(tenantSettings);
+            _settingsManager.Save<CrmSettings, CachedCrmSettings>(tenantSettings);
 
             _messageService.Send(MessageAction.ContactsTagSettingsUpdated);
 
@@ -241,12 +241,12 @@ namespace ASC.CRM.Api
         {
             if (!_crmSecurity.IsAdmin) throw _crmSecurity.CreateSecurityException();
 
-            var tenantSettings = _settingsManager.Load<CrmSettings>();
+            var tenantSettings = _settingsManager.Load<CrmSettings, CachedCrmSettings>();
 
             tenantSettings.IsConfiguredPortal = configured ?? true;
             tenantSettings.WebFormKey = webFormKey ?? Guid.NewGuid();
 
-            _settingsManager.Save<CrmSettings>(tenantSettings);
+            _settingsManager.Save<CrmSettings, CachedCrmSettings>(tenantSettings);
 
             return tenantSettings.IsConfiguredPortal;
         }
@@ -264,7 +264,7 @@ namespace ASC.CRM.Api
         {
             if (!_crmSecurity.IsAdmin) throw _crmSecurity.CreateSecurityException();
 
-            var tenantSettings = _settingsManager.Load<CrmSettings>();
+            var tenantSettings = _settingsManager.Load<CrmSettings, CachedCrmSettings>();
 
             if (tenantSettings.InvoiceSetting == null)
             {
@@ -272,7 +272,7 @@ namespace ASC.CRM.Api
             }
             tenantSettings.InvoiceSetting.CompanyName = companyName;
 
-            _settingsManager.Save<CrmSettings>(tenantSettings);
+            _settingsManager.Save<CrmSettings, CachedCrmSettings>(tenantSettings);
 
             _messageService.Send(MessageAction.OrganizationProfileUpdatedCompanyName, companyName);
 
@@ -296,7 +296,7 @@ namespace ASC.CRM.Api
         {
             if (!_crmSecurity.IsAdmin) throw _crmSecurity.CreateSecurityException();
 
-            var tenantSettings = _settingsManager.Load<CrmSettings>();
+            var tenantSettings = _settingsManager.Load<CrmSettings, CachedCrmSettings>();
 
             if (tenantSettings.InvoiceSetting == null)
             {
@@ -315,7 +315,7 @@ namespace ASC.CRM.Api
 
             tenantSettings.InvoiceSetting.CompanyAddress = companyAddress;
 
-            _settingsManager.Save<CrmSettings>(tenantSettings);
+            _settingsManager.Save<CrmSettings, CachedCrmSettings>(tenantSettings);
 
             _messageService.Send(MessageAction.OrganizationProfileUpdatedAddress);
 
@@ -351,7 +351,7 @@ namespace ASC.CRM.Api
                 companyLogoID = 0;
             }
 
-            var tenantSettings = _settingsManager.Load<CrmSettings>();
+            var tenantSettings = _settingsManager.Load<CrmSettings, CachedCrmSettings>();
 
             if (tenantSettings.InvoiceSetting == null)
             {
@@ -359,7 +359,7 @@ namespace ASC.CRM.Api
             }
             tenantSettings.InvoiceSetting.CompanyLogoID = companyLogoID;
 
-            _settingsManager.Save<CrmSettings>(tenantSettings);
+            _settingsManager.Save<CrmSettings, CachedCrmSettings>(tenantSettings);
 
             _messageService.Send(MessageAction.OrganizationProfileUpdatedInvoiceLogo);
 
@@ -383,7 +383,7 @@ namespace ASC.CRM.Api
             }
             else
             {
-                var tenantSettings = _settingsManager.Load<CrmSettings>();
+                var tenantSettings = _settingsManager.Load<CrmSettings, CachedCrmSettings>();
 
                 if (tenantSettings.InvoiceSetting == null)
                 {
@@ -406,11 +406,11 @@ namespace ASC.CRM.Api
         {
             if (!_crmSecurity.IsAdmin) throw _crmSecurity.CreateSecurityException();
 
-            var tenantSettings = _settingsManager.Load<CrmSettings>();
+            var tenantSettings = _settingsManager.Load<CrmSettings, CachedCrmSettings>();
 
             tenantSettings.WebFormKey = Guid.NewGuid();
 
-            _settingsManager.Save<CrmSettings>(tenantSettings);
+            _settingsManager.Save<CrmSettings, CachedCrmSettings>(tenantSettings);
 
             _messageService.Send(MessageAction.WebsiteContactFormUpdatedKey);
 

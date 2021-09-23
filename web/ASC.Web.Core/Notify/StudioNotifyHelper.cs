@@ -166,7 +166,7 @@ namespace ASC.Web.Studio.Core.Notify
                 var tariff = TenantManager.GetTenantQuota(tenant.TenantId);
                 if (tariff.Free || tariff.Trial)
                 {
-                    var spamEmailSettings = SettingsManager.Load<SpamEmailSettings>();
+                    var spamEmailSettings = SettingsManager.Load<SpamEmailSettings, CachedSpamEmailSettings>();
                     var sended = spamEmailSettings.MailsSended;
 
                     var mayTake = Math.Max(0, CountMailsToNotActivated - sended);
@@ -178,7 +178,7 @@ namespace ASC.Web.Studio.Core.Notify
                         Log.Warn(string.Format("Free tenant {0} for today is trying to send {1} more letters without checking activation. Sent {2}", tenant.TenantId, tryCount, mayTake));
                     }
                     spamEmailSettings.MailsSended = sended + tryCount;
-                    SettingsManager.Save(spamEmailSettings);
+                    SettingsManager.Save<SpamEmailSettings, CachedSpamEmailSettings>(spamEmailSettings);
                 }
             }
 

@@ -31,13 +31,14 @@ using System.Reflection;
 using System.Xml;
 
 using ASC.Common;
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 using ASC.Web.Core.PublicResources;
 
 namespace ASC.Web.Core.Users
 {
     [Serializable]
-    public class PeopleNamesSettings : ISettings
+    public class PeopleNamesSettings : ISettings, ICacheWrapped<CachedPeopleNamesSettings>
     {
         public Guid ID
         {
@@ -52,9 +53,18 @@ namespace ASC.Web.Core.Users
         {
             return new PeopleNamesSettings { ItemId = PeopleNamesItem.DefaultID };
         }
+
+        public CachedPeopleNamesSettings WrapIn()
+        {
+            return new CachedPeopleNamesSettings
+            {
+                Item = Item,
+                ItemId = ItemId
+            };
+        }
     }
 
-    public class PeopleNamesItem
+    public partial class PeopleNamesItem
     {
         private static readonly StringComparison cmp = StringComparison.InvariantCultureIgnoreCase;
 
@@ -88,8 +98,6 @@ namespace ASC.Web.Core.Users
         {
             get { return "custom"; }
         }
-
-        public string Id { get; set; }
 
         public string SchemaName
         {
@@ -161,6 +169,21 @@ namespace ASC.Web.Core.Users
         }
     }
 
+    public partial class CachedPeopleNamesSettings : ICustomSer<CachedPeopleNamesSettings>, ICacheWrapped<PeopleNamesSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public PeopleNamesSettings WrapIn()
+        {
+            return new PeopleNamesSettings
+            {
+                Item = this.Item,
+                ItemId = this.ItemId
+            };
+        }
+    }
+
     [Scope]
     public class CustomNamingPeople
     {
@@ -186,7 +209,7 @@ namespace ASC.Web.Core.Users
         {
             get
             {
-                var settings = SettingsManager.Load<PeopleNamesSettings>();
+                var settings = SettingsManager.Load<PeopleNamesSettings, CachedPeopleNamesSettings>();
                 return PeopleNamesItem.CustomID.Equals(settings.ItemId, StringComparison.InvariantCultureIgnoreCase) && settings.Item != null ?
                     settings.Item :
                     GetPeopleNames(settings.ItemId);
@@ -217,7 +240,7 @@ namespace ASC.Web.Core.Users
         {
             if (PeopleNamesItem.CustomID.Equals(schemaId, StringComparison.InvariantCultureIgnoreCase))
             {
-                var settings = SettingsManager.Load<PeopleNamesSettings>();
+                var settings = SettingsManager.Load<PeopleNamesSettings, CachedPeopleNamesSettings>();
                 var result = settings.Item;
                 if (result == null)
                 {
@@ -248,18 +271,18 @@ namespace ASC.Web.Core.Users
 
         public void SetPeopleNames(string schemaId)
         {
-            var settings = SettingsManager.Load<PeopleNamesSettings>();
+            var settings = SettingsManager.Load<PeopleNamesSettings, CachedPeopleNamesSettings>();
             settings.ItemId = schemaId;
-            SettingsManager.Save(settings);
+            SettingsManager.Save<PeopleNamesSettings, CachedPeopleNamesSettings>(settings);
         }
 
         public void SetPeopleNames(PeopleNamesItem custom)
         {
-            var settings = SettingsManager.Load<PeopleNamesSettings>();
+            var settings = SettingsManager.Load<PeopleNamesSettings, CachedPeopleNamesSettings>();
             custom.Id = PeopleNamesItem.CustomID;
             settings.ItemId = PeopleNamesItem.CustomID;
             settings.Item = custom;
-            SettingsManager.Save(settings);
+            SettingsManager.Save<PeopleNamesSettings, CachedPeopleNamesSettings>(settings);
         }
 
 

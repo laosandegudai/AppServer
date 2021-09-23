@@ -71,7 +71,7 @@ namespace ASC.CRM.Mapping
 
         public InvoiceDto Convert(Invoice source, InvoiceDto destination, ResolutionContext context)
         {
-            var crmSettings = _settingsManager.Load<CrmSettings>();
+            var crmSettings = _settingsManager.Load<CrmSettings, CachedCrmSettings>();
             var defaultCurrency = _currencyProvider.Get(crmSettings.DefaultCurrency);
 
             var result = new InvoiceDto

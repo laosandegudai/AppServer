@@ -142,7 +142,7 @@ namespace ASC.Web.Studio.Core.Notify
             message = (message ?? "").Trim();
             if (string.IsNullOrEmpty(message) && !CoreBaseSettings.CustomMode) throw new ArgumentNullException("message");
 
-            var salesEmail = SettingsManager.LoadForDefaultTenant<AdditionalWhiteLabelSettings>().SalesEmail ?? SetupInfo.SalesEmail;
+            var salesEmail = SettingsManager.LoadForDefaultTenant<AdditionalWhiteLabelSettings, CachedAdditionalWhiteLabelSettings>().SalesEmail ?? SetupInfo.SalesEmail;
 
             var recipient = (IRecipient)(new DirectRecipient(AuthContext.CurrentAccount.ID.ToString(), string.Empty, new[] { salesEmail }, false));
 
@@ -880,7 +880,7 @@ namespace ASC.Web.Studio.Core.Notify
             {
                 if (!TenantExtra.Saas || !CoreBaseSettings.CustomMode) return;
 
-                var settings = SettingsManager.LoadForDefaultTenant<AdditionalWhiteLabelSettings>();
+                var settings = SettingsManager.LoadForDefaultTenant<AdditionalWhiteLabelSettings, CachedAdditionalWhiteLabelSettings>();
                 var salesEmail = settings.SalesEmail ?? SetupInfo.SalesEmail;
 
                 if (string.IsNullOrEmpty(salesEmail)) return;

@@ -77,7 +77,7 @@ namespace ASC.Web.Core.WhiteLabel
         public string GetFavicon(bool general, bool timeParam)
         {
             string faviconPath;
-            var tenantWhiteLabelSettings = SettingsManager.Load<TenantWhiteLabelSettings>();
+            var tenantWhiteLabelSettings = SettingsManager.Load<TenantWhiteLabelSettings, CachedTenantWhiteLabelSettings>();
             if (WhiteLabelEnabled)
             {
                 faviconPath = TenantWhiteLabelSettingsHelper.GetAbsoluteLogoPath(tenantWhiteLabelSettings, WhiteLabelLogoTypeEnum.Favicon, general);
@@ -97,7 +97,7 @@ namespace ASC.Web.Core.WhiteLabel
 
         public string GetTopLogo(bool general)//LogoLightSmall
         {
-            var tenantWhiteLabelSettings = SettingsManager.Load<TenantWhiteLabelSettings>();
+            var tenantWhiteLabelSettings = SettingsManager.Load<TenantWhiteLabelSettings, CachedTenantWhiteLabelSettings>();
 
             if (WhiteLabelEnabled)
             {
@@ -110,18 +110,18 @@ namespace ASC.Web.Core.WhiteLabel
         {
             if (WhiteLabelEnabled)
             {
-                var tenantWhiteLabelSettings = SettingsManager.Load<TenantWhiteLabelSettings>();
+                var tenantWhiteLabelSettings = SettingsManager.Load<TenantWhiteLabelSettings, CachedTenantWhiteLabelSettings>();
                 return TenantWhiteLabelSettingsHelper.GetAbsoluteLogoPath(tenantWhiteLabelSettings, WhiteLabelLogoTypeEnum.Dark, general);
             }
 
             /*** simple scheme ***/
-            return TenantInfoSettingsHelper.GetAbsoluteCompanyLogoPath(SettingsManager.Load<TenantInfoSettings>());
+            return TenantInfoSettingsHelper.GetAbsoluteCompanyLogoPath(SettingsManager.Load<TenantInfoSettings, CachedTenantInfoSettings>());
             /***/
         }
 
         public string GetLogoDocsEditor(bool general)
         {
-            var tenantWhiteLabelSettings = SettingsManager.Load<TenantWhiteLabelSettings>();
+            var tenantWhiteLabelSettings = SettingsManager.Load<TenantWhiteLabelSettings, CachedTenantWhiteLabelSettings>();
 
             if (WhiteLabelEnabled)
             {
@@ -134,7 +134,7 @@ namespace ASC.Web.Core.WhiteLabel
         {
             if (WhiteLabelEnabled)
             {
-                var tenantWhiteLabelSettings = SettingsManager.Load<TenantWhiteLabelSettings>();
+                var tenantWhiteLabelSettings = SettingsManager.Load<TenantWhiteLabelSettings, CachedTenantWhiteLabelSettings>();
 
                 return tenantWhiteLabelSettings.GetLogoText(SettingsManager) ?? TenantWhiteLabelSettings.DefaultLogoText;
             }
@@ -179,12 +179,12 @@ namespace ASC.Web.Core.WhiteLabel
         {
             if (WhiteLabelEnabled)
             {
-                var tenantWhiteLabelSettings = SettingsManager.Load<TenantWhiteLabelSettings>();
+                var tenantWhiteLabelSettings = SettingsManager.Load<TenantWhiteLabelSettings, CachedTenantWhiteLabelSettings>();
                 return TenantWhiteLabelSettingsHelper.GetWhitelabelLogoData(tenantWhiteLabelSettings, WhiteLabelLogoTypeEnum.Dark, true);
             }
 
             /*** simple scheme ***/
-            return TenantInfoSettingsHelper.GetStorageLogoData(SettingsManager.Load<TenantInfoSettings>());
+            return TenantInfoSettingsHelper.GetStorageLogoData(SettingsManager.Load<TenantInfoSettings, CachedTenantInfoSettings>());
             /***/
         }
 

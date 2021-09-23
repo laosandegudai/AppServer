@@ -84,7 +84,7 @@ namespace ASC.Web.Studio.Utility
             {
                 return
                     SetupInfo.IsVisibleSettings<TariffSettings>()
-                    && !SettingsManager.Load<TenantAccessSettings>().Anyone
+                    && !SettingsManager.Load<TenantAccessSettings, CachedTenantAccessSettings>().Anyone
                     && (!CoreBaseSettings.Standalone || !string.IsNullOrEmpty(LicenseReader.LicensePath))
                     && string.IsNullOrEmpty(SetupInfo.AmiMetaUrl);
             }
@@ -216,7 +216,7 @@ namespace ASC.Web.Studio.Utility
 
         public void DemandControlPanelPermission()
         {
-            if (!CoreBaseSettings.Standalone || SettingsManager.Load<TenantControlPanelSettings>().LimitedAccess)
+            if (!CoreBaseSettings.Standalone || SettingsManager.Load<TenantControlPanelSettings, CachedTenantControlPanelSettings>().LimitedAccess)
             {
                 throw new System.Security.SecurityException(Resource.ErrorAccessDenied);
             }

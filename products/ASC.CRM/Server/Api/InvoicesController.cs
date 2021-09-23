@@ -126,7 +126,7 @@ namespace ASC.CRM.Api
         [Read(@"invoice/sample")]
         public InvoiceDto GetInvoiceSample()
         {
-            var crmSettings = _settingsManager.Load<CrmSettings>();
+            var crmSettings = _settingsManager.Load<CrmSettings, CachedCrmSettings>();
             var defaultCurrency = _currencyProvider.Get(crmSettings.DefaultCurrency);
 
             var sample = InvoiceDto.GetSample();

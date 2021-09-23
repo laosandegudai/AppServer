@@ -490,7 +490,7 @@ namespace ASC.Web.Studio.Utility
 
         public string GetHelpLink(SettingsManager settingsManager, AdditionalWhiteLabelSettingsHelper additionalWhiteLabelSettingsHelper, bool inCurrentCulture = true)
         {
-            if (!settingsManager.LoadForDefaultTenant<AdditionalWhiteLabelSettings>().HelpCenterEnabled)
+            if (!settingsManager.LoadForDefaultTenant<AdditionalWhiteLabelSettings, CachedAdditionalWhiteLabelSettings>().HelpCenterEnabled)
                 return string.Empty;
 
             var url = additionalWhiteLabelSettingsHelper.DefaultHelpCenterUrl;

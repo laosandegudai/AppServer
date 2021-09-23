@@ -196,7 +196,7 @@ namespace ASC.Web.Core.Users
             if (string.IsNullOrWhiteSpace(password))
                 throw new Exception(Resource.ErrorPasswordEmpty);
 
-            var passwordSettingsObj = SettingsManager.Load<PasswordSettings>();
+            var passwordSettingsObj = SettingsManager.Load<PasswordSettings, CachedPasswordSettings>();
 
             if (!CheckPasswordRegex(passwordSettingsObj, password))
                 throw new Exception(GenerateErrorMessage(passwordSettingsObj));
@@ -327,7 +327,7 @@ namespace ASC.Web.Core.Users
         public string GetPasswordHelpMessage()
         {
             var info = new StringBuilder();
-            var passwordSettings = SettingsManager.Load<PasswordSettings>();
+            var passwordSettings = SettingsManager.Load<PasswordSettings, CachedPasswordSettings>();
             info.AppendFormat("{0} ", Resource.ErrorPasswordMessageStart);
             info.AppendFormat(Resource.ErrorPasswordLength, passwordSettings.MinLength, PasswordSettings.MaxLength);
             if (passwordSettings.UpperCase)

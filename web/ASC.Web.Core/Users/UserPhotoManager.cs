@@ -516,7 +516,7 @@ namespace ASC.Web.Core.Users
         public void ResetThumbnailSettings(Guid userId)
         {
             var thumbSettings = new UserPhotoThumbnailSettings().GetDefault(ServiceProvider) as UserPhotoThumbnailSettings;
-            SettingsManager.SaveForUser(thumbSettings, userId);
+            SettingsManager.SaveForUser<UserPhotoThumbnailSettings, CachedUserPhotoThumbnailSettings>(thumbSettings, userId);
         }
 
         public string SaveOrUpdatePhoto(Guid userID, byte[] data)
@@ -586,7 +586,7 @@ namespace ASC.Web.Core.Users
 
         private void SetUserPhotoThumbnailSettings(Guid userId, int width, int height)
         {
-            var settings = SettingsManager.LoadForUser<UserPhotoThumbnailSettings>(userId);
+            var settings = SettingsManager.LoadForUser<UserPhotoThumbnailSettings, CachedUserPhotoThumbnailSettings>(userId);
 
             if (!settings.IsDefault) return;
 
@@ -599,7 +599,7 @@ namespace ASC.Web.Core.Users
                 width >= height ? new Point(pos, 0) : new Point(0, pos),
                 new Size(min, min));
 
-            SettingsManager.SaveForUser(settings, userId);
+            SettingsManager.SaveForUser<UserPhotoThumbnailSettings, CachedUserPhotoThumbnailSettings>(settings, userId);
         }
 
         private byte[] TryParseImage(byte[] data, long maxFileSize, Size maxsize, out ImageFormat imgFormat, out int width, out int height)
@@ -683,7 +683,8 @@ namespace ASC.Web.Core.Users
             if (data == null || data.Length <= 0) throw new UnknownImageFormatException();
             if (maxFileSize != -1 && data.Length > maxFileSize) throw new ImageWeightLimitException();
 
-            var resizeTask = new ResizeWorkerItem(userID, data, maxFileSize, size, GetDataStore(), SettingsManager.LoadForUser<UserPhotoThumbnailSettings>(userID));
+            var resizeTask = new ResizeWorkerItem(userID, data, maxFileSize, size, GetDataStore(), 
+                SettingsManager.LoadForUser<UserPhotoThumbnailSettings, CachedUserPhotoThumbnailSettings>(userID));
             var key = $"{userID}{size}";
             resizeTask.SetProperty("key", key);
 

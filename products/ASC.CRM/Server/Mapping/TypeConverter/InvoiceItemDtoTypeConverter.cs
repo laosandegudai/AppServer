@@ -69,7 +69,7 @@ namespace ASC.CRM.Mapping
             if (destination != null)
                 throw new NotImplementedException();
 
-            var crmSettings = _settingsManager.Load<CrmSettings>();
+            var crmSettings = _settingsManager.Load<CrmSettings, CachedCrmSettings>();
             var defaultCurrency = _currencyProvider.Get(crmSettings.DefaultCurrency);
 
             var result = new InvoiceItemDto

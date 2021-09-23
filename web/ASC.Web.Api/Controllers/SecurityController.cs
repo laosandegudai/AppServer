@@ -93,7 +93,7 @@ namespace ASC.Web.Api.Controllers
             if (!TenantExtra.GetTenantQuota().Audit || !SetupInfo.IsVisibleSettings(ManagementType.LoginHistory.ToString()))
                 throw new BillingException(Resource.ErrorNotAllowedOption, "Audit");
 
-            var settings = SettingsManager.LoadForTenant<TenantAuditSettings>(TenantManager.GetCurrentTenant().TenantId);
+            var settings = SettingsManager.LoadForTenant<TenantAuditSettings, CachedTenantAuditSettings>(TenantManager.GetCurrentTenant().TenantId);
 
             var to = DateTime.UtcNow;
             var from = to.Subtract(TimeSpan.FromDays(settings.LoginHistoryLifeTime));
@@ -116,7 +116,7 @@ namespace ASC.Web.Api.Controllers
             if (!TenantExtra.GetTenantQuota().Audit || !SetupInfo.IsVisibleSettings(ManagementType.AuditTrail.ToString()))
                 throw new BillingException(Resource.ErrorNotAllowedOption, "Audit");
 
-            var settings = SettingsManager.LoadForTenant<TenantAuditSettings>(TenantManager.GetCurrentTenant().TenantId);
+            var settings = SettingsManager.LoadForTenant<TenantAuditSettings, CachedTenantAuditSettings>(TenantManager.GetCurrentTenant().TenantId);
 
             var to = DateTime.UtcNow;
             var from = to.Subtract(TimeSpan.FromDays(settings.AuditTrailLifeTime));
@@ -140,7 +140,7 @@ namespace ASC.Web.Api.Controllers
 
             PermissionContext.DemandPermissions(SecutiryConstants.EditPortalSettings);
 
-            return SettingsManager.LoadForTenant<TenantAuditSettings>(TenantManager.GetCurrentTenant().TenantId);
+            return SettingsManager.LoadForTenant<TenantAuditSettings, CachedTenantAuditSettings>(TenantManager.GetCurrentTenant().TenantId);
         }
 
         [Create("audit/settings/lifetime")]
@@ -169,7 +169,7 @@ namespace ASC.Web.Api.Controllers
             if (wrapper.settings.AuditTrailLifeTime <= 0 || wrapper.settings.AuditTrailLifeTime > TenantAuditSettings.MaxLifeTime)
                 throw new ArgumentException("AuditTrailLifeTime");
 
-            SettingsManager.SaveForTenant(wrapper.settings, TenantManager.GetCurrentTenant().TenantId);
+            SettingsManager.SaveForTenant<TenantAuditSettings, CachedTenantAuditSettings>(wrapper.settings, TenantManager.GetCurrentTenant().TenantId);
             MessageService.Send(MessageAction.AuditSettingsUpdated);
 
             return wrapper.settings;

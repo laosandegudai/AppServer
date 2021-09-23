@@ -415,9 +415,9 @@ namespace ASC.Web.Files.ThirdPartyApp
 
                 if (isNew)
                 {
-                    var userHelpTourSettings = SettingsManager.LoadForCurrentUser<UserHelpTourSettings>();
+                    var userHelpTourSettings = SettingsManager.LoadForCurrentUser<UserHelpTourSettings, CachedUserHelpTourSettings>();
                     userHelpTourSettings.IsNewUser = true;
-                    SettingsManager.SaveForCurrentUser(userHelpTourSettings);
+                    SettingsManager.SaveForCurrentUser<UserHelpTourSettings, CachedUserHelpTourSettings>(userHelpTourSettings);
 
                     PersonalSettingsHelper.IsNewUser = true;
                     PersonalSettingsHelper.IsNotActivated = true;

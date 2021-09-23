@@ -144,7 +144,7 @@ namespace ASC.Web.Api.Controllers
                 tariff = TenantExtra.GetCurrentTariff(),
                 quota = TenantExtra.GetTenantQuota(),
                 notPaid = TenantExtra.IsNotPaid(),
-                licenseAccept = SettingsManager.LoadForCurrentUser<TariffSettings>().LicenseAcceptSetting,
+                licenseAccept = SettingsManager.LoadForCurrentUser<TariffSettings, CachedTariffSettings>().LicenseAcceptSetting,
                 enableTariffPage = //TenantExtra.EnableTarrifSettings - think about hide-settings for opensource
                     (!CoreBaseSettings.Standalone || !string.IsNullOrEmpty(LicenseReader.LicensePath))
                     && string.IsNullOrEmpty(SetupInfo.AmiMetaUrl)
@@ -223,9 +223,9 @@ namespace ASC.Web.Api.Controllers
         {
             try
             {
-                var settings = SettingsManager.LoadForCurrentUser<OpensourceGiftSettings>();
+                var settings = SettingsManager.LoadForCurrentUser<OpensourceGiftSettings, CachedOpensourceGiftSettings>();
                 settings.Readed = true;
-                SettingsManager.SaveForCurrentUser(settings);
+                SettingsManager.SaveForCurrentUser<OpensourceGiftSettings, CachedOpensourceGiftSettings>(settings);
             }
             catch (Exception ex)
             {

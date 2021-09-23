@@ -207,7 +207,7 @@ namespace ASC.Core
             tenant.OwnerId = user.ID;
             tenant = TenantService.SaveTenant(CoreSettings, tenant);
 
-            SettingsManager.SaveSettings(new TenantControlPanelSettings { LimitedAccess = ri.LimitedControlPanel }, tenant.TenantId);
+            SettingsManager.SaveSettings<TenantControlPanelSettings, CachedTenantControlPanelSettings>(new TenantControlPanelSettings { LimitedAccess = ri.LimitedControlPanel }, tenant.TenantId);
         }
 
         public Tenant SaveTenant(Tenant tenant)
@@ -230,9 +230,9 @@ namespace ASC.Core
         {
             if (user == null) return null;
 
-            var tenantSettings = SettingsManager.LoadSettingsFor<TenantCookieSettings>(tenantId, Guid.Empty);
+            var tenantSettings = SettingsManager.LoadSettingsFor<TenantCookieSettings, CachedTenantCookieSettings>(tenantId, Guid.Empty);
             var expires = tenantSettings.IsDefault() ? DateTime.UtcNow.AddYears(1) : DateTime.UtcNow.AddMinutes(tenantSettings.LifeTime);
-            var userSettings = SettingsManager.LoadSettingsFor<TenantCookieSettings>(tenantId, user.ID);
+            var userSettings = SettingsManager.LoadSettingsFor<TenantCookieSettings, CachedTenantCookieSettings>(tenantId, user.ID);
             return cookieStorage.EncryptCookie(tenantId, user.ID, tenantSettings.Index, expires, userSettings.Index);
         }
 

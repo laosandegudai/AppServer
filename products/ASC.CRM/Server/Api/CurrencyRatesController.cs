@@ -210,8 +210,8 @@ namespace ASC.CRM.Api
 
             currency = currency.ToUpper();
 
-            var crmSettings = _settingsManager.Load<CrmSettings>();
-            var defaultCurrency = _currencyProvider.Get(_settingsManager.Load<CrmSettings>().DefaultCurrency);
+            var crmSettings = _settingsManager.Load<CrmSettings, CachedCrmSettings>();
+            var defaultCurrency = _currencyProvider.Get(_settingsManager.Load<CrmSettings, CachedCrmSettings>().DefaultCurrency);
 
             if (defaultCurrency.Abbreviation != currency)
             {

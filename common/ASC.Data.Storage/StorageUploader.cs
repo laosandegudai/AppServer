@@ -209,7 +209,7 @@ namespace ASC.Data.Storage
                     InsertProgressToCache();
                 }
 
-                settingsManager.Save(settings);
+                settingsManager.Save<StorageSettings, CachedStorageSettings>(settings);
                 tenant.SetStatus(TenantStatus.Active);
                 tenantManager.SaveTenant(tenant);
 

@@ -27,13 +27,14 @@
 using System;
 using System.Runtime.Serialization;
 
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 namespace ASC.Core.Tenants
 {
     [Serializable]
     [DataContract]
-    public class TenantControlPanelSettings : ISettings
+    public class TenantControlPanelSettings : ISettings, ICacheWrapped<CachedTenantControlPanelSettings>
     {
         [DataMember(Name = "LimitedAccess")]
         public bool LimitedAccess { get; set; }
@@ -48,6 +49,29 @@ namespace ASC.Core.Tenants
             return new TenantControlPanelSettings
             {
                 LimitedAccess = false
+            };
+        }
+
+        public CachedTenantControlPanelSettings WrapIn()
+        {
+            return new CachedTenantControlPanelSettings
+            {
+                LimitedAccess = this.LimitedAccess
+            };
+        }
+    }
+
+    public partial class CachedTenantControlPanelSettings : ICustomSer<CachedTenantControlPanelSettings>, 
+        ICacheWrapped<TenantControlPanelSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public TenantControlPanelSettings WrapIn()
+        {
+            return new TenantControlPanelSettings
+            {
+                LimitedAccess = this.LimitedAccess
             };
         }
     }

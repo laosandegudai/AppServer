@@ -49,7 +49,7 @@ using Microsoft.AspNetCore.WebUtilities;
 namespace ASC.Web.Studio.Core.TFA
 {
     [Serializable]
-    public class BackupCode
+    public partial class BackupCode
     {
         private string code;
         private InstanceCrypto InstanceCrypto { get; }
@@ -71,8 +71,6 @@ namespace ASC.Web.Studio.Core.TFA
             }
             set { code = InstanceCrypto.Encrypt(value); }
         }
-
-        public bool IsUsed { get; set; }
 
         public BackupCode(InstanceCrypto instanceCrypto, Signature signature, string code)
         {
@@ -125,7 +123,7 @@ namespace ASC.Web.Studio.Core.TFA
         public bool ValidateAuthCode(UserInfo user, string code, bool checkBackup = true)
         {
             if (!TfaAppAuthSettings.IsVisibleSettings
-                || !SettingsManager.Load<TfaAppAuthSettings>().EnableSetting)
+                || !SettingsManager.Load<TfaAppAuthSettings, CachedTfaAppAuthSettings>().EnableSetting)
             {
                 return false;
             }
@@ -198,9 +196,9 @@ namespace ASC.Web.Studio.Core.TFA
                     list.Add(new BackupCode(InstanceCrypto, Signature, result.ToString()));
                 }
             }
-            var settings = SettingsManager.LoadForCurrentUser<TfaAppUserSettings>();
+            var settings = SettingsManager.LoadForCurrentUser<TfaAppUserSettings, CachedTfaAppUserSettings>();
             settings.CodesSetting = list;
-            SettingsManager.SaveForCurrentUser(settings);
+            SettingsManager.SaveForCurrentUser<TfaAppUserSettings, CachedTfaAppUserSettings>(settings);
 
             return list;
         }

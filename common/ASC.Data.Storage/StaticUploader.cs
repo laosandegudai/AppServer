@@ -152,7 +152,7 @@ namespace ASC.Data.Storage
 
         public bool CanUpload()
         {
-            var current = StorageSettingsHelper.DataStoreConsumer(SettingsManager.Load<CdnStorageSettings>());
+            var current = StorageSettingsHelper.DataStoreConsumer(SettingsManager.Load<CdnStorageSettings, CachedCdnStorageSettings>());
             if (current == null || !current.IsSet || (string.IsNullOrEmpty(current["cnamessl"]) && string.IsNullOrEmpty(current["cname"])))
             {
                 return false;
@@ -211,7 +211,7 @@ namespace ASC.Data.Storage
                 tenantManager.SetCurrentTenant(tenant);
                 securityContext.AuthenticateMeWithoutCookie(tenant.OwnerId);
 
-                var dataStore = storageSettingsHelper.DataStore(settingsManager.Load<CdnStorageSettings>());
+                var dataStore = storageSettingsHelper.DataStore(settingsManager.Load<CdnStorageSettings, CachedCdnStorageSettings>());
 
                 if (File.Exists(mappedPath))
                 {

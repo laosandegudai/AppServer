@@ -384,7 +384,7 @@ namespace ASC.FederatedLogin.Profile
             InstanceCrypto = instanceCrypto;
         }
 
-        protected LoginProfile(Signature signature, InstanceCrypto instanceCrypto, SerializationInfo info) : this(signature, instanceCrypto)
+        public LoginProfile(Signature signature, InstanceCrypto instanceCrypto, SerializationInfo info) : this(signature, instanceCrypto)
         {
             if (info == null)
                 throw new ArgumentNullException("info");

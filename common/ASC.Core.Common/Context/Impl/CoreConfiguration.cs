@@ -259,7 +259,7 @@ namespace ASC.Core
 
         public long PersonalMaxSpace(SettingsManager settingsManager)
         {
-            var quotaSettings = settingsManager.LoadForCurrentUser<PersonalQuotaSettings>();
+            var quotaSettings = settingsManager.LoadForCurrentUser<PersonalQuotaSettings, CachedPersonalQuotaSettings>();
 
             if (quotaSettings.MaxSpace != long.MaxValue)
                 return quotaSettings.MaxSpace;

@@ -275,7 +275,7 @@ namespace ASC.Web.Api.Controllers
                 };
             }
 
-            if (TfaAppAuthSettings.IsVisibleSettings && SettingsManager.Load<TfaAppAuthSettings>().EnableSetting)
+            if (TfaAppAuthSettings.IsVisibleSettings && SettingsManager.Load<TfaAppAuthSettings, CachedTfaAppAuthSettings>().EnableSetting)
             {
                 if (!TfaAppUserSettings.EnableForUser(SettingsManager, user.ID))
                     return new AuthenticationTokenData
@@ -332,7 +332,7 @@ namespace ASC.Web.Api.Controllers
                     sms = true;
                     SmsManager.ValidateSmsCode(user, auth.Code);
                 }
-                else if (TfaAppAuthSettings.IsVisibleSettings && SettingsManager.Load<TfaAppAuthSettings>().EnableSetting)
+                else if (TfaAppAuthSettings.IsVisibleSettings && SettingsManager.Load<TfaAppAuthSettings, CachedTfaAppAuthSettings>().EnableSetting)
                 {
                     if (TfaManager.ValidateAuthCode(user, auth.Code))
                     {

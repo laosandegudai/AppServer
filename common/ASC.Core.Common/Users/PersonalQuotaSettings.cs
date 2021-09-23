@@ -26,12 +26,13 @@
 
 using System;
 
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 namespace ASC.Core.Tenants
 {
     [Serializable]
-    public class PersonalQuotaSettings : ISettings
+    public class PersonalQuotaSettings : ISettings, ICacheWrapped<CachedPersonalQuotaSettings>
     {
         public long MaxSpace { get; set; }
 
@@ -46,6 +47,29 @@ namespace ASC.Core.Tenants
             return new PersonalQuotaSettings
             {
                 MaxSpace = long.MaxValue
+            };
+        }
+
+        public CachedPersonalQuotaSettings WrapIn()
+        {
+            return new CachedPersonalQuotaSettings
+            {
+                MaxSpace = this.MaxSpace
+            };
+        }
+    }
+
+    public partial class CachedPersonalQuotaSettings : ICustomSer<CachedPersonalQuotaSettings>,
+        ICacheWrapped<PersonalQuotaSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public PersonalQuotaSettings WrapIn()
+        {
+            return new PersonalQuotaSettings
+            {
+                MaxSpace = this.MaxSpace
             };
         }
     }

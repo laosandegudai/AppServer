@@ -90,7 +90,7 @@ namespace ASC.CRM.Api
 
             if (!files.Any())
             {
-                var settings = _settingsManager.Load<CrmReportSampleSettings>();
+                var settings = _settingsManager.Load<CrmReportSampleSettings, CachedCrmReportSampleSettings>();
 
                 if (settings.NeedToGenerate)
                 {
@@ -98,7 +98,7 @@ namespace ASC.CRM.Api
 
                     settings.NeedToGenerate = false;
 
-                    _settingsManager.Save<CrmReportSampleSettings>(settings);
+                    _settingsManager.Save<CrmReportSampleSettings, CachedCrmReportSampleSettings>(settings);
                 }
             }
 

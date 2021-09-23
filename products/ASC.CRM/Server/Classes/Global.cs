@@ -171,10 +171,10 @@ namespace ASC.Web.CRM.Classes
 
         public void SaveDefaultCurrencySettings(CurrencyInfo currency)
         {
-            var tenantSettings = _settingsManager.Load<CrmSettings>();
+            var tenantSettings = _settingsManager.Load<CrmSettings, CachedCrmSettings>();
 
             tenantSettings.DefaultCurrency = currency.Abbreviation;
-            _settingsManager.Save<CrmSettings>(tenantSettings);
+            _settingsManager.Save<CrmSettings, CachedCrmSettings>(tenantSettings);
         }
 
 

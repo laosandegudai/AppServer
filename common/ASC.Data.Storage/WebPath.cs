@@ -202,7 +202,7 @@ namespace ASC.Data.Storage
             {
                 try
                 {
-                    var result = StorageSettingsHelper.DataStore(SettingsManager.Load<CdnStorageSettings>()).GetInternalUri("", relativePath, TimeSpan.Zero, null).AbsoluteUri.ToLower();
+                    var result = StorageSettingsHelper.DataStore(SettingsManager.Load<CdnStorageSettings, CachedCdnStorageSettings>()).GetInternalUri("", relativePath, TimeSpan.Zero, null).AbsoluteUri.ToLower();
                     if (!string.IsNullOrEmpty(result)) return result;
                 }
                 catch (Exception)

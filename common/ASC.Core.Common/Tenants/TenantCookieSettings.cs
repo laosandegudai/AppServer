@@ -28,6 +28,7 @@ using System;
 using System.Linq;
 
 using ASC.Common;
+using ASC.Common.Caching;
 using ASC.Core.Common.Settings;
 
 using Microsoft.Extensions.Configuration;
@@ -35,7 +36,7 @@ using Microsoft.Extensions.Configuration;
 namespace ASC.Core.Tenants
 {
     [Serializable]
-    public class TenantCookieSettings : ISettings
+    public class TenantCookieSettings : ISettings, ICacheWrapped<CachedTenantCookieSettings>
     {
         public int Index { get; set; }
 
@@ -59,9 +60,34 @@ namespace ASC.Core.Tenants
             return new TenantCookieSettings();
         }
 
+        public CachedTenantCookieSettings WrapIn()
+        {
+            return new CachedTenantCookieSettings
+            {
+                Index = this.Index,
+                LifeTime = this.LifeTime
+            };
+        }
+
         public Guid ID
         {
             get { return new Guid("{16FB8E67-E96D-4B22-B217-C80F25C5DE1B}"); }
+        }
+    }
+
+    public partial class CachedTenantCookieSettings : ICustomSer<CachedTenantCookieSettings>,
+        ICacheWrapped<TenantCookieSettings>
+    {
+        public void CustomDeSer() { }
+        public void CustomSer() { }
+
+        public TenantCookieSettings WrapIn()
+        {
+            return new TenantCookieSettings
+            {
+                Index = this.Index,
+                LifeTime = this.LifeTime
+            };
         }
     }
 
@@ -84,34 +110,34 @@ namespace ASC.Core.Tenants
         public TenantCookieSettings GetForTenant(int tenantId)
         {
             return IsVisibleSettings
-                       ? SettingsManager.LoadForTenant<TenantCookieSettings>(tenantId)
+                       ? SettingsManager.LoadForTenant<TenantCookieSettings, CachedTenantCookieSettings>(tenantId)
                        : TenantCookieSettings.GetInstance();
         }
 
         public void SetForTenant(int tenantId, TenantCookieSettings settings = null)
         {
             if (!IsVisibleSettings) return;
-            SettingsManager.SaveForTenant((settings ?? TenantCookieSettings.GetInstance()), tenantId);
+            SettingsManager.SaveForTenant<TenantCookieSettings, CachedTenantCookieSettings>((settings ?? TenantCookieSettings.GetInstance()), tenantId);
         }
 
         public TenantCookieSettings GetForUser(Guid userId)
         {
             return IsVisibleSettings
-                       ? SettingsManager.LoadForUser<TenantCookieSettings>(userId)
+                       ? SettingsManager.LoadForUser<TenantCookieSettings, CachedTenantCookieSettings>(userId)
                        : TenantCookieSettings.GetInstance();
         }
 
         public TenantCookieSettings GetForUser(int tenantId, Guid userId)
         {
             return IsVisibleSettings
-                       ? SettingsManager.LoadSettingsFor<TenantCookieSettings>(tenantId, userId)
+                       ? SettingsManager.LoadSettingsFor<TenantCookieSettings, CachedTenantCookieSettings>(tenantId, userId)
                        : TenantCookieSettings.GetInstance();
         }
 
         public void SetForUser(Guid userId, TenantCookieSettings settings = null)
         {
             if (!IsVisibleSettings) return;
-            SettingsManager.SaveForUser((settings ?? TenantCookieSettings.GetInstance()), userId);
+            SettingsManager.SaveForUser<TenantCookieSettings, CachedTenantCookieSettings>((settings ?? TenantCookieSettings.GetInstance()), userId);
         }
 
         public DateTime GetExpiresTime(int tenantId)

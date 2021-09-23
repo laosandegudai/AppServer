@@ -66,7 +66,7 @@ namespace ASC.Web.Core.Users
 
             thumbnailsData.Save(resultBitmaps);
 
-            settingsManager.SaveForUser(thumbnailSettings, userId);
+            settingsManager.SaveForUser<UserPhotoThumbnailSettings, CachedUserPhotoThumbnailSettings>(thumbnailSettings, userId);
 
             return thumbnailsData.ThumbnailList();
         }

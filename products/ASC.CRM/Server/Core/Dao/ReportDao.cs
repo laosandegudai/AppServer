@@ -108,7 +108,7 @@ namespace ASC.CRM.Core.Dao
             _serviceProvider = serviceProvider;
             _daoFactory = daoFactory;
 
-            var crmSettings = settingsManager.Load<CrmSettings>();
+            var crmSettings = settingsManager.Load<CrmSettings, CachedCrmSettings>();
 
             _defaultCurrency = currencyProvider.Get(crmSettings.DefaultCurrency);
 

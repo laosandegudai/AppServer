@@ -17,7 +17,7 @@ namespace ASC.CRM.Core.EF
                                           DaoFactory daoFactory,
                                           CoreConfiguration coreConfiguration)
         {
-            var tenantSettings = settingsManager.Load<CrmSettings>();
+            var tenantSettings = settingsManager.Load<CrmSettings, CachedCrmSettings>();
 
             if (!tenantSettings.IsConfiguredPortal)
             {
@@ -153,7 +153,7 @@ namespace ASC.CRM.Core.EF
                 tenantSettings.WebFormKey = Guid.NewGuid();
                 tenantSettings.IsConfiguredPortal = true;
 
-                if (!settingsManager.Save<CrmSettings>(tenantSettings))
+                if (!settingsManager.Save<CrmSettings, CachedCrmSettings>(tenantSettings))
                 {
                     throw new Exception("not save CRMSettings");
                 }
@@ -161,7 +161,7 @@ namespace ASC.CRM.Core.EF
 
             if (!tenantSettings.IsConfiguredSmtp)
             {
-                var smtp = settingsManager.Load<CrmSettings>().SMTPServerSettingOld;
+                var smtp = settingsManager.Load<CrmSettings, CachedCrmSettings>().SMTPServerSettingOld;
 
                 if (smtp != null && coreConfiguration.SmtpSettings.IsDefaultSettings)
                 {
@@ -183,7 +183,7 @@ namespace ASC.CRM.Core.EF
 
                 tenantSettings.IsConfiguredSmtp = true;
 
-                if (!settingsManager.Save<CrmSettings>(tenantSettings))
+                if (!settingsManager.Save<CrmSettings, CachedCrmSettings>(tenantSettings))
                 {
                     throw new Exception("not save CRMSettings");
                 }

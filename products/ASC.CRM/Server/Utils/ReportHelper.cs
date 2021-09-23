@@ -169,7 +169,7 @@ namespace ASC.Web.CRM.Classes
             if (reportType == ReportType.WorkloadByTasks || reportType == ReportType.WorkloadByInvoices ||
                 reportType == ReportType.WorkloadByContacts || reportType == ReportType.WorkloadByVoip) return null;
 
-            var crmSettings = _settingsManager.Load<CrmSettings>();
+            var crmSettings = _settingsManager.Load<CrmSettings, CachedCrmSettings>();
             var defaultCurrency = _currencyProvider.Get(crmSettings.DefaultCurrency);
 
             return reportDao.GetMissingRates(defaultCurrency.Abbreviation);
@@ -177,7 +177,7 @@ namespace ASC.Web.CRM.Classes
 
         private object GetReportData(ReportType reportType, ReportTimePeriod timePeriod, Guid[] managers)
         {
-            var crmSettings = _settingsManager.Load<CrmSettings>();
+            var crmSettings = _settingsManager.Load<CrmSettings, CachedCrmSettings>();
 
             var reportDao = _daoFactory.GetReportDao();
             var defaultCurrency = _currencyProvider.Get(crmSettings.DefaultCurrency).Abbreviation;

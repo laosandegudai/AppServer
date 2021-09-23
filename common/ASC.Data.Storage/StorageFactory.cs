@@ -204,7 +204,7 @@ namespace ASC.Data.Storage
                 throw new InvalidOperationException("config section not found");
             }
 
-            var settings = SettingsManager.LoadForTenant<StorageSettings>(tenantId);
+            var settings = SettingsManager.LoadForTenant<StorageSettings, CachedStorageSettings>(tenantId);
             //TODO:GetStoreAndCache
             return GetDataStore(tenant, module, StorageSettingsHelper.DataStoreConsumer(settings), controller);
         }
