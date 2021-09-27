@@ -57,12 +57,9 @@ class FilesActionStore {
   };
 
   deleteAction = (translations, newSelection = null) => {
-    console.log("pepega");
     const { isRecycleBinFolder, isPrivacyFolder } = this.treeFoldersStore;
 
     const selection = newSelection ? newSelection : this.filesStore.selection;
-
-    console.log(selection);
 
     const {
       setSecondaryProgressBarData,
