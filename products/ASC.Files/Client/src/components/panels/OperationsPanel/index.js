@@ -35,8 +35,13 @@ const OperationsPanelComponent = (props) => {
   const expandedKeys = props.expandedKeys.map((item) => item.toString());
 
   const onClose = () => {
-    setIsFolderActions(false);
-    isCopy ? setCopyPanelVisible(false) : setMoveToPanelVisible(false);
+    if (isCopy) {
+      setIsFolderActions(false);
+      setCopyPanelVisible(false);
+    } else {
+      setMoveToPanelVisible(false);
+    }
+
     setExpandedPanelKeys(null);
   };
 

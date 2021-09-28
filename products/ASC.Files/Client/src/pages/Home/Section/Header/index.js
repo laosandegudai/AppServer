@@ -262,13 +262,13 @@ class SectionHeaderContent extends React.Component {
         key: "sharing-settings",
         label: t("SharingSettings"),
         onClick: this.onOpenSharingPanel,
-        disabled: false,
+        disabled: true,
       },
       {
         key: "link-portal-users",
         label: t("LinkForPortalUsers"),
         onClick: this.createLinkForPortalUsers,
-        disabled: false,
+        disabled: true,
       },
       { key: "separator-2", isSeparator: true },
       {
@@ -299,7 +299,7 @@ class SectionHeaderContent extends React.Component {
         key: "delete",
         label: t("Common:Delete"),
         onClick: this.onDeleteAction,
-        disabled: false,
+        disabled: true,
       },
     ];
   };
